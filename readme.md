@@ -32,8 +32,8 @@ See [unreal plugin thread](https://forums.unrealengine.com/showthread.php?51237-
 <br><img src="http://i.imgur.com/yd5Us2I.png">
 <br>3.3. You're done. Right click on the event graph and type 'Joystick' to narrow your events to Joystick related (NB: current version also emits PluggedIn and Unplugged)
 <br><img src="http://i.imgur.com/h3cxZ2L.png">
-<br>3.4. You can poll by dragging from the component return node, both latest frame and all events emit a JoystickSingleController reference
-<br><img src="http://i.imgur.com/T7zzOdT.png">
+<br>3.4. You can poll by dragging from the component return node, both latest frame and all events emit a JoystickState struct
+<br><img src="http://i.imgur.com/AX9lAcn.png">
 </ol>
 
 ##Todo##
