@@ -1,6 +1,11 @@
 UEJoystickPlugin
 ====================
+OK, this is no more an DirectX or Xinput driven plugins. All getting data etc. are convert and changed to SDL2 functions.
 
+Thank you Ikarus74 and Smailjan for the good working basis. My implementation is a bit hacky, but I did not have much exercise and UE 4 is not easy.
+I was free and did everything so adjusted as I need it for my lab projects. 
+
+OLD -----------------------------------------------------------------------------------------------------
 An event-driven [DirectInput Joystick](http://msdn.microsoft.com/en-gb/library/windows/desktop/ee418273) plugin with Input Mapping support for the Unreal Engine 4.
 
 Allows for easy binding of all joysticks that support DirectInput API, including steering wheels and gamepads. Main method of interaction is through Unreal Engine's Input Mapping system. Should you require more nuanced scaling or mixing and splitting of inputs you can use the Blueprint Joystick Component and Blueprint Joystick Interface to extend any blueprint to receive the joystick events.
