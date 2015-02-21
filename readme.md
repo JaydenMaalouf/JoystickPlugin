@@ -5,6 +5,9 @@ OK, this is no more an DirectX or Xinput driven plugins. All getting data etc. a
 Thank you Ikarus76 and samiljan for the good working basis. My implementation is a bit hacky, but I did not have much exercise and UE 4 is not easy.
 I was free and did everything so adjusted as I need it for my lab projects. 
 
+Status:
+Sam Persson did code review, polishing and add hotplug functionallity. 
+
 COMPILING SDL2 from source:
 I use a fork of UE4 and may be you have to recompile the plugin.
 
