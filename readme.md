@@ -33,7 +33,7 @@ Compile SDL2 as static library from source:
 6) Open the UE4-Project and be sure you have activated the Joystick-Plugin.
 
 
-Linux:
+Linux (Ubuntu 14.04 LTS): (todo tests on fesh install systems (maybe i forgott something))
 
 Compile SDL2 as static library from source:
 
@@ -43,6 +43,13 @@ Compile SDL2 as static library from source:
 
 3) ready with SDL2
 
-4) 
+4) Copy or Link the JoystickPlugin into /Engine/Plugins (result -> UnrealEngine/Engine/Plugins/JoystickPlugin)
 
+5) ./GenerateProjectFiles.sh to create the makefile which compiles the joystickplugins with the whole engine
 
+6) compile
+
+7) start editor an enable JoystickPlugin
+
+Note:
+Linux Graphics: On my NVidia GTX750TI i need -opengl4 parameter for the editor.
