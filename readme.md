@@ -43,13 +43,15 @@ Compile SDL2 as static library from source:
 
 3) ready with SDL2
 
-4) Copy or Link the JoystickPlugin into /Engine/Plugins (result -> UnrealEngine/Engine/Plugins/JoystickPlugin)
+4) Copy (or Link <- Symlinks seems not to work?!) the JoystickPlugin into /Engine/Plugins (result -> UnrealEngine/Engine/Plugins/JoystickPlugin)
 
 5) ./GenerateProjectFiles.sh to create the makefile which compiles the joystickplugins with the whole engine
 
 6) compile
 
 7) start editor an enable JoystickPlugin
+
+x) If you have an compiled version of the plugins you can copy/move the joystickplugin-directory to the projects-plugins-directory you want to use it.
 
 Note:
 Linux Graphics: On my NVidia GTX750TI i need -opengl4 parameter for the editor.
