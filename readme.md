@@ -8,14 +8,15 @@ I was free and did everything so adjusted as I need it for my lab projects.
 Status:
 Sam Persson did code review, polishing and add hotplug functionallity. 
 
-COMPILING SDL2 from source:
-I use a fork of UE4 and may be you have to recompile the plugin.
-
-Use CMake (>3.10) and create the VisualStudio Projectfiles. Before do this change the outputpath in the cmake properties to the Plugins\JoystickPlugin\ThirdParty\SDL2\SDL2 directory.
-Compile and use the BuildTarge "install" to get the binaries into the SDL2 directory. Copy the resulting sdl2.dll to the binary directory Plugins\JoystickPlugin\Binaries\Win64.
-For me this works.
-
-May be someday the put this .dll in the default dependencies.
+Using the Plugins:
+Windows:
+	Epic did not deliver SDL2 Binary-Files,so in ThirdParty is an Pre-Compiled Binary from SDL2-Website. 
+	The Plugin should compile while loading an Project.
+	
+Linux:
+	Before Using/Compiling the Editor you should follow the instructions for compiling SDL2 on the Wiki. 
+	In short: Engine/Source/ThirdParty/SDL2/build.sh
+	
 
 OLD -----------------------------------------------------------------------------------------------------
 
