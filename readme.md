@@ -11,6 +11,7 @@ Sam Persson did code review, polishing and add hotplug functionallity.
 Links for Software needed to compile the plugin:
 
 Windows:
+
 Microsoft DirectX SDK Jun2010 - https://www.microsoft.com/en-us/download/details.aspx?id=6812
 Windows 8.1 SDK - https://msdn.microsoft.com/de-de/windows/desktop/bg162891.aspx#
 
@@ -20,16 +21,28 @@ Howto use it
 Windows:
 Compile SDL2 as static library from source:
 1) Go to Plugins/JoystickPlugin/ThirdParty/SDL2
+
 2) call the build.bat for the latest version or the build203 for version 2.0.3 of SDL2.
+
 3) If yoou have installed the VS2013/2015 and DirectX SDK Jun2010 and the Windows 8.1 SDK, at least, you should get an SDL2-static.lib in the SDL2-xxxx/Lib directory.
+
 4) Now you should have an UE4-Project with C++ Sources. At least a Dummy-Class, you need to create an VisualStudio Project-File create from the UE-Project-File (RMB - Generate VisualStudio...).
+
 5) Now open the VS-Solution and compile all.
+
 6) Open the UE4-Project and be sure you have activated the Joystick-Plugin.
 
+
 Linux:
-ompile SDL2 as static library from source:
+
+Compile SDL2 as static library from source:
+
 1) Go to Engine/Source/ThirdParty/SDL2
+
 2) call build.sh
-3) ready
+
+3) ready with SDL2
+
 4) 
+
 
