@@ -19,18 +19,24 @@ Windows 8.1 SDK - https://msdn.microsoft.com/de-de/windows/desktop/bg162891.aspx
 Howto use it
 
 Windows:
-Compile SDL2 as static library from source:
+Compile SDL2 with vc2015 is a painful thing. Compiling as Dynamic and Static will do. But i am not able get the static version linked to my plugin for now. So, for now i am using an dynamic linked version.
+
 1) Go to Plugins/JoystickPlugin/ThirdParty/SDL2
+
+1a) At first Time run the setup.bat. This will download the lastest hg-branched source from sdl.
 
 2) call the build.bat for the latest version or the build203 for version 2.0.3 of SDL2.
 
-3) If yoou have installed the VS2013/2015 and DirectX SDK Jun2010 and the Windows 8.1 SDK, at least, you should get an SDL2-static.lib in the SDL2-xxxx/Lib directory.
+3) If you have installed the VS2013/2015 and DirectX SDK Jun2010 and the Windows 8.1 SDK, you should get SDL2-files in the SDL????/Lib directory. Now you could delete the build directory
 
 4) Now you should have an UE4-Project with C++ Sources. At least a Dummy-Class, you need to create an VisualStudio Project-File create from the UE-Project-File (RMB - Generate VisualStudio...).
 
 5) Now open the VS-Solution and compile all.
 
 6) Open the UE4-Project and be sure you have activated the Joystick-Plugin.
+
+Here https://w-hs.sciebo.de/index.php/s/148QVopCDdHwhLQ is a Test-Project ThirdPerson-Template.
+
 
 
 Linux (Ubuntu 14.04 LTS): (todo tests on fesh install systems (maybe i forgott something))
