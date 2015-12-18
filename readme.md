@@ -21,24 +21,37 @@ Howto use it
 Windows:
 Compile SDL2 with vc2015 is a painful thing. Compiling as Dynamic and Static will do. But i am not able get the static version linked to my plugin for now. So, for now i am using an dynamic linked version.
 
-1) Go to Plugins/JoystickPlugin/ThirdParty/SDL2
+0) Clone the repository branch 4.10 for UE4 version 4.10
 
-1a) At first Time run the setup.bat. This will download the lastest hg-branched source from sdl.
+Next steps only nessessary if the binary versions in repo are older. I put compiled versions for 4.10.1 in the repository.
 
-2) call the build.bat for the latest version or the build203 for version 2.0.3 of SDL2.
+--------------------------------------------------------------------------------------------------
+a) Go to Plugins/JoystickPlugin/ThirdParty/SDL2
 
-3) If you have installed the VS2013/2015 and DirectX SDK Jun2010 and the Windows 8.1 SDK, you should get SDL2-files in the SDL????/Lib directory. Now you could delete the build directory
+b) At first Time run the setup.bat. This will download the lastest hg-branched source from sdl.
 
-4) Now you should have an UE4-Project with C++ Sources. At least a Dummy-Class, you need to create an VisualStudio Project-File create from the UE-Project-File (RMB - Generate VisualStudio...).
+c) call the build.bat for the latest version or the build203 for version 2.0.3 of SDL2. This batch-files will copy the binaries to the bin directory of the plugin.
 
-5) Now open the VS-Solution and compile all.
+d) If you have installed the VS2013/2015 and DirectX SDK Jun2010 and the Windows 8.1/10 SDK and the Mercurial programm (SDL repo), you should get SDL2-files in the SDL????/Lib directory. 
 
-6) Open the UE4-Project and be sure you have activated the Joystick-Plugin.
+Now you could delete the build directory
+
+--------------------------------------------------------------------------------------------------
+
+1) You should have an UE4-Project (your project) with C++ Sources. No C++ Sources ? than: Create a Dummy-Class. This will create an VisualStudio Project-File (to recreate: RMB - Generate VisualStudio...).
+Once you have create an Class the VS Editor comes up, the Editor initiates compiling in background. Now you can close VS and UE4 Editor.
+
+2) Copy the Plugins-Directory you checked out. (Branch 4.10).
+
+3) Open the UE4-Project and be sure you have activated the Joystick-Plugin.
+
+Now you can map Inputs to Joystick devices. (Engine-Input)
 
 Here https://w-hs.sciebo.de/index.php/s/148QVopCDdHwhLQ is a Test-Project ThirdPerson-Template.
+Here is an minimum demo project https://w-hs.sciebo.de/index.php/s/qajqJPsk1JGhFFM
 
 
-
+-----------------------------------------------------------------------------------------------------------
 Linux (Ubuntu 14.04 LTS): (todo tests on fesh install systems (maybe i forgott something))
 
 Compile SDL2 as static library from source:
