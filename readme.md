@@ -41,7 +41,7 @@ Now you could delete the build directory
 1) You should have an UE4-Project (your project) with C++ Sources. No C++ Sources ? than: Create a Dummy-Class. This will create an VisualStudio Project-File (to recreate: RMB - Generate VisualStudio...).
 Once you have create an Class the VS Editor comes up, the Editor initiates compiling in background. Now you can close VS and UE4 Editor.
 
-2) Copy the Plugins-Directory you checked out. (Branch 4.10).
+2) Copy the Plugins-Directory you checked out. (Branch 4.10). Recreate the VS-Project files: RMB - Generate VisualStudio...
 
 3) Open the UE4-Project and be sure you have activated the Joystick-Plugin.
 
