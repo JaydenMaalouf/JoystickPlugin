@@ -1,6 +1,6 @@
 {
-	"Changelist" : 0,
-	"BuildId" : "97065d5d-90d6-44f7-ba0d-fe36adcbce91",
+	"Changelist" : 2843242,
+	"BuildId" : "b997d558-f512-4f0d-9654-92e05b3299ac",
 	"Modules" : 
 	{
 		"JoystickPlugin" : "UE4Editor-JoystickPlugin.dll"
