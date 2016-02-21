@@ -30,11 +30,9 @@ a) Go to Plugins/JoystickPlugin/ThirdParty/SDL2
 
 b) At first Time run the setup.bat. This will download the lastest hg-branched source from sdl.
 
-c) call the build.bat for the latest version or the build203 for version 2.0.3 of SDL2. This batch-files will copy the binaries to the bin directory of the plugin.
+c) call the build.bat for the latest version of SDL2. This batch-files will copy the binaries to the bin directory of the plugin.
 
-d) If you have installed the VS2013/2015 and DirectX SDK Jun2010 and the Windows 8.1/10 SDK and the Mercurial programm (SDL repo), you should get SDL2-files in the SDL????/Lib directory. 
-
-Now you could delete the build directory
+d) If you have installed CMake, the VS2013/2015 and DirectX SDK Jun2010 and the Windows 8.1/10 SDK and the Mercurial programm (SDL repo), you should get SDL2-files in the SDL????/Lib directory. 
 
 --------------------------------------------------------------------------------------------------
 
