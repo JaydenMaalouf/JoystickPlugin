@@ -5,7 +5,7 @@ Thank you Ikarus76 and samiljan for the good working basis. My implementation is
 I was free and did everything so adjusted as I need it for my lab projects. 
 
 Status:
-Sam Persson did code review, polishing and adding hotplug functionallity. 
+Sam Persson did code review, polishing and adding hotplug functionality. 
 
 Links for Software needed to compile the plugin:
 
@@ -24,7 +24,7 @@ Compiling SDL2 with Visual C++ 2015 is a painful process. Compiling with the Dyn
 1. Clone the repository branch 4.11 for UE4 version 4.11 (Or whichever is applicable)
 2. If the binary versions in repo are older, please consult the following steps. I put compiled versions for 4.10.1 in the repository.
 	1. Go to Plugins/JoystickPlugin/ThirdParty/SDL2
-	2. If you are doing this for the first time, run setup.bat. This will download the lastest Mercurial branch source of SDL2.
+	2. If you are doing this for the first time, run setup.bat. This will download the latest Mercurial branch source of SDL2.
 	3. Run build.bat to build the latest version of SDL2. This batch-files will copy the binaries to the bin directory of the plugin.
 	4. If you have installed CMake, Visual Studio 2013 or 2015, DirectX SDK Jun2010, the Windows 8.1/10 SDK and have built the SDL2 code, you should get SDL2 files in the SDL2/Lib directory. 
 3. You should have an UE4 Project (your project) with C++ Sources. If you do not have C++ sources, then create a Dummy Class. This will create an Visual Studio Project (to recreate: File -> Refresh Visual Studio Project). Once you have created a Class, the Visual Studio Editor comes up, the Editor initiates compiling in background. Now you can close VS and UE4 Editor.
@@ -49,7 +49,7 @@ Here is an minimal demo project: [Download](https://w-hs.sciebo.de/index.php/s/q
 5. ./GenerateProjectFiles.sh to create the makefile which compiles the JoystickPlugin with the whole engine
 6. Compile
 7. Start editor and enable the JoystickPlugin
-8. If you have a compiled version of the plugin, you can copy/move the JoysticPplugin directory to the project's plugins directory you want to use it.
+8. If you have a compiled version of the plugin, you can copy/move the JoysticlPlugin directory to the project's plugins directory you want to use it.
 
 ### Note:
 Linux Graphics: On my NVidia GTX750TI I needed the -opengl4 parameter for the editor to run.
