@@ -1,5 +1,12 @@
 // Copyright 1998-2014 Epic Games, Inc. All Rights Reserved.
 
+//Running D:/UE4/UnrealEngineCG221_RELEASE/Engine/Binaries/DotNET/UnrealBuildTool.exe  -projectfiles -project="C:/Users/thoma/OneDrive/Dokumente/Unreal Projects/VehicleJoystick/VehicleJoystick.uproject" -game -engine -progress
+//Discovering modules, targets and source code for project...
+//Messages while compiling C:\Users\thoma\OneDrive\Dokumente\Unreal Projects\VehicleJoystick\Intermediate\Build\BuildRules\VehicleJoystickModuleRules.dll:
+//c:\Users\thoma\OneDrive\Dokumente\Unreal Projects\VehicleJoystick\Plugins\JoystickPlugin\Source\JoystickPlugin\JoystickPlugin.Build.cs(18,10) : error CS0201: Nur assignment-, call-, increment-, decrement-, await- und 'new object'-Ausdr?cke k?nnen als Anweisung verwendet werden.
+//c:\Users\thoma\OneDrive\Dokumente\Unreal Projects\VehicleJoystick\Plugins\JoystickPlugin\Source\JoystickPlugin\JoystickPlugin.Build.cs(114,5) : warning CS0618: 'UnrealBuildTool.ModuleRules.AddThirdPartyPrivateStaticDependencies(UnrealBuildTool.TargetInfo, params string[])' ist veraltet: 'Use AddEngineThirdPartyPrivateStaticDependencies to add dependencies on ThirdParty modules within the Engine Directory'
+//UnrealBuildTool Exception: ERROR: UnrealBuildTool encountered an error while compiling source files
+
 namespace UnrealBuildTool.Rules
 {
 	using System;
@@ -15,10 +22,10 @@ namespace UnrealBuildTool.Rules
         // tsky GetModuleFilename is obsolete --> RulesCompiler.ModuleDirectory
 		private string ModulePath
 		{
-			get { return Path.GetDirectoryName(RulesCompiler.GetModuleFilename(this.GetType().Name)); }
-		}
+            get { return  ModuleDirectory; }
+        }
 
-		private string ThirdPartyPath
+        private string ThirdPartyPath
 		{
 			get { return Path.GetFullPath(Path.Combine(ModulePath, "../../ThirdParty/")); }
 		}
