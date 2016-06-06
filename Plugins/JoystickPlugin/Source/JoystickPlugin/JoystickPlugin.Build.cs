@@ -1,11 +1,5 @@
-// Copyright 1998-2014 Epic Games, Inc. All Rights Reserved.
+// 
 
-//Running D:/UE4/UnrealEngineCG221_RELEASE/Engine/Binaries/DotNET/UnrealBuildTool.exe  -projectfiles -project="C:/Users/thoma/OneDrive/Dokumente/Unreal Projects/VehicleJoystick/VehicleJoystick.uproject" -game -engine -progress
-//Discovering modules, targets and source code for project...
-//Messages while compiling C:\Users\thoma\OneDrive\Dokumente\Unreal Projects\VehicleJoystick\Intermediate\Build\BuildRules\VehicleJoystickModuleRules.dll:
-//c:\Users\thoma\OneDrive\Dokumente\Unreal Projects\VehicleJoystick\Plugins\JoystickPlugin\Source\JoystickPlugin\JoystickPlugin.Build.cs(18,10) : error CS0201: Nur assignment-, call-, increment-, decrement-, await- und 'new object'-Ausdr?cke k?nnen als Anweisung verwendet werden.
-//c:\Users\thoma\OneDrive\Dokumente\Unreal Projects\VehicleJoystick\Plugins\JoystickPlugin\Source\JoystickPlugin\JoystickPlugin.Build.cs(114,5) : warning CS0618: 'UnrealBuildTool.ModuleRules.AddThirdPartyPrivateStaticDependencies(UnrealBuildTool.TargetInfo, params string[])' ist veraltet: 'Use AddEngineThirdPartyPrivateStaticDependencies to add dependencies on ThirdParty modules within the Engine Directory'
-//UnrealBuildTool Exception: ERROR: UnrealBuildTool encountered an error while compiling source files
 
 namespace UnrealBuildTool.Rules
 {
@@ -17,9 +11,8 @@ namespace UnrealBuildTool.Rules
 	{
 		// UE does not copy third party dlls to the output directory automatically.
 		// Link statically so you don't have to do it manually.
-		private bool LinkThirdPartyStaticallyOnWindows = false;
+		private bool LinkThirdPartyStaticallyOnWindows = true;
 
-        // tsky GetModuleFilename is obsolete --> RulesCompiler.ModuleDirectory
 		private string ModulePath
 		{
             get { return  ModuleDirectory; }
@@ -88,9 +81,14 @@ namespace UnrealBuildTool.Rules
 				new string[]
 				{
 					// ... add any modules that your module loads dynamically here ...
-				});			
+				});
 
-			if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.Win32)
+            if (UEBuildConfiguration.bBuildEditor == true)
+            {
+                LinkThirdPartyStaticallyOnWindows = false;
+            }
+
+                if (Target.Platform == UnrealTargetPlatform.Win64)
 			{
                 string SDL2Path = ThirdPartyPath + "SDL2/SDL/";
                 string SDL2LibPath = SDL2Path + "Lib/";
@@ -99,17 +97,33 @@ namespace UnrealBuildTool.Rules
 
                 if (LinkThirdPartyStaticallyOnWindows) {
                     PublicAdditionalLibraries.Add(Path.Combine(SDL2LibPath, "SDL2-static.lib"));
-                    PublicAdditionalLibraries.Add("Version.lib");
-
+                    PublicAdditionalLibraries.Add(Path.Combine(SDL2LibPath, "SDL2main.lib"));
                 } else
                 {
-                    PublicAdditionalLibraries.Add(Path.Combine(SDL2LibPath, "SDL2.lib"));
-                    PublicAdditionalLibraries.Add("Version.lib");
+                    PublicAdditionalLibraries.Add(Path.Combine(SDL2LibPath, "SDL2.lib"));                    
                 }
-                //PublicAdditionalLibraries.Add("msvcrt.lib");
-                //PublicAdditionalLibraries.Add("ucrt.lib");
-                //PublicAdditionalLibraries.Add("vcruntime.lib");
 
+                PublicAdditionalLibraries.Add("Version.lib");
+            }
+
+            if (Target.Platform == UnrealTargetPlatform.Win32)
+            {
+                string SDL2Path = ThirdPartyPath + "SDL2/SDL/";
+                string SDL2LibPath = SDL2Path + "Lib32/";
+
+                PublicIncludePaths.Add(Path.Combine(SDL2Path, "include/"));
+
+                if (LinkThirdPartyStaticallyOnWindows)
+                {
+                    PublicAdditionalLibraries.Add(Path.Combine(SDL2LibPath, "SDL2-static.lib"));
+                    PublicAdditionalLibraries.Add(Path.Combine(SDL2LibPath, "SDL2main.lib"));
+                }
+                else
+                {
+                    PublicAdditionalLibraries.Add(Path.Combine(SDL2LibPath, "SDL2.lib"));
+                }
+
+                PublicAdditionalLibraries.Add("Version.lib");
             }
             else if (Target.Platform == UnrealTargetPlatform.Mac)
 			{
