@@ -88,12 +88,13 @@ namespace UnrealBuildTool.Rules
                 LinkThirdPartyStaticallyOnWindows = false;
             }
 
-                if (Target.Platform == UnrealTargetPlatform.Win64)
+            if (Target.Platform == UnrealTargetPlatform.Win64)
 			{
                 string SDL2Path = ThirdPartyPath + "SDL2/SDL/";
                 string SDL2LibPath = SDL2Path + "Lib/";
 
                 PublicIncludePaths.Add(Path.Combine(SDL2Path, "include/"));
+                PrivateIncludePaths.Add(Path.Combine(SDL2Path, "include/"));  // Public || Private !? is there documentation ?
 
                 if (LinkThirdPartyStaticallyOnWindows) {
                     PublicAdditionalLibraries.Add(Path.Combine(SDL2LibPath, "SDL2-static.lib"));
