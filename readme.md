@@ -52,4 +52,4 @@ Here is an minimal demo project: [Download](https://w-hs.sciebo.de/index.php/s/q
 8. If you have a compiled version of the plugin, you can copy/move the JoysticlPlugin directory to the project's plugins directory you want to use it.
 
 ### Note:
-Linux Graphics: On my NVidia GTX750TI I needed the -opengl4 parameter for the editor to run.
+A first howto video to show how it should work.[YouTube](https://youtu.be/9SG73cxi5_A)
