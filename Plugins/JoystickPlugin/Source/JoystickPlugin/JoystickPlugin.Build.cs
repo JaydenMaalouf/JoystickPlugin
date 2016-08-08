@@ -132,7 +132,8 @@ namespace UnrealBuildTool.Rules
 			}
 			else if (Target.Platform == UnrealTargetPlatform.Linux)
 			{			
-				AddThirdPartyPrivateStaticDependencies(Target, "SDL2");
+				//AddThirdPartyPrivateStaticDependencies(Target, "SDL2");
+				AddEngineThirdPartyPrivateStaticDependencies(Target, "SDL2");
 			}
 
 		}
