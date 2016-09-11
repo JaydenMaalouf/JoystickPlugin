@@ -1,8 +1,0 @@
-{
-	"Changelist" : 0,
-	"BuildId" : "",
-	"Modules" : 
-	{
-		"JoystickPlugin" : "libUE4Editor-JoystickPlugin.so"
-	}
-}
