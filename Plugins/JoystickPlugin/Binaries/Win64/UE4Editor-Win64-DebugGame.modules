@@ -1,7 +1,7 @@
 {
-	"Changelist" : 3561208,
-	"CompatibleChangelist" : 3452394,
-	"BuildId" : "e4375421-a13d-487b-9d62-7914ec38c04a",
+	"Changelist" : 3658906,
+	"CompatibleChangelist" : 3573198,
+	"BuildId" : "7d5229ac-d3e2-4191-ac6f-9a43d8706aee",
 	"Modules" : 
 	{
 		"JoystickPlugin" : "UE4Editor-JoystickPlugin-Win64-DebugGame.dll"
