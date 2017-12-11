@@ -27,15 +27,15 @@ namespace UnrealBuildTool.Rules
 			get { return Path.GetFullPath(Path.Combine(ModulePath, "../../Binaries/")); }
 		}
 
-		public virtual void SetupBinaries(
-			TargetInfo Target,
-			ref List<UEBuildBinaryConfiguration> OutBuildBinaryConfigurations,
-			ref List<string> OutExtraModuleNames
-			)
-		{
-			//OutBuildBinaryConfigurations.Add(
-				//new UEBuildBinaryConfiguration(UEBuildBinaryType.DynamicLinkLibrary, InTargetName: "SDL2.dll"));
-		}
+		// public virtual void SetupBinaries(
+			// TargetInfo Target,
+			// ref List<UEBuildBinaryConfiguration> OutBuildBinaryConfigurations,
+			// ref List<string> OutExtraModuleNames
+			// )
+		// {
+			// //OutBuildBinaryConfigurations.Add(
+				// //new UEBuildBinaryConfiguration(UEBuildBinaryType.DynamicLinkLibrary, InTargetName: "SDL2.dll"));
+		// }
 
 		public JoystickPlugin(ReadOnlyTargetRules Target) : base(Target)
 		{
@@ -82,7 +82,8 @@ namespace UnrealBuildTool.Rules
 					// ... add any modules that your module loads dynamically here ...
 				});
 
-            if (UEBuildConfiguration.bBuildEditor == true)
+            //if (UEBuildConfiguration.bBuildEditor == true)
+            if (Target.bBuildEditor == true)
             {
                 LinkThirdPartyStaticallyOnWindows = false;
             }
