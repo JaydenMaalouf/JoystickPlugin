@@ -31,7 +31,10 @@ void FJoystickDevice::InitInputDevice(const FDeviceInfoSDL &Device)
 
 	DeviceInfo.ProductId = FDeviceSDL::DeviceGUIDtoGUID(Device.DeviceIndex);
 	DeviceInfo.ProductName = Device.Name;
+	DeviceInfo.ProductName = DeviceInfo.ProductName.Replace(TEXT(" "), TEXT(""));
 	DeviceInfo.DeviceName = DeviceInfo.ProductName.Replace(TEXT(" "), TEXT(""));
+	DeviceInfo.ProductName = DeviceInfo.ProductName.Replace(TEXT("."), TEXT(""));
+	DeviceInfo.DeviceName = DeviceInfo.DeviceName.Replace(TEXT("."), TEXT(""));
 
 	UE_LOG(JoystickPluginLog, Log, TEXT("add device %s %i"), *DeviceInfo.DeviceName, DeviceId.value);
 	InputDevices.Emplace(DeviceId, DeviceInfo);
@@ -283,6 +286,8 @@ void FJoystickDevice::Tick(float DeltaTime)
 
 void FJoystickDevice::SendControllerEvents()
 {
+	//UE_LOG(JoystickPluginLog, Log, TEXT("FJoystickDevice::SendControllerEvents()"));
+
 	for (auto & Device : InputDevices)
 	{
 		FDeviceId DeviceId = Device.Key;
