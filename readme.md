@@ -33,8 +33,7 @@ Compiling SDL2 with Visual C++ 2015 is a painful process. Compiling with the Dyn
 
 Now you can map Inputs to Joystick devices in Project Settings. (Engine->Input)
 
-Here is a Test Project using the Third-Person Template: [Download](https://w-hs.sciebo.de/index.php/s/148QVopCDdHwhLQ)
-Here is an minimal demo project: [Download](https://w-hs.sciebo.de/index.php/s/qajqJPsk1JGhFFM)
+Here is a Test folder with Demo Project and Deployment: [Download](https://drive.google.com/drive/folders/1W_Vyjn0p5-1mJmNyAHUgqRDSsaaR96gu?usp=sharing)
 
 -----------------------------------------------------------------------------------------------------------
 ## Linux (Ubuntu 14.04 LTS): 
