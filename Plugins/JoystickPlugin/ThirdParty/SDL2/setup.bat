@@ -1,9 +1,9 @@
 @echo off
 
 if not exist "C:\Program Files\Mercurial\" goto INSTALL_MERCURIAL
-if not exist SDL "C:\Program Files\Mercurial\hg" clone http://hg.libsdl.org/SDL
+if not exist SDL2 "C:\Program Files\Mercurial\hg" clone http://hg.libsdl.org/SDL SDL2
 
-cd SDL
+cd SDL2
 "C:\Program Files\Mercurial\hg" update
 cd ..
 

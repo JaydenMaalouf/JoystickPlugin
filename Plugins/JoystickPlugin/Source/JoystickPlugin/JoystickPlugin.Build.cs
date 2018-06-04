@@ -10,7 +10,7 @@ namespace UnrealBuildTool.Rules
 	{
 		// UE does not copy third party dlls to the output directory automatically.
 		// Link statically so you don't have to do it manually.
-		private bool LinkThirdPartyStaticallyOnWindows = true;
+		private bool LinkThirdPartyStaticallyOnWindows = false;
 
 		private string ModulePath
 		{
@@ -26,16 +26,6 @@ namespace UnrealBuildTool.Rules
 		{
 			get { return Path.GetFullPath(Path.Combine(ModulePath, "../../Binaries/")); }
 		}
-
-		// public virtual void SetupBinaries(
-			// TargetInfo Target,
-			// ref List<UEBuildBinaryConfiguration> OutBuildBinaryConfigurations,
-			// ref List<string> OutExtraModuleNames
-			// )
-		// {
-			// //OutBuildBinaryConfigurations.Add(
-				// //new UEBuildBinaryConfiguration(UEBuildBinaryType.DynamicLinkLibrary, InTargetName: "SDL2.dll"));
-		// }
 
 		public JoystickPlugin(ReadOnlyTargetRules Target) : base(Target)
 		{
@@ -81,12 +71,6 @@ namespace UnrealBuildTool.Rules
 				{
 					// ... add any modules that your module loads dynamically here ...
 				});
-
-            //if (UEBuildConfiguration.bBuildEditor == true)
-            if (Target.bBuildEditor == true)
-            {
-                LinkThirdPartyStaticallyOnWindows = false;
-            }
 
             if (Target.Platform == UnrealTargetPlatform.Win64)
 			{

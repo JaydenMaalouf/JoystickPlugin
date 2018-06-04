@@ -186,7 +186,6 @@ void FInputAxisMappingCustomizationExtended::CustomizeHeader(TSharedRef<class IP
 	AxisMappingHandle = InStructPropertyHandle;
 }
 
-/// @TODO API Change D:\UE4_Projects\UE4_Space2014\Plugins\JoystickPlugin\Source\JoystickPlugin\Private\InputSettingsCustomization.cpp(195) : warning C4996 : 'IDetailChildrenBuilder::AddChildContent' : AddChildContent has been deprecated.Use AddCustomRow instead  Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
 void FInputAxisMappingCustomizationExtended::CustomizeChildren(TSharedRef<class IPropertyHandle> InStructPropertyHandle, class IDetailChildrenBuilder& StructBuilder, IPropertyTypeCustomizationUtils& StructCustomizationUtils)
 {
 	TSharedPtr<IPropertyHandle> KeyHandle = InStructPropertyHandle->GetChildHandle(GET_MEMBER_NAME_CHECKED(FInputAxisKeyMapping, Key));
