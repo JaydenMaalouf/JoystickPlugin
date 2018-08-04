@@ -19,6 +19,17 @@ Windows:
 # How to use it
 
 ## Windows:
+
+update 04.08.2018
+Painful process continues. If someone look in the UE4 Source SDL2 is there since 4.20. So took this in the next version will happen. If i solve the __GNU__ macro definition error.
+
+For now i changed to a version compiled by the automation process of microsofts vcpkg, which works quite good at all.
+
+So normal process is get and create all things for vcpkg, install SDL2 and copy the files into the thirdparty directoy of the plugin. The compilation should work out of the box.
+
+
+Befor 4.19_vcpkg_sdl2:
+
 Compiling SDL2 with Visual C++ 2015 is a painful process. Compiling with the Dynamic or Static library will do. But I am not able get the static version linked to my plugin at the moment, so for now I am using the dynamically linked (DLL) version.
 
 1. Clone the repository branch 4.11 for UE4 version 4.11 (Or whichever is applicable)
