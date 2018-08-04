@@ -21,5 +21,7 @@ public:
 
 	void StartupModule() override;
 
+	bool SearchForDllPath(FString _searchBase, FString _dllName);
+
 	TSharedPtr< class FJoystickDevice > JoystickDevice;
 };
