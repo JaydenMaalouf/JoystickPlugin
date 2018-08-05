@@ -75,6 +75,10 @@ void FInputActionMappingCustomizationExtended::CustomizeChildren(TSharedRef<clas
 	TSharedPtr<IPropertyHandle> CmdHandle = InStructPropertyHandle->GetChildHandle(GET_MEMBER_NAME_CHECKED(FInputActionKeyMapping, bCmd));
 	TSharedRef<SWidget> RemoveButton = PropertyCustomizationHelpers::MakeDeleteButton(FSimpleDelegate::CreateSP(this, &FInputActionMappingCustomizationExtended::RemoveActionMappingButton_OnClick),
 		LOCTEXT("RemoveActionMappingToolTip", "Removes Action Mapping"));
+<<<<<<< HEAD
+=======
+	//StructBuilder.AddChildContent(TextOrStringConverter(LOCTEXT("KeySearchStr", "Key")))
+>>>>>>> origin/4.20
 	StructBuilder.AddCustomRow(TextOrStringConverter(LOCTEXT("KeySearchStr", "Key")))
 		[
 			SNew(SHorizontalBox)
@@ -192,6 +196,10 @@ void FInputAxisMappingCustomizationExtended::CustomizeChildren(TSharedRef<class 
 	TSharedPtr<IPropertyHandle> ScaleHandle = InStructPropertyHandle->GetChildHandle(GET_MEMBER_NAME_CHECKED(FInputAxisKeyMapping, Scale));
 	TSharedRef<SWidget> RemoveButton = PropertyCustomizationHelpers::MakeDeleteButton(FSimpleDelegate::CreateSP(this, &FInputAxisMappingCustomizationExtended::RemoveAxisMappingButton_OnClick),
 		LOCTEXT("RemoveAxisMappingToolTip", "Removes Axis Mapping"));
+<<<<<<< HEAD
+=======
+	//StructBuilder.AddChildContent(TextOrStringConverter(LOCTEXT("KeySearchStr", "Key")))
+>>>>>>> origin/4.20
 	StructBuilder.AddCustomRow(TextOrStringConverter(LOCTEXT("KeySearchStr", "Key")))
 		[
 			SNew(SHorizontalBox)
