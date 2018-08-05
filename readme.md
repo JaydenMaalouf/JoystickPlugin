@@ -19,7 +19,12 @@ Windows:
 # How to use it
 
 ## Windows:
-Compiling SDL2 with Visual C++ 2015 is a painful process. Compiling with the Dynamic or Static library will do. But I am not able get the static version linked to my plugin at the moment, so for now I am using the dynamically linked (DLL) version.
+Compiling SDL2 with Visual C++ 2015 is a painful process. Bins now included in preparation for UE4 4.21 which hopfully brings a compiled version of sdl for x64.
+
+
+## So this is obsolete
+
+Compiling with the Dynamic or Static library will do. But I am not able get the static version linked to my plugin at the moment, so for now I am using the dynamically linked (DLL) version.
 
 1. Clone the repository branch 4.11 for UE4 version 4.11 (Or whichever is applicable)
 2. If the binary versions in repo are older, please consult the following steps. I put compiled versions for 4.10.1 in the repository.

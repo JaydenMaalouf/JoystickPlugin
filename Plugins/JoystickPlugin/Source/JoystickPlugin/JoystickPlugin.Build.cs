@@ -10,22 +10,22 @@ namespace UnrealBuildTool.Rules
 	{
 		// UE does not copy third party dlls to the output directory automatically.
 		// Link statically so you don't have to do it manually.
-		private bool LinkThirdPartyStaticallyOnWindows = false;
+		// to be delete private bool LinkThirdPartyStaticallyOnWindows = false;
 
-		private string ModulePath
-		{
-            get { return  ModuleDirectory; }
-        }
+		//private string ModulePath
+		//{
+  //          get { return  ModuleDirectory; }
+  //      }
 
-        private string ThirdPartyPath
-		{
-			get { return Path.GetFullPath(Path.Combine(ModulePath, "../../ThirdParty/")); }
-		}
+  //      private string ThirdPartyPath
+		//{
+		//	get { return Path.GetFullPath(Path.Combine(ModulePath, "../../ThirdParty/")); }
+		//}
 
-		private string BinariesPath
-		{
-			get { return Path.GetFullPath(Path.Combine(ModulePath, "../../Binaries/")); }
-		}
+		//private string BinariesPath
+		//{
+		//	get { return Path.GetFullPath(Path.Combine(ModulePath, "../../Binaries/")); }
+		//}
 
 		public JoystickPlugin(ReadOnlyTargetRules Target) : base(Target)
 		{
@@ -39,6 +39,7 @@ namespace UnrealBuildTool.Rules
 					"Slate",
 					"SlateCore",
 					// ... add other public dependencies that you statically link with here ...
+                    "SDL2_208"
 				});
 
 			PrivateIncludePathModuleNames.AddRange(
@@ -72,63 +73,66 @@ namespace UnrealBuildTool.Rules
 					// ... add any modules that your module loads dynamically here ...
 				});
 
-            if (Target.Platform == UnrealTargetPlatform.Win64)
-			{
-                string SDL2Path = ThirdPartyPath + "SDL2/SDL/";
-                string SDL2LibPath = SDL2Path + "Lib/";
+   //         if (Target.Platform == UnrealTargetPlatform.Win64)
+			//{
+   //             string SDL2Path = ThirdPartyPath + "sdl2_x64-windows/";
 
-                PublicIncludePaths.Add(Path.Combine(SDL2Path, "include/"));
-                PrivateIncludePaths.Add(Path.Combine(SDL2Path, "include/"));  // Public || Private !? is there documentation ?
+   //             string SDL2binPath = SDL2Path + "bin/";
+   //             string SDL2LibPath = SDL2Path + "lib/";
+   //             string SDL2LibManualPath = SDL2Path + "lib/manual - link/";
 
-                if (LinkThirdPartyStaticallyOnWindows) {
-                    PublicAdditionalLibraries.Add(Path.Combine(SDL2LibPath, "SDL2-static.lib"));
-                    PublicAdditionalLibraries.Add(Path.Combine(SDL2LibPath, "SDL2main.lib"));
-                } else
-                {
-                    PublicAdditionalLibraries.Add(Path.Combine(SDL2LibPath, "SDL2.lib"));                    
-                }
+   //             PublicIncludePaths.Add(Path.Combine(SDL2Path, "include/SDL2"));                
 
-                PublicAdditionalLibraries.Add("Version.lib");
-            }
+   //             if (LinkThirdPartyStaticallyOnWindows) {
+   //                 PublicAdditionalLibraries.Add(Path.Combine(SDL2LibPath, "SDL2-static.lib"));
+   //                 PublicAdditionalLibraries.Add(Path.Combine(SDL2LibManualPath, "SDL2main.lib"));
+   //             } else
+   //             {
+   //                 PublicAdditionalLibraries.Add(Path.Combine(SDL2binPath, "SDL2.dll"));
+   //                 PublicAdditionalLibraries.Add(Path.Combine(SDL2LibPath, "SDL2.lib"));                    
+   //             }
 
-            if (Target.Platform == UnrealTargetPlatform.Win32)
-            {
-                string SDL2Path = ThirdPartyPath + "SDL2/SDL/";
-                string SDL2LibPath = SDL2Path + "Lib32/";
+   //             PublicAdditionalLibraries.Add("Version.lib");
+   //         }
 
-                PublicIncludePaths.Add(Path.Combine(SDL2Path, "include/"));
+   //         if (Target.Platform == UnrealTargetPlatform.Win32)
+   //         {
+   //             string SDL2Path = ThirdPartyPath + "sdl2_x86-windows/";
+   //             string SDL2LibPath = SDL2Path + "Lib/";
 
-                if (LinkThirdPartyStaticallyOnWindows)
-                {
-                    PublicAdditionalLibraries.Add(Path.Combine(SDL2LibPath, "SDL2-static.lib"));
-                    PublicAdditionalLibraries.Add(Path.Combine(SDL2LibPath, "SDL2main.lib"));
-                }
-                else
-                {
-                    PublicAdditionalLibraries.Add(Path.Combine(SDL2LibPath, "SDL2.lib"));
-                }
+   //             PublicIncludePaths.Add(Path.Combine(SDL2Path, "include/SDL2"));
 
-                PublicAdditionalLibraries.Add("Version.lib");
-            }
-            else if (Target.Platform == UnrealTargetPlatform.Mac)
-			{				
-                string SDL2Path = ThirdPartyPath + "SDL2/SDL/";
+   //             if (LinkThirdPartyStaticallyOnWindows)
+   //             {
+   //                 PublicAdditionalLibraries.Add(Path.Combine(SDL2LibPath, "SDL2-static.lib"));
+   //                 PublicAdditionalLibraries.Add(Path.Combine(SDL2LibPath, "SDL2main.lib"));
+   //             }
+   //             else
+   //             {
+   //                 PublicAdditionalLibraries.Add(Path.Combine(SDL2LibPath, "SDL2.lib"));
+   //             }
 
-                PublicIncludePaths.Add(Path.Combine(SDL2Path, "include/"));
-                PrivateIncludePaths.Add(Path.Combine(SDL2Path, "include/"));
+   //             PublicAdditionalLibraries.Add("Version.lib");
+   //         }
+   //         else if (Target.Platform == UnrealTargetPlatform.Mac) // NEVER TESTED
+			//{				
+   //             string SDL2Path = ThirdPartyPath + "SDL2/SDL/";
 
-                PublicFrameworks.Add("/Library/Frameworks/SDL2.framework");
-			}
-			else if (Target.Platform == UnrealTargetPlatform.Linux)
-			{		
-				string SDL2Path = ThirdPartyPath + "SDL2/SDL/";
+   //             PublicIncludePaths.Add(Path.Combine(SDL2Path, "include/"));
+   //             PrivateIncludePaths.Add(Path.Combine(SDL2Path, "include/"));
 
-                PublicIncludePaths.Add(Path.Combine(SDL2Path, "include/"));
-                PrivateIncludePaths.Add(Path.Combine(SDL2Path, "include/"));
+   //             PublicFrameworks.Add("/Library/Frameworks/SDL2.framework");
+			//}
+			//else if (Target.Platform == UnrealTargetPlatform.Linux) // NEVER TESTED
+   //         {		
+			//	string SDL2Path = ThirdPartyPath + "SDL2/SDL/";
 
-                //AddThirdPartyPrivateStaticDependencies(Target, new string[]{"SDL2"});
-                AddEngineThirdPartyPrivateStaticDependencies(Target, new string[]{"SDL2"});						
-			}
+   //             PublicIncludePaths.Add(Path.Combine(SDL2Path, "include/"));
+   //             PrivateIncludePaths.Add(Path.Combine(SDL2Path, "include/"));
+
+   //             //AddThirdPartyPrivateStaticDependencies(Target, new string[]{"SDL2"});
+   //             AddEngineThirdPartyPrivateStaticDependencies(Target, new string[]{"SDL2"});						
+			//}
 
 		}
 	}

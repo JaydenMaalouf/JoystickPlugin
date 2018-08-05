@@ -13,6 +13,7 @@
 
 // @third party code - BEGIN SDL
 #include "AllowWindowsPlatformTypes.h"
+#include "Windows/MinWindows.h"
 #include "SDL.h"
 #include "SDL_joystick.h"
 #include "SDL_gamecontroller.h"
