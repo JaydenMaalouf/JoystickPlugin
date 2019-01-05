@@ -1,10 +1,17 @@
 
-#include <Engine.h>
+/*
+*
+* Copyright (C) <2014> samiljan <Sam Persson>, tsky <thomas.kollakowksy@w-hs.de>
+* All rights reserved.
+*
+* This software may be modified and distributed under the terms
+* of the BSD license.  See the LICENSE file for details.
+*/
 
 #include "JoystickDevice.h"
-
 #include "DeviceSDL.h"
 
+#include <Engine.h>
 #include <SlateBasics.h>
 #include <Text.h>
 

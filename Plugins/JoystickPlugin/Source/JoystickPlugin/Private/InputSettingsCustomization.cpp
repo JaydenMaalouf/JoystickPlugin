@@ -1,7 +1,16 @@
+/*
+*
+* Copyright (C) <2014> samiljan <Sam Persson>, tsky <thomas.kollakowksy@w-hs.de>
+* All rights reserved.
+*
+* This software may be modified and distributed under the terms
+* of the BSD license.  See the LICENSE file for details.
+*/
+
 #if WITH_EDITOR
 
-#include <Engine.h>
 #include "InputSettingsCustomization.h"
+#include <Engine.h>
 
 #include <Editor.h>
 #include <DetailCustomizations.h>
@@ -75,10 +84,7 @@ void FInputActionMappingCustomizationExtended::CustomizeChildren(TSharedRef<clas
 	TSharedPtr<IPropertyHandle> CmdHandle = InStructPropertyHandle->GetChildHandle(GET_MEMBER_NAME_CHECKED(FInputActionKeyMapping, bCmd));
 	TSharedRef<SWidget> RemoveButton = PropertyCustomizationHelpers::MakeDeleteButton(FSimpleDelegate::CreateSP(this, &FInputActionMappingCustomizationExtended::RemoveActionMappingButton_OnClick),
 		LOCTEXT("RemoveActionMappingToolTip", "Removes Action Mapping"));
-<<<<<<< HEAD
-=======
 	//StructBuilder.AddChildContent(TextOrStringConverter(LOCTEXT("KeySearchStr", "Key")))
->>>>>>> origin/4.20
 	StructBuilder.AddCustomRow(TextOrStringConverter(LOCTEXT("KeySearchStr", "Key")))
 		[
 			SNew(SHorizontalBox)
@@ -196,10 +202,7 @@ void FInputAxisMappingCustomizationExtended::CustomizeChildren(TSharedRef<class 
 	TSharedPtr<IPropertyHandle> ScaleHandle = InStructPropertyHandle->GetChildHandle(GET_MEMBER_NAME_CHECKED(FInputAxisKeyMapping, Scale));
 	TSharedRef<SWidget> RemoveButton = PropertyCustomizationHelpers::MakeDeleteButton(FSimpleDelegate::CreateSP(this, &FInputAxisMappingCustomizationExtended::RemoveAxisMappingButton_OnClick),
 		LOCTEXT("RemoveAxisMappingToolTip", "Removes Axis Mapping"));
-<<<<<<< HEAD
-=======
 	//StructBuilder.AddChildContent(TextOrStringConverter(LOCTEXT("KeySearchStr", "Key")))
->>>>>>> origin/4.20
 	StructBuilder.AddCustomRow(TextOrStringConverter(LOCTEXT("KeySearchStr", "Key")))
 		[
 			SNew(SHorizontalBox)

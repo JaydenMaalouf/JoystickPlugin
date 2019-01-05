@@ -7,16 +7,17 @@
 * of the BSD license.  See the LICENSE file for details.
 */
 
-#include <Engine.h>
 #include "DeviceSDL.h"
 #include "JoystickDevice.h"
+#include <Engine.h>
 
 // @third party code - BEGIN SDL
 #include "AllowWindowsPlatformTypes.h"
-#include "Windows/MinWindows.h"
+
 #include "SDL.h"
 #include "SDL_joystick.h"
 #include "SDL_gamecontroller.h"
+
 #include "HideWindowsPlatformTypes.h"
 // @third party code - END SDL
 
