@@ -46,12 +46,14 @@ public:
 	TMap<FDeviceId, FJoystickState> CurrentState;
 	TMap<FDeviceId, FJoystickState> PreviousState;
 
-	TMap<FDeviceId, FJoystickInfo> InputDevices;
+	TMap<FDeviceId, FJoystickInfo> InputDevices;	
+	TSharedPtr<FDeviceSDL> DeviceSDL;
+
 private:
 	void InitInputDevice(const FDeviceInfoSDL &Device);
 	void EmitEvents(const FJoystickState& previous, const FJoystickState& current);
 
-	TSharedPtr<FDeviceSDL> DeviceSDL;
+
 	TArray<TWeakObjectPtr<UObject>> EventListeners;
 
 	TMap<FDeviceId, TArray<FKey>> DeviceButtonKeys;

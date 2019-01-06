@@ -155,23 +155,46 @@ FDeviceInfoSDL FDeviceSDL::AddDevice(FDeviceIndex DeviceIndex)
 		Device.Haptic = SDL_HapticOpenFromJoystick(Device.Joystick);
 		if (Device.Haptic != nullptr)
 		{
-			UE_LOG(JoystickPluginLog, Log, TEXT("--- Rumble device detected"));
+			UE_LOG(JoystickPluginLog, Log, TEXT("--- Haptic device detected"));
 
-			if (SDL_HapticRumbleInit(Device.Haptic) != 0)
+			UE_LOG(JoystickPluginLog, Log, TEXT("Number of Haptic Axis: %i"), SDL_HapticNumAxes(Device.Haptic));
+			UE_LOG(JoystickPluginLog, Log, TEXT("Rumble Support: %i"), SDL_HapticRumbleSupported(Device.Haptic));
+
+			UE_LOG(JoystickPluginLog, Log, TEXT("SDL_HAPTIC_CONSTANT support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_CONSTANT));
+			UE_LOG(JoystickPluginLog, Log, TEXT("SDL_HAPTIC_SINE support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_SINE));
+			UE_LOG(JoystickPluginLog, Log, TEXT("SDL_HAPTIC_TRIANGLE support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_TRIANGLE));
+			UE_LOG(JoystickPluginLog, Log, TEXT("SDL_HAPTIC_SAWTOOTHUP support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_SAWTOOTHUP));
+			UE_LOG(JoystickPluginLog, Log, TEXT("SDL_HAPTIC_SAWTOOTHDOWN support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_SAWTOOTHDOWN));
+			UE_LOG(JoystickPluginLog, Log, TEXT("SDL_HAPTIC_RAMP support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_RAMP));
+			UE_LOG(JoystickPluginLog, Log, TEXT("SDL_HAPTIC_SPRING support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_SPRING));
+			UE_LOG(JoystickPluginLog, Log, TEXT("SDL_HAPTIC_DAMPER support: %i"), (SDL_HapticQuery(Device.Haptic) &  SDL_HAPTIC_DAMPER));
+			UE_LOG(JoystickPluginLog, Log, TEXT("SDL_HAPTIC_INERTIA support: %i"), (SDL_HapticQuery(Device.Haptic) &  SDL_HAPTIC_INERTIA));
+			UE_LOG(JoystickPluginLog, Log, TEXT("SDL_HAPTIC_FRICTION support: %i"), (SDL_HapticQuery(Device.Haptic) &  SDL_HAPTIC_FRICTION));
+			UE_LOG(JoystickPluginLog, Log, TEXT("SDL_HAPTIC_CUSTOM support: %i"), (SDL_HapticQuery(Device.Haptic) &  SDL_HAPTIC_CUSTOM));
+			UE_LOG(JoystickPluginLog, Log, TEXT("SDL_HAPTIC_GAIN support: %i"), (SDL_HapticQuery(Device.Haptic) &  SDL_HAPTIC_GAIN));
+			UE_LOG(JoystickPluginLog, Log, TEXT("SDL_HAPTIC_AUTOCENTER support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_AUTOCENTER));
+
+			
+			if (SDL_HapticRumbleInit(Device.Haptic) != -1)
 			{
-				/*UE_LOG(JoystickPluginLog, Log, TEXT("--- testing Rumble device:"));
-				if (SDL_HapticRumblePlay(OutDeviceInfo.Haptic, 0.5, 2000) != 0)
+				UE_LOG(JoystickPluginLog, Log, TEXT("--- testing Rumble device:"));
+				if (SDL_HapticRumblePlay(Device.Haptic, 0.5, 2000) != 0)
 				{
-				UE_LOG(JoystickPluginLog, Log, TEXT("--- play Rumble ...."));
-				SDL_Delay(2000);
+					UE_LOG(JoystickPluginLog, Log, TEXT("--- play Rumble ...."));
+					SDL_Delay(2000);
 				}
 				else
 				{
-				UE_LOG(JoystickPluginLog, Log, TEXT("--- not successful!"));
-				SDL_HapticClose(OutDeviceInfo.Haptic);
-				OutDeviceInfo.Haptic = nullptr;
-				}*/
+					UE_LOG(JoystickPluginLog, Log, TEXT("--- not successful!"));
+					SDL_HapticClose(Device.Haptic);
+					Device.Haptic = nullptr;
+				}
 			}
+			else {
+				UE_LOG(JoystickPluginLog, Log, TEXT("ERROR HapticRumbleInit FAILED"));
+			}
+			
+
 		}
 	}
 	
