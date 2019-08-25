@@ -9,9 +9,9 @@ public class SDL2_2010 : ModuleRules
 	{
 		Type = ModuleType.External;
 
-        //PublicDefinitions.Add("SDL_STATIC=0");
-        //PublicDefinitions.Add("SDL_SHARED=1");
-        //PublicDefinitions.Add("EPIC_EXTENSIONS=0");
+        PublicDefinitions.Add("SDL_STATIC=1");
+        PublicDefinitions.Add("SDL_SHARED=0");
+        PublicDefinitions.Add("EPIC_EXTENSIONS=0");
         PublicDefinitions.Add("SDL_DEPRECATED=1");
         PublicDefinitions.Add("SDL_WITH_EPIC_EXTENSIONS=1");
         PublicDefinitions.Add("WIN32");
@@ -23,14 +23,18 @@ public class SDL2_2010 : ModuleRules
 		{
 			// Add the import library
 			PublicLibraryPaths.Add(Path.Combine(ModuleDirectory, "lib", "x64"));
-			PublicAdditionalLibraries.Add("SDL2.lib");
+
+            //not work
+            //PublicAdditionalLibraries.Add("SDL2-static.lib");
+
+            PublicAdditionalLibraries.Add("SDL2.lib");
             PublicAdditionalLibraries.Add("SDL2main.lib");
 
             // Delay-load the DLL, so we can load it from the right place first
             PublicLibraryPaths.Add(Path.Combine(ModuleDirectory, "lib", "x64"));
-			RuntimeDependencies.Add("SDL2.dll");
-		}
-		
-		PublicAdditionalLibraries.Add("Version.lib");
-	}
+            RuntimeDependencies.Add("SDL2.dll");
+        }
+
+        PublicAdditionalLibraries.Add("Version.lib");
+    }
 }

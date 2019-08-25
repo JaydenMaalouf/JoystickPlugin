@@ -13,7 +13,6 @@
 
 #include <Engine.h>
 #include <SlateBasics.h>
-#include <Text.h>
 
 #define LOCTEXT_NAMESPACE "JoystickPlugin"
 

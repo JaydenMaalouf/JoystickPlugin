@@ -9,12 +9,14 @@
 #include "DeviceSDL.h"
 
 // @third party code - BEGIN SDL
-#include "AllowWindowsPlatformTypes.h"
+#include "Windows/AllowWindowsPlatformTypes.h"
+
 #include "Windows/MinWindows.h"
 #include "SDL.h"
 #include "SDL_joystick.h"
 #include "SDL_gamecontroller.h"
-#include "HideWindowsPlatformTypes.h"
+
+#include "Windows/HideWindowsPlatformTypes.h"
 // @third party code - END SDL
 
 UFeedbackFunctions::UFeedbackFunctions(const class FObjectInitializer& PCIP)

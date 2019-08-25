@@ -1,7 +1,7 @@
 #pragma once
 
-#include <EditorStyle.h>
-#include <PropertyEditing.h>
+#include "Editor/UnrealEd/Public/Toolkits/IToolkitHost.h"
+#include "Editor/PropertyEditor/Public/PropertyEditing.h"
 
 /**
 * Customizes an InputActionKeyMapping struct to display it more simply.
