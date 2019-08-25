@@ -24,7 +24,7 @@ public class SDL2_208 : ModuleRules
             PublicAdditionalLibraries.Add("SDL2main.lib");
 
             // Delay-load the DLL, so we can load it from the right place first
-            PublicLibraryPaths.Add(Path.Combine(ModuleDirectory, "lib", "x64"));
+            PublicLibraryPaths.Add(Path.Combine(ModuleDirectory, "bin", "x64"));
 			RuntimeDependencies.Add("SDL2.dll");
 		}
 		

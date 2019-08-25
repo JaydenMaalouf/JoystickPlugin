@@ -1,19 +1,18 @@
-{	
-	"FriendlyName": "Joystick Plugin",
-	"FileVersion": 3,
-	"Version": 9,
-	"VersionName": "0.9.0",
-	"CreatedBy": "Ikarus76, getnamo, samiljan, tsky",
-	"CreatedByURL": "https://github.com/samiljan/UEJoystickPlugin",
-	"Description": "Unofficial plugin for Joystick Controllers",
-	"Category": "Input Devices",
-
-	"Modules": 
-	[
-		{
-			"Name": "JoystickPlugin",
-			"Type": "Runtime",
-			"WhitelistPlatforms": [ "Win64", "Linux", "mac"]
-		}
-	]
+{
+  "FriendlyName": "Joystick Plugin",
+  "FileVersion": 3,
+  "Version": 9,
+  "VersionName": "0.9.1",
+  "CreatedBy": "Ikarus76, getnamo, samiljan, tsky",
+  "CreatedByURL": "https://github.com/samiljan/UEJoystickPlugin",
+  "Description": "Unofficial plugin for Joystick Controllers",
+  "Category": "Input Devices",
+  "EngineVersion": "4.22.0",
+  "Modules": [
+    {
+      "Name": "JoystickPlugin",
+      "Type": "Runtime",
+      "WhitelistPlatforms": [ "Win64" ]
+    }
+  ]
 }

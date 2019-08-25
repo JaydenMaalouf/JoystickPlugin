@@ -68,5 +68,9 @@ private:
 
 	bool bIgnoreGameControllers = true;
 
+	bool bSubSystemHaptic;
+	bool bSubSystemJoystick;
+	bool bSubSystemGameController;
+
 	static int HandleSDLEvent(void* Userdata, SDL_Event* Event);
 };

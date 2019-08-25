@@ -5,10 +5,12 @@
 #include "IJoystickPlugin.h"
 #include "JoystickDevice.h"
 
+
 class FJoystickPlugin : public IJoystickPlugin
 {
+
 public:
-	virtual TSharedPtr< class IInputDevice > CreateInputDevice(const TSharedRef< FGenericApplicationMessageHandler >& InMessageHandler) override
+	virtual TSharedPtr<class IInputDevice> CreateInputDevice(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler) override
 	{
 		return JoystickDevice;
 	}

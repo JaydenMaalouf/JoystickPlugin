@@ -8,6 +8,8 @@
 */
 
 #include "JoystickPlugin.h"
+
+#include "Core.h"
 #include <Engine.h>
 
 #if WITH_EDITOR
@@ -17,6 +19,7 @@
 IMPLEMENT_MODULE(FJoystickPlugin, JoystickPlugin)
 
 #define LOCTEXT_NAMESPACE "JoystickPlugin"
+
 
 void FJoystickPlugin::StartupModule()
 {

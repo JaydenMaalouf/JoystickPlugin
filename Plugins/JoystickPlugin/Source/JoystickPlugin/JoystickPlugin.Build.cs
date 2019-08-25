@@ -7,7 +7,8 @@ namespace UnrealBuildTool.Rules
 	using System.Collections.Generic;
 
 	public class JoystickPlugin : ModuleRules
-	{        
+	{
+
 		// UE does not copy third party dlls to the output directory automatically.
 		// Link statically so you don't have to do it manually.
 		// to be delete private bool LinkThirdPartyStaticallyOnWindows = false;
@@ -29,7 +30,9 @@ namespace UnrealBuildTool.Rules
 
 		public JoystickPlugin(ReadOnlyTargetRules Target) : base(Target)
 		{
-            
+            PublicDefinitions.Add("SDL_DEPRECATED=1");
+            PublicDefinitions.Add("SDL_WITH_EPIC_EXTENSIONS=1");
+            PrivatePCHHeaderFile = "Private/JoystickPluginPrivatePCH.h";
 
             PublicDependencyModuleNames.AddRange(
 				new string[]
@@ -41,7 +44,7 @@ namespace UnrealBuildTool.Rules
 					"Slate",
 					"SlateCore",
 					// ... add other public dependencies that you statically link with here ...
-                    "SDL2_208"
+                    "SDL2_2010"
 				});
 
 			PrivateIncludePathModuleNames.AddRange(
