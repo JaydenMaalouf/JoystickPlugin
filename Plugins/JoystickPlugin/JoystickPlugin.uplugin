@@ -7,7 +7,7 @@
   "CreatedByURL": "https://github.com/samiljan/UEJoystickPlugin",
   "Description": "Unofficial plugin for Joystick Controllers",
   "Category": "Input Devices",
-  "EngineVersion": "4.23.0",
+  "EngineVersion": "4.24.0",
   "Modules": [
     {
       "Name": "JoystickPlugin",
