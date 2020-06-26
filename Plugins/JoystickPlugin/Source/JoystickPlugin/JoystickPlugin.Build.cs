@@ -30,6 +30,12 @@ namespace UnrealBuildTool.Rules
 
 		public JoystickPlugin(ReadOnlyTargetRules Target) : base(Target)
 		{
+            bLegacyPublicIncludePaths = false;
+            ShadowVariableWarningLevel = WarningLevel.Error;
+            PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+
+            //DefaultBuildSettings = BuildSettingsVersion.V2;
+
             PublicDefinitions.Add("SDL_DEPRECATED=1");
             PublicDefinitions.Add("SDL_WITH_EPIC_EXTENSIONS=1");
             PrivatePCHHeaderFile = "Private/JoystickPluginPrivatePCH.h";

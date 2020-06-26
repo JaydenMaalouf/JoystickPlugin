@@ -1,6 +1,9 @@
 #pragma once
 
-#include "Editor/UnrealEd/Public/Toolkits/IToolkitHost.h"
+
+#if WITH_EDITOR
+
+//#include "Editor/UnrealEd/Public/Toolkits/IToolkitHost.h"
 #include "Editor/PropertyEditor/Public/PropertyEditing.h"
 
 /**
@@ -38,3 +41,4 @@ private:
 	TSharedPtr<class IPropertyHandle> AxisMappingHandle;
 };
 
+#endif

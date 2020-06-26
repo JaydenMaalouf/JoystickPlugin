@@ -18,14 +18,18 @@ public class SDL2_208 : ModuleRules
 
         if (Target.Platform == UnrealTargetPlatform.Win64)
 		{
-			// Add the import library
-			PublicLibraryPaths.Add(Path.Combine(ModuleDirectory, "lib", "x64"));
-			PublicAdditionalLibraries.Add("SDL2.lib");
-            PublicAdditionalLibraries.Add("SDL2main.lib");
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "lib", "x64", "SDL2.lib"));
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "lib", "x64", "SDL2main.lib"));
+            PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "lib", "x64", "SDL2.dll"));
+
+            // Add the import library
+            //PublicLibraryPaths.Add(Path.Combine(ModuleDirectory, "lib", "x64"));
+            //PublicAdditionalLibraries.Add("SDL2.lib");
+            //PublicAdditionalLibraries.Add("SDL2main.lib");
 
             // Delay-load the DLL, so we can load it from the right place first
-            PublicLibraryPaths.Add(Path.Combine(ModuleDirectory, "bin", "x64"));
-			RuntimeDependencies.Add("SDL2.dll");
+            //PublicLibraryPaths.Add(Path.Combine(ModuleDirectory, "bin", "x64"));
+			//RuntimeDependencies.Add("SDL2.dll");
 		}
 		
 		PublicAdditionalLibraries.Add("Version.lib");
