@@ -339,6 +339,8 @@ int FDeviceSDL::HandleSDLEvent(void* Userdata, SDL_Event* Event)
 		{
 			FDeviceId DeviceId = Self.DeviceMapping[FInstanceId(Event->jbutton.which)];
 			Self.EventInterface->JoystickButton(DeviceId, Event->jbutton.button, Event->jbutton.state == SDL_PRESSED);
+
+			UE_LOG(JoystickPluginLog, Log, TEXT("Event JoystickButton Device=%d Button=%d State=%d"), DeviceId.value, Event->jbutton.button, Event->jbutton.state);
 		}
 		break;
 	case SDL_JOYAXISMOTION:

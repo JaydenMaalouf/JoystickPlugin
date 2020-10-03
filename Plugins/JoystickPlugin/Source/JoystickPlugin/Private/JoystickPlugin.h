@@ -24,4 +24,6 @@ public:
 	void StartupModule() override;
 
 	TSharedPtr< class FJoystickDevice > JoystickDevice;
+
+	void *SDL2LibraryHandle;
 };

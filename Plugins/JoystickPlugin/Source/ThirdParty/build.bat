@@ -23,7 +23,8 @@ mkdir %BUILD_DIR%
 
 cd %BUILD_DIR%
 
-%CMAKE_EXE% -G "Visual Studio 15 2017" -A x64 -DSDL_STATIC=ON -DSDL_SHARED=ON -DLIB_C=ON-DFORCE_STATIC_VCRT=ON -DEPIC_EXTENSIONS=OFF --config Release ../%SDL_DIR%
+rem %CMAKE_EXE% -G "Visual Studio 15 2017" -A x64 -DSDL_STATIC=ON -DSDL_SHARED=ON -DLIB_C=ON-DFORCE_STATIC_VCRT=ON -DEPIC_EXTENSIONS=OFF --config Release ../%SDL_DIR%
+%CMAKE_EXE% -G "Visual Studio 16 2019" -A x64 -DSDL_STATIC=ON -DSDL_SHARED=ON -DLIB_C=ON-DFORCE_STATIC_VCRT=ON -DEPIC_EXTENSIONS=OFF --config Release ../%SDL_DIR%
 
 "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe" sdl2.sln /t:SDL2 /p:Configuration="Release"
 "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe" sdl2.sln /t:SDL2main /p:Configuration="Release"

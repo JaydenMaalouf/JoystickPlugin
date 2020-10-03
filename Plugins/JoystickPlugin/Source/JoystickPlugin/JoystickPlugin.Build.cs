@@ -50,7 +50,7 @@ namespace UnrealBuildTool.Rules
 					"Slate",
 					"SlateCore",
 					// ... add other public dependencies that you statically link with here ...
-                    "SDL2_2010"
+                    "SDL2"
 				});
 
 			PrivateIncludePathModuleNames.AddRange(
