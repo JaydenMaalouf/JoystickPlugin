@@ -129,25 +129,25 @@ class IJoystickInterface
 public:
 
 	//Define blueprint events
-	UFUNCTION(BlueprintImplementableEvent, Category = "Joystick")
+	UFUNCTION(BlueprintImplementableEvent, Category = "SDL2 Joystick")
 	void JoystickButtonPressed(int32 Button, FJoystickState state);
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Joystick")
+	UFUNCTION(BlueprintImplementableEvent, Category = "SDL2 Joystick")
 	void JoystickButtonReleased(int32 Button, FJoystickState state);
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Joystick")
+	UFUNCTION(BlueprintImplementableEvent, Category = "SDL2 Joystick")
 	void JoystickAxisChanged(int32 Axis, float value, float valuePrev, FJoystickState state, FJoystickState prev);
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Joystick")
+	UFUNCTION(BlueprintImplementableEvent, Category = "SDL2 Joystick")
 	void JoystickHatChanged(int32 Hat, EJoystickPOVDirection Value, FJoystickState state);
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Joystick")
+	UFUNCTION(BlueprintImplementableEvent, Category = "SDL2 Joystick")
 	void JoystickBallMoved(int32 Ball, FVector2D Delta, FJoystickState State);
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Joystick")
+	UFUNCTION(BlueprintImplementableEvent, Category = "SDL2 Joystick")
 	void JoystickPluggedIn(int32 DeviceId);
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Joystick")
+	UFUNCTION(BlueprintImplementableEvent, Category = "SDL2 Joystick")
 	void JoystickUnplugged(int32 DeviceId);
 
 	virtual FString ToString();

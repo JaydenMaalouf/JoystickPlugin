@@ -26,11 +26,11 @@ void FJoystickPlugin::StartupModule()
 	IJoystickPlugin::StartupModule();
 
 	// Get the base directory of this plugin
-	FString BaseDir = "../../Plugins/JoystickPlugin/";
+	FString BaseDir = "./";
 	// Add on the relative location of the third party dll and load it
 	FString LibraryPath;
 #if PLATFORM_WINDOWS
-	LibraryPath = FPaths::Combine(*BaseDir, TEXT("Binaries/Win64/SDL2.dll"));	
+	LibraryPath = FPaths::Combine(*BaseDir, TEXT("SDL2.dll"));	
 #endif // PLATFORM_WINDOWS
 
 	SDL2LibraryHandle = !LibraryPath.IsEmpty() ? FPlatformProcess::GetDllHandle(*LibraryPath) : nullptr;
