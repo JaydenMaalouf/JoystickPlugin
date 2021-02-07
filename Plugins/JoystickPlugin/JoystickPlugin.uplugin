@@ -1,26 +1,18 @@
 {
-	"FileVersion": 3,
-	"Version": 9,
-	"VersionName": "0.9.1",
-	"FriendlyName": "Joystick Plugin",
-	"Description": "Unofficial plugin for Joystick Controllers",
-	"Category": "Input Devices",
-	"CreatedBy": "Ikarus76, getnamo, samiljan, tsky",
-	"CreatedByURL": "https://github.com/samiljan/UEJoystickPlugin",
-	"DocsURL": "",
-	"MarketplaceURL": "",
-	"SupportURL": "",
-	"EngineVersion": "4.25.0",
-	"CanContainContent": false,
-	"Installed": true,
-	"Modules": [
-		{
-			"Name": "JoystickPlugin",
-			"Type": "Runtime",
-			"LoadingPhase": "Default",
-			"WhitelistPlatforms": [
-				"Win64"
-			]
-		}
-	]
+  "FriendlyName": "Joystick Plugin",
+  "FileVersion": 3,
+  "Version": 9,
+  "VersionName": "0.9.2",
+  "CreatedBy": "Ikarus76, getnamo, samiljan, tsky",
+  "CreatedByURL": "https://github.com/samiljan/UEJoystickPlugin",
+  "Description": "Unofficial plugin for Joystick Controllers with SDL2 FF support",
+  "Category": "Input Devices",
+  "EngineVersion": "4.25.0",
+  "Modules": [
+    {
+      "Name": "JoystickPlugin",
+      "Type": "Runtime",
+      "WhitelistPlatforms": [ "Win64" ]
+    }
+  ]
 }

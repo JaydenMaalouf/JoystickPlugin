@@ -1,7 +1,0 @@
-{
-	"OutputFiles": [
-		"PCH.JoystickPlugin.h.obj",
-		"Module.JoystickPlugin.cpp.obj",
-		"Module.JoystickPlugin.gen.cpp.obj"
-	]
-}

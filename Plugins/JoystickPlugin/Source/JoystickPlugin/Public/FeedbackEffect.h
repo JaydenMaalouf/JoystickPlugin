@@ -46,3 +46,4 @@ struct FFeedbackData{
 	UPROPERTY(BlueprintReadWrite, EditAnywhere) float RampStart = -1.0f;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere) float RampEnd = 1.0f;
 };
+
