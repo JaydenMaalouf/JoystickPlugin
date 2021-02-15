@@ -5,6 +5,41 @@ using UnrealBuildTool;
 
 public class SDL2 : ModuleRules
 {
+	public string GetUProjectPath()
+	{
+		return Path.Combine(ModuleDirectory, "../../../../..");
+	}
+
+	private string CopyToProjectBinaries(string Filepath, ReadOnlyTargetRules Target)
+	{
+		string BinariesDir = Path.Combine(GetUProjectPath(), "Binaries", Target.Platform.ToString());
+		string Filename = Path.GetFileName(Filepath);
+
+		//convert relative path 
+		string FullBinariesDir = Path.GetFullPath(BinariesDir);
+
+		if (!Directory.Exists(FullBinariesDir))
+		{
+			Directory.CreateDirectory(FullBinariesDir);
+		}
+
+		string FullExistingPath = Path.Combine(FullBinariesDir, Filename);
+		bool ValidFile = false;
+
+		//File exists, check if they're the same
+		if (File.Exists(FullExistingPath))
+		{
+			ValidFile = true;
+		}
+
+		//No valid existing file found, copy new dll
+		if (!ValidFile)
+		{
+			File.Copy(Filepath, Path.Combine(FullBinariesDir, Filename), true);
+		}
+		return FullExistingPath;
+	}
+	
 	public SDL2(ReadOnlyTargetRules Target) : base(Target)
 	{
 		Type = ModuleType.External;
@@ -26,5 +61,9 @@ public class SDL2 : ModuleRules
             PublicDelayLoadDLLs.Add("SDL2.dll");            
         }
         
+		string pluginDLLPath = Path.Combine(ModuleDirectory, "lib", "SDL2.dll");
+		string binariesPath = CopyToProjectBinaries(pluginDLLPath, Target);
+		System.Console.WriteLine("Using SDL2 DLL: " + binariesPath);
+		RuntimeDependencies.Add(binariesPath);   
     }
 }

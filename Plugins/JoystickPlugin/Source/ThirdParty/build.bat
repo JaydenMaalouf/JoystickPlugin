@@ -1,4 +1,4 @@
-@echo on
+@echo off
 
 echo "CMake not may be older than 3.15"
 rem if not exist "C:\Program Files (x86)\CMake\" goto INSTALL_CMAKE
@@ -14,8 +14,8 @@ if not exist "C:\Program Files\CMake" (
 echo "Visual Studio 2019"
 call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat x64"
 
-SET SDL_DIR=SDL2
-SET BUILD_DIR=build-%SDL_DIR%
+SET SDL_DIR=SDL2_DEV
+SET BUILD_DIR=build-SDL2
 
 mkdir %SDL_DIR%\Lib
 
@@ -23,7 +23,6 @@ mkdir %BUILD_DIR%
 
 cd %BUILD_DIR%
 
-rem %CMAKE_EXE% -G "Visual Studio 15 2017" -A x64 -DSDL_STATIC=ON -DSDL_SHARED=ON -DLIB_C=ON-DFORCE_STATIC_VCRT=ON -DEPIC_EXTENSIONS=OFF --config Release ../%SDL_DIR%
 %CMAKE_EXE% -G "Visual Studio 16 2019" -A x64 -DSDL_STATIC=ON -DSDL_SHARED=ON -DLIB_C=ON-DFORCE_STATIC_VCRT=ON -DEPIC_EXTENSIONS=OFF --config Release ../%SDL_DIR%
 
 "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe" sdl2.sln /t:SDL2 /p:Configuration="Release"
@@ -31,11 +30,16 @@ rem %CMAKE_EXE% -G "Visual Studio 15 2017" -A x64 -DSDL_STATIC=ON -DSDL_SHARED=O
 "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe" sdl2.sln /t:SDL2-static /p:Configuration="Release"
 rem "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe" sdl2.sln /t:INSTALL /p:Configuration="Release"
 
-echo "copy libs"
-copy Release\*.* ..\%SDL_DIR%\Lib\
+echo "copy libs/inc"
+copy ..\%SDL_DIR%\include\*.* ..\SDL2\include\
+copy include\*.* ..\SDL2\include\
+copy Release\*.* ..\SDL2\Lib\
 
-echo "copy dlls"
+echo "copy dlls to plugin binary/win64"
 copy Release\*.dll ..\..\..\Binaries\Win64\
+
+echo "copy to Project binary/win64"
+copy Release\*.dll ..\..\..\..\..\Binaries\Win64\
 
 cd ..
 
