@@ -1,0 +1,27 @@
+{
+	"FileVersion": 3,
+	"Version": 9,
+	"VersionName": "0.9.3",
+	"FriendlyName": "Joystick Plugin",
+	"Description": "Unofficial plugin for Joystick Controllers with SDL2 FF support",
+	"Category": "Input Devices",
+	"CreatedBy": "Ikarus76, getnamo, samiljan, tsky, jaydenmaalouf",
+	"CreatedByURL": "https://github.com/jaydenmaalouf/JoystickPlugin",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": false,
+	"IsBetaVersion": true,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "JoystickPlugin",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"WhitelistPlatforms": [
+				"Win64"
+			]
+		}
+	]
+}
