@@ -1,9 +1,9 @@
 #pragma once
 
-#include "FeedbackEffect.Generated.h"
+#include "ForcedFeedbackEffect.Generated.h"
 
 UENUM(BlueprintType)
-enum class EFeedbackType : uint8 
+enum class EForcedFeedbackType : uint8 
 {
 	CONSTANT,
 	SPRING,
@@ -20,10 +20,10 @@ enum class EFeedbackType : uint8
 };
 
 USTRUCT(BlueprintType)
-struct FFeedbackData{
+struct FForcedFeedbackData{
 	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere) EFeedbackType Type = EFeedbackType::SINE;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere) EForcedFeedbackType Type = EForcedFeedbackType::SINE;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere) FVector Direction=FVector(1,0,0);
 	UPROPERTY(BlueprintReadWrite, EditAnywhere) float Level = 1.0f;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere) float Period = 0.2f;

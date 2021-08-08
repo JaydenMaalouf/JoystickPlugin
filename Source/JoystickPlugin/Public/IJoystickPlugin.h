@@ -2,7 +2,8 @@
 
 #pragma once
 
-#include <IInputDeviceModule.h>
+#include "Modules/ModuleManager.h"
+#include "IInputDeviceModule.h"
 
 /**
  * The public interface to this module
