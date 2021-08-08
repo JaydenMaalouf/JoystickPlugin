@@ -166,43 +166,10 @@ FDeviceInfoSDL FDeviceSDL::AddDevice(FDeviceIndex DeviceIndex)
 			if (SDL_HapticRumbleInit(Device.Haptic) != -1)
 			{
 				UE_LOG(JoystickPluginLog, Log, TEXT("--- init Rumble device SUCCESSFUL"));
-
-				UE_LOG(JoystickPluginLog, Log, TEXT("--- testing Rumble device:"));
-				SDL_HapticEffect effect;
-				// Create the effect
-				SDL_memset(&effect, 0, sizeof(SDL_HapticEffect)); // 0 is safe default
-				effect.type = SDL_HAPTIC_SINE;
-				effect.periodic.direction.type = SDL_HAPTIC_POLAR; // Polar coordinates
-				effect.periodic.direction.dir[0] = 18000; // Force comes from south
-				effect.periodic.period = 1000; // 1000 ms
-				effect.periodic.magnitude = 30000; // 20000/32767 strength
-				effect.periodic.length = 5000; // 5 seconds long
-				effect.periodic.attack_length = 1000; // Takes 1 second to get max strength
-				effect.periodic.fade_length = 1000; // Takes 1 second to fade away
-
-				// Upload the effect
-				int effect_id = SDL_HapticNewEffect(Device.Haptic, &effect);
-
-				UE_LOG(JoystickPluginLog, Log, TEXT("--- play Rumble ...."));
-				// Test the effect
-				if (SDL_HapticRunEffect(Device.Haptic, effect_id, 1) == 0) {
-					SDL_Delay(5000); // Wait for the effect to finish
-
-					// We destroy the effect, although closing the device also does this
-					SDL_HapticDestroyEffect(Device.Haptic, effect_id);
-				}
-				else
-				{
-					UE_LOG(JoystickPluginLog, Log, TEXT("--- not successful!"));
-					SDL_HapticClose(Device.Haptic);
-					Device.Haptic = nullptr;
-				}
-
 			}
 			else {
 				UE_LOG(JoystickPluginLog, Log, TEXT("ERROR HapticRumbleInit FAILED"));
-			}
-			
+			}		
 
 		}
 	}
