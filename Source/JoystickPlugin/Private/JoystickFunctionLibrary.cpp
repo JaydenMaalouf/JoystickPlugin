@@ -7,25 +7,25 @@
 * of the BSD license.  See the LICENSE file for details.
 */
 
-#include "JoystickFunctions.h"
+#include "JoystickFunctionLibrary.h"
 #include "IJoystickPlugin.h"
 #include "JoystickInterface.h"
 #include "JoystickDevice.h"
 #include "JoystickPlugin.h"
 #include <Engine.h>
 
-UJoystickFunctions::UJoystickFunctions(const class FObjectInitializer& PCIP)
+UJoystickFunctionLibrary::UJoystickFunctionLibrary(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
 
 }
 
-FVector2D UJoystickFunctions::POVAxis(EJoystickPOVDirection Direction)
+FVector2D UJoystickFunctionLibrary::POVAxis(EJoystickPOVDirection Direction)
 {
 	return ::POVAxis(Direction);
 }
 
-FJoystickInfo UJoystickFunctions::GetJoystick(int32 DeviceId)
+FJoystickInfo UJoystickFunctionLibrary::GetJoystick(int32 DeviceId)
 {
 	if (!IJoystickPlugin::IsAvailable())
 		return FJoystickInfo();
@@ -37,7 +37,7 @@ FJoystickInfo UJoystickFunctions::GetJoystick(int32 DeviceId)
 	return Device->InputDevices[FDeviceId(DeviceId)];
 }
 
-FJoystickState UJoystickFunctions::GetJoystickState(int32 DeviceId)
+FJoystickState UJoystickFunctionLibrary::GetJoystickState(int32 DeviceId)
 {
 	if (!IJoystickPlugin::IsAvailable())
 		return FJoystickState();
@@ -49,7 +49,7 @@ FJoystickState UJoystickFunctions::GetJoystickState(int32 DeviceId)
 	return Device->CurrentState[FDeviceId(DeviceId)];
 }
 
-FJoystickState UJoystickFunctions::GetPreviousJoystickState(int32 DeviceId)
+FJoystickState UJoystickFunctionLibrary::GetPreviousJoystickState(int32 DeviceId)
 {
 	if (!IJoystickPlugin::IsAvailable())
 		return FJoystickState();
@@ -61,7 +61,7 @@ FJoystickState UJoystickFunctions::GetPreviousJoystickState(int32 DeviceId)
 	return Device->PreviousState[FDeviceId(DeviceId)];
 }
 
-int32 UJoystickFunctions::JoystickCount()
+int32 UJoystickFunctionLibrary::JoystickCount()
 {
 	if (!IJoystickPlugin::IsAvailable())
 		return 0;
@@ -70,7 +70,7 @@ int32 UJoystickFunctions::JoystickCount()
 	return Device->InputDevices.Num();
 }
 
-void UJoystickFunctions::RegisterForJoystickEvents(UObject* Listener)
+void UJoystickFunctionLibrary::RegisterForJoystickEvents(UObject* Listener)
 {
 	if (!IJoystickPlugin::IsAvailable())
 		return;
@@ -79,7 +79,7 @@ void UJoystickFunctions::RegisterForJoystickEvents(UObject* Listener)
 	Device->AddEventListener(Listener);
 }
 
-void UJoystickFunctions::MapJoystickDeviceToPlayer(int32 DeviceId, int32 Player)
+void UJoystickFunctionLibrary::MapJoystickDeviceToPlayer(int32 DeviceId, int32 Player)
 {
 	if (!IJoystickPlugin::IsAvailable())
 		return;
@@ -91,7 +91,7 @@ void UJoystickFunctions::MapJoystickDeviceToPlayer(int32 DeviceId, int32 Player)
 	Device->InputDevices[FDeviceId(DeviceId)].Player = Player;
 }
 
-void UJoystickFunctions::IgnoreGameControllers(bool bIgnore)
+void UJoystickFunctionLibrary::IgnoreGameControllers(bool bIgnore)
 {
 	if (!IJoystickPlugin::IsAvailable()) return;
 

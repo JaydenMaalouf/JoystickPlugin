@@ -1,4 +1,4 @@
-#include "FeedbackFunctions.h"
+#include "ForcedFeedbackFunctionLibrary.h"
 
 #include "Engine/Engine.h"
 
@@ -7,8 +7,6 @@
 #include "JoystickInterface.h"
 #include "JoystickPlugin.h"
 #include "DeviceSDL.h"
-
-// @third party code - BEGIN SDL
 
 THIRD_PARTY_INCLUDES_START
 #include "Windows/AllowWindowsPlatformTypes.h"
@@ -21,16 +19,18 @@ THIRD_PARTY_INCLUDES_START
 
 #include "Windows/HideWindowsPlatformTypes.h"
 THIRD_PARTY_INCLUDES_END
-// @third party code - END SDL
 
-UFeedbackFunctions::UFeedbackFunctions(const class FObjectInitializer& PCIP)
-	: Super(PCIP)
+UForcedFeedbackFunctionLibrary::UForcedFeedbackFunctionLibrary(const class FObjectInitializer& PCIP) : Super(PCIP)
 {
 
 }
 
-SDL_Haptic* GetSDLHapticFromDeviceId(int32 DeviceId) {
-	if (!IJoystickPlugin::IsAvailable()) return NULL;
+SDL_Haptic* GetSDLHapticFromDeviceId(int32 DeviceId) 
+{
+	if (!IJoystickPlugin::IsAvailable()) 
+	{
+		return NULL;
+	}
 
 	TSharedPtr<FJoystickDevice> JoystickDevice = static_cast<FJoystickPlugin&>(IJoystickPlugin::Get()).JoystickDevice;
 	auto* DeviceSDL = JoystickDevice->DeviceSDL->GetDevice(FDeviceId(DeviceId));
@@ -48,10 +48,10 @@ SDL_Haptic* GetSDLHapticFromDeviceId(int32 DeviceId) {
 	return Haptic;
 }
 
-SDL_HapticEffect FeedbackDataToSDLHapticEffect(const FFeedbackData FeedbackData) {
+SDL_HapticEffect FeedbackDataToSDLHapticEffect(const FFeedbackData FeedbackData) 
+{
 	SDL_HapticEffect Effect;
 	SDL_memset(&Effect, 0, sizeof(SDL_HapticEffect));
-
 
 	switch (FeedbackData.Type) {
 
@@ -213,9 +213,13 @@ SDL_HapticEffect FeedbackDataToSDLHapticEffect(const FFeedbackData FeedbackData)
 	return Effect;
 }
 
-bool UFeedbackFunctions::SetAutocenter(int32 DeviceId, int Center) {
+bool UForcedFeedbackFunctionLibrary::SetAutocenter(int32 DeviceId, int Center) 
+{
 	SDL_Haptic* Haptic = GetSDLHapticFromDeviceId(DeviceId);
-	if (!Haptic) return false;
+	if (Haptic == nullptr)
+	{
+		return false;
+	}
 
 	int Success=SDL_HapticSetAutocenter(Haptic, Center);
 
@@ -228,9 +232,13 @@ bool UFeedbackFunctions::SetAutocenter(int32 DeviceId, int Center) {
 	return true;
 }
 
-bool UFeedbackFunctions::SetGain(int32 DeviceId, int Gain) {
+bool UForcedFeedbackFunctionLibrary::SetGain(int32 DeviceId, int Gain) 
+{
 	SDL_Haptic* Haptic = GetSDLHapticFromDeviceId(DeviceId);
-	if (!Haptic) return false;
+	if (Haptic == nullptr)
+	{
+		return false;
+	}
 
 	int Success = SDL_HapticSetGain(Haptic, Gain);
 
@@ -243,15 +251,24 @@ bool UFeedbackFunctions::SetGain(int32 DeviceId, int Gain) {
 	return true;
 }
 
-void UFeedbackFunctions::DestroyEffect(int32 DeviceId, int32 EffectId) {
+void UForcedFeedbackFunctionLibrary::DestroyEffect(int32 DeviceId, int32 EffectId) 
+{
 	SDL_Haptic* Haptic = GetSDLHapticFromDeviceId(DeviceId);
-	if (!Haptic) return;
+	if (Haptic == nullptr)
+	{
+		return;
+	}
+
 	SDL_HapticDestroyEffect(Haptic, EffectId);
 }
 
-int UFeedbackFunctions::GetEffectStatus(int32 DeviceId, int32 EffectId) {
+int UForcedFeedbackFunctionLibrary::GetEffectStatus(int32 DeviceId, int32 EffectId) 
+{
 	SDL_Haptic* Haptic = GetSDLHapticFromDeviceId(DeviceId);
-	if (!Haptic) return -1;
+	if (Haptic == nullptr)
+	{
+		return -1;
+	}
 
 	int Status = SDL_HapticGetEffectStatus(Haptic,EffectId);
 	if (Status == -1) {
@@ -264,52 +281,80 @@ int UFeedbackFunctions::GetEffectStatus(int32 DeviceId, int32 EffectId) {
 	}
 }
 
-void UFeedbackFunctions::StopEffect(int32 DeviceId, int32 EffectId) {
+void UForcedFeedbackFunctionLibrary::StopEffect(int32 DeviceId, int32 EffectId) 
+{
 	SDL_Haptic* Haptic = GetSDLHapticFromDeviceId(DeviceId);
-	if (!Haptic) return;
+	if (Haptic == nullptr)
+	{
+		return;
+	}
 
 	SDL_HapticStopEffect(Haptic, EffectId);
 }
 
-void UFeedbackFunctions::PauseDevice(int32 DeviceId) {
+void UForcedFeedbackFunctionLibrary::PauseDevice(int32 DeviceId) 
+{
 	SDL_Haptic* Haptic = GetSDLHapticFromDeviceId(DeviceId);
-	if (!Haptic) return;
+	if (Haptic == nullptr)
+	{
+		return;
+	}
 
 	SDL_HapticPause(Haptic);
 }
 
-void UFeedbackFunctions::UnpauseDevice(int32 DeviceId) {
+void UForcedFeedbackFunctionLibrary::UnpauseDevice(int32 DeviceId) 
+{
 	SDL_Haptic* Haptic = GetSDLHapticFromDeviceId(DeviceId);
-	if (!Haptic) return;
+	if (Haptic == nullptr)
+	{
+		return;
+	}
 
 	SDL_HapticUnpause(Haptic);
 }
 
-void UFeedbackFunctions::StopAllEffects(int32 DeviceId) {
+void UForcedFeedbackFunctionLibrary::StopAllEffects(int32 DeviceId) 
+{
 	SDL_Haptic* Haptic = GetSDLHapticFromDeviceId(DeviceId);
-	if (!Haptic) return;
+	if (Haptic == nullptr)
+	{
+		return;
+	}
 
 	SDL_HapticStopAll(Haptic);
 }
 
-int UFeedbackFunctions::GetNumEffects(int32 DeviceId) {
+int UForcedFeedbackFunctionLibrary::GetNumEffects(int32 DeviceId) 
+{
 	SDL_Haptic* Haptic = GetSDLHapticFromDeviceId(DeviceId);
-	if (!Haptic) return -1;
+	if (Haptic == nullptr)
+	{
+		return -1;
+	}
 
 	return SDL_HapticNumEffects(Haptic);
 }
 
 
-int UFeedbackFunctions::GetNumEffectsPlaying(int32 DeviceId) {
+int UForcedFeedbackFunctionLibrary::GetNumEffectsPlaying(int32 DeviceId) 
+{
 	SDL_Haptic* Haptic = GetSDLHapticFromDeviceId(DeviceId);
-	if (!Haptic) return -1;
+	if (Haptic == nullptr)
+	{
+		return -1;
+	}
 
 	return SDL_HapticNumEffectsPlaying(Haptic);
 }
 
-int32 UFeedbackFunctions::CreateEffect(int32 DeviceId, FFeedbackData EffectData, int NumIterations, bool Infinity) {
+int32 UForcedFeedbackFunctionLibrary::CreateEffect(int32 DeviceId, FFeedbackData EffectData, int NumIterations, bool Infinity) 
+{
 	SDL_Haptic* Haptic = GetSDLHapticFromDeviceId(DeviceId);
-	if (!Haptic) return -1;
+	if (Haptic == nullptr)
+	{
+		return -1;
+	}
 
 	SDL_HapticEffect Effect = FeedbackDataToSDLHapticEffect(EffectData);
 
@@ -334,7 +379,7 @@ int32 UFeedbackFunctions::CreateEffect(int32 DeviceId, FFeedbackData EffectData,
 	return EffectId;
 }
 
-void UFeedbackFunctions::UpdateEffect(int32 DeviceId, int32 EffectId, FFeedbackData EffectData) {
+void UForcedFeedbackFunctionLibrary::UpdateEffect(int32 DeviceId, int32 EffectId, FFeedbackData EffectData) {
 	SDL_Haptic* Haptic = GetSDLHapticFromDeviceId(DeviceId);
 	if (!Haptic) return;
 	SDL_HapticEffect Effect = FeedbackDataToSDLHapticEffect(EffectData);

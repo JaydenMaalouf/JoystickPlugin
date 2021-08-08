@@ -11,10 +11,10 @@
 
 #include "JoystickInterface.h"
 
-#include "JoystickFunctions.generated.h"
+#include "JoystickFunctionLibrary.generated.h"
 
 UCLASS(BlueprintType)
-class UJoystickFunctions : public UObject
+class UJoystickFunctionLibrary : public UObject
 {
 	
 	GENERATED_UCLASS_BODY()

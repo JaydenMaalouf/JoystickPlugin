@@ -1,12 +1,12 @@
 #pragma once
 
 #include "JoystickInterface.h"
-#include "FeedbackEffect.h"
+#include "ForcedFeedbackEffect.h"
 
-#include "FeedbackFunctions.generated.h"
+#include "ForcedFeedbackFunctionLibrary.generated.h"
 
 UCLASS(BlueprintType)
-class UFeedbackFunctions : public UObject
+class UForcedFeedbackFunctionLibrary : public UObject
 {
 	GENERATED_UCLASS_BODY()
 public:
@@ -27,10 +27,10 @@ public:
 	static bool SetGain(int32 DeviceId, int Gain);
 
 	UFUNCTION(BlueprintCallable, Category = "SDL2 Force Feedback")
-	static int32 CreateEffect(int32 DeviceId, const FFeedbackData EffectData, int NumIterations = 1, bool Infinity = false);
+	static int32 CreateEffect(int32 DeviceId, const FForcedFeedbackData EffectData, int NumIterations = 1, bool Infinity = false);
 
 	UFUNCTION(BlueprintCallable, Category = "SDL2 Force Feedback")
-	static void UpdateEffect(int32 DeviceId, int32 EffectId, FFeedbackData EffectData);
+	static void UpdateEffect(int32 DeviceId, int32 EffectId, FForcedFeedbackData EffectData);
 
 	UFUNCTION(BlueprintCallable, Category = "SDL2 Force Feedback")
 	static void PauseDevice(int32 DeviceId);

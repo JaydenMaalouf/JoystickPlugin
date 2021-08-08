@@ -18,12 +18,18 @@
 
 //Init and Runtime
 
-FJoystickDevice::FJoystickDevice()
+FJoystickDevice::FJoystickDevice(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler) : MessageHandler(InMessageHandler)
 {
 	UE_LOG(JoystickPluginLog, Log, TEXT("FJoystickPlugin::StartupModule() creating Device SDL"));
 
 	DeviceSDL = MakeShareable(new FDeviceSDL(this));
 	DeviceSDL->Init();
+}
+
+
+FJoystickDevice::~FJoystickDevice()
+{
+
 }
 
 void FJoystickDevice::InitInputDevice(const FDeviceInfoSDL &Device)
@@ -60,7 +66,7 @@ void FJoystickDevice::InitInputDevice(const FDeviceInfoSDL &Device)
 		if (!EKeys::GetKeyDetails(DeviceAxisKeys[DeviceId][iAxis]).IsValid())
 		{
 			FText textValue = FText::Format(LOCTEXT("DeviceAxis", "{0} {1} Axis {2}"), FText::FromString(DeviceInfo.ProductName), DeviceInfo.DeviceId, FText::AsNumber(iAxis));
-			EKeys::AddKey(FKeyDetails(DeviceAxisKeys[DeviceId][iAxis], textValue, FKeyDetails::GamepadKey | FKeyDetails::FloatAxis));
+			EKeys::AddKey(FKeyDetails(DeviceAxisKeys[DeviceId][iAxis], textValue, FKeyDetails::GamepadKey | FKeyDetails::Axis1D));
 		}
 	}
 
@@ -95,7 +101,7 @@ void FJoystickDevice::InitInputDevice(const FDeviceInfoSDL &Device)
 			if (!EKeys::GetKeyDetails(key).IsValid())
 			{
 				FText textValue = FText::Format(LOCTEXT("DeviceHat", "{0} {1} Hat {2} {3}"), FText::FromString(DeviceInfo.ProductName), DeviceInfo.DeviceId, FText::AsNumber(iHat), FText::FromString(_2DaxisNames[iAxis]));
-				EKeys::AddKey(FKeyDetails(key, textValue, FKeyDetails::GamepadKey | FKeyDetails::FloatAxis));
+				EKeys::AddKey(FKeyDetails(key, textValue, FKeyDetails::GamepadKey | FKeyDetails::Axis1D));
 			}
 		}
 	}
@@ -114,7 +120,7 @@ void FJoystickDevice::InitInputDevice(const FDeviceInfoSDL &Device)
 			if (!EKeys::GetKeyDetails(key).IsValid())
 			{
 				FText textValue = FText::Format(LOCTEXT("DeviceBall", "{0} {1} Ball {2} {3}"), FText::FromString(DeviceInfo.ProductName), DeviceInfo.DeviceId, FText::AsNumber(iBall), FText::FromString(_2DaxisNames[iAxis]));
-				EKeys::AddKey(FKeyDetails(key, textValue, FKeyDetails::GamepadKey | FKeyDetails::FloatAxis));
+				EKeys::AddKey(FKeyDetails(key, textValue, FKeyDetails::GamepadKey | FKeyDetails::Axis1D));
 			}
 		}
 	}
@@ -194,8 +200,12 @@ bool EmitAnalogInputEventForKey(FKey Key, float Value, int32 User, bool Repeat)
 
 void FJoystickDevice::JoystickAxis(FDeviceId DeviceId, int32 Axis, float Value)
 {
+	UE_LOG(JoystickPluginLog, Log, TEXT("Joystick %f"), Value);
 	CurrentState[DeviceId].Axes[Axis] = Value;
-	EmitAnalogInputEventForKey(DeviceAxisKeys[DeviceId][Axis], Value, InputDevices[DeviceId].Player, 0);
+
+
+	//EmitAnalogInputEventForKey(DeviceAxisKeys[DeviceId][Axis], Value, InputDevices[DeviceId].Player, 0);
+	//MessageHandler->OnControllerAnalog(DeviceAxisKeys[DeviceId][Axis].GetFName(), InputDevices[DeviceId].Player, Value);
 
 	for (auto & listener : EventListeners)
 	{
@@ -293,7 +303,7 @@ void FJoystickDevice::Tick(float DeltaTime)
 void FJoystickDevice::SendControllerEvents()
 {
 	//UE_LOG(JoystickPluginLog, Log, TEXT("FJoystickDevice::SendControllerEvents()"));
-
+	
 	for (auto & Device : InputDevices)
 	{
 		FDeviceId DeviceId = Device.Key;
@@ -308,7 +318,13 @@ void FJoystickDevice::SendControllerEvents()
 					CurrentState[DeviceId].Balls[iBall] = FVector2D::ZeroVector;
 				}
 			}
+
+			for (int32 axisIndex = 0; axisIndex < CurrentState[DeviceId].Axes.Num(); axisIndex++)
+			{
+				MessageHandler->OnControllerAnalog(DeviceAxisKeys[DeviceId][axisIndex].GetFName(), InputDevices[DeviceId].Player, CurrentState[DeviceId].Axes[axisIndex]);
+			}
 		}
+
 	}
 
 	DeviceSDL->Update();
@@ -322,10 +338,12 @@ void FJoystickDevice::SendControllerEvents()
 			i--;
 		}
 	}
+
 }
 
 void FJoystickDevice::SetMessageHandler(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler)
 {
+	MessageHandler = InMessageHandler;
 }
 
 bool FJoystickDevice::Exec(UWorld* InWorld, const TCHAR* Cmd, FOutputDevice& Ar)
