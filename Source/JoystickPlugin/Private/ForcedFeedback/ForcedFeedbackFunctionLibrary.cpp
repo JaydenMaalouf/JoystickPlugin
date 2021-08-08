@@ -48,7 +48,7 @@ SDL_Haptic* GetSDLHapticFromDeviceId(int32 DeviceId)
 	return Haptic;
 }
 
-SDL_HapticEffect FeedbackDataToSDLHapticEffect(const FFeedbackData FeedbackData) 
+SDL_HapticEffect FeedbackDataToSDLHapticEffect(const FForcedFeedbackData FeedbackData) 
 {
 	SDL_HapticEffect Effect;
 	SDL_memset(&Effect, 0, sizeof(SDL_HapticEffect));
@@ -56,25 +56,25 @@ SDL_HapticEffect FeedbackDataToSDLHapticEffect(const FFeedbackData FeedbackData)
 	switch (FeedbackData.Type) {
 
 			//Periodic
-		case(EFeedbackType::SINE):
-		case(EFeedbackType::TRIANGLE):
-		case(EFeedbackType::SAWTOOTHDOWN):
-		case(EFeedbackType::SAWTOOTHUP):
+		case(EForcedFeedbackType::SINE):
+		case(EForcedFeedbackType::TRIANGLE):
+		case(EForcedFeedbackType::SAWTOOTHDOWN):
+		case(EForcedFeedbackType::SAWTOOTHUP):
 		{
 			switch (FeedbackData.Type) {
-				case(EFeedbackType::SINE): {
+				case(EForcedFeedbackType::SINE): {
 					Effect.type = SDL_HAPTIC_SINE;
 					break;
 				}
-				case(EFeedbackType::TRIANGLE): {
+				case(EForcedFeedbackType::TRIANGLE): {
 					Effect.type = SDL_HAPTIC_TRIANGLE;
 					break;
 				}
-				case(EFeedbackType::SAWTOOTHUP): {
+				case(EForcedFeedbackType::SAWTOOTHUP): {
 					Effect.type = SDL_HAPTIC_SAWTOOTHUP;
 					break;
 				}
-				case(EFeedbackType::SAWTOOTHDOWN): {
+				case(EForcedFeedbackType::SAWTOOTHDOWN): {
 					Effect.type = SDL_HAPTIC_SAWTOOTHDOWN;
 					break;
 				}
@@ -105,7 +105,7 @@ SDL_HapticEffect FeedbackDataToSDLHapticEffect(const FFeedbackData FeedbackData)
 		}
 
 		//constant
-		case(EFeedbackType::CONSTANT):
+		case(EForcedFeedbackType::CONSTANT):
 		{
 			Effect.type = SDL_HAPTIC_CONSTANT;
 			Effect.constant.direction.type = SDL_HAPTIC_CARTESIAN;
@@ -130,25 +130,25 @@ SDL_HapticEffect FeedbackDataToSDLHapticEffect(const FFeedbackData FeedbackData)
 		}
 		
 		//condition
-		case(EFeedbackType::SPRING):
-		case(EFeedbackType::DAMPER):
-		case(EFeedbackType::FRICTION):
-		case(EFeedbackType::INERTIA):
+		case(EForcedFeedbackType::SPRING):
+		case(EForcedFeedbackType::DAMPER):
+		case(EForcedFeedbackType::FRICTION):
+		case(EForcedFeedbackType::INERTIA):
 		{
 			switch (FeedbackData.Type) {
-				case(EFeedbackType::SPRING): {
+				case(EForcedFeedbackType::SPRING): {
 					Effect.type = SDL_HAPTIC_SPRING;
 					break;
 				}
-				case(EFeedbackType::DAMPER): {
+				case(EForcedFeedbackType::DAMPER): {
 					Effect.type = SDL_HAPTIC_DAMPER;
 					break;
 				}
-				case(EFeedbackType::FRICTION): {
+				case(EForcedFeedbackType::FRICTION): {
 					Effect.type = SDL_HAPTIC_FRICTION;
 					break;
 				}
-				case(EFeedbackType::INERTIA): {
+				case(EForcedFeedbackType::INERTIA): {
 					Effect.type = SDL_HAPTIC_INERTIA;
 					break;
 				}
@@ -189,7 +189,7 @@ SDL_HapticEffect FeedbackDataToSDLHapticEffect(const FFeedbackData FeedbackData)
 		}
 
 		//ramp
-		case(EFeedbackType::RAMP): 
+		case(EForcedFeedbackType::RAMP):
 		{
 			Effect.type = SDL_HAPTIC_RAMP;
 			Effect.ramp.direction.type = SDL_HAPTIC_CARTESIAN;
@@ -348,7 +348,7 @@ int UForcedFeedbackFunctionLibrary::GetNumEffectsPlaying(int32 DeviceId)
 	return SDL_HapticNumEffectsPlaying(Haptic);
 }
 
-int32 UForcedFeedbackFunctionLibrary::CreateEffect(int32 DeviceId, FFeedbackData EffectData, int NumIterations, bool Infinity) 
+int32 UForcedFeedbackFunctionLibrary::CreateEffect(int32 DeviceId, FForcedFeedbackData EffectData, int NumIterations, bool Infinity) 
 {
 	SDL_Haptic* Haptic = GetSDLHapticFromDeviceId(DeviceId);
 	if (Haptic == nullptr)
@@ -379,7 +379,7 @@ int32 UForcedFeedbackFunctionLibrary::CreateEffect(int32 DeviceId, FFeedbackData
 	return EffectId;
 }
 
-void UForcedFeedbackFunctionLibrary::UpdateEffect(int32 DeviceId, int32 EffectId, FFeedbackData EffectData) {
+void UForcedFeedbackFunctionLibrary::UpdateEffect(int32 DeviceId, int32 EffectId, FForcedFeedbackData EffectData) {
 	SDL_Haptic* Haptic = GetSDLHapticFromDeviceId(DeviceId);
 	if (!Haptic) return;
 	SDL_HapticEffect Effect = FeedbackDataToSDLHapticEffect(EffectData);
