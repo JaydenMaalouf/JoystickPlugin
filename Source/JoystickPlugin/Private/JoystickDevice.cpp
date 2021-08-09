@@ -155,10 +155,10 @@ void FJoystickDevice::JoystickPluggedIn(const FDeviceInfoSDL &DeviceInfoSDL)
 	InitInputDevice(DeviceInfoSDL);
 	for (auto & listener : EventListeners)
 	{
-		UObject * o = listener.Get();
-		if (o != nullptr)
+		UObject * listenerObject = listener.Get();
+		if (listenerObject != nullptr)
 		{
-			IJoystickInterface::Execute_JoystickPluggedIn(o, DeviceInfoSDL.DeviceId.value);
+			IJoystickInterface::Execute_JoystickPluggedIn(listenerObject, DeviceInfoSDL.DeviceId.value);
 		}
 	}
 }
@@ -171,10 +171,10 @@ void FJoystickDevice::JoystickUnplugged(FDeviceId DeviceId)
 
 	for (auto & listener : EventListeners)
 	{
-		UObject * o = listener.Get();
-		if (o != nullptr)
+		UObject * listenerObject = listener.Get();
+		if (listenerObject != nullptr)
 		{
-			IJoystickInterface::Execute_JoystickUnplugged(o, DeviceId.value);
+			IJoystickInterface::Execute_JoystickUnplugged(listenerObject, DeviceId.value);
 		}
 	}
 }
@@ -186,13 +186,13 @@ void FJoystickDevice::JoystickButton(FDeviceId DeviceId, int32 Button, bool Pres
 
 	for (auto & listener : EventListeners)
 	{
-		UObject * o = listener.Get();
-		if (o != nullptr)
+		UObject * listenerObject = listener.Get();
+		if (listenerObject != nullptr)
 		{
 			if (Pressed)
-				IJoystickInterface::Execute_JoystickButtonPressed(o, Button, CurrentState[DeviceId]);
+				IJoystickInterface::Execute_JoystickButtonPressed(listenerObject, Button, CurrentState[DeviceId]);
 			else
-				IJoystickInterface::Execute_JoystickButtonReleased(o, Button, CurrentState[DeviceId]);
+				IJoystickInterface::Execute_JoystickButtonReleased(listenerObject, Button, CurrentState[DeviceId]);
 		}
 	}
 }
@@ -204,10 +204,10 @@ void FJoystickDevice::JoystickAxis(FDeviceId DeviceId, int32 Axis, float Value)
 
 	for (auto & listener : EventListeners)
 	{
-		UObject * o = listener.Get();
-		if (o != nullptr)
+		UObject * listenerObject = listener.Get();
+		if (listenerObject != nullptr)
 		{
-			IJoystickInterface::Execute_JoystickAxisChanged(o, Axis, CurrentState[DeviceId].Axes[Axis], PreviousState[DeviceId].Axes[Axis], CurrentState[DeviceId], PreviousState[DeviceId]);
+			IJoystickInterface::Execute_JoystickAxisChanged(listenerObject, Axis, CurrentState[DeviceId].Axes[Axis], PreviousState[DeviceId].Axes[Axis], CurrentState[DeviceId], PreviousState[DeviceId]);
 		}
 	}
 }
@@ -219,10 +219,10 @@ void FJoystickDevice::JoystickHat(FDeviceId DeviceId, int32 Hat, EJoystickPOVDir
 
 	for (auto & listener : EventListeners)
 	{
-		UObject * o = listener.Get();
-		if (o != nullptr)
+		UObject * listenerObject = listener.Get();
+		if (listenerObject != nullptr)
 		{
-			IJoystickInterface::Execute_JoystickHatChanged(o, Hat, Value, CurrentState[DeviceId]);
+			IJoystickInterface::Execute_JoystickHatChanged(listenerObject, Hat, Value, CurrentState[DeviceId]);
 		}
 	}
 }
@@ -234,10 +234,10 @@ void FJoystickDevice::JoystickBall(FDeviceId DeviceId, int32 Ball, FVector2D Del
 
 	for (auto & listener : EventListeners)
 	{
-		UObject * o = listener.Get();
-		if (o != nullptr)
+		UObject * listenerObject = listener.Get();
+		if (listenerObject != nullptr)
 		{
-			IJoystickInterface::Execute_JoystickBallMoved(o, Ball, Delta, CurrentState[DeviceId]);
+			IJoystickInterface::Execute_JoystickBallMoved(listenerObject, Ball, Delta, CurrentState[DeviceId]);
 		}
 	}
 }
