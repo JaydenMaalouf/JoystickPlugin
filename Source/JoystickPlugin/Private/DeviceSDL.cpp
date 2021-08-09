@@ -50,7 +50,7 @@ void FDeviceSDL::Init()
 	}
 
 	int Joysticks = SDL_NumJoysticks();
-	for (int i = 0; i < Joysticks; i++)
+	for (int32 i = 0; i < Joysticks; i++)
 	{
 		AddDevice(FDeviceIndex(i));
 	}
@@ -101,7 +101,7 @@ void FDeviceSDL::IgnoreGameControllers(bool bIgnore)
 	{
 		bIgnoreGameControllers = false;
 		int Joysticks = SDL_NumJoysticks();
-		for (int i = 0; i < Joysticks; i++)
+		for (int32 i = 0; i < Joysticks; i++)
 		{
 			if (SDL_IsGameController(i))
 			{
