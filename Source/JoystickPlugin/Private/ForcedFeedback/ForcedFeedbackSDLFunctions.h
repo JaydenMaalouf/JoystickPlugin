@@ -9,8 +9,6 @@
 THIRD_PARTY_INCLUDES_START
 
 #include "SDL.h"
-#include "SDL_joystick.h"
-#include "SDL_gamecontroller.h"
 
 THIRD_PARTY_INCLUDES_END
 
