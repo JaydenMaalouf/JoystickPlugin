@@ -2,8 +2,11 @@
 
 #include "IInputDevice.h"
 #include "GenericPlatform/GenericApplicationMessageHandler.h"
-#include "JoystickInterface.h"
-#include "IJoystickEventInterface.h"
+#include "Interfaces/JoystickEventInterface.h"
+
+#include "Data/DeviceId.h"
+#include "Data/JoystickInfo.h"
+#include "Data/JoystickState.h"
 
 struct FDeviceInfoSDL;
 class FDeviceSDL;
@@ -40,7 +43,6 @@ public:
 
 private:
 	void InitInputDevice(const FDeviceInfoSDL &Device);
-	void EmitEvents(const FJoystickState& previous, const FJoystickState& current);
 
 	TArray<TWeakObjectPtr<UObject>> EventListeners;
 

@@ -11,8 +11,7 @@
 
 DEFINE_LOG_CATEGORY(JoystickPluginLog);
 
-FDeviceSDL::FDeviceSDL(IJoystickEventInterface * eventInterface) 
-	: EventInterface(eventInterface)
+FDeviceSDL::FDeviceSDL(IJoystickEventInterface * eventInterface) : EventInterface(eventInterface)
 {
 }
 

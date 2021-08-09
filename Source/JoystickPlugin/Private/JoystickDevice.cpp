@@ -11,12 +11,10 @@
 #include "JoystickDevice.h"
 #include "DeviceSDL.h"
 
-#include <Engine.h>
-#include <SlateBasics.h>
+#include "SlateBasics.h"
 
-#define LOCTEXT_NAMESPACE "JoystickPlugin"
-
-//Init and Runtime
+#include "JoystickFunctionLibrary.h"
+#include "ForcedFeedback/ForcedFeedbackFunctionLibrary.h"
 
 FJoystickDevice::FJoystickDevice(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler) : MessageHandler(InMessageHandler)
 {
@@ -26,10 +24,35 @@ FJoystickDevice::FJoystickDevice(const TSharedRef<FGenericApplicationMessageHand
 	DeviceSDL->Init();
 }
 
-
 FJoystickDevice::~FJoystickDevice()
 {
+	//UForcedFeedbackFunctionLibrary::Recenter(0);
+	DeviceSDL = nullptr;
+}
 
+void FJoystickDevice::Tick(float DeltaTime)
+{
+
+}
+
+bool FJoystickDevice::Exec(UWorld* InWorld, const TCHAR* Cmd, FOutputDevice& Ar)
+{
+	return false;
+}
+
+void FJoystickDevice::SetChannelValue(int32 ControllerId, FForceFeedbackChannelType ChannelType, float Value)
+{
+
+}
+
+void FJoystickDevice::SetChannelValues(int32 ControllerId, const FForceFeedbackValues& Values)
+{
+
+}
+
+void FJoystickDevice::SetMessageHandler(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler)
+{
+	MessageHandler = InMessageHandler;
 }
 
 void FJoystickDevice::InitInputDevice(const FDeviceInfoSDL &Device)
@@ -65,7 +88,7 @@ void FJoystickDevice::InitInputDevice(const FDeviceInfoSDL &Device)
 
 		if (!EKeys::GetKeyDetails(DeviceAxisKeys[DeviceId][iAxis]).IsValid())
 		{
-			FText textValue = FText::Format(LOCTEXT("DeviceAxis", "{0} {1} Axis {2}"), FText::FromString(DeviceInfo.ProductName), DeviceInfo.DeviceId, FText::AsNumber(iAxis));
+			FText textValue = FText::Format(NSLOCTEXT("JoystickPlugin", "DeviceAxis", "{0} {1} Axis {2}"), FText::FromString(DeviceInfo.ProductName), DeviceInfo.DeviceId, FText::AsNumber(iAxis));
 			EKeys::AddKey(FKeyDetails(DeviceAxisKeys[DeviceId][iAxis], textValue, FKeyDetails::GamepadKey | FKeyDetails::Axis1D));
 		}
 	}
@@ -80,7 +103,7 @@ void FJoystickDevice::InitInputDevice(const FDeviceInfoSDL &Device)
 
 		if (!EKeys::GetKeyDetails(DeviceButtonKeys[DeviceId][iButton]).IsValid())
 		{
-			FText textValue = FText::Format(LOCTEXT("DeviceButton", "{0} {1} Button {2}"), FText::FromString(DeviceInfo.ProductName), DeviceInfo.DeviceId, FText::AsNumber(iButton));
+			FText textValue = FText::Format(NSLOCTEXT("JoystickPlugin", "DeviceButton", "{0} {1} Button {2}"), FText::FromString(DeviceInfo.ProductName), DeviceInfo.DeviceId, FText::AsNumber(iButton));
 			EKeys::AddKey(FKeyDetails(DeviceButtonKeys[DeviceId][iButton], textValue, FKeyDetails::GamepadKey));
 		}
 	}
@@ -100,7 +123,7 @@ void FJoystickDevice::InitInputDevice(const FDeviceInfoSDL &Device)
 
 			if (!EKeys::GetKeyDetails(key).IsValid())
 			{
-				FText textValue = FText::Format(LOCTEXT("DeviceHat", "{0} {1} Hat {2} {3}"), FText::FromString(DeviceInfo.ProductName), DeviceInfo.DeviceId, FText::AsNumber(iHat), FText::FromString(_2DaxisNames[iAxis]));
+				FText textValue = FText::Format(NSLOCTEXT("JoystickPlugin", "DeviceHat", "{0} {1} Hat {2} {3}"), FText::FromString(DeviceInfo.ProductName), DeviceInfo.DeviceId, FText::AsNumber(iHat), FText::FromString(_2DaxisNames[iAxis]));
 				EKeys::AddKey(FKeyDetails(key, textValue, FKeyDetails::GamepadKey | FKeyDetails::Axis1D));
 			}
 		}
@@ -119,7 +142,7 @@ void FJoystickDevice::InitInputDevice(const FDeviceInfoSDL &Device)
 
 			if (!EKeys::GetKeyDetails(key).IsValid())
 			{
-				FText textValue = FText::Format(LOCTEXT("DeviceBall", "{0} {1} Ball {2} {3}"), FText::FromString(DeviceInfo.ProductName), DeviceInfo.DeviceId, FText::AsNumber(iBall), FText::FromString(_2DaxisNames[iAxis]));
+				FText textValue = FText::Format(NSLOCTEXT("JoystickPlugin", "DeviceBall", "{0} {1} Ball {2} {3}"), FText::FromString(DeviceInfo.ProductName), DeviceInfo.DeviceId, FText::AsNumber(iBall), FText::FromString(_2DaxisNames[iAxis]));
 				EKeys::AddKey(FKeyDetails(key, textValue, FKeyDetails::GamepadKey | FKeyDetails::Axis1D));
 			}
 		}
@@ -192,20 +215,9 @@ void FJoystickDevice::JoystickButton(FDeviceId DeviceId, int32 Button, bool Pres
 	}
 }
 
-bool EmitAnalogInputEventForKey(FKey Key, float Value, int32 User, bool Repeat)
-{
-	FAnalogInputEvent AnalogInputEvent(Key, FSlateApplication::Get().GetModifierKeys(), User, Repeat, 0, 0, Value);
-	return FSlateApplication::Get().ProcessAnalogInputEvent(AnalogInputEvent);
-}
-
 void FJoystickDevice::JoystickAxis(FDeviceId DeviceId, int32 Axis, float Value)
 {
-	UE_LOG(JoystickPluginLog, Log, TEXT("Joystick %f"), Value);
 	CurrentState[DeviceId].Axes[Axis] = Value;
-
-
-	//EmitAnalogInputEventForKey(DeviceAxisKeys[DeviceId][Axis], Value, InputDevices[DeviceId].Player, 0);
-	//MessageHandler->OnControllerAnalog(DeviceAxisKeys[DeviceId][Axis].GetFName(), InputDevices[DeviceId].Player, Value);
 
 	for (auto & listener : EventListeners)
 	{
@@ -221,10 +233,6 @@ void FJoystickDevice::JoystickHat(FDeviceId DeviceId, int32 Hat, EJoystickPOVDir
 {
 	CurrentState[DeviceId].Hats[Hat] = Value;
 
-	FVector2D povAxis = POVAxis(Value);
-	EmitAnalogInputEventForKey(DeviceHatKeys[0][DeviceId][Hat], povAxis.X, InputDevices[DeviceId].Player, 0);
-	EmitAnalogInputEventForKey(DeviceHatKeys[1][DeviceId][Hat], povAxis.Y, InputDevices[DeviceId].Player, 0);
-
 	for (auto & listener : EventListeners)
 	{
 		UObject * o = listener.Get();
@@ -235,20 +243,9 @@ void FJoystickDevice::JoystickHat(FDeviceId DeviceId, int32 Hat, EJoystickPOVDir
 	}
 }
 
-bool EmitPointerEventForKey(int32 PointerIndex, const FVector2D &Value)
-{
-	FPointerEvent pointerEvent(PointerIndex, FVector2D::ZeroVector, FVector2D::ZeroVector, Value, TSet<FKey>(), FSlateApplication::Get().GetModifierKeys());
-	return FSlateApplication::Get().ProcessMouseMoveEvent(pointerEvent);
-}
-
 void FJoystickDevice::JoystickBall(FDeviceId DeviceId, int32 Ball, FVector2D Delta)
 {
 	CurrentState[DeviceId].Balls[Ball] = Delta;
-
-	//EmitPointerEventForKey(ball, FVector2D(dx, dy)); Maybe try something like this instead?
-
-	EmitAnalogInputEventForKey(DeviceBallKeys[0][DeviceId][Ball], Delta.X, InputDevices[DeviceId].Player, 0);
-	EmitAnalogInputEventForKey(DeviceBallKeys[1][DeviceId][Ball], Delta.Y, InputDevices[DeviceId].Player, 0);
 
 	for (auto & listener : EventListeners)
 	{
@@ -258,46 +255,6 @@ void FJoystickDevice::JoystickBall(FDeviceId DeviceId, int32 Ball, FVector2D Del
 			IJoystickInterface::Execute_JoystickBallMoved(o, Ball, Delta, CurrentState[DeviceId]);
 		}
 	}
-}
-
-void FJoystickDevice::EmitEvents(const FJoystickState &previous, const FJoystickState &current)
-{
-	for (int iButton = 0; iButton < current.Buttons.Num(); iButton++)
-	{
-		if (previous.Buttons[iButton] != current.Buttons[iButton])
-		{
-			JoystickButton(FDeviceId(current.DeviceId), iButton, current.Buttons[iButton]);
-		}
-	}
-	for (int iAxis = 0; iAxis < current.Axes.Num(); iAxis++)
-	{
-		if (previous.Axes[iAxis] != current.Axes[iAxis])
-		{
-			JoystickAxis(FDeviceId(current.DeviceId), iAxis, current.Axes[iAxis]);
-		}
-	}
-	for (int iHat = 0; iHat < current.Hats.Num(); iHat++)
-	{
-		if (previous.Hats[iHat] != current.Hats[iHat])
-		{
-			JoystickHat(FDeviceId(current.DeviceId), iHat, current.Hats[iHat]);
-		}
-	}
-	for (int iBall = 0; iBall < current.Balls.Num(); iBall++)
-	{
-		if (current.Balls[iBall] != FVector2D::ZeroVector)
-		{
-			JoystickBall(FDeviceId(current.DeviceId), iBall, current.Balls[iBall]);
-		}
-	}
-}
-
-
-// IInputDevice implementation
-
-void FJoystickDevice::Tick(float DeltaTime)
-{
-
 }
 
 void FJoystickDevice::SendControllerEvents()
@@ -319,9 +276,25 @@ void FJoystickDevice::SendControllerEvents()
 				}
 			}
 
+			//Axis
 			for (int32 axisIndex = 0; axisIndex < CurrentState[DeviceId].Axes.Num(); axisIndex++)
 			{
 				MessageHandler->OnControllerAnalog(DeviceAxisKeys[DeviceId][axisIndex].GetFName(), InputDevices[DeviceId].Player, CurrentState[DeviceId].Axes[axisIndex]);
+			}
+
+			//Hats
+			for (int32 hatIndex = 0; hatIndex < CurrentState[DeviceId].Hats.Num(); hatIndex++)
+			{
+				FVector2D povAxis = UJoystickFunctionLibrary::POVAxis(CurrentState[DeviceId].Hats[hatIndex]);
+				MessageHandler->OnControllerAnalog(DeviceHatKeys[0][DeviceId][hatIndex].GetFName(), InputDevices[DeviceId].Player, povAxis.X);
+				MessageHandler->OnControllerAnalog(DeviceHatKeys[1][DeviceId][hatIndex].GetFName(), InputDevices[DeviceId].Player, povAxis.Y);
+			}
+
+			//Balls
+			for (int32 ballIndex = 0; ballIndex < CurrentState[DeviceId].Balls.Num(); ballIndex++)
+			{
+				MessageHandler->OnControllerAnalog(DeviceBallKeys[0][DeviceId][ballIndex].GetFName(), InputDevices[DeviceId].Player, CurrentState[DeviceId].Balls[ballIndex].X);
+				MessageHandler->OnControllerAnalog(DeviceBallKeys[1][DeviceId][ballIndex].GetFName(), InputDevices[DeviceId].Player, CurrentState[DeviceId].Balls[ballIndex].Y);
 			}
 		}
 
@@ -341,48 +314,6 @@ void FJoystickDevice::SendControllerEvents()
 
 }
 
-void FJoystickDevice::SetMessageHandler(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler)
-{
-	MessageHandler = InMessageHandler;
-}
-
-bool FJoystickDevice::Exec(UWorld* InWorld, const TCHAR* Cmd, FOutputDevice& Ar)
-{
-	return false;
-}
-
-void FJoystickDevice::SetChannelValue(int32 ControllerId, FForceFeedbackChannelType ChannelType, float Value)
-{
-	//FControllerState& ControllerState = ControllerStates[ControllerId];
-	//if (ControllerState.bIsConnected)
-	//{
-	//	switch (ChannelType)
-	//	{
-	//	case FF_CHANNEL_LEFT_LARGE:
-	//		ControllerState.ForceFeedback.LeftLarge = Value;
-	//		break;
-	//	case FF_CHANNEL_LEFT_SMALL:
-	//		ControllerState.ForceFeedback.LeftSmall = Value;
-	//		break;
-	//	case FF_CHANNEL_RIGHT_LARGE:
-	//		ControllerState.ForceFeedback.RightLarge = Value;
-	//		break;
-	//	case FF_CHANNEL_RIGHT_SMALL:
-	//		ControllerState.ForceFeedback.RightSmall = Value;
-	//		break;
-	//	}
-	//}
-}
-
-void FJoystickDevice::SetChannelValues(int32 ControllerId, const FForceFeedbackValues& Values)
-{
-	//FControllerState& ControllerState = ControllerStates[ControllerId];
-	//if (ControllerState.bIsConnected)
-	//{
-	//	ControllerState.ForceFeedback = Values;
-	//}
-}
-
 bool FJoystickDevice::AddEventListener(UObject* Listener)
 {
 	if (Listener != nullptr && Listener->GetClass()->ImplementsInterface(UJoystickInterface::StaticClass()))
@@ -397,4 +328,3 @@ void FJoystickDevice::IgnoreGameControllers(bool bIgnore)
 {
 	DeviceSDL->IgnoreGameControllers(bIgnore);
 }
-#undef LOCTEXT_NAMESPACE

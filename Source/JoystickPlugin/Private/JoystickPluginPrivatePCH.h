@@ -6,6 +6,3 @@
 #include "DeviceSDL.h"
 #include "JoystickDevice.h"
 #include "InputSettingsCustomization.h"
-
-#include "Engine.h"
-#include "CoreUObject.h"

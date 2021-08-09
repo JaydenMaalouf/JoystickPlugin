@@ -1,8 +1,7 @@
 #pragma once
 
-#include "IInputDevice.h"
-#include "GenericPlatform/GenericApplicationMessageHandler.h"
-#include "JoystickInterface.h"
+#include "Data/DeviceId.h"
+#include "Data/JoystickPOVDirection.h"
 
 struct FDeviceInfoSDL;
 class FDeviceSDL;
