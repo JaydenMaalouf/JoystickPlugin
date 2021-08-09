@@ -1,9 +1,19 @@
 #pragma once
 
 #include "ForcedFeedbackData.h"
+#include "ForcedFeedbackEffectType.h"
+
+THIRD_PARTY_INCLUDES_START
+
+#include "SDL.h"
+#include "SDL_joystick.h"
+#include "SDL_gamecontroller.h"
+
+THIRD_PARTY_INCLUDES_END
+
 #include "ForcedFeedbackEffect.generated.h"
 
-UCLASS(Blueprintable)
+UCLASS()
 class UForcedFeedbackEffect : public UObject
 {
     GENERATED_BODY()
@@ -40,6 +50,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Effect Configuration")
 		int32 EffectId;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+		EForcedFeedbackEffectType EffectType = EForcedFeedbackEffectType::SINE;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Effect Configuration")
 		bool IsReady = false;
 
@@ -55,9 +68,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Configuration")
 		bool Infinite = false;
 
+	virtual SDL_HapticEffect ToSDLEffect();
+
 private:
-    UPROPERTY(EditAnywhere)
-        FForcedFeedbackData EffectData;
+	UPROPERTY(EditAnywhere)
+		FForcedFeedbackData EffectData;
 
     UWorld* GetWorld() const;
 };
