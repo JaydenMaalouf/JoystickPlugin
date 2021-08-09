@@ -13,5 +13,5 @@ public:
 
 	void StartupModule() override;
 
-	TSharedPtr< class FJoystickDevice > JoystickDevice;
+	TSharedPtr<class FJoystickDevice> JoystickDevice;
 };

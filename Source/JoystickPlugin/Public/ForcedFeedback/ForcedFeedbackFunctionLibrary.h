@@ -1,14 +1,13 @@
 #pragma once
 
-#include "JoystickInterface.h"
-#include "ForcedFeedbackEffect.h"
+#include "ForcedFeedbackData.h"
 
 #include "ForcedFeedbackFunctionLibrary.generated.h"
 
-UCLASS(BlueprintType)
-class UForcedFeedbackFunctionLibrary : public UObject
+UCLASS()
+class UForcedFeedbackFunctionLibrary : public UBlueprintFunctionLibrary
 {
-	GENERATED_UCLASS_BODY()
+	GENERATED_BODY()
 public:
 
 	UFUNCTION(BlueprintPure, Category = "SDL2 Force Feedback")
@@ -45,5 +44,5 @@ public:
 	static void StopAllEffects(int32 DeviceId);
 
 	UFUNCTION(BlueprintCallable, Category = "SDL2 Force Feedback")
-	static void DestroyEffect(int32 DeviceId, int32 EffectId);
+		static void DestroyEffect(int32 DeviceId, int32 EffectId);
 };
