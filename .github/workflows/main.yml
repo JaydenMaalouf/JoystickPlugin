@@ -17,7 +17,7 @@ jobs:
   # This workflow contains a single job called "build"
   container:
     runs-on: ubuntu-latest
-    container: node:10.16-jessie
+    container: adamrehn/ue4-full:4.26
     steps:
       - run: |
           echo This job does specify a container.
