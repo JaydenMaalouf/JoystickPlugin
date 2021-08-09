@@ -1,6 +1,15 @@
 # JoystickPlugin
-This plugin uses SDL2 functions to get input instead of DirectInput.
+
+This plugin uses SDL2 functions to pass input to the Unreal Engine Gameplay Input Loop.
 
 Thank you to tsky1971, Ikarus76 and samiljan for the good working basis.
+Also thanks to brifsttar for assisting in finding bugs!
 
-Readme will be updated soon.
+## What is the purpose of this plugin?
+
+This plugin aims to provide a simple plug and play system for Joysticks, Steering Wheels and Gamepads (with Forced Feedback capabilities) for Unreal Engine 4/5.
+
+## How is this any different to the existing plugins?
+
+Most of the other plugins require developers to re-compile SDL2 (the framework the plugins are built on) - which can be a real pain for beginners!  
+Thankfully JoystickPlugin comes built ontop of the existing implmentation within Unreal Engine; so no messing about with DLLs.
