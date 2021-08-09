@@ -1,7 +1,7 @@
 #include "ForcedFeedback/ForcedFeedbackEffect.h"
 #include "ForcedFeedback/ForcedFeedbackData.h"
 #include "Interfaces/JoystickPluginInterface.h"
-#include "ForcedFeedback/SDLFunctions.h"
+#include "ForcedFeedback/ForcedFeedbackSDLFunctions.h"
 
 void UForcedFeedbackEffect::Init()
 {
@@ -19,7 +19,6 @@ void UForcedFeedbackEffect::Init()
 	SDL_HapticEffect effect = FeedbackDataToSDLHapticEffect(EffectData);
 
 	EffectId = SDL_HapticNewEffect(haptic, &effect);
-
 	if (EffectId == -1) {
 		TCHAR* Error = ANSI_TO_TCHAR(SDL_GetError());
 		UE_LOG(JoystickPluginLog, Log, TEXT("HapticNewEffect error: %s"), Error);
@@ -82,14 +81,14 @@ int32 UForcedFeedbackEffect::EffectStatus()
 		return -1;
 	}
 
-	int status = SDL_HapticGetEffectStatus(haptic, EffectId);
-	if (status == -1) {
+	int32 result = SDL_HapticGetEffectStatus(haptic, EffectId);
+	if (result == -1) {
 		TCHAR* Error = ANSI_TO_TCHAR(SDL_GetError());
 		UE_LOG(JoystickPluginLog, Log, TEXT("GetEffectStatus error: %s"), Error);
 		return -1;
 	}
 
-	return status;
+	return result;
 }
 
 void UForcedFeedbackEffect::StartEffect()
@@ -105,7 +104,7 @@ void UForcedFeedbackEffect::StartEffect()
 		Iterations = SDL_HAPTIC_INFINITY;
 	}
 
-	int result = SDL_HapticRunEffect(haptic, EffectId, Iterations);
+	int32 result = SDL_HapticRunEffect(haptic, EffectId, Iterations);
 	if (result == -1)
 	{
 		TCHAR* Error = ANSI_TO_TCHAR(SDL_GetError());
@@ -141,8 +140,8 @@ void UForcedFeedbackEffect::UpdateEffect()
 
 	SDL_HapticEffect effect = FeedbackDataToSDLHapticEffect(data);
 
-	int Success = SDL_HapticUpdateEffect(haptic, EffectId, &effect);
-	if (Success == -1) {
+	int32 result = SDL_HapticUpdateEffect(haptic, EffectId, &effect);
+	if (result == -1) {
 		TCHAR* Error = ANSI_TO_TCHAR(SDL_GetError());
 		UE_LOG(JoystickPluginLog, Log, TEXT("HapticUpdateEffect error: %s"), Error);
 	}

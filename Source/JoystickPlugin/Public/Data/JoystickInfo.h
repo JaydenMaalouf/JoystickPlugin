@@ -7,23 +7,29 @@
 USTRUCT(BlueprintType)
 struct FJoystickInfo
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadonly, Category = JoystickInfo)
-	int32 Player = -1;
-	UPROPERTY(EditAnywhere, BlueprintReadonly, Category = JoystickInfo)
-	int32 DeviceId = -1;
-	UPROPERTY(EditAnywhere, BlueprintReadonly, Category = JoystickInfo)
-	bool IsRumbleDevice = false;
+		int32 Player = -1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadonly, Category = JoystickInfo)
-	FGuid ProductId;
+		int32 DeviceId = -1;
+
 	UPROPERTY(EditAnywhere, BlueprintReadonly, Category = JoystickInfo)
-	FString ProductName;
+		bool IsRumbleDevice = false;
+
 	UPROPERTY(EditAnywhere, BlueprintReadonly, Category = JoystickInfo)
-	FString DeviceName;
+		FGuid ProductId;
+
 	UPROPERTY(EditAnywhere, BlueprintReadonly, Category = JoystickInfo)
-	bool Connected = false;
+		FString ProductName;
+
 	UPROPERTY(EditAnywhere, BlueprintReadonly, Category = JoystickInfo)
-	TArray<EInputType> InputType;
+		FString DeviceName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadonly, Category = JoystickInfo)
+		bool Connected = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadonly, Category = JoystickInfo)
+		TArray<EInputType> InputType;
 };

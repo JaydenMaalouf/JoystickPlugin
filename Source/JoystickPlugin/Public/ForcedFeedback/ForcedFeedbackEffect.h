@@ -13,7 +13,6 @@ public:
 
 	void BeginDestroy() override;
 
-
     UFUNCTION(BlueprintCallable)
         void Init();
 
@@ -39,6 +38,9 @@ public:
 		int32 DeviceId;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Effect Configuration")
+		int32 EffectId;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Effect Configuration")
 		bool IsReady = false;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Configuration")
@@ -56,8 +58,6 @@ public:
 private:
     UPROPERTY(EditAnywhere)
         FForcedFeedbackData EffectData;
-
-    int32 EffectId;
 
     UWorld* GetWorld() const;
 };

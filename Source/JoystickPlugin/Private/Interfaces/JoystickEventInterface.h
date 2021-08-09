@@ -2,9 +2,7 @@
 
 #include "Data/DeviceId.h"
 #include "Data/JoystickPOVDirection.h"
-
-struct FDeviceInfoSDL;
-class FDeviceSDL;
+#include "Data/DeviceInfoSDL.h"
 
 class IJoystickEventInterface
 {

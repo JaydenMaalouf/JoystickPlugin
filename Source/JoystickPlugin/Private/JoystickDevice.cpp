@@ -9,10 +9,8 @@
 */
 
 #include "JoystickDevice.h"
+
 #include "DeviceSDL.h"
-
-#include "SlateBasics.h"
-
 #include "JoystickFunctionLibrary.h"
 #include "ForcedFeedback/ForcedFeedbackFunctionLibrary.h"
 
@@ -26,7 +24,6 @@ FJoystickDevice::FJoystickDevice(const TSharedRef<FGenericApplicationMessageHand
 
 FJoystickDevice::~FJoystickDevice()
 {
-	//UForcedFeedbackFunctionLibrary::Recenter(0);
 	DeviceSDL = nullptr;
 }
 
@@ -80,7 +77,7 @@ void FJoystickDevice::InitInputDevice(const FDeviceInfoSDL &Device)
 
 	// create FKeyDetails for axis
 	DeviceAxisKeys.Emplace(DeviceId);
-	for (int iAxis = 0; iAxis < InitialState.Axes.Num(); iAxis++)
+	for (int32 iAxis = 0; iAxis < InitialState.Axes.Num(); iAxis++)
 	{
 		FString strName = FString::Printf(TEXT("Joystick_%s_%d_Axis%d"), *DeviceInfo.DeviceName, DeviceInfo.DeviceId, iAxis);
 		UE_LOG(JoystickPluginLog, Log, TEXT("add %s %i"), *strName, DeviceId.value);
@@ -95,7 +92,7 @@ void FJoystickDevice::InitInputDevice(const FDeviceInfoSDL &Device)
 
 	// create FKeyDetails for buttons
 	DeviceButtonKeys.Emplace(DeviceId);
-	for (int iButton = 0; iButton < InitialState.Buttons.Num(); iButton++)
+	for (int32 iButton = 0; iButton < InitialState.Buttons.Num(); iButton++)
 	{
 		FString strName = FString::Printf(TEXT("Joystick_%s_%d_Button%d"), *DeviceInfo.DeviceName, DeviceInfo.DeviceId, iButton);
 		UE_LOG(JoystickPluginLog, Log, TEXT("add %s %i"), *strName, DeviceId.value);
@@ -111,10 +108,10 @@ void FJoystickDevice::InitInputDevice(const FDeviceInfoSDL &Device)
 	FString _2DaxisNames[] = { TEXT("X"), TEXT("Y") };
 
 	// create FKeyDetails for hats
-	for (int iAxis = 0; iAxis < 2; iAxis++)
+	for (int32 iAxis = 0; iAxis < 2; iAxis++)
 	{
 		DeviceHatKeys[iAxis].Emplace(DeviceId);
-		for (int iHat = 0; iHat < InitialState.Hats.Num(); iHat++)
+		for (int32 iHat = 0; iHat < InitialState.Hats.Num(); iHat++)
 		{
 			FString strName = FString::Printf(TEXT("Joystick_%s_%d_Hat%d_%s"), *DeviceInfo.DeviceName, DeviceInfo.DeviceId, iHat, *_2DaxisNames[iAxis]);
 			UE_LOG(JoystickPluginLog, Log, TEXT("add %s %i"), *strName, DeviceId.value);
@@ -130,10 +127,10 @@ void FJoystickDevice::InitInputDevice(const FDeviceInfoSDL &Device)
 	}
 
 	// create FKeyDetails for balls
-	for (int iAxis = 0; iAxis < 2; iAxis++)
+	for (int32 iAxis = 0; iAxis < 2; iAxis++)
 	{
 		DeviceBallKeys[iAxis].Emplace(DeviceId);
-		for (int iBall = 0; iBall < InitialState.Balls.Num(); iBall++)
+		for (int32 iBall = 0; iBall < InitialState.Balls.Num(); iBall++)
 		{
 			FString strName = FString::Printf(TEXT("Joystick_%s_%d_Ball%d_%s"), *DeviceInfo.DeviceName, DeviceInfo.DeviceId, iBall, *_2DaxisNames[iAxis]);
 			UE_LOG(JoystickPluginLog, Log, TEXT("add %s %i"), *strName, DeviceId.value);
@@ -182,25 +179,10 @@ void FJoystickDevice::JoystickUnplugged(FDeviceId DeviceId)
 	}
 }
 
-bool EmitKeyUpEventForKey(FKey Key, int32 User, bool Repeat)
-{
-	FKeyEvent KeyEvent(Key, FSlateApplication::Get().GetModifierKeys(), User, Repeat, 0, 0);
-	return FSlateApplication::Get().ProcessKeyUpEvent(KeyEvent);
-}
-
-bool EmitKeyDownEventForKey(FKey Key, int32 User, bool Repeat)
-{
-	FKeyEvent KeyEvent(Key, FSlateApplication::Get().GetModifierKeys(), User, Repeat, 0, 0);
-	return FSlateApplication::Get().ProcessKeyDownEvent(KeyEvent);
-}
-
 void FJoystickDevice::JoystickButton(FDeviceId DeviceId, int32 Button, bool Pressed)
 {
+	PreviousState[DeviceId].Buttons[Button] = CurrentState[DeviceId].Buttons[Button];
 	CurrentState[DeviceId].Buttons[Button] = Pressed;
-	if (Pressed)
-		EmitKeyDownEventForKey(DeviceButtonKeys[DeviceId][Button], InputDevices[DeviceId].Player, false);
-	else
-		EmitKeyUpEventForKey(DeviceButtonKeys[DeviceId][Button], InputDevices[DeviceId].Player, false);
 
 	for (auto & listener : EventListeners)
 	{
@@ -217,6 +199,7 @@ void FJoystickDevice::JoystickButton(FDeviceId DeviceId, int32 Button, bool Pres
 
 void FJoystickDevice::JoystickAxis(FDeviceId DeviceId, int32 Axis, float Value)
 {
+	PreviousState[DeviceId].Axes[Axis] = CurrentState[DeviceId].Axes[Axis];
 	CurrentState[DeviceId].Axes[Axis] = Value;
 
 	for (auto & listener : EventListeners)
@@ -231,6 +214,7 @@ void FJoystickDevice::JoystickAxis(FDeviceId DeviceId, int32 Axis, float Value)
 
 void FJoystickDevice::JoystickHat(FDeviceId DeviceId, int32 Hat, EJoystickPOVDirection Value)
 {
+	PreviousState[DeviceId].Hats[Hat] = CurrentState[DeviceId].Hats[Hat];
 	CurrentState[DeviceId].Hats[Hat] = Value;
 
 	for (auto & listener : EventListeners)
@@ -245,6 +229,7 @@ void FJoystickDevice::JoystickHat(FDeviceId DeviceId, int32 Hat, EJoystickPOVDir
 
 void FJoystickDevice::JoystickBall(FDeviceId DeviceId, int32 Ball, FVector2D Delta)
 {
+	PreviousState[DeviceId].Balls[Ball] = CurrentState[DeviceId].Balls[Ball];
 	CurrentState[DeviceId].Balls[Ball] = Delta;
 
 	for (auto & listener : EventListeners)
@@ -266,35 +251,51 @@ void FJoystickDevice::SendControllerEvents()
 		FDeviceId DeviceId = Device.Key;
 		if (InputDevices.Contains(DeviceId)) 
 		{
+			int32 playerId = InputDevices[DeviceId].Player;
+			FJoystickState currentState = CurrentState[DeviceId];
+			FJoystickState previousState = PreviousState[DeviceId];
+
 			if (InputDevices[DeviceId].Connected) 
 			{
-				PreviousState[DeviceId] = FJoystickState(CurrentState[DeviceId]);
-
-				for (int iBall = 0; iBall < CurrentState[DeviceId].Balls.Num(); iBall++)
+				//Axis
+				for (int32 axisIndex = 0; axisIndex < currentState.Axes.Num(); axisIndex++)
 				{
-					CurrentState[DeviceId].Balls[iBall] = FVector2D::ZeroVector;
+					MessageHandler->OnControllerAnalog(DeviceAxisKeys[DeviceId][axisIndex].GetFName(), playerId, currentState.Axes[axisIndex]);
 				}
-			}
 
-			//Axis
-			for (int32 axisIndex = 0; axisIndex < CurrentState[DeviceId].Axes.Num(); axisIndex++)
-			{
-				MessageHandler->OnControllerAnalog(DeviceAxisKeys[DeviceId][axisIndex].GetFName(), InputDevices[DeviceId].Player, CurrentState[DeviceId].Axes[axisIndex]);
-			}
+				//Hats
+				for (int32 hatIndex = 0; hatIndex < currentState.Hats.Num(); hatIndex++)
+				{
+					FVector2D povAxis = UJoystickFunctionLibrary::POVAxis(currentState.Hats[hatIndex]);
+					MessageHandler->OnControllerAnalog(DeviceHatKeys[0][DeviceId][hatIndex].GetFName(), playerId, povAxis.X);
+					MessageHandler->OnControllerAnalog(DeviceHatKeys[1][DeviceId][hatIndex].GetFName(), playerId, povAxis.Y);
+				}
 
-			//Hats
-			for (int32 hatIndex = 0; hatIndex < CurrentState[DeviceId].Hats.Num(); hatIndex++)
-			{
-				FVector2D povAxis = UJoystickFunctionLibrary::POVAxis(CurrentState[DeviceId].Hats[hatIndex]);
-				MessageHandler->OnControllerAnalog(DeviceHatKeys[0][DeviceId][hatIndex].GetFName(), InputDevices[DeviceId].Player, povAxis.X);
-				MessageHandler->OnControllerAnalog(DeviceHatKeys[1][DeviceId][hatIndex].GetFName(), InputDevices[DeviceId].Player, povAxis.Y);
-			}
+				//Balls
+				for (int32 ballIndex = 0; ballIndex < currentState.Balls.Num(); ballIndex++)
+				{
+					FVector2D ballAxis = currentState.Balls[ballIndex];
+					MessageHandler->OnControllerAnalog(DeviceBallKeys[0][DeviceId][ballIndex].GetFName(), playerId, ballAxis.X);
+					MessageHandler->OnControllerAnalog(DeviceBallKeys[1][DeviceId][ballIndex].GetFName(), playerId, ballAxis.Y);
 
-			//Balls
-			for (int32 ballIndex = 0; ballIndex < CurrentState[DeviceId].Balls.Num(); ballIndex++)
-			{
-				MessageHandler->OnControllerAnalog(DeviceBallKeys[0][DeviceId][ballIndex].GetFName(), InputDevices[DeviceId].Player, CurrentState[DeviceId].Balls[ballIndex].X);
-				MessageHandler->OnControllerAnalog(DeviceBallKeys[1][DeviceId][ballIndex].GetFName(), InputDevices[DeviceId].Player, CurrentState[DeviceId].Balls[ballIndex].Y);
+					CurrentState[DeviceId].Balls[ballIndex] = FVector2D::ZeroVector; //this was left over from the previous author, not sure what it is meant to achieve?
+				}
+
+				//Buttons
+				for (int32 buttonIndex = 0; buttonIndex < currentState.Buttons.Num(); buttonIndex++)
+				{
+					bool currentPressed = currentState.Buttons[buttonIndex];
+					bool previousPressed = previousState.Buttons[buttonIndex];
+
+					if (currentPressed == true && previousPressed == false) 
+					{
+						MessageHandler->OnControllerButtonPressed(DeviceButtonKeys[DeviceId][buttonIndex].GetFName(), playerId, false);
+					}
+					else if (previousPressed == true && currentPressed == false)
+					{
+						MessageHandler->OnControllerButtonReleased(DeviceButtonKeys[DeviceId][buttonIndex].GetFName(), playerId, false);
+					}
+				}
 			}
 		}
 
@@ -303,7 +304,7 @@ void FJoystickDevice::SendControllerEvents()
 	DeviceSDL->Update();
 
 	// Clean up weak references
-	for (int i = 0; i < EventListeners.Num(); i++)
+	for (int32 i = 0; i < EventListeners.Num(); i++)
 	{
 		if (!EventListeners[i].IsValid())
 		{
