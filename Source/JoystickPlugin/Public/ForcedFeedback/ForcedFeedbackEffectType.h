@@ -1,9 +1,9 @@
 #pragma once
 
-#include "ForcedFeedbackType.Generated.h"
+#include "ForcedFeedbackEffectType.Generated.h"
 
 UENUM(BlueprintType)
-enum class EForcedFeedbackType : uint8 
+enum class EForcedFeedbackEffectType : uint8 
 {
 	CONSTANT,
 	SPRING,

@@ -16,7 +16,7 @@ void UForcedFeedbackEffect::Init()
 		return;
 	}
 
-	SDL_HapticEffect effect = FeedbackDataToSDLHapticEffect(EffectData);
+	SDL_HapticEffect effect = this->ToSDLEffect();
 
 	EffectId = SDL_HapticNewEffect(haptic, &effect);
 	if (EffectId == -1) {
@@ -138,13 +138,21 @@ void UForcedFeedbackEffect::UpdateEffect()
 		return;
 	}
 
-	SDL_HapticEffect effect = FeedbackDataToSDLHapticEffect(data);
+	SDL_HapticEffect effect = this->ToSDLEffect();
 
 	int32 result = SDL_HapticUpdateEffect(haptic, EffectId, &effect);
 	if (result == -1) {
 		TCHAR* Error = ANSI_TO_TCHAR(SDL_GetError());
 		UE_LOG(JoystickPluginLog, Log, TEXT("HapticUpdateEffect error: %s"), Error);
 	}
+}
+
+SDL_HapticEffect UForcedFeedbackEffect::ToSDLEffect()
+{
+	SDL_HapticEffect Effect;
+	SDL_memset(&Effect, 0, sizeof(SDL_HapticEffect));
+
+	return Effect;
 }
 
 UWorld* UForcedFeedbackEffect::GetWorld() const

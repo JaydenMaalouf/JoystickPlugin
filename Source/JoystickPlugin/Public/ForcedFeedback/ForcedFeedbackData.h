@@ -1,6 +1,7 @@
 #pragma once
 
-#include "ForcedFeedbackType.h"
+#include "ForcedFeedbackEffectType.h"
+#include "ForcedFeedbackDirectionType.h"
 #include "ForcedFeedbackData.Generated.h"
 
 USTRUCT(BlueprintType)
@@ -8,8 +9,8 @@ struct FForcedFeedbackData
 {
 	GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere) 
-		EForcedFeedbackType Type = EForcedFeedbackType::SINE;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		EForcedFeedbackDirectionType DirectionType = EForcedFeedbackDirectionType::CARTESIAN;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		FVector Direction = FVector::ZeroVector;
