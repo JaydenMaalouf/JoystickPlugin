@@ -17,7 +17,7 @@
 
 TSharedPtr<class IInputDevice> FJoystickPlugin::CreateInputDevice(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler)
 {
-	JoystickDevice = MakeShareable(new FJoystickDevice(InMessageHandler));
+	JoystickDevice = MakeShareable(new JoystickDeviceManager(InMessageHandler));
 	return JoystickDevice;
 }
 

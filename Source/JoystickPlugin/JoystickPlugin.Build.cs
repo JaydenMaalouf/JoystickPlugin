@@ -19,8 +19,6 @@ namespace UnrealBuildTool.Rules
                     "SlateCore"
                 });
 
-            bEnableUndefinedIdentifierWarnings = false;
-
             AddEngineThirdPartyPrivateStaticDependencies(Target, "SDL2");
 
             PrivateIncludePathModuleNames.AddRange(

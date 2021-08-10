@@ -7,7 +7,7 @@ SDL_Haptic* SDLFunctions::GetSDLHapticFromDeviceId(int32 DeviceId)
 		return NULL;
 	}
 
-	TSharedPtr<FJoystickDevice> JoystickDevice = static_cast<FJoystickPlugin&>(IJoystickPlugin::Get()).JoystickDevice;
+	TSharedPtr<JoystickDeviceManager> JoystickDevice = static_cast<FJoystickPlugin&>(IJoystickPlugin::Get()).JoystickDevice;
 	auto* DeviceSDL = JoystickDevice->DeviceSDL->GetDevice(FDeviceId(DeviceId));
 	if (!DeviceSDL) {
 		UE_LOG(JoystickPluginLog, Log, TEXT("Invalid device"));
