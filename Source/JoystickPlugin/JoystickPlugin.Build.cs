@@ -21,14 +21,6 @@ namespace UnrealBuildTool.Rules
 
             bEnableUndefinedIdentifierWarnings = false;
 
-            PrivateIncludePathModuleNames.Add("SDL2");
-
-            //PrivateIncludePaths.AddRange(
-            //	new string[] {
-            //			Path.Combine(EngineDirectory, "/Source/ThirdParty/SDL2/SDL-gui-backend/include"),
-            //	}
-            //);
-
             AddEngineThirdPartyPrivateStaticDependencies(Target, "SDL2");
 
             PrivateIncludePathModuleNames.AddRange(

@@ -1,7 +1,8 @@
 #include "ForcedFeedback/ForcedFeedbackEffect.h"
 #include "ForcedFeedback/ForcedFeedbackData.h"
 #include "Interfaces/JoystickPluginInterface.h"
-#include "ForcedFeedback/ForcedFeedbackSDLFunctions.h"
+
+#include "ForcedFeedbackSDLFunctions.h"
 
 void UForcedFeedbackEffect::Init()
 {
@@ -10,7 +11,7 @@ void UForcedFeedbackEffect::Init()
 		return;
 	}
 
-	SDL_Haptic* haptic = GetSDLHapticFromDeviceId(DeviceId);
+	SDL_Haptic* haptic = SDLFunctions::GetSDLHapticFromDeviceId(DeviceId);
 	if (haptic == nullptr)
 	{
 		return;
@@ -20,8 +21,8 @@ void UForcedFeedbackEffect::Init()
 
 	EffectId = SDL_HapticNewEffect(haptic, &effect);
 	if (EffectId == -1) {
-		TCHAR* Error = ANSI_TO_TCHAR(SDL_GetError());
-		UE_LOG(JoystickPluginLog, Log, TEXT("HapticNewEffect error: %s"), Error);
+		TCHAR* errorMessage = ANSI_TO_TCHAR(SDL_GetError());
+		UE_LOG(JoystickPluginLog, Log, TEXT("HapticNewEffect error: %s"), errorMessage);
 		return;
 	}
 
@@ -62,7 +63,7 @@ void UForcedFeedbackEffect::DestroyEffect()
 
 	StopEffect();
 
-	SDL_Haptic* haptic = GetSDLHapticFromDeviceId(DeviceId);
+	SDL_Haptic* haptic = SDLFunctions::GetSDLHapticFromDeviceId(DeviceId);
 	if (haptic == nullptr)
 	{
 		return;
@@ -75,7 +76,7 @@ void UForcedFeedbackEffect::DestroyEffect()
 
 int32 UForcedFeedbackEffect::EffectStatus()
 {
-	SDL_Haptic* haptic = GetSDLHapticFromDeviceId(DeviceId);
+	SDL_Haptic* haptic = SDLFunctions::GetSDLHapticFromDeviceId(DeviceId);
 	if (haptic == nullptr)
 	{
 		return -1;
@@ -83,8 +84,8 @@ int32 UForcedFeedbackEffect::EffectStatus()
 
 	int32 result = SDL_HapticGetEffectStatus(haptic, EffectId);
 	if (result == -1) {
-		TCHAR* Error = ANSI_TO_TCHAR(SDL_GetError());
-		UE_LOG(JoystickPluginLog, Log, TEXT("GetEffectStatus error: %s"), Error);
+		TCHAR* errorMessage = ANSI_TO_TCHAR(SDL_GetError());
+		UE_LOG(JoystickPluginLog, Log, TEXT("GetEffectStatus error: %s"), errorMessage);
 		return -1;
 	}
 
@@ -93,7 +94,7 @@ int32 UForcedFeedbackEffect::EffectStatus()
 
 void UForcedFeedbackEffect::StartEffect()
 {
-	SDL_Haptic* haptic = GetSDLHapticFromDeviceId(DeviceId);
+	SDL_Haptic* haptic = SDLFunctions::GetSDLHapticFromDeviceId(DeviceId);
 	if (haptic == nullptr)
 	{
 		return;
@@ -107,8 +108,8 @@ void UForcedFeedbackEffect::StartEffect()
 	int32 result = SDL_HapticRunEffect(haptic, EffectId, Iterations);
 	if (result == -1)
 	{
-		TCHAR* Error = ANSI_TO_TCHAR(SDL_GetError());
-		UE_LOG(JoystickPluginLog, Log, TEXT("HapticRunEffect error: %s"), Error);
+		TCHAR* errorMessageerrorMessage = ANSI_TO_TCHAR(SDL_GetError());
+		UE_LOG(JoystickPluginLog, Log, TEXT("HapticRunEffect error: %s"), errorMessageerrorMessage);
 	}
 }
 
@@ -119,7 +120,7 @@ void UForcedFeedbackEffect::StopEffect()
 		return;
 	}
 
-	SDL_Haptic* haptic = GetSDLHapticFromDeviceId(DeviceId);
+	SDL_Haptic* haptic = SDLFunctions::GetSDLHapticFromDeviceId(DeviceId);
 	if (haptic == nullptr)
 	{
 		return;
@@ -132,7 +133,7 @@ void UForcedFeedbackEffect::UpdateEffect()
 {
 	FForcedFeedbackData data = GetEffect();
 
-	SDL_Haptic* haptic = GetSDLHapticFromDeviceId(DeviceId);
+	SDL_Haptic* haptic = SDLFunctions::GetSDLHapticFromDeviceId(DeviceId);
 	if (haptic == nullptr) 
 	{
 		return;
@@ -142,8 +143,8 @@ void UForcedFeedbackEffect::UpdateEffect()
 
 	int32 result = SDL_HapticUpdateEffect(haptic, EffectId, &effect);
 	if (result == -1) {
-		TCHAR* Error = ANSI_TO_TCHAR(SDL_GetError());
-		UE_LOG(JoystickPluginLog, Log, TEXT("HapticUpdateEffect error: %s"), Error);
+		TCHAR* errorMessage = ANSI_TO_TCHAR(SDL_GetError());
+		UE_LOG(JoystickPluginLog, Log, TEXT("HapticUpdateEffect error: %s"), errorMessage);
 	}
 }
 

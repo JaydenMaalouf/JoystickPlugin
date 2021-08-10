@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ForcedFeedback/ForcedFeedbackEffect.h"
 #include "ForcedFeedback/ForcedFeedbackEffectType.h"
 #include "ForcedFeedbackEffectRamp.generated.h"
 
