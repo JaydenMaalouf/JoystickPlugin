@@ -11,7 +11,7 @@ THIRD_PARTY_INCLUDES_END
 
 #include "ForcedFeedbackEffect.generated.h"
 
-UCLASS()
+UCLASS(Blueprintable)
 class UForcedFeedbackEffect : public UObject
 {
     GENERATED_BODY()
@@ -30,7 +30,7 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintPure)
 		int32 EffectStatus();
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 		void StartEffect();
 
     UFUNCTION(BlueprintCallable)
@@ -39,7 +39,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void DestroyEffect();
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 		void UpdateEffect();
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Configuration")
@@ -68,9 +68,10 @@ public:
 
 	virtual SDL_HapticEffect ToSDLEffect();
 
-private:
-	UPROPERTY(EditAnywhere)
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Configuration")
 		FForcedFeedbackData EffectData;
 
+private:
     UWorld* GetWorld() const;
 };

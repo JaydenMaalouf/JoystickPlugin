@@ -92,7 +92,7 @@ int32 UForcedFeedbackEffect::EffectStatus()
 	return result;
 }
 
-void UForcedFeedbackEffect::StartEffect()
+void UForcedFeedbackEffect::StartEffect_Implementation()
 {
 	SDL_Haptic* haptic = SDLFunctions::GetSDLHapticFromDeviceId(DeviceId);
 	if (haptic == nullptr)
@@ -129,7 +129,7 @@ void UForcedFeedbackEffect::StopEffect()
 	SDL_HapticStopEffect(haptic, EffectId);
 }
 
-void UForcedFeedbackEffect::UpdateEffect()
+void UForcedFeedbackEffect::UpdateEffect_Implementation()
 {
 	FForcedFeedbackData data = GetEffect();
 
