@@ -1,6 +1,6 @@
 #include "ForcedFeedback/ForcedFeedbackFunctionLibrary.h"
 
-#include "JoystickDevice.h"
+#include "JoystickDeviceManager.h"
 #include "Interfaces/JoystickPluginInterface.h"
 #include "Interfaces/JoystickInterface.h"
 #include "JoystickPlugin.h"

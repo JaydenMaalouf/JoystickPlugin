@@ -13,12 +13,12 @@
 struct FDeviceInfoSDL;
 class FDeviceSDL;
 
-class FJoystickDevice : public IInputDevice, public IJoystickEventInterface
+class JoystickDeviceManager : public IInputDevice, public IJoystickEventInterface
 {
 public:
 	
-	FJoystickDevice(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler);
-	~FJoystickDevice();
+	JoystickDeviceManager(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler);
+	~JoystickDeviceManager();
 
 	void Tick(float DeltaTime) override;
 	void SendControllerEvents() override;

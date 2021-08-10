@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Interfaces/JoystickPluginInterface.h"
-#include "JoystickDevice.h"
+#include "JoystickDeviceManager.h"
 
 class FJoystickPlugin : public IJoystickPlugin
 {
@@ -13,5 +13,5 @@ public:
 
 	void StartupModule() override;
 
-	TSharedPtr<class FJoystickDevice> JoystickDevice;
+	TSharedPtr<class JoystickDeviceManager> JoystickDevice;
 };

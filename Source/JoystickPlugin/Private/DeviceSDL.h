@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Interfaces/JoystickInterface.h"
-#include "JoystickDevice.h"
+#include "JoystickDeviceManager.h"
 
 #include "Data/DeviceIndex.h"
 #include "Data/DeviceId.h"

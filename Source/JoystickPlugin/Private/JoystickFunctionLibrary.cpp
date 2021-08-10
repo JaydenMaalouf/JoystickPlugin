@@ -10,12 +10,12 @@
 #include "JoystickFunctionLibrary.h"
 #include "Interfaces/JoystickPluginInterface.h"
 #include "Interfaces/JoystickInterface.h"
-#include "JoystickDevice.h"
+#include "JoystickDeviceManager.h"
 #include "JoystickPlugin.h"
 
 int32 UJoystickFunctionLibrary::GetDefaultDeviceId()
 {
-	TSharedPtr<FJoystickDevice> device = static_cast<FJoystickPlugin&>(IJoystickPlugin::Get()).JoystickDevice;
+	TSharedPtr<JoystickDeviceManager> device = static_cast<FJoystickPlugin&>(IJoystickPlugin::Get()).JoystickDevice;
 	if (device->InputDevices.Num() == 0) 
 	{
 		return -1;
@@ -66,7 +66,7 @@ FJoystickInfo UJoystickFunctionLibrary::GetJoystick(int32 DeviceId)
 		return FJoystickInfo();
 	}
 
-	TSharedPtr<FJoystickDevice> device = static_cast<FJoystickPlugin&>(IJoystickPlugin::Get()).JoystickDevice;
+	TSharedPtr<JoystickDeviceManager> device = static_cast<FJoystickPlugin&>(IJoystickPlugin::Get()).JoystickDevice;
 	if (!device->InputDevices.Contains(FDeviceId(DeviceId)))
 	{
 		return FJoystickInfo();
@@ -82,7 +82,7 @@ FJoystickState UJoystickFunctionLibrary::GetJoystickState(int32 DeviceId)
 		return FJoystickState();
 	}
 
-	TSharedPtr<FJoystickDevice> device = static_cast<FJoystickPlugin&>(IJoystickPlugin::Get()).JoystickDevice;
+	TSharedPtr<JoystickDeviceManager> device = static_cast<FJoystickPlugin&>(IJoystickPlugin::Get()).JoystickDevice;
 	if (!device->InputDevices.Contains(FDeviceId(DeviceId)))
 	{
 		return FJoystickState();
@@ -98,7 +98,7 @@ FJoystickState UJoystickFunctionLibrary::GetPreviousJoystickState(int32 DeviceId
 		return FJoystickState();
 	}
 
-	TSharedPtr<FJoystickDevice> device = static_cast<FJoystickPlugin&>(IJoystickPlugin::Get()).JoystickDevice;
+	TSharedPtr<JoystickDeviceManager> device = static_cast<FJoystickPlugin&>(IJoystickPlugin::Get()).JoystickDevice;
 	if (!device->InputDevices.Contains(FDeviceId(DeviceId)))
 	{
 		return FJoystickState();
@@ -114,7 +114,7 @@ int32 UJoystickFunctionLibrary::JoystickCount()
 		return 0;
 	}
 
-	TSharedPtr<FJoystickDevice> device = static_cast<FJoystickPlugin&>(IJoystickPlugin::Get()).JoystickDevice;
+	TSharedPtr<JoystickDeviceManager> device = static_cast<FJoystickPlugin&>(IJoystickPlugin::Get()).JoystickDevice;
 	return device->InputDevices.Num();
 }
 
@@ -125,7 +125,7 @@ void UJoystickFunctionLibrary::RegisterForJoystickEvents(UObject* Listener)
 		return;
 	}
 
-	TSharedPtr<FJoystickDevice> device = static_cast<FJoystickPlugin&>(IJoystickPlugin::Get()).JoystickDevice;
+	TSharedPtr<JoystickDeviceManager> device = static_cast<FJoystickPlugin&>(IJoystickPlugin::Get()).JoystickDevice;
 	device->AddEventListener(Listener);
 }
 
@@ -136,7 +136,7 @@ void UJoystickFunctionLibrary::MapJoystickDeviceToPlayer(int32 DeviceId, int32 P
 		return;
 	}
 
-	TSharedPtr<FJoystickDevice> device = static_cast<FJoystickPlugin&>(IJoystickPlugin::Get()).JoystickDevice;
+	TSharedPtr<JoystickDeviceManager> device = static_cast<FJoystickPlugin&>(IJoystickPlugin::Get()).JoystickDevice;
 	if (!device->InputDevices.Contains(FDeviceId(DeviceId)))
 	{
 		return;
@@ -152,6 +152,6 @@ void UJoystickFunctionLibrary::IgnoreGameControllers(bool bIgnore)
 		return;
 	}
 
-	TSharedPtr<FJoystickDevice> device = static_cast<FJoystickPlugin&>(IJoystickPlugin::Get()).JoystickDevice;
+	TSharedPtr<JoystickDeviceManager> device = static_cast<FJoystickPlugin&>(IJoystickPlugin::Get()).JoystickDevice;
 	device->IgnoreGameControllers(bIgnore);
 }
