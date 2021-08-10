@@ -8,6 +8,8 @@
 #include "Data/JoystickInfo.h"
 #include "Data/JoystickState.h"
 
+#include "DeviceSDL.h"
+
 struct FDeviceInfoSDL;
 class FDeviceSDL;
 

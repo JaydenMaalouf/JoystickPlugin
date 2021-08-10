@@ -1,6 +1,6 @@
 #pragma once
 
-#include "JoystickPluginPrivatePCH.h"
+#include "Interfaces/JoystickPluginInterface.h"
 #include "JoystickDevice.h"
 
 class FJoystickPlugin : public IJoystickPlugin
