@@ -1,17 +1,15 @@
-#include "ForcedFeedback/ForcedFeedbackEffect.h"
-#include "ForcedFeedback/ForcedFeedbackData.h"
-#include "Interfaces/JoystickPluginInterface.h"
+#include "ForcedFeedback/Effects/ForcedFeedbackEffectBase.h"
 
-#include "ForcedFeedbackSDLFunctions.h"
+#include "ForcedFeedback/SDLForcedFeedbackFunctions.h"
 
-void UForcedFeedbackEffect::Init()
+void UForcedFeedbackEffectBase::Init()
 {
 	if (IsReady) 
 	{
 		return;
 	}
 
-	SDL_Haptic* haptic = SDLFunctions::GetSDLHapticFromDeviceId(DeviceId);
+	SDL_Haptic* haptic = SDLForcedFeedbackFunctions::GetSDLHapticFromDeviceId(DeviceId);
 	if (haptic == nullptr)
 	{
 		return;
@@ -33,12 +31,7 @@ void UForcedFeedbackEffect::Init()
 	}
 }
 
-FForcedFeedbackData UForcedFeedbackEffect::GetEffect_Implementation()
-{
-	return EffectData;
-}
-
-void UForcedFeedbackEffect::PostInitProperties()
+void UForcedFeedbackEffectBase::PostInitProperties()
 {
 	Super::PostInitProperties();
 	
@@ -48,13 +41,13 @@ void UForcedFeedbackEffect::PostInitProperties()
 	}
 }
 
-void UForcedFeedbackEffect::BeginDestroy()
+void UForcedFeedbackEffectBase::BeginDestroy()
 {
 	DestroyEffect();
 	Super::BeginDestroy();
 }
 
-void UForcedFeedbackEffect::DestroyEffect()
+void UForcedFeedbackEffectBase::DestroyEffect()
 {
 	if (!IsReady) 
 	{
@@ -63,7 +56,7 @@ void UForcedFeedbackEffect::DestroyEffect()
 
 	StopEffect();
 
-	SDL_Haptic* haptic = SDLFunctions::GetSDLHapticFromDeviceId(DeviceId);
+	SDL_Haptic* haptic = SDLForcedFeedbackFunctions::GetSDLHapticFromDeviceId(DeviceId);
 	if (haptic == nullptr)
 	{
 		return;
@@ -74,9 +67,9 @@ void UForcedFeedbackEffect::DestroyEffect()
 	IsReady = false;
 }
 
-int32 UForcedFeedbackEffect::EffectStatus()
+int32 UForcedFeedbackEffectBase::EffectStatus()
 {
-	SDL_Haptic* haptic = SDLFunctions::GetSDLHapticFromDeviceId(DeviceId);
+	SDL_Haptic* haptic = SDLForcedFeedbackFunctions::GetSDLHapticFromDeviceId(DeviceId);
 	if (haptic == nullptr)
 	{
 		return -1;
@@ -92,9 +85,9 @@ int32 UForcedFeedbackEffect::EffectStatus()
 	return result;
 }
 
-void UForcedFeedbackEffect::StartEffect()
+void UForcedFeedbackEffectBase::StartEffect()
 {
-	SDL_Haptic* haptic = SDLFunctions::GetSDLHapticFromDeviceId(DeviceId);
+	SDL_Haptic* haptic = SDLForcedFeedbackFunctions::GetSDLHapticFromDeviceId(DeviceId);
 	if (haptic == nullptr)
 	{
 		return;
@@ -113,14 +106,14 @@ void UForcedFeedbackEffect::StartEffect()
 	}
 }
 
-void UForcedFeedbackEffect::StopEffect()
+void UForcedFeedbackEffectBase::StopEffect()
 {
 	if (IsReady == false) 
 	{
 		return;
 	}
 
-	SDL_Haptic* haptic = SDLFunctions::GetSDLHapticFromDeviceId(DeviceId);
+	SDL_Haptic* haptic = SDLForcedFeedbackFunctions::GetSDLHapticFromDeviceId(DeviceId);
 	if (haptic == nullptr)
 	{
 		return;
@@ -129,11 +122,9 @@ void UForcedFeedbackEffect::StopEffect()
 	SDL_HapticStopEffect(haptic, EffectId);
 }
 
-void UForcedFeedbackEffect::UpdateEffect()
+void UForcedFeedbackEffectBase::UpdateEffect()
 {
-	FForcedFeedbackData data = GetEffect();
-
-	SDL_Haptic* haptic = SDLFunctions::GetSDLHapticFromDeviceId(DeviceId);
+	SDL_Haptic* haptic = SDLForcedFeedbackFunctions::GetSDLHapticFromDeviceId(DeviceId);
 	if (haptic == nullptr) 
 	{
 		return;
@@ -148,7 +139,7 @@ void UForcedFeedbackEffect::UpdateEffect()
 	}
 }
 
-SDL_HapticEffect UForcedFeedbackEffect::ToSDLEffect()
+SDL_HapticEffect UForcedFeedbackEffectBase::ToSDLEffect()
 {
 	SDL_HapticEffect Effect;
 	SDL_memset(&Effect, 0, sizeof(SDL_HapticEffect));
@@ -156,7 +147,7 @@ SDL_HapticEffect UForcedFeedbackEffect::ToSDLEffect()
 	return Effect;
 }
 
-UWorld* UForcedFeedbackEffect::GetWorld() const
+UWorld* UForcedFeedbackEffectBase::GetWorld() const
 {
 	if (GIsEditor && !GIsPlayInEditorWorld)
 	{

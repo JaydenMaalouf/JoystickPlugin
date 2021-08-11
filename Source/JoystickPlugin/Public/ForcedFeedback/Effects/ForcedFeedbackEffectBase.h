@@ -1,18 +1,15 @@
 #pragma once
 
-#include "ForcedFeedbackData.h"
-#include "ForcedFeedbackEffectType.h"
-
 THIRD_PARTY_INCLUDES_START
 
 #include "SDL.h"
 
 THIRD_PARTY_INCLUDES_END
 
-#include "ForcedFeedbackEffect.generated.h"
+#include "ForcedFeedbackEffectBase.generated.h"
 
-UCLASS()
-class UForcedFeedbackEffect : public UObject
+UCLASS(BlueprintType)
+class UForcedFeedbackEffectBase : public UObject
 {
     GENERATED_BODY()
 public:
@@ -23,9 +20,6 @@ public:
 
     UFUNCTION(BlueprintCallable)
         void Init();
-
-    UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-        FForcedFeedbackData GetEffect();
 
     UFUNCTION(BlueprintCallable, BlueprintPure)
 		int32 EffectStatus();
@@ -48,9 +42,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Effect Configuration")
 		int32 EffectId;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-		EForcedFeedbackEffectType EffectType = EForcedFeedbackEffectType::SINE;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Effect Configuration")
 		bool IsReady = false;
 
@@ -69,8 +60,6 @@ public:
 	virtual SDL_HapticEffect ToSDLEffect();
 
 private:
-	UPROPERTY(EditAnywhere)
-		FForcedFeedbackData EffectData;
 
     UWorld* GetWorld() const;
 };

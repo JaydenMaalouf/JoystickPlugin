@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ForcedFeedbackData.h"
 
 #include "ForcedFeedbackFunctionLibrary.generated.h"
 
