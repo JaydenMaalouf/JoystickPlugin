@@ -6,17 +6,17 @@
 #include "JoystickPlugin.h"
 #include "DeviceSDL.h"
 
-#include "ForcedFeedbackSDLFunctions.h"
+#include "SDLForcedFeedbackFunctions.h"
 
 bool UForcedFeedbackFunctionLibrary::SetAutocenter(int32 DeviceId, int32 Center) 
 {
-	SDL_Haptic* Haptic = SDLFunctions::GetSDLHapticFromDeviceId(DeviceId);
+	SDL_Haptic* Haptic = SDLForcedFeedbackFunctions::GetSDLHapticFromDeviceId(DeviceId);
 	if (Haptic == nullptr)
 	{
 		return false;
 	}
 
-	int32 result=SDL_HapticSetAutocenter(Haptic, Center);
+	int32 result = SDL_HapticSetAutocenter(Haptic, Center);
 	if (result == -1) {
 		TCHAR* errorMessage = ANSI_TO_TCHAR(SDL_GetError());
 		UE_LOG(JoystickPluginLog, Log,TEXT("Autocenter error: %s") , errorMessage);
@@ -28,7 +28,7 @@ bool UForcedFeedbackFunctionLibrary::SetAutocenter(int32 DeviceId, int32 Center)
 
 bool UForcedFeedbackFunctionLibrary::SetGain(int32 DeviceId, int32 Gain) 
 {
-	SDL_Haptic* Haptic = SDLFunctions::GetSDLHapticFromDeviceId(DeviceId);
+	SDL_Haptic* Haptic = SDLForcedFeedbackFunctions::GetSDLHapticFromDeviceId(DeviceId);
 	if (Haptic == nullptr)
 	{
 		return false;
@@ -46,7 +46,7 @@ bool UForcedFeedbackFunctionLibrary::SetGain(int32 DeviceId, int32 Gain)
 
 int32 UForcedFeedbackFunctionLibrary::GetEffectStatus(int32 DeviceId, int32 EffectId) 
 {
-	SDL_Haptic* Haptic = SDLFunctions::GetSDLHapticFromDeviceId(DeviceId);
+	SDL_Haptic* Haptic = SDLForcedFeedbackFunctions::GetSDLHapticFromDeviceId(DeviceId);
 	if (Haptic == nullptr)
 	{
 		return -1;
@@ -64,7 +64,7 @@ int32 UForcedFeedbackFunctionLibrary::GetEffectStatus(int32 DeviceId, int32 Effe
 
 void UForcedFeedbackFunctionLibrary::PauseDevice(int32 DeviceId) 
 {
-	SDL_Haptic* Haptic = SDLFunctions::GetSDLHapticFromDeviceId(DeviceId);
+	SDL_Haptic* Haptic = SDLForcedFeedbackFunctions::GetSDLHapticFromDeviceId(DeviceId);
 	if (Haptic == nullptr)
 	{
 		return;
@@ -75,7 +75,7 @@ void UForcedFeedbackFunctionLibrary::PauseDevice(int32 DeviceId)
 
 void UForcedFeedbackFunctionLibrary::UnpauseDevice(int32 DeviceId) 
 {
-	SDL_Haptic* Haptic = SDLFunctions::GetSDLHapticFromDeviceId(DeviceId);
+	SDL_Haptic* Haptic = SDLForcedFeedbackFunctions::GetSDLHapticFromDeviceId(DeviceId);
 	if (Haptic == nullptr)
 	{
 		return;
@@ -86,7 +86,7 @@ void UForcedFeedbackFunctionLibrary::UnpauseDevice(int32 DeviceId)
 
 void UForcedFeedbackFunctionLibrary::StopAllEffects(int32 DeviceId) 
 {
-	SDL_Haptic* Haptic = SDLFunctions::GetSDLHapticFromDeviceId(DeviceId);
+	SDL_Haptic* Haptic = SDLForcedFeedbackFunctions::GetSDLHapticFromDeviceId(DeviceId);
 	if (Haptic == nullptr)
 	{
 		return;
@@ -97,7 +97,7 @@ void UForcedFeedbackFunctionLibrary::StopAllEffects(int32 DeviceId)
 
 int32 UForcedFeedbackFunctionLibrary::GetNumEffects(int32 DeviceId) 
 {
-	SDL_Haptic* Haptic = SDLFunctions::GetSDLHapticFromDeviceId(DeviceId);
+	SDL_Haptic* Haptic = SDLForcedFeedbackFunctions::GetSDLHapticFromDeviceId(DeviceId);
 	if (Haptic == nullptr)
 	{
 		return -1;
@@ -109,7 +109,7 @@ int32 UForcedFeedbackFunctionLibrary::GetNumEffects(int32 DeviceId)
 
 int32 UForcedFeedbackFunctionLibrary::GetNumEffectsPlaying(int32 DeviceId) 
 {
-	SDL_Haptic* Haptic = SDLFunctions::GetSDLHapticFromDeviceId(DeviceId);
+	SDL_Haptic* Haptic = SDLForcedFeedbackFunctions::GetSDLHapticFromDeviceId(DeviceId);
 	if (Haptic == nullptr)
 	{
 		return -1;

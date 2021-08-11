@@ -1,6 +1,6 @@
-#include "ForcedFeedbackSDLFunctions.h"
+#include "SDLForcedFeedbackFunctions.h"
 
-SDL_Haptic* SDLFunctions::GetSDLHapticFromDeviceId(int32 DeviceId)
+SDL_Haptic* SDLForcedFeedbackFunctions::GetSDLHapticFromDeviceId(int32 DeviceId)
 {
 	if (!IJoystickPlugin::IsAvailable()) 
 	{
