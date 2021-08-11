@@ -18,13 +18,13 @@ public:
 		int32 Period = 0;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ClampMin = "-32768", ClampMax = "32767"))
-		int32 Magnitude = 0.0f;
+		int32 Magnitude = 0;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ClampMin = "-32768", ClampMax = "32767"))
-		int32 Offset = 0.0f;
+		int32 Offset = 0;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ClampMin = "0", ClampMax = "65535"))
-		int32 Phase = 0.0f;
+		int32 Phase = 0;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ClampMin = "0", ClampMax = "65535"))
 		int32 AttackLength = 0;
