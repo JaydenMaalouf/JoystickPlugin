@@ -13,5 +13,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FForcedFeedbackEffectCustomData EffectData;
 
+protected:
+
 	SDL_HapticEffect ToSDLEffect() override;
 };

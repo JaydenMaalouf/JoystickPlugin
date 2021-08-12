@@ -2,11 +2,17 @@
 
 THIRD_PARTY_INCLUDES_START
 
-#include "SDL.h"
+#include "SDL_haptic.h"
 
 THIRD_PARTY_INCLUDES_END
 
 #include "ForcedFeedbackEffectBase.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInitialisedEffect);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnStartedEffect);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnStoppedEffect);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnUpdatedEffect);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDestroyedEffect);
 
 UCLASS(BlueprintType)
 class UForcedFeedbackEffectBase : public UObject
@@ -14,15 +20,10 @@ class UForcedFeedbackEffectBase : public UObject
     GENERATED_BODY()
 public:
 
-    void PostInitProperties() override;
-
 	void BeginDestroy() override;
 
     UFUNCTION(BlueprintCallable)
-        void Init();
-
-    UFUNCTION(BlueprintCallable, BlueprintPure)
-		int32 EffectStatus();
+        void InitialiseEffect();
 
 	UFUNCTION(BlueprintCallable)
 		void StartEffect();
@@ -36,30 +37,58 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void UpdateEffect();
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Configuration")
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnInitialisedEffect();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnStartedEffect();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnStoppedEffect();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnUpdatedEffect();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnDestroyedEffect();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+		int32 EffectStatus();
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Configuration", meta = (ExposeOnSpawn = true))
 		int32 DeviceId;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Effect Configuration")
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadonly, Category = "Effect Configuration")
 		int32 EffectId;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Effect Configuration")
-		bool IsReady = false;
+		bool IsInitialised = false;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Configuration")
-		bool AutoInit = true;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Configuration", meta = (ExposeOnSpawn = true))
+		bool AutoStartOnInit = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Configuration")
-		bool AutoStart = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Configuration")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Configuration", meta = (ExposeOnSpawn = true))
 		int32 Iterations = 1;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Configuration")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Configuration", meta = (ExposeOnSpawn = true))
 		bool Infinite = false;
 
+	UPROPERTY(BlueprintAssignable, meta = (DisplayName = "OnInitialisedEffect"))
+		FOnInitialisedEffect OnInitialisedEffectDelegate;
+
+	UPROPERTY(BlueprintAssignable, meta = (DisplayName = "OnStartedEffect"))
+		FOnStartedEffect OnStartedEffectDelegate;
+
+	UPROPERTY(BlueprintAssignable, meta = (DisplayName = "OnStoppedEffect"))
+		FOnStoppedEffect OnStoppedEffectDelegate;
+
+	UPROPERTY(BlueprintAssignable, meta = (DisplayName = "OnUpdatedEffect"))
+		FOnUpdatedEffect OnUpdatedEffectDelegate;
+
+	UPROPERTY(BlueprintAssignable, meta = (DisplayName = "OnDestroyedEffect"))
+		FOnDestroyedEffect OnDestroyedEffectDelegate;
+
+protected:
+
 	virtual SDL_HapticEffect ToSDLEffect();
-
-private:
-
-    UWorld* GetWorld() const;
 };

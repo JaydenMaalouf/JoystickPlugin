@@ -2,9 +2,16 @@
 
 #include "ForcedFeedback/SDLForcedFeedbackFunctions.h"
 
-void UForcedFeedbackEffectBase::Init()
+void UForcedFeedbackEffectBase::BeginDestroy()
 {
-	if (IsReady) 
+	DestroyEffect();
+
+	Super::BeginDestroy();
+}
+
+void UForcedFeedbackEffectBase::InitialiseEffect()
+{
+	if (IsInitialised) 
 	{
 		return;
 	}
@@ -24,32 +31,29 @@ void UForcedFeedbackEffectBase::Init()
 		return;
 	}
 
-	IsReady = true;
-	if (AutoStart) 
+	IsInitialised = true;
+
+	//Safety check to ensure we don't try calling BP during destruction
+	if (this->IsPendingKillOrUnreachable())
+	{
+		return;
+	}
+
+	OnInitialisedEffect();
+	if (OnInitialisedEffectDelegate.IsBound())
+	{
+		OnInitialisedEffectDelegate.Broadcast();
+	}
+
+	if (AutoStartOnInit)
 	{
 		StartEffect();
 	}
 }
 
-void UForcedFeedbackEffectBase::PostInitProperties()
-{
-	Super::PostInitProperties();
-	
-	if (AutoInit && GetWorld())
-	{
-		Init();
-	}
-}
-
-void UForcedFeedbackEffectBase::BeginDestroy()
-{
-	DestroyEffect();
-	Super::BeginDestroy();
-}
-
 void UForcedFeedbackEffectBase::DestroyEffect()
 {
-	if (!IsReady) 
+	if (IsInitialised == false) 
 	{
 		return;
 	}
@@ -64,7 +68,117 @@ void UForcedFeedbackEffectBase::DestroyEffect()
 
 	SDL_HapticDestroyEffect(haptic, EffectId);
 
-	IsReady = false;
+	IsInitialised = false;
+
+	//Safety check to ensure we don't try calling BP during destruction
+	if (this->IsPendingKillOrUnreachable())
+	{
+		return;
+	}
+
+	OnDestroyedEffect();
+	if (OnDestroyedEffectDelegate.IsBound())
+	{
+		OnDestroyedEffectDelegate.Broadcast();
+	}
+}
+
+void UForcedFeedbackEffectBase::StartEffect()
+{
+
+	if (IsInitialised == false)
+	{
+		return;
+	}
+
+	SDL_Haptic* haptic = SDLForcedFeedbackFunctions::GetSDLHapticFromDeviceId(DeviceId);
+	if (haptic == nullptr)
+	{
+		return;
+	}
+
+	if (Infinite)
+	{
+		Iterations = SDL_HAPTIC_INFINITY;
+	}
+
+	int32 result = SDL_HapticRunEffect(haptic, EffectId, Iterations);
+	if (result == -1)
+	{
+		TCHAR* errorMessageerrorMessage = ANSI_TO_TCHAR(SDL_GetError());
+		UE_LOG(JoystickPluginLog, Log, TEXT("HapticRunEffect error: %s"), errorMessageerrorMessage);
+		return;
+	}
+
+	//Safety check to ensure we don't try calling BP during destruction
+	if (this->IsPendingKillOrUnreachable())
+	{
+		return;
+	}
+
+	OnStartedEffect();
+	if (OnStartedEffectDelegate.IsBound())
+	{
+		OnStartedEffectDelegate.Broadcast();
+	}
+}
+
+void UForcedFeedbackEffectBase::StopEffect()
+{
+	if (IsInitialised == false) 
+	{
+		return;
+	}
+
+	SDL_Haptic* haptic = SDLForcedFeedbackFunctions::GetSDLHapticFromDeviceId(DeviceId);
+	if (haptic == nullptr)
+	{
+		return;
+	}
+
+	SDL_HapticStopEffect(haptic, EffectId);
+
+	//Safety check to ensure we don't try calling BP during destruction
+	if (this->IsPendingKillOrUnreachable()) 
+	{
+		return;
+	}
+
+	OnStoppedEffect();
+	if (OnStoppedEffectDelegate.IsBound())
+	{
+		OnStoppedEffectDelegate.Broadcast();
+	}
+}
+
+void UForcedFeedbackEffectBase::UpdateEffect()
+{
+	SDL_Haptic* haptic = SDLForcedFeedbackFunctions::GetSDLHapticFromDeviceId(DeviceId);
+	if (haptic == nullptr) 
+	{
+		return;
+	}
+
+	SDL_HapticEffect effect = this->ToSDLEffect();
+
+	int32 result = SDL_HapticUpdateEffect(haptic, EffectId, &effect);
+	if (result == -1) {
+		TCHAR* errorMessage = ANSI_TO_TCHAR(SDL_GetError());
+		UE_LOG(JoystickPluginLog, Log, TEXT("HapticUpdateEffect error: %s"), errorMessage);
+		return;
+	}
+
+	//Safety check to ensure we don't try calling BP during destruction
+	if (this->IsPendingKillOrUnreachable())
+	{
+		return;
+	}
+
+	OnUpdatedEffect();
+	if (OnUpdatedEffectDelegate.IsBound())
+	{
+		OnUpdatedEffectDelegate.Broadcast();
+	}
 }
 
 int32 UForcedFeedbackEffectBase::EffectStatus()
@@ -85,77 +199,10 @@ int32 UForcedFeedbackEffectBase::EffectStatus()
 	return result;
 }
 
-void UForcedFeedbackEffectBase::StartEffect()
-{
-	SDL_Haptic* haptic = SDLForcedFeedbackFunctions::GetSDLHapticFromDeviceId(DeviceId);
-	if (haptic == nullptr)
-	{
-		return;
-	}
-
-	if (Infinite)
-	{
-		Iterations = SDL_HAPTIC_INFINITY;
-	}
-
-	int32 result = SDL_HapticRunEffect(haptic, EffectId, Iterations);
-	if (result == -1)
-	{
-		TCHAR* errorMessageerrorMessage = ANSI_TO_TCHAR(SDL_GetError());
-		UE_LOG(JoystickPluginLog, Log, TEXT("HapticRunEffect error: %s"), errorMessageerrorMessage);
-	}
-}
-
-void UForcedFeedbackEffectBase::StopEffect()
-{
-	if (IsReady == false) 
-	{
-		return;
-	}
-
-	SDL_Haptic* haptic = SDLForcedFeedbackFunctions::GetSDLHapticFromDeviceId(DeviceId);
-	if (haptic == nullptr)
-	{
-		return;
-	}
-
-	SDL_HapticStopEffect(haptic, EffectId);
-}
-
-void UForcedFeedbackEffectBase::UpdateEffect()
-{
-	SDL_Haptic* haptic = SDLForcedFeedbackFunctions::GetSDLHapticFromDeviceId(DeviceId);
-	if (haptic == nullptr) 
-	{
-		return;
-	}
-
-	SDL_HapticEffect effect = this->ToSDLEffect();
-
-	int32 result = SDL_HapticUpdateEffect(haptic, EffectId, &effect);
-	if (result == -1) {
-		TCHAR* errorMessage = ANSI_TO_TCHAR(SDL_GetError());
-		UE_LOG(JoystickPluginLog, Log, TEXT("HapticUpdateEffect error: %s"), errorMessage);
-	}
-}
-
 SDL_HapticEffect UForcedFeedbackEffectBase::ToSDLEffect()
 {
 	SDL_HapticEffect Effect;
 	SDL_memset(&Effect, 0, sizeof(SDL_HapticEffect));
 
 	return Effect;
-}
-
-UWorld* UForcedFeedbackEffectBase::GetWorld() const
-{
-	if (GIsEditor && !GIsPlayInEditorWorld)
-	{
-		return nullptr;
-	}
-	else if (GetOuter())
-	{
-		return GetOuter()->GetWorld();
-	}
-	return nullptr;
 }

@@ -11,7 +11,9 @@ class UForcedFeedbackEffectCondition : public UForcedFeedbackEffectBase
 public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-        FForcedFeedbackEffectConditionData EffectData;
+		FForcedFeedbackEffectConditionData EffectData;
+
+protected:
 
     SDL_HapticEffect ToSDLEffect() override;
 };

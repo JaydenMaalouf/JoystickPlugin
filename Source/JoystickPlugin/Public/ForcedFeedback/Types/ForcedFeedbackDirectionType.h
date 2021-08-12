@@ -5,7 +5,7 @@
 UENUM(BlueprintType)
 enum class EForcedFeedbackDirectionType : uint8 
 {
-	CARTESIAN,
-	POLAR,
-	SPHERICAL
+	POLAR = 0,
+	CARTESIAN = 1,
+	SPHERICAL = 2
 };

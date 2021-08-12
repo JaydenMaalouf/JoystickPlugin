@@ -95,6 +95,11 @@ void UForcedFeedbackFunctionLibrary::StopAllEffects(int32 DeviceId)
 	SDL_HapticStopAll(Haptic);
 }
 
+UForcedFeedbackEffectBase* UForcedFeedbackFunctionLibrary::CreateEffect(TSubclassOf<UForcedFeedbackEffectBase> classType)
+{
+	return NewObject<UForcedFeedbackEffectBase>(classType);
+}
+
 int32 UForcedFeedbackFunctionLibrary::GetNumEffects(int32 DeviceId) 
 {
 	SDL_Haptic* Haptic = SDLForcedFeedbackFunctions::GetSDLHapticFromDeviceId(DeviceId);
