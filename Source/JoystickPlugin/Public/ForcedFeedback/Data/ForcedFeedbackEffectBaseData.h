@@ -14,16 +14,16 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		FForcedFeedbackDirection Direction;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ClampMin = "0", ClampMax = "4294967295", ShortToolTip = "Duration", ToolTip = "The duration of the effect."))
-		int64 Length = 1;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ShortToolTip = "Duration", ToolTip = "The duration of the effect."))
+		float Duration = 1.0f;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere) 
-		bool InfiniteLength = false;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ShortToolTip = "Infinite Duration", ToolTip = "Whether the effect should run infinitely."))
+		bool InfiniteDuration = false;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ClampMin = "0", ClampMax = "65535", ShortToolTip = "Delay before starting", ToolTip = "Delay before starting the effect"))
-		int32 Delay = 0;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ShortToolTip = "Delay before starting", ToolTip = "Delay before starting the effect."))
+		float Delay = 0.0f;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ClampMin = "0", ClampMax = "65535", ShortToolTip = "Retrigger Delay", ToolTip = "Delay before the effect can be retriggerd"))
-		int32 Interval = 0;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ShortToolTip = "Retrigger Delay", ToolTip = "Delay before the effect can be retriggerd."))
+		float RetriggerDelay = 0.0f;
 };
 

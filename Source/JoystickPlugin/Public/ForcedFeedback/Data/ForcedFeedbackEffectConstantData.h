@@ -12,18 +12,18 @@ struct FForcedFeedbackEffectConstantData : public FForcedFeedbackEffectBaseData
 public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere) 
-		int32 Level = 1;
+		float EffectLevel = 1.0f;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ClampMin = "0", ClampMax = "65535"))
-		int32 AttackLength = 0;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		float AttackDuration = 0.0f;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ClampMin = "0", ClampMax = "65535"))
-		int32 AttackLevel = 0;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		float AttackLevel = 0.0f;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ClampMin = "0", ClampMax = "65535"))
-		int32 FadeLength = 0;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		float FadeDuration = 0.0f;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ClampMin = "0", ClampMax = "65535"))
-		int32 FadeLevel = 0;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		float FadeLevel = 0.0f;
 };
 

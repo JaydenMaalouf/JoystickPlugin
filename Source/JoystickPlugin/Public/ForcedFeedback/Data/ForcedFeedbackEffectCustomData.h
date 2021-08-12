@@ -11,8 +11,8 @@ struct FForcedFeedbackEffectCustomData : public FForcedFeedbackEffectBaseData
 
 public:
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ClampMin = "0", ClampMax = "255"))
-		int32 Channels = 0;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		uint8 Channels = 0;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ClampMin = "0", ClampMax = "65535"))
 		int32 Period = 0;
@@ -23,16 +23,16 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ClampMin = "0", ClampMax = "65535"))
 		TArray<int32> Data;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ClampMin = "0", ClampMax = "65535"))
-		int32 AttackLength = 0;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		float AttackDuration = 0.0f;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ClampMin = "0", ClampMax = "65535"))
-		int32 AttackLevel = 0;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		float AttackLevel = 0.0f;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ClampMin = "0", ClampMax = "65535"))
-		int32 FadeLength = 0;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		float FadeDuration = 0.0f;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ClampMin = "0", ClampMax = "65535"))
-		int32 FadeLevel = 0;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		float FadeLevel = 0.0f;
 };
 

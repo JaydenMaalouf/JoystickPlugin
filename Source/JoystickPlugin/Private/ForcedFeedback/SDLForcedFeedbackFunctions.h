@@ -2,7 +2,7 @@
 
 THIRD_PARTY_INCLUDES_START
 
-#include "SDL.h"
+#include "SDL_haptic.h"
 
 THIRD_PARTY_INCLUDES_END
 
