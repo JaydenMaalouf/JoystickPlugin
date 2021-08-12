@@ -10,7 +10,7 @@ class UForcedFeedbackFunctionLibrary : public UBlueprintFunctionLibrary
 public:
 
 	UFUNCTION(BlueprintCallable, Category = "SDL2 Force Feedback", meta = (DeterminesOutputType = "classType"))
-		static UForcedFeedbackEffectBase* CreateEffect(TSubclassOf<class UForcedFeedbackEffectBase> classType);
+		static UForcedFeedbackEffectBase* CreateEffect(TSubclassOf<class UForcedFeedbackEffectBase> classType, bool AutoStart = false);
 
 	UFUNCTION(BlueprintPure, Category = "SDL2 Force Feedback")
 		static int32 GetNumEffects(int32 DeviceId);
