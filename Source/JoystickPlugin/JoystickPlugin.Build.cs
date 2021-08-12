@@ -27,6 +27,12 @@ namespace UnrealBuildTool.Rules
                     "InputDevice",
                 });
 
+            PrivateDependencyModuleNames.AddRange(
+                new string[]
+                {
+                        "ApplicationCore",
+                });
+
             if (Target.Type == TargetRules.TargetType.Editor)
             {
                 PrivateIncludePathModuleNames.AddRange(

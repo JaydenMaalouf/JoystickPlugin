@@ -245,6 +245,8 @@ void JoystickDeviceManager::JoystickBall(FDeviceId DeviceId, int32 Ball, FVector
 	}
 }
 
+static FName JoystickInputInterfaceName = FName("JoystickPluginInput");
+
 void JoystickDeviceManager::SendControllerEvents()
 {
 	//UE_LOG(JoystickPluginLog, Log, TEXT("FJoystickDevice::SendControllerEvents()"));
@@ -254,12 +256,15 @@ void JoystickDeviceManager::SendControllerEvents()
 		FDeviceId DeviceId = Device.Key;
 		if (InputDevices.Contains(DeviceId)) 
 		{
-			int32 playerId = InputDevices[DeviceId].Player;
+			FJoystickInfo currentDevice = InputDevices[DeviceId];
+			int32 playerId = currentDevice.Player;
 			FJoystickState currentState = CurrentState[DeviceId];
 			FJoystickState previousState = PreviousState[DeviceId];
 
 			if (InputDevices[DeviceId].Connected) 
 			{
+				FInputDeviceScope InputScope(this, JoystickInputInterfaceName, DeviceId.value, currentDevice.DeviceName);
+
 				//Axis
 				for (int32 axisIndex = 0; axisIndex < currentState.Axes.Num(); axisIndex++)
 				{
