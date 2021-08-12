@@ -181,7 +181,6 @@ void JoystickDeviceManager::JoystickUnplugged(FDeviceId DeviceId)
 
 void JoystickDeviceManager::JoystickButton(FDeviceId DeviceId, int32 Button, bool Pressed)
 {
-	PreviousState[DeviceId].Buttons[Button] = CurrentState[DeviceId].Buttons[Button];
 	CurrentState[DeviceId].Buttons[Button] = Pressed;
 
 	for (auto & listener : EventListeners)
@@ -189,10 +188,14 @@ void JoystickDeviceManager::JoystickButton(FDeviceId DeviceId, int32 Button, boo
 		UObject * listenerObject = listener.Get();
 		if (listenerObject != nullptr)
 		{
-			if (Pressed)
+			if (Pressed) 
+			{
 				IJoystickInterface::Execute_JoystickButtonPressed(listenerObject, Button, CurrentState[DeviceId]);
+			}
 			else
+			{
 				IJoystickInterface::Execute_JoystickButtonReleased(listenerObject, Button, CurrentState[DeviceId]);
+			}
 		}
 	}
 }
@@ -287,13 +290,18 @@ void JoystickDeviceManager::SendControllerEvents()
 					bool currentPressed = currentState.Buttons[buttonIndex];
 					bool previousPressed = previousState.Buttons[buttonIndex];
 
-					if (currentPressed == true && previousPressed == false) 
+					if (currentPressed)
 					{
-						MessageHandler->OnControllerButtonPressed(DeviceButtonKeys[DeviceId][buttonIndex].GetFName(), playerId, false);
+						MessageHandler->OnControllerButtonPressed(DeviceButtonKeys[DeviceId][buttonIndex].GetFName(), playerId, currentPressed == previousPressed);
 					}
-					else if (previousPressed == true && currentPressed == false)
+					else
 					{
-						MessageHandler->OnControllerButtonReleased(DeviceButtonKeys[DeviceId][buttonIndex].GetFName(), playerId, false);
+						MessageHandler->OnControllerButtonReleased(DeviceButtonKeys[DeviceId][buttonIndex].GetFName(), playerId, currentPressed == previousPressed);
+					}
+
+					if (currentPressed != previousPressed)
+					{
+						PreviousState[DeviceId].Buttons[buttonIndex] = currentPressed;
 					}
 				}
 			}
