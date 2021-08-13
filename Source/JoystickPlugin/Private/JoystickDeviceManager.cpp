@@ -12,7 +12,7 @@
 
 #include "DeviceSDL.h"
 #include "JoystickFunctionLibrary.h"
-#include "ForcedFeedback/ForcedFeedbackFunctionLibrary.h"
+#include "ForceFeedback/ForceFeedbackFunctionLibrary.h"
 
 JoystickDeviceManager::JoystickDeviceManager(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler) : MessageHandler(InMessageHandler)
 {
