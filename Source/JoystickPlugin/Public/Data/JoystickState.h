@@ -2,6 +2,8 @@
 
 #include "Data/JoystickPOVDirection.h"
 
+#include "Containers/Array.h"
+
 #include "JoystickState.generated.h"
 
 USTRUCT(BlueprintType)

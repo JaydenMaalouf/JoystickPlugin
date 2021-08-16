@@ -31,6 +31,7 @@ public:
 	FDeviceInfoSDL * GetDevice(FDeviceId DeviceId);
 	
 	void IgnoreGameControllers(bool bIgnore);
+	//void SetJoystickRumble(FDeviceId DeviceId, FForceFeedbackValues values);
 
 	void Update();
 

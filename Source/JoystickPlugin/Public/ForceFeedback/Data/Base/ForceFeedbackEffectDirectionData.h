@@ -1,5 +1,6 @@
 #pragma once
 
+
 #include "ForceFeedback/Types/ForceFeedbackDirectionType.h"
 
 THIRD_PARTY_INCLUDES_START
@@ -8,10 +9,10 @@ THIRD_PARTY_INCLUDES_START
 
 THIRD_PARTY_INCLUDES_END
 
-#include "ForceFeedbackDirection.Generated.h"
+#include "ForceFeedbackEffectDirectionData.Generated.h"
 
 USTRUCT(BlueprintType)
-struct FForceFeedbackDirection
+struct FForceFeedbackEffectDirectionData
 {
 	GENERATED_BODY()
 
@@ -48,5 +49,6 @@ public:
 
 		return hapticDirection;
 	};
+
 };
 

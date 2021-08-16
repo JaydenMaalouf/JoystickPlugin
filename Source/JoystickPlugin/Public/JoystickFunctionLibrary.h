@@ -4,6 +4,8 @@
 #include "Data/JoystickState.h"
 #include "Data/JoystickPOVDirection.h"
 
+#include "Kismet/BlueprintFunctionLibrary.h"
+
 #include "JoystickFunctionLibrary.generated.h"
 
 UCLASS()

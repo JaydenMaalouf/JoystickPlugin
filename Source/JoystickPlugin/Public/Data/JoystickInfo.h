@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Data/InputType.h"
+#include "Containers/Array.h"
 
 #include "JoystickInfo.generated.h"
 

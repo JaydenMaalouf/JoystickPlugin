@@ -6,6 +6,8 @@ THIRD_PARTY_INCLUDES_START
 
 THIRD_PARTY_INCLUDES_END
 
+#include "UObject/Object.h"
+
 #include "ForceFeedbackEffectBase.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInitialisedEffect);

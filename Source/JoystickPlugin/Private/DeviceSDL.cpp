@@ -111,6 +111,16 @@ void FDeviceSDL::IgnoreGameControllers(bool bIgnore)
 	}
 }
 
+//void FDeviceSDL::SetJoystickRumble(FDeviceId DeviceId, FForceFeedbackValues values)
+//{
+//	FDeviceInfoSDL* device = GetDevice(DeviceId);
+//
+//	uint16 lowFrequency = FMath::Clamp(Uint16(((values.LeftSmall + values.RightSmall) / 2) * float(UINT16_MAX)), Uint16(0), Uint16(UINT16_MAX));
+//	uint16 highFrequency = FMath::Clamp(Uint16(((values.LeftLarge + values.RightLarge) / 2) * float(UINT16_MAX)), Uint16(0), Uint16(UINT16_MAX));
+//
+//	SDL_JoystickRumble(device->Joystick, lowFrequency, highFrequency, 1);
+//}
+
 FDeviceInfoSDL FDeviceSDL::AddDevice(FDeviceIndex DeviceIndex)
 {
 	FDeviceInfoSDL Device;

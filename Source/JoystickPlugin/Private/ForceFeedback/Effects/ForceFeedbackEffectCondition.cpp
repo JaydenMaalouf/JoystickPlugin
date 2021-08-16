@@ -29,10 +29,10 @@ SDL_HapticEffect UForceFeedbackEffectCondition::ToSDLEffect()
 	default: {}
 	}
 
-	effect.condition.direction = EffectData.Direction.ToSDLDirection();
-	effect.condition.length = EffectData.InfiniteDuration ? SDL_HAPTIC_INFINITY : FMath::Clamp(Uint32(EffectData.Duration * 1000.0f), Uint32(0), Uint32(UINT32_MAX));
-	effect.condition.delay = FMath::Clamp(Uint16(EffectData.Delay * 1000.0f), Uint16(0), Uint16(UINT16_MAX));
-	effect.condition.interval = FMath::Clamp(Uint16(EffectData.RetriggerDelay * 1000.0f), Uint16(0), Uint16(UINT16_MAX));
+	effect.condition.direction = EffectData.DirectionData.ToSDLDirection();
+	effect.condition.length = EffectData.DurationData.InfiniteDuration ? SDL_HAPTIC_INFINITY : FMath::Clamp(Uint32(EffectData.DurationData.Duration * 1000.0f), Uint32(0), Uint32(UINT32_MAX));
+	effect.condition.delay = FMath::Clamp(Uint16(EffectData.ReplayData.Delay * 1000.0f), Uint16(0), Uint16(UINT16_MAX));
+	effect.condition.interval = FMath::Clamp(Uint16(EffectData.ReplayData.RetriggerDelay * 1000.0f), Uint16(0), Uint16(UINT16_MAX));
 
 	effect.condition.right_sat[0] = FMath::Clamp(Uint16(EffectData.RightSat.X * float(UINT16_MAX)), Uint16(0), Uint16(UINT16_MAX));
 	effect.condition.right_sat[1] = FMath::Clamp(Uint16(EffectData.RightSat.Y * float(UINT16_MAX)), Uint16(0), Uint16(UINT16_MAX));
