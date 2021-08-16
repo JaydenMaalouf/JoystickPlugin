@@ -1,20 +1,32 @@
 #pragma once
 
-#include "ForceFeedbackEffectBaseData.h"
+#include "ForceFeedback/Data/Base/ForceFeedbackEffectDirectionData.h"
+#include "ForceFeedback/Data/Base/ForceFeedbackEffectDurationData.h"
+#include "ForceFeedback/Data/Base/ForceFeedbackEffectReplayData.h"
+
 #include "ForceFeedback/Types/ForceFeedbackConditionEffectType.h"
 #include "ForceFeedbackEffectConditionData.Generated.h"
 
 USTRUCT(BlueprintType)
-struct FForceFeedbackEffectConditionData : public FForceFeedbackEffectBaseData
+struct FForceFeedbackEffectConditionData
 {
 	GENERATED_BODY()
 
 public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		FForceFeedbackEffectDirectionData DirectionData;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		FForceFeedbackEffectDurationData DurationData;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		FForceFeedbackEffectReplayData ReplayData;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		EForceFeedbackConditionEffectType EffectType = EForceFeedbackConditionEffectType::SPRING;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(ShortToolTip = "Positive Coefficient", ToolTip = "The slope of the line describing how rapidly the force increases as the input moves away from the center point in the positive direction along the specified axis. Range is from -infinity to +infinity."))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ShortToolTip = "Positive Coefficient", ToolTip = "The slope of the line describing how rapidly the force increases as the input moves away from the center point in the positive direction along the specified axis. Range is from -infinity to +infinity."))
 		FVector LeftCoeff = FVector::ZeroVector;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ShortToolTip = "Max Positive Magnitude", ToolTip = "The maximum magnitude of the force feedback as the input moves away from the center point in the positive direction along the specified axis. Range is from 0 to 1.0."))

@@ -1,6 +1,10 @@
 #pragma once
 
-#include "Effects/ForceFeedbackEffectBase.h"
+#include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
+
+#include "Templates/SubclassOf.h"
+#include "Kismet/BlueprintFunctionLibrary.h"
+
 #include "ForceFeedbackFunctionLibrary.generated.h"
 
 UCLASS()

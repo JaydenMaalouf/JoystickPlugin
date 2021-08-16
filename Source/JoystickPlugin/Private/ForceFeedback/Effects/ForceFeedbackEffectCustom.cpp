@@ -7,10 +7,10 @@ SDL_HapticEffect UForceFeedbackEffectCustom::ToSDLEffect()
 	effect.type = SDL_HAPTIC_CUSTOM;
 	//effect.custom.type = SDL_HAPTIC_CUSTOM;
 
-	effect.custom.direction = EffectData.Direction.ToSDLDirection();
-	effect.custom.length = EffectData.InfiniteDuration ? SDL_HAPTIC_INFINITY : FMath::Clamp(Uint32(EffectData.Duration * 1000.0f), Uint32(0), Uint32(UINT32_MAX));
-	effect.custom.delay = FMath::Clamp(Uint16(EffectData.Delay * 1000.0f), Uint16(0), Uint16(UINT16_MAX));
-	effect.custom.interval = FMath::Clamp(Uint16(EffectData.RetriggerDelay * 1000.0f), Uint16(0), Uint16(UINT16_MAX));
+	effect.custom.direction = EffectData.DirectionData.ToSDLDirection();
+	effect.custom.length = EffectData.DurationData.InfiniteDuration ? SDL_HAPTIC_INFINITY : FMath::Clamp(Uint32(EffectData.DurationData.Duration * 1000.0f), Uint32(0), Uint32(UINT32_MAX));
+	effect.custom.delay = FMath::Clamp(Uint16(EffectData.ReplayData.Delay * 1000.0f), Uint16(0), Uint16(UINT16_MAX));
+	effect.custom.interval = FMath::Clamp(Uint16(EffectData.ReplayData.RetriggerDelay * 1000.0f), Uint16(0), Uint16(UINT16_MAX));
 
 	effect.custom.channels = FMath::Clamp(Uint8(EffectData.Channels), Uint8(0), Uint8(UINT8_MAX));
 	effect.custom.period = FMath::Clamp(Uint16(EffectData.Period), Uint16(0), Uint16(UINT16_MAX));
@@ -23,10 +23,10 @@ SDL_HapticEffect UForceFeedbackEffectCustom::ToSDLEffect()
 	}
 	effect.custom.data = dataArray;
 
-	effect.custom.attack_length = FMath::Clamp(Uint16(EffectData.AttackDuration * 1000.0f), Uint16(0), Uint16(UINT16_MAX));
-	effect.custom.attack_level = FMath::Clamp(Uint16(EffectData.AttackLevel * float(UINT16_MAX)), Uint16(0), Uint16(UINT16_MAX));
-	effect.custom.fade_length = FMath::Clamp(Uint16(EffectData.FadeDuration * 1000.0f), Uint16(0), Uint16(UINT16_MAX));
-	effect.custom.fade_level = FMath::Clamp(Uint16(EffectData.FadeLevel * float(UINT16_MAX)), Uint16(0), Uint16(UINT16_MAX));
+	effect.custom.attack_length = FMath::Clamp(Uint16(EffectData.EnvelopeData.AttackDuration * 1000.0f), Uint16(0), Uint16(UINT16_MAX));
+	effect.custom.attack_level = FMath::Clamp(Uint16(EffectData.EnvelopeData.AttackLevel * float(UINT16_MAX)), Uint16(0), Uint16(UINT16_MAX));
+	effect.custom.fade_length = FMath::Clamp(Uint16(EffectData.EnvelopeData.FadeDuration * 1000.0f), Uint16(0), Uint16(UINT16_MAX));
+	effect.custom.fade_level = FMath::Clamp(Uint16(EffectData.EnvelopeData.FadeLevel * float(UINT16_MAX)), Uint16(0), Uint16(UINT16_MAX));
 
 	return effect;
 }

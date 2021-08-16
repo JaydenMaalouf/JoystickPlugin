@@ -3,6 +3,8 @@
 #include "Components/ActorComponent.h"
 #include "Effects/ForceFeedbackEffectBase.h"
 
+#include "Templates/SubclassOf.h"
+
 #include "JoystickForceFeedbackComponent.generated.h"
 
 UCLASS(Blueprintable, ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))

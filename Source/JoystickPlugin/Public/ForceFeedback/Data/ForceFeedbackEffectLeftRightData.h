@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ForceFeedbackEffectBaseData.h"
-#include "ForceFeedback/Types/ForceFeedbackDirectionType.h"
+#include "ForceFeedback/Data/Base/ForceFeedbackEffectDurationData.h"
+
 #include "ForceFeedbackEffectLeftRightData.Generated.h"
 
 USTRUCT(BlueprintType)
@@ -11,11 +11,8 @@ struct FForceFeedbackEffectLeftRightData
 
 public:
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ShortToolTip = "Duration", ToolTip = "The duration of the effect."))
-		float Duration = 1.0f;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ShortToolTip = "Infinite Duration", ToolTip = "Whether the effect should run infinitely."))
-		bool InfiniteDuration = false;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		FForceFeedbackEffectDurationData DurationData;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		float LargeMagnitude = 1.0f;

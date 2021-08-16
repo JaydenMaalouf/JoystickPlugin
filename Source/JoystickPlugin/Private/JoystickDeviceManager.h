@@ -10,6 +10,9 @@
 
 #include "DeviceSDL.h"
 
+#include "InputCoreTypes.h"
+#include "Containers/Array.h"
+
 struct FDeviceInfoSDL;
 class FDeviceSDL;
 

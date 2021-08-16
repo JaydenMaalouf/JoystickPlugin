@@ -2,6 +2,8 @@
 
 #include "Data/JoystickState.h"
 
+#include "UObject/Interface.h"
+
 #include "JoystickInterface.generated.h"
 
 UINTERFACE(BlueprintType)
