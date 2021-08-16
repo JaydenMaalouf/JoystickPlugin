@@ -1,0 +1,12 @@
+# This is mostly empty as I am handling the build specifics on a remote build machine
+
+trigger:
+  - master
+  - develop
+
+pool: Default
+
+steps:
+- publish:
+  displayName: Publishing Artifacts
+  artifact: source
