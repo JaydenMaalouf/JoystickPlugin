@@ -6,6 +6,7 @@ namespace UnrealBuildTool.Rules
 
     public class JoystickPlugin : ModuleRules
     {
+
         public JoystickPlugin(ReadOnlyTargetRules Target) : base(Target)
         {
             PublicDependencyModuleNames.AddRange(
@@ -19,8 +20,6 @@ namespace UnrealBuildTool.Rules
                     "SlateCore"
                 });
 
-            AddEngineThirdPartyPrivateStaticDependencies(Target, "SDL2");
-
             PrivateIncludePathModuleNames.AddRange(
                 new string[]
                 {
@@ -30,8 +29,25 @@ namespace UnrealBuildTool.Rules
             PrivateDependencyModuleNames.AddRange(
                 new string[]
                 {
-                        "ApplicationCore",
+                    "ApplicationCore",
+                    "Projects"
                 });
+
+
+            var SDL2IncPath = Path.Combine(EngineDirectory, "Source", "ThirdParty", "SDL2", "SDL-gui-backend", "include");
+
+            PrivateIncludePaths.Add(SDL2IncPath);
+
+            var SDLDirectory = Path.Combine(PluginDirectory, "ThirdParty", "SDL2");
+            var SDLPlatformDir = Path.Combine(SDLDirectory, Target.Platform.ToString());
+
+            if (Target.Platform == UnrealTargetPlatform.Win64)
+            {
+                RuntimeDependencies.Add(Path.Combine(SDLPlatformDir, "SDL2.dll"));
+                PublicAdditionalLibraries.Add(Path.Combine(SDLPlatformDir, "SDL2.lib"));
+
+                PublicDelayLoadDLLs.Add("SDL2.dll");
+            }
 
             if (Target.Type == TargetRules.TargetType.Editor)
             {
@@ -53,5 +69,4 @@ namespace UnrealBuildTool.Rules
             }
         }
     }
-
 }

@@ -9,8 +9,11 @@
 
 #include "JoystickPlugin.h"
 
+#include "Misc/Paths.h"
+#include "Interfaces/IPluginManager.h"
+
 #if WITH_EDITOR
-	#include "InputSettingsCustomization.h"
+#include "InputSettingsCustomization.h"
 #endif
 
 #define LOCTEXT_NAMESPACE "JoystickPlugin"
@@ -23,6 +26,13 @@ TSharedPtr<class IInputDevice> FJoystickPlugin::CreateInputDevice(const TSharedR
 
 void FJoystickPlugin::StartupModule()
 {
+	const FString BaseDir = IPluginManager::Get().FindPlugin("JoystickPlugin")->GetBaseDir();
+	const FString SDLDir = FPaths::Combine(*BaseDir, TEXT("ThirdParty"), TEXT("SDL2"), TEXT("/Win64/"));
+
+	FPlatformProcess::PushDllDirectory(*SDLDir);
+	SDLDLLHandle = FPlatformProcess::GetDllHandle(*(SDLDir + "SDL2.dll"));
+	FPlatformProcess::PopDllDirectory(*SDLDir);
+
 	IJoystickPlugin::StartupModule();
 
 #if WITH_EDITOR
@@ -35,6 +45,8 @@ void FJoystickPlugin::StartupModule()
 
 void FJoystickPlugin::ShutdownModule()
 {
+	FPlatformProcess::FreeDllHandle(SDLDLLHandle);
+
 	IJoystickPlugin::ShutdownModule();
 
 	JoystickDevice = nullptr;

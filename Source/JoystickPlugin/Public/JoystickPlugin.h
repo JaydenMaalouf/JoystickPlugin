@@ -14,4 +14,8 @@ public:
 	void StartupModule() override;
 
 	TSharedPtr<class JoystickDeviceManager> JoystickDevice;
+
+private:
+
+	void* SDLDLLHandle = nullptr;
 };
