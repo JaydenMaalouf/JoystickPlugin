@@ -52,6 +52,8 @@ void JoystickDeviceManager::SetMessageHandler(const TSharedRef<FGenericApplicati
 	MessageHandler = InMessageHandler;
 }
 
+#define LOCTEXT_NAMESPACE "JoystickNamespace"
+
 void JoystickDeviceManager::InitInputDevice(const FDeviceInfoSDL &Device)
 {
 	FDeviceId DeviceId = Device.DeviceId;
@@ -62,11 +64,8 @@ void JoystickDeviceManager::InitInputDevice(const FDeviceInfoSDL &Device)
 	DeviceInfo.Player = 0;
 
 	DeviceInfo.ProductId = FDeviceSDL::DeviceGUIDtoGUID(Device.DeviceIndex);
-	DeviceInfo.ProductName = Device.Name;
-	DeviceInfo.ProductName = DeviceInfo.ProductName.Replace(TEXT(" "), TEXT(""));
-	DeviceInfo.DeviceName = DeviceInfo.ProductName.Replace(TEXT(" "), TEXT(""));
-	DeviceInfo.ProductName = DeviceInfo.ProductName.Replace(TEXT("."), TEXT(""));
-	DeviceInfo.DeviceName = DeviceInfo.DeviceName.Replace(TEXT("."), TEXT(""));
+	DeviceInfo.ProductName = Device.Name.Replace(TEXT(" "), TEXT("")).Replace(TEXT("."), TEXT(""));
+	DeviceInfo.DeviceName = DeviceInfo.ProductName;
 
 	UE_LOG(JoystickPluginLog, Log, TEXT("add device %s %i"), *DeviceInfo.DeviceName, DeviceId.value);
 	InputDevices.Emplace(DeviceId, DeviceInfo);
@@ -85,7 +84,7 @@ void JoystickDeviceManager::InitInputDevice(const FDeviceInfoSDL &Device)
 
 		if (!EKeys::GetKeyDetails(DeviceAxisKeys[DeviceId][iAxis]).IsValid())
 		{
-			FText textValue = FText::Format(NSLOCTEXT("JoystickPlugin", "DeviceAxis", "{0} {1} Axis {2}"), FText::FromString(DeviceInfo.ProductName), DeviceInfo.DeviceId, FText::AsNumber(iAxis));
+			FText textValue = FText::Format(LOCTEXT("Joystick_{0}_{1}_Axis{2}", "{0} {1} Axis {2}"), FText::FromString(DeviceInfo.ProductName), DeviceInfo.DeviceId, FText::AsNumber(iAxis));
 			EKeys::AddKey(FKeyDetails(DeviceAxisKeys[DeviceId][iAxis], textValue, FKeyDetails::GamepadKey | FKeyDetails::Axis1D));
 		}
 	}
@@ -100,7 +99,7 @@ void JoystickDeviceManager::InitInputDevice(const FDeviceInfoSDL &Device)
 
 		if (!EKeys::GetKeyDetails(DeviceButtonKeys[DeviceId][iButton]).IsValid())
 		{
-			FText textValue = FText::Format(NSLOCTEXT("JoystickPlugin", "DeviceButton", "{0} {1} Button {2}"), FText::FromString(DeviceInfo.ProductName), DeviceInfo.DeviceId, FText::AsNumber(iButton));
+			FText textValue = FText::Format(LOCTEXT("Joystick_{0}_{1}_Button{2}", "{0} {1} Button {2}"), FText::FromString(DeviceInfo.ProductName), DeviceInfo.DeviceId, FText::AsNumber(iButton));
 			EKeys::AddKey(FKeyDetails(DeviceButtonKeys[DeviceId][iButton], textValue, FKeyDetails::GamepadKey));
 		}
 	}
@@ -120,7 +119,7 @@ void JoystickDeviceManager::InitInputDevice(const FDeviceInfoSDL &Device)
 
 			if (!EKeys::GetKeyDetails(key).IsValid())
 			{
-				FText textValue = FText::Format(NSLOCTEXT("JoystickPlugin", "DeviceHat", "{0} {1} Hat {2} {3}"), FText::FromString(DeviceInfo.ProductName), DeviceInfo.DeviceId, FText::AsNumber(iHat), FText::FromString(_2DaxisNames[iAxis]));
+				FText textValue = FText::Format(LOCTEXT("Joystick_{0}_{1}_Hat{2}_{3}", "{0} {1} Hat {2} {3}"), FText::FromString(DeviceInfo.ProductName), DeviceInfo.DeviceId, FText::AsNumber(iHat), FText::FromString(_2DaxisNames[iAxis]));
 				EKeys::AddKey(FKeyDetails(key, textValue, FKeyDetails::GamepadKey | FKeyDetails::Axis1D));
 			}
 		}
@@ -139,12 +138,14 @@ void JoystickDeviceManager::InitInputDevice(const FDeviceInfoSDL &Device)
 
 			if (!EKeys::GetKeyDetails(key).IsValid())
 			{
-				FText textValue = FText::Format(NSLOCTEXT("JoystickPlugin", "DeviceBall", "{0} {1} Ball {2} {3}"), FText::FromString(DeviceInfo.ProductName), DeviceInfo.DeviceId, FText::AsNumber(iBall), FText::FromString(_2DaxisNames[iAxis]));
+				FText textValue = FText::Format(LOCTEXT("Joystick_{0}_{1}_Ball{2}_{3}", "{0} {1} Ball {2} {3}"), FText::FromString(DeviceInfo.ProductName), DeviceInfo.DeviceId, FText::AsNumber(iBall), FText::FromString(_2DaxisNames[iAxis]));
 				EKeys::AddKey(FKeyDetails(key, textValue, FKeyDetails::GamepadKey | FKeyDetails::Axis1D));
 			}
 		}
 	}
 }
+
+#undef LOCTEXT_NAMESPACE
 
 //Public API Implementation
 
@@ -295,18 +296,22 @@ void JoystickDeviceManager::SendControllerEvents()
 					bool currentPressed = currentState.Buttons[buttonIndex];
 					bool previousPressed = previousState.Buttons[buttonIndex];
 
-					if (currentPressed)
-					{
-						MessageHandler->OnControllerButtonPressed(DeviceButtonKeys[DeviceId][buttonIndex].GetFName(), playerId, currentPressed == previousPressed);
-					}
-					else
-					{
-						MessageHandler->OnControllerButtonReleased(DeviceButtonKeys[DeviceId][buttonIndex].GetFName(), playerId, currentPressed == previousPressed);
-					}
-
 					if (currentPressed != previousPressed)
 					{
+						if (currentPressed)
+						{
+							MessageHandler->OnControllerButtonPressed(DeviceButtonKeys[DeviceId][buttonIndex].GetFName(), playerId, false);
+						}
+						else
+						{
+							MessageHandler->OnControllerButtonReleased(DeviceButtonKeys[DeviceId][buttonIndex].GetFName(), playerId, false);
+						}
+
 						PreviousState[DeviceId].Buttons[buttonIndex] = currentPressed;
+					}
+					else if (currentPressed)
+					{
+						MessageHandler->OnControllerButtonPressed(DeviceButtonKeys[DeviceId][buttonIndex].GetFName(), playerId, true);
 					}
 				}
 			}
