@@ -12,7 +12,7 @@ THIRD_PARTY_INCLUDES_END
 #include "ForceFeedbackEffectDirectionData.Generated.h"
 
 USTRUCT(BlueprintType)
-struct FForceFeedbackEffectDirectionData
+struct JOYSTICKPLUGIN_API FForceFeedbackEffectDirectionData
 {
 	GENERATED_BODY()
 

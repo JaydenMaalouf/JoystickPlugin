@@ -8,7 +8,7 @@
 #include "ForceFeedbackEffectRampData.Generated.h"
 
 USTRUCT(BlueprintType)
-struct FForceFeedbackEffectRampData
+struct JOYSTICKPLUGIN_API FForceFeedbackEffectRampData
 {
 	GENERATED_BODY()
 

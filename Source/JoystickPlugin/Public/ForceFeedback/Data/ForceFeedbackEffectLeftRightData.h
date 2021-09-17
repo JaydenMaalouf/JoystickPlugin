@@ -5,7 +5,7 @@
 #include "ForceFeedbackEffectLeftRightData.Generated.h"
 
 USTRUCT(BlueprintType)
-struct FForceFeedbackEffectLeftRightData
+struct JOYSTICKPLUGIN_API FForceFeedbackEffectLeftRightData
 {
 	GENERATED_BODY()
 

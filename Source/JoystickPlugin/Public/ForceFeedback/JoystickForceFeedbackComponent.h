@@ -8,29 +8,29 @@
 #include "JoystickForceFeedbackComponent.generated.h"
 
 UCLASS(Blueprintable, ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class UJoystickForceFeedbackComponent : public UActorComponent
+class JOYSTICKPLUGIN_API UJoystickForceFeedbackComponent : public UActorComponent
 {
 
 	GENERATED_BODY()
 
 public:
 	
-	void BeginPlay() override;
-	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintImplementableEvent)
 		void OnInitialisedEffect();
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintImplementableEvent)
 		void OnStartedEffect();
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintImplementableEvent)
 		void OnStoppedEffect();
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintImplementableEvent)
 		void OnUpdatedEffect();
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintImplementableEvent)
 		void OnDestroyedEffect();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)

@@ -3,7 +3,7 @@
 #include "ForceFeedbackEffectEnvelopeData.Generated.h"
 
 USTRUCT(BlueprintType)
-struct FForceFeedbackEffectEnvelopeData
+struct JOYSTICKPLUGIN_API FForceFeedbackEffectEnvelopeData
 {
 	GENERATED_BODY()
 

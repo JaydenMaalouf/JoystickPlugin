@@ -5,7 +5,7 @@
 #include "ForceFeedbackEffectCustom.generated.h"
 
 UCLASS(Blueprintable)
-class UForceFeedbackEffectCustom : public UForceFeedbackEffectBase
+class JOYSTICKPLUGIN_API UForceFeedbackEffectCustom : public UForceFeedbackEffectBase
 {
     GENERATED_BODY()
 public:
