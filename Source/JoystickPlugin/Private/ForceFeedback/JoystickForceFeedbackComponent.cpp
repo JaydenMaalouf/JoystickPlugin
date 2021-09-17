@@ -44,28 +44,3 @@ void UJoystickForceFeedbackComponent::EndPlay(const EEndPlayReason::Type EndPlay
 
 	Effect = nullptr;
 }
-
-void UJoystickForceFeedbackComponent::OnInitialisedEffect_Implementation()
-{
-
-}
-
-void UJoystickForceFeedbackComponent::OnStartedEffect_Implementation()
-{
-
-}
-
-void UJoystickForceFeedbackComponent::OnStoppedEffect_Implementation()
-{
-
-}
-
-void UJoystickForceFeedbackComponent::OnUpdatedEffect_Implementation()
-{
-
-}
-
-void UJoystickForceFeedbackComponent::OnDestroyedEffect_Implementation()
-{
-
-}

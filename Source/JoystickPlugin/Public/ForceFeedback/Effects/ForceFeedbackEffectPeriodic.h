@@ -5,7 +5,7 @@
 #include "ForceFeedbackEffectPeriodic.generated.h"
 
 UCLASS(Blueprintable)
-class UForceFeedbackEffectPeriodic : public UForceFeedbackEffectBase
+class JOYSTICKPLUGIN_API UForceFeedbackEffectPeriodic : public UForceFeedbackEffectBase
 {
     GENERATED_BODY()
 public:

@@ -8,7 +8,7 @@
 #include "ForceFeedbackFunctionLibrary.generated.h"
 
 UCLASS()
-class UForceFeedbackFunctionLibrary : public UBlueprintFunctionLibrary
+class JOYSTICKPLUGIN_API UForceFeedbackFunctionLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 public:

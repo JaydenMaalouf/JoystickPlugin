@@ -17,7 +17,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnUpdatedEffect);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDestroyedEffect);
 
 UCLASS(BlueprintType)
-class UForceFeedbackEffectBase : public UObject
+class JOYSTICKPLUGIN_API UForceFeedbackEffectBase : public UObject
 {
     GENERATED_BODY()
 public:

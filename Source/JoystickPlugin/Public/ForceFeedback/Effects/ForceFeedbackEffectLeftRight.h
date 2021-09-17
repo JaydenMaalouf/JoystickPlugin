@@ -5,7 +5,7 @@
 #include "ForceFeedbackEffectLeftRight.generated.h"
 
 UCLASS(Blueprintable)
-class UForceFeedbackEffectLeftRight : public UForceFeedbackEffectBase
+class JOYSTICKPLUGIN_API UForceFeedbackEffectLeftRight : public UForceFeedbackEffectBase
 {
     GENERATED_BODY()
 public:

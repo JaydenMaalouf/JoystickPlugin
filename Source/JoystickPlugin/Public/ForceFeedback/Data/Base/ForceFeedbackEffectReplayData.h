@@ -3,7 +3,7 @@
 #include "ForceFeedbackEffectReplayData.Generated.h"
 
 USTRUCT(BlueprintType)
-struct FForceFeedbackEffectReplayData
+struct JOYSTICKPLUGIN_API FForceFeedbackEffectReplayData
 {
 	GENERATED_BODY()
 

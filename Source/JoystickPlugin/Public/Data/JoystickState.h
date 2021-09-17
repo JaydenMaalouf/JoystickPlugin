@@ -7,7 +7,7 @@
 #include "JoystickState.generated.h"
 
 USTRUCT(BlueprintType)
-struct FJoystickState
+struct JOYSTICKPLUGIN_API FJoystickState
 {
 	GENERATED_USTRUCT_BODY()
 

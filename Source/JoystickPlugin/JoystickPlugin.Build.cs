@@ -36,7 +36,7 @@ namespace UnrealBuildTool.Rules
 
             var SDL2IncPath = Path.Combine(EngineDirectory, "Source", "ThirdParty", "SDL2", "SDL-gui-backend", "include");
 
-            PrivateIncludePaths.Add(SDL2IncPath);
+            PublicIncludePaths.Add(SDL2IncPath);
 
             var SDLDirectory = Path.Combine(PluginDirectory, "ThirdParty", "SDL2");
             var SDLPlatformDir = Path.Combine(SDLDirectory, Target.Platform.ToString());

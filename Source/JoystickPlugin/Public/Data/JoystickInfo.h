@@ -6,7 +6,7 @@
 #include "JoystickInfo.generated.h"
 
 USTRUCT(BlueprintType)
-struct FJoystickInfo
+struct JOYSTICKPLUGIN_API FJoystickInfo
 {
 	GENERATED_BODY()
 
