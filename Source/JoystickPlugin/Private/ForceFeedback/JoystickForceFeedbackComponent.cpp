@@ -21,9 +21,9 @@ void UJoystickForceFeedbackComponent::BeginPlay()
 	Effect->OnUpdatedEffectDelegate.AddDynamic(this, &UJoystickForceFeedbackComponent::OnUpdatedEffect);
 	Effect->OnDestroyedEffectDelegate.AddDynamic(this, &UJoystickForceFeedbackComponent::OnDestroyedEffect);
 
-	Effect->AutoStartOnInit = AutoStartOnInit;
+	Effect->AutoStartOnInit = ComponentData.AutoStartOnInit;
 
-	if (AutoInit) 
+	if (ComponentData.AutoInit) 
 	{
 		Effect->InitialiseEffect();
 	}
@@ -43,4 +43,54 @@ void UJoystickForceFeedbackComponent::EndPlay(const EEndPlayReason::Type EndPlay
 	Effect->OnDestroyedEffectDelegate.RemoveDynamic(this, &UJoystickForceFeedbackComponent::OnDestroyedEffect);
 
 	Effect = nullptr;
+}
+
+void UJoystickForceFeedbackComponent::OnInitialisedEffect_Implementation(UForceFeedbackEffectBase* effect)
+{
+
+}
+
+void UJoystickForceFeedbackComponent::OnStartedEffect_Implementation(UForceFeedbackEffectBase* effect)
+{
+
+}
+
+void UJoystickForceFeedbackComponent::OnStoppedEffect_Implementation(UForceFeedbackEffectBase* effect)
+{
+
+}
+
+void UJoystickForceFeedbackComponent::OnUpdatedEffect_Implementation(UForceFeedbackEffectBase* effect)
+{
+
+}
+
+void UJoystickForceFeedbackComponent::OnDestroyedEffect_Implementation(UForceFeedbackEffectBase* effect)
+{
+
+}
+
+UForceFeedbackEffectBase* UJoystickForceFeedbackComponent::GetEffect()
+{
+	return Effect;
+}
+
+void UJoystickForceFeedbackComponent::StartEffect()
+{
+	if (Effect == nullptr)
+	{
+		return;
+	}
+
+	Effect->StartEffect();
+}
+
+void UJoystickForceFeedbackComponent::StopEffect()
+{
+	if (Effect == nullptr)
+	{
+		return;
+	}
+
+	Effect->StopEffect();
 }
