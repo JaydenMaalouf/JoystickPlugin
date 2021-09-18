@@ -10,11 +10,11 @@ THIRD_PARTY_INCLUDES_END
 
 #include "ForceFeedbackEffectBase.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInitialisedEffect);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnStartedEffect);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnStoppedEffect);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnUpdatedEffect);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDestroyedEffect);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInitialisedEffect, UForceFeedbackEffectBase*, effect);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStartedEffect, UForceFeedbackEffectBase*, effect);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStoppedEffect, UForceFeedbackEffectBase*, effect);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdatedEffect, UForceFeedbackEffectBase*, effect);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDestroyedEffect, UForceFeedbackEffectBase*, effect);
 
 UCLASS(BlueprintType)
 class JOYSTICKPLUGIN_API UForceFeedbackEffectBase : public UObject

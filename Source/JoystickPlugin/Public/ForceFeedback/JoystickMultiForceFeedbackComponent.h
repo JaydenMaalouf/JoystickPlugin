@@ -5,10 +5,10 @@
 #include "Effects/ForceFeedbackEffectBase.h"
 #include "Data/ForceFeedbackComponentData.h"
 
-#include "JoystickForceFeedbackComponent.generated.h"
+#include "JoystickMultiForceFeedbackComponent.generated.h"
 
 UCLASS(Blueprintable, ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class JOYSTICKPLUGIN_API UJoystickForceFeedbackComponent : public UActorComponent
+class JOYSTICKPLUGIN_API UJoystickMultiForceFeedbackComponent : public UActorComponent
 {
 
 	GENERATED_BODY()
@@ -34,21 +34,21 @@ public:
 		void OnDestroyedEffect(UForceFeedbackEffectBase* effect);
 
 	UFUNCTION(BlueprintCallable)
-		UForceFeedbackEffectBase* GetEffect();
+		TArray<UForceFeedbackEffectBase*> GetEffects();
 
 	UFUNCTION(BlueprintCallable)
-		void StartEffect();
+		UForceFeedbackEffectBase* GetEffectByType(TSubclassOf<class UForceFeedbackEffectBase> effectType);
 
 	UFUNCTION(BlueprintCallable)
-		void StopEffect();
+		void StartEffect(UForceFeedbackEffectBase* effect);
+
+	UFUNCTION(BlueprintCallable)
+		void StopEffect(UForceFeedbackEffectBase* effect);
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-		TSubclassOf<class UForceFeedbackEffectBase> EffectType;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		FForceFeedbackComponentData ComponentData;
+		TMap<TSubclassOf<class UForceFeedbackEffectBase>, FForceFeedbackComponentData> EffectTypes;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-		UForceFeedbackEffectBase* Effect;
+		TArray<UForceFeedbackEffectBase*> Effects;
 
 };

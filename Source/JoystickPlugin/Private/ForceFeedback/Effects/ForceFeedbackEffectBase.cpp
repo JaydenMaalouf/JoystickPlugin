@@ -25,7 +25,8 @@ void UForceFeedbackEffectBase::InitialiseEffect()
 	SDL_HapticEffect effect = this->ToSDLEffect();
 
 	EffectId = SDL_HapticNewEffect(haptic, &effect);
-	if (EffectId == -1) {
+	if (EffectId == -1) 
+	{
 		TCHAR* errorMessage = ANSI_TO_TCHAR(SDL_GetError());
 		UE_LOG(JoystickPluginLog, Log, TEXT("HapticNewEffect error: %s"), errorMessage);
 		return;
@@ -42,7 +43,7 @@ void UForceFeedbackEffectBase::InitialiseEffect()
 	OnInitialisedEffect();
 	if (OnInitialisedEffectDelegate.IsBound())
 	{
-		OnInitialisedEffectDelegate.Broadcast();
+		OnInitialisedEffectDelegate.Broadcast(this);
 	}
 
 	if (AutoStartOnInit)
@@ -79,14 +80,19 @@ void UForceFeedbackEffectBase::DestroyEffect()
 	OnDestroyedEffect();
 	if (OnDestroyedEffectDelegate.IsBound())
 	{
-		OnDestroyedEffectDelegate.Broadcast();
+		OnDestroyedEffectDelegate.Broadcast(this);
 	}
 }
 
 void UForceFeedbackEffectBase::StartEffect()
 {
-
 	if (IsInitialised == false)
+	{
+		return;
+	}
+
+	int32 status = EffectStatus();
+	if (status == 1)
 	{
 		return;
 	}
@@ -119,7 +125,7 @@ void UForceFeedbackEffectBase::StartEffect()
 	OnStartedEffect();
 	if (OnStartedEffectDelegate.IsBound())
 	{
-		OnStartedEffectDelegate.Broadcast();
+		OnStartedEffectDelegate.Broadcast(this);
 	}
 }
 
@@ -147,7 +153,7 @@ void UForceFeedbackEffectBase::StopEffect()
 	OnStoppedEffect();
 	if (OnStoppedEffectDelegate.IsBound())
 	{
-		OnStoppedEffectDelegate.Broadcast();
+		OnStoppedEffectDelegate.Broadcast(this);
 	}
 }
 
@@ -159,7 +165,7 @@ void UForceFeedbackEffectBase::UpdateEffect()
 		return;
 	}
 
-	SDL_HapticEffect effect = this->ToSDLEffect();
+	SDL_HapticEffect effect = ToSDLEffect();
 
 	int32 result = SDL_HapticUpdateEffect(haptic, EffectId, &effect);
 	if (result == -1) {
@@ -177,7 +183,7 @@ void UForceFeedbackEffectBase::UpdateEffect()
 	OnUpdatedEffect();
 	if (OnUpdatedEffectDelegate.IsBound())
 	{
-		OnUpdatedEffectDelegate.Broadcast();
+		OnUpdatedEffectDelegate.Broadcast(this);
 	}
 }
 
