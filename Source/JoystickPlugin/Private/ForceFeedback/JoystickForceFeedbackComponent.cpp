@@ -10,7 +10,7 @@ void UJoystickForceFeedbackComponent::BeginPlay()
 	}
 
 	Effect = NewObject<UForceFeedbackEffectBase>(this, EffectType);
-	if (Effect == nullptr) 
+	if (Effect == nullptr || Effect->IsPendingKill())
 	{
 		return;
 	}
@@ -31,7 +31,7 @@ void UJoystickForceFeedbackComponent::BeginPlay()
 
 void UJoystickForceFeedbackComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	if (Effect == nullptr)
+	if (Effect == nullptr || Effect->IsPendingKill())
 	{
 		return;
 	}
