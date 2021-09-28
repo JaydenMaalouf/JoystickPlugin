@@ -145,7 +145,7 @@ void UForceFeedbackEffectBase::StopEffect()
 	SDL_HapticStopEffect(haptic, EffectId);
 
 	//Safety check to ensure we don't try calling BP during destruction
-	if (this->IsPendingKillOrUnreachable()) 
+	if (IsPendingKillOrUnreachable()) 
 	{
 		return;
 	}
