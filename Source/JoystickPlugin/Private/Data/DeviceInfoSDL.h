@@ -1,9 +1,5 @@
 #pragma once
 
-#include "Data/DeviceId.h"
-#include "Data/DeviceIndex.h"
-#include "Data/InstanceId.h"
-
 struct _SDL_Joystick;
 typedef struct _SDL_Joystick SDL_Joystick;
 struct _SDL_Haptic;
@@ -11,14 +7,23 @@ typedef struct _SDL_Haptic SDL_Haptic;
 
 struct FDeviceInfoSDL
 {
-	FDeviceInfoSDL() {}
+	FDeviceInfoSDL()
+		: DeviceIndex(0)
+		, DeviceId(0)
+		, InstanceId(0)
+		, DeviceName("Unknown Device")
+		, Haptic(nullptr)
+		, Joystick(nullptr)
+	{
+	}
+	
+	int32 DeviceIndex;
 
-	FDeviceIndex DeviceIndex {0};
-	FDeviceId DeviceId {0};
-	FInstanceId InstanceId {0};
+	int32 DeviceId;
+	int32 InstanceId;
 
-	FString Name = "unknown";
+	FString DeviceName;
 
-	SDL_Haptic* Haptic = nullptr;
-	SDL_Joystick* Joystick = nullptr;
+	SDL_Haptic* Haptic;
+	SDL_Joystick* Joystick;
 };

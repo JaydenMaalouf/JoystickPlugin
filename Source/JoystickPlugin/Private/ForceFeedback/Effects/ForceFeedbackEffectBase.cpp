@@ -1,6 +1,6 @@
 #include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
 
-#include "ForceFeedback/SDLForceFeedbackFunctions.h"
+#include "JoystickFunctionLibrary.h"
 
 void UForceFeedbackEffectBase::BeginDestroy()
 {
@@ -16,15 +16,27 @@ void UForceFeedbackEffectBase::InitialiseEffect()
 		return;
 	}
 
-	SDL_Haptic* haptic = SDLForceFeedbackFunctions::GetSDLHapticFromDeviceId(DeviceId);
-	if (haptic == nullptr)
+	UJoystickDeviceManager* JoystickManager = UJoystickFunctionLibrary::GetJoystickManager();
+	if (JoystickManager == nullptr)
+	{
+		return;
+	}
+
+	FDeviceInfoSDL* DeviceInfoSDL = JoystickManager->GetDeviceInfo(DeviceId);
+	if (DeviceInfoSDL == nullptr)
+	{
+		return;
+	}
+	
+	SDL_Haptic* HapticDevice = DeviceInfoSDL->Haptic;
+	if (HapticDevice == nullptr)
 	{
 		return;
 	}
 
 	SDL_HapticEffect effect = this->ToSDLEffect();
 
-	EffectId = SDL_HapticNewEffect(haptic, &effect);
+	EffectId = SDL_HapticNewEffect(HapticDevice, &effect);
 	if (EffectId == -1) 
 	{
 		TCHAR* errorMessage = ANSI_TO_TCHAR(SDL_GetError());
@@ -61,13 +73,25 @@ void UForceFeedbackEffectBase::DestroyEffect()
 
 	StopEffect();
 
-	SDL_Haptic* haptic = SDLForceFeedbackFunctions::GetSDLHapticFromDeviceId(DeviceId);
-	if (haptic == nullptr)
+	UJoystickDeviceManager* JoystickManager = UJoystickFunctionLibrary::GetJoystickManager();
+	if (JoystickManager == nullptr)
 	{
 		return;
 	}
 
-	SDL_HapticDestroyEffect(haptic, EffectId);
+	FDeviceInfoSDL* DeviceInfoSDL = JoystickManager->GetDeviceInfo(DeviceId);
+	if (DeviceInfoSDL == nullptr)
+	{
+		return;
+	}
+	
+	SDL_Haptic* HapticDevice = DeviceInfoSDL->Haptic;
+	if (HapticDevice == nullptr)
+	{
+		return;
+	}
+
+	SDL_HapticDestroyEffect(HapticDevice, EffectId);
 
 	IsInitialised = false;
 
@@ -97,8 +121,20 @@ void UForceFeedbackEffectBase::StartEffect()
 		return;
 	}
 
-	SDL_Haptic* haptic = SDLForceFeedbackFunctions::GetSDLHapticFromDeviceId(DeviceId);
-	if (haptic == nullptr)
+	UJoystickDeviceManager* JoystickManager = UJoystickFunctionLibrary::GetJoystickManager();
+	if (JoystickManager == nullptr)
+	{
+		return;
+	}
+
+	FDeviceInfoSDL* DeviceInfoSDL = JoystickManager->GetDeviceInfo(DeviceId);
+	if (DeviceInfoSDL == nullptr)
+	{
+		return;
+	}
+	
+	SDL_Haptic* HapticDevice = DeviceInfoSDL->Haptic;
+	if (HapticDevice == nullptr)
 	{
 		return;
 	}
@@ -108,7 +144,7 @@ void UForceFeedbackEffectBase::StartEffect()
 		Iterations = SDL_HAPTIC_INFINITY;
 	}
 
-	int32 result = SDL_HapticRunEffect(haptic, EffectId, Iterations);
+	int32 result = SDL_HapticRunEffect(HapticDevice, EffectId, Iterations);
 	if (result == -1)
 	{
 		TCHAR* errorMessageerrorMessage = ANSI_TO_TCHAR(SDL_GetError());
@@ -136,13 +172,25 @@ void UForceFeedbackEffectBase::StopEffect()
 		return;
 	}
 
-	SDL_Haptic* haptic = SDLForceFeedbackFunctions::GetSDLHapticFromDeviceId(DeviceId);
-	if (haptic == nullptr)
+	UJoystickDeviceManager* JoystickManager = UJoystickFunctionLibrary::GetJoystickManager();
+	if (JoystickManager == nullptr)
 	{
 		return;
 	}
 
-	SDL_HapticStopEffect(haptic, EffectId);
+	FDeviceInfoSDL* DeviceInfoSDL = JoystickManager->GetDeviceInfo(DeviceId);
+	if (DeviceInfoSDL == nullptr)
+	{
+		return;
+	}
+	
+	SDL_Haptic* HapticDevice = DeviceInfoSDL->Haptic;
+	if (HapticDevice == nullptr)
+	{
+		return;
+	}
+
+	SDL_HapticStopEffect(HapticDevice, EffectId);
 
 	//Safety check to ensure we don't try calling BP during destruction
 	if (IsPendingKillOrUnreachable()) 
@@ -159,15 +207,27 @@ void UForceFeedbackEffectBase::StopEffect()
 
 void UForceFeedbackEffectBase::UpdateEffect()
 {
-	SDL_Haptic* haptic = SDLForceFeedbackFunctions::GetSDLHapticFromDeviceId(DeviceId);
-	if (haptic == nullptr) 
+	UJoystickDeviceManager* JoystickManager = UJoystickFunctionLibrary::GetJoystickManager();
+	if (JoystickManager == nullptr)
 	{
 		return;
 	}
 
+	FDeviceInfoSDL* DeviceInfoSDL = JoystickManager->GetDeviceInfo(DeviceId);
+	if (DeviceInfoSDL == nullptr)
+	{
+		return;
+	}
+	
+	SDL_Haptic* HapticDevice = DeviceInfoSDL->Haptic;
+	if (HapticDevice == nullptr)
+	{
+		return;
+	}
+	
 	SDL_HapticEffect effect = ToSDLEffect();
 
-	int32 result = SDL_HapticUpdateEffect(haptic, EffectId, &effect);
+	int32 result = SDL_HapticUpdateEffect(HapticDevice, EffectId, &effect);
 	if (result == -1) {
 		TCHAR* errorMessage = ANSI_TO_TCHAR(SDL_GetError());
 		UE_LOG(JoystickPluginLog, Log, TEXT("HapticUpdateEffect error: %s"), errorMessage);
@@ -189,13 +249,25 @@ void UForceFeedbackEffectBase::UpdateEffect()
 
 int32 UForceFeedbackEffectBase::EffectStatus()
 {
-	SDL_Haptic* haptic = SDLForceFeedbackFunctions::GetSDLHapticFromDeviceId(DeviceId);
-	if (haptic == nullptr)
+	UJoystickDeviceManager* JoystickManager = UJoystickFunctionLibrary::GetJoystickManager();
+	if (JoystickManager == nullptr)
 	{
 		return -1;
 	}
 
-	int32 result = SDL_HapticGetEffectStatus(haptic, EffectId);
+	FDeviceInfoSDL* DeviceInfoSDL = JoystickManager->GetDeviceInfo(DeviceId);
+	if (DeviceInfoSDL == nullptr)
+	{
+		return -1;
+	}
+	
+	SDL_Haptic* HapticDevice = DeviceInfoSDL->Haptic;
+	if (HapticDevice == nullptr)
+	{
+		return -1;
+	}
+
+	int32 result = SDL_HapticGetEffectStatus(HapticDevice, EffectId);
 	if (result == -1) {
 		TCHAR* errorMessage = ANSI_TO_TCHAR(SDL_GetError());
 		UE_LOG(JoystickPluginLog, Log, TEXT("GetEffectStatus error: %s"), errorMessage);

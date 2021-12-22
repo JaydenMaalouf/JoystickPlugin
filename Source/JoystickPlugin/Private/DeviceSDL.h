@@ -1,12 +1,10 @@
 #pragma once
 
-#include "Interfaces/JoystickInterface.h"
 #include "JoystickDeviceManager.h"
 
-#include "Data/DeviceIndex.h"
-#include "Data/DeviceId.h"
-#include "Data/InstanceId.h"
 #include "Data/DeviceInfoSDL.h"
+#include "Data/JoystickDeviceData.h"
+#include "Interfaces/JoystickEventInterface.h"
 
 THIRD_PARTY_INCLUDES_START
 
@@ -23,38 +21,34 @@ union SDL_Event;
 class FDeviceSDL
 {
 public:
-	FJoystickState InitialDeviceState(FDeviceId DeviceId);
+	explicit FDeviceSDL(IJoystickEventInterface* JoystickEventInterface);
+	virtual ~FDeviceSDL();
+	
+	FJoystickDeviceData InitialDeviceState(int32 DeviceId);
 
-	static FString DeviceGUIDtoString(FDeviceIndex DeviceIndex);
-	static FGuid DeviceGUIDtoGUID(FDeviceIndex DeviceIndex);
+	static FString DeviceGUIDtoString(int32 DeviceIndex);
+	static FGuid DeviceIndexToGUID(int32 DeviceIndex);
 
-	FDeviceInfoSDL * GetDevice(FDeviceId DeviceId);
+	FDeviceInfoSDL * GetDevice(int32 DeviceId);
 	
 	void IgnoreGameControllers(bool bIgnore);
 	//void SetJoystickRumble(FDeviceId DeviceId, FForceFeedbackValues values);
 
 	void Update();
 
-	FDeviceSDL(IJoystickEventInterface* EventInterface);
 	void Init();
-	virtual ~FDeviceSDL();
 
 private:
-	FDeviceInfoSDL AddDevice(FDeviceIndex DeviceIndex);
-	void RemoveDevice(FDeviceId DeviceId);
+	FDeviceInfoSDL AddDevice(int32 DeviceIndex);
+	void RemoveDevice(int32 DeviceId);
 
-	TMap<FDeviceId, FDeviceInfoSDL> Devices;	
-	TMap<FInstanceId, FDeviceId> DeviceMapping;
-
+	TMap<int32, FDeviceInfoSDL> Devices;
+	TMap<int32, int32> DeviceMapping;
+	
 	IJoystickEventInterface* EventInterface;
-
-	bool bOwnsSDL;
-
+	
 	bool bIgnoreGameControllers = true;
-
-	bool bSubSystemHaptic;
-	bool bSubSystemJoystick;
-	bool bSubSystemGameController;
+	bool bOwnsSDL;
 
 	static int HandleSDLEvent(void* Userdata, SDL_Event* Event);
 };
