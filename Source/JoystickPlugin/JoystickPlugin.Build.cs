@@ -23,16 +23,16 @@ namespace UnrealBuildTool.Rules
             PrivateIncludePathModuleNames.AddRange(
                 new string[]
                 {
-                    "InputDevice",
                 });
 
             PrivateDependencyModuleNames.AddRange(
                 new string[]
                 {
                     "ApplicationCore",
-                    "Projects"
+                    "Projects",
+                    "InputDevice",
+                    "DeveloperSettings"
                 });
-
 
             var SDL2IncPath = Path.Combine(EngineDirectory, "Source", "ThirdParty", "SDL2", "SDL-gui-backend", "include");
 

@@ -9,19 +9,23 @@
 
 #include "JoystickPlugin.h"
 
+#include "JoystickInputDevice.h"
 #include "Misc/Paths.h"
 #include "Interfaces/IPluginManager.h"
-
-#if WITH_EDITOR
-#include "InputSettingsCustomization.h"
-#endif
 
 #define LOCTEXT_NAMESPACE "JoystickPlugin"
 
 TSharedPtr<class IInputDevice> FJoystickPlugin::CreateInputDevice(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler)
 {
-	JoystickDevice = MakeShareable(new JoystickDeviceManager(InMessageHandler));
-	return JoystickDevice;
+	JoystickInputDevice = MakeShareable(new FJoystickInputDevice(InMessageHandler));
+
+	JoystickDeviceManager = MakeShareable(NewObject<UJoystickDeviceManager>());
+	JoystickDeviceManager->SetInputDevice(JoystickInputDevice);
+
+	JoystickHapticDeviceManager = MakeShareable(NewObject<UJoystickHapticDeviceManager>());
+	JoystickHapticDeviceManager->SetInputDevice(JoystickInputDevice);
+	
+	return JoystickInputDevice;
 }
 
 void FJoystickPlugin::StartupModule()
@@ -30,26 +34,30 @@ void FJoystickPlugin::StartupModule()
 	const FString SDLDir = FPaths::Combine(*BaseDir, TEXT("ThirdParty"), TEXT("SDL2"), TEXT("/Win64/"));
 
 	FPlatformProcess::PushDllDirectory(*SDLDir);
-	SDLDLLHandle = FPlatformProcess::GetDllHandle(*(SDLDir + "SDL2.dll"));
+	SdlDllHandle = FPlatformProcess::GetDllHandle(*(SDLDir + "SDL2.dll"));
 	FPlatformProcess::PopDllDirectory(*SDLDir);
 
 	IJoystickPlugin::StartupModule();
-
-#if WITH_EDITOR
-	// Replace parts of the input settings widget to make them wide enough to fit long joystick names
-	FInputActionMappingCustomizationExtended::Register();
-	FInputAxisMappingCustomizationExtended::Register();
-#endif
-
 }
 
 void FJoystickPlugin::ShutdownModule()
 {
-	FPlatformProcess::FreeDllHandle(SDLDLLHandle);
+	FPlatformProcess::FreeDllHandle(SdlDllHandle);
 
 	IJoystickPlugin::ShutdownModule();
 
-	JoystickDevice = nullptr;
+	if (JoystickInputDevice.IsValid())
+	{
+		JoystickInputDevice.Reset();		
+	}
+	if (JoystickDeviceManager.IsValid())
+	{
+		JoystickDeviceManager.Reset();		
+	}
+	if (JoystickHapticDeviceManager.IsValid())
+	{
+		JoystickHapticDeviceManager.Reset();		
+	}
 }
 
 #undef LOCTEXT_NAMESPACE

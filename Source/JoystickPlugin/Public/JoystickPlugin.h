@@ -2,6 +2,8 @@
 
 #include "Interfaces/JoystickPluginInterface.h"
 #include "JoystickDeviceManager.h"
+#include "JoystickHapticDeviceManager.h"
+#include "JoystickInputDevice.h"
 
 class FJoystickPlugin : public IJoystickPlugin
 {
@@ -13,9 +15,14 @@ public:
 
 	void StartupModule() override;
 
-	TSharedPtr<class JoystickDeviceManager> JoystickDevice;
+	UJoystickDeviceManager* GetDeviceManager() const { return JoystickDeviceManager.Get(); }
+	UJoystickHapticDeviceManager* GetHapticDeviceManager() const { return JoystickHapticDeviceManager.Get(); }
 
 private:
 
-	void* SDLDLLHandle = nullptr;
+	void* SdlDllHandle = nullptr;
+
+	TSharedPtr<class FJoystickInputDevice> JoystickInputDevice;
+	TSharedPtr<class UJoystickDeviceManager> JoystickDeviceManager;
+	TSharedPtr<class UJoystickHapticDeviceManager> JoystickHapticDeviceManager;
 };
