@@ -1,36 +1,27 @@
 #include "JoystickInputSettings.h"
 
-#include "JoystickPlugin.h"
-
-FJoystickInputDeviceConfiguration::FJoystickInputDeviceConfiguration()
-{
-}
+#include "Editor.h"
+#include "JoystickSubsystem.h"
 
 void UJoystickInputSettings::PostEditChangeChainProperty(FPropertyChangedChainEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeChainProperty(PropertyChangedEvent);
-
-	FJoystickPlugin* JoystickPlugin = static_cast<FJoystickPlugin*>(&FJoystickPlugin::Get());
-	if (JoystickPlugin == nullptr)
-	{
-		return;
-	}
 	
-	UJoystickDeviceManager* JoystickDeviceManager = JoystickPlugin->GetDeviceManager();
-	if (JoystickDeviceManager == nullptr)
+	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
+	if (JoystickSubsystem == nullptr)
 	{
 		return;
 	}
 
-	FDeviceSDL* DeviceSDL = JoystickDeviceManager->GetDeviceSDL();
-	if (DeviceSDL == nullptr)
+	UJoystickDeviceManager* JoystickDeviceManager = UJoystickDeviceManager::GetJoystickDeviceManager();
+	if (JoystickDeviceManager == nullptr)
 	{
 		return;
 	}
 
 	for(const int32& DeviceId : JoystickDeviceManager->GetDeviceIds())
 	{
-		JoystickDeviceManager->ReinitialiseJoystickData(DeviceId);
+		JoystickSubsystem->ReinitialiseJoystickData(DeviceId);
 	}
 }
 

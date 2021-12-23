@@ -1,9 +1,13 @@
 #pragma once
+#include <SDL_events.h>
+
 #include "JoystickInputDevice.h"
 #include "Data/JoystickDeviceData.h"
-#include "Data/DeviceInfoSDL.h"
 
 #include "JoystickDeviceManager.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnJoystickPluggedIn, int32, DeviceId);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnJoystickUnplugged, int32, DeviceId);
 
 UCLASS(BlueprintType)
 class UJoystickDeviceManager : public UObject
@@ -11,7 +15,9 @@ class UJoystickDeviceManager : public UObject
 	GENERATED_BODY()
 	
 public:
-	void SetInputDevice(const TSharedPtr<FJoystickInputDevice> NewInputDevice);
+
+	UFUNCTION(BlueprintPure)
+		static UJoystickDeviceManager* GetJoystickDeviceManager() { return StaticClass()->GetDefaultObject<UJoystickDeviceManager>(); }
 
 	UFUNCTION(BlueprintPure)
 		int32 JoystickCount() const;
@@ -26,17 +32,13 @@ public:
 		void MapJoystickDeviceToPlayer(int32 DeviceId, int32 Player);
 
 	UFUNCTION(BlueprintCallable)
-		void IgnoreGameControllers(bool IgnoreControllers) const;
-
-	UFUNCTION(BlueprintCallable)
-		void ReinitialiseJoystickData(const int32 DeviceId) const;
+		void SetIgnoreGameControllers(bool IgnoreControllers);
 
 	UFUNCTION(BlueprintCallable)
 		TArray<int32> GetDeviceIds() const;
 
-	FDeviceSDL* GetDeviceSDL() const;
-	FDeviceInfoSDL* GetDeviceInfo(const int32 DeviceId) const;
-
-private:
-	TSharedPtr<FJoystickInputDevice> InputDevice;
+	UPROPERTY(BlueprintAssignable)
+		FOnJoystickPluggedIn JoystickPluggedIn;
+	UPROPERTY(BlueprintAssignable)
+		FOnJoystickUnplugged JoystickUnplugged;
 };

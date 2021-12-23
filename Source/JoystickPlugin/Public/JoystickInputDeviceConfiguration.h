@@ -8,8 +8,6 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceConfiguration
 {
 	GENERATED_BODY()
 
-	FJoystickInputDeviceConfiguration();
-
 	UPROPERTY(EditAnywhere, Category="Device Config")
 	FString DeviceGUID;
 

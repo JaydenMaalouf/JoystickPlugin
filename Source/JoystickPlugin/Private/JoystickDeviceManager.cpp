@@ -9,18 +9,20 @@
 */
 
 #include "JoystickDeviceManager.h"
-
-#include "DeviceSDL.h"
+#include "JoystickFunctionLibrary.h"
 #include "JoystickPlugin.h"
-
-void UJoystickDeviceManager::SetInputDevice(const TSharedPtr<FJoystickInputDevice> NewInputDevice)
-{
-	InputDevice = NewInputDevice;
-}
+#include "JoystickSubsystem.h"
 
 int32 UJoystickDeviceManager::JoystickCount() const
 {
-	if (!InputDevice.IsValid())
+	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
+	if (JoystickSubsystem == nullptr)
+	{
+		return -1;
+	}
+
+	FJoystickInputDevice* InputDevice = JoystickSubsystem->GetInputDevice();
+	if (InputDevice == nullptr)
 	{
 		return -1;
 	}
@@ -30,7 +32,14 @@ int32 UJoystickDeviceManager::JoystickCount() const
 
 FJoystickDeviceData UJoystickDeviceManager::GetJoystickData(const int32 DeviceId) const
 {
-	if (!InputDevice.IsValid())
+	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
+	if (JoystickSubsystem == nullptr)
+	{
+		return FJoystickDeviceData();
+	}
+
+	FJoystickInputDevice* InputDevice = JoystickSubsystem->GetInputDevice();
+	if (InputDevice == nullptr)
 	{
 		return FJoystickDeviceData();
 	}
@@ -40,7 +49,14 @@ FJoystickDeviceData UJoystickDeviceManager::GetJoystickData(const int32 DeviceId
 
 FJoystickInfo UJoystickDeviceManager::GetJoystickInfo(const int32 DeviceId) const
 {	
-	if (!InputDevice.IsValid())
+	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
+	if (JoystickSubsystem == nullptr)
+	{
+		return FJoystickInfo();
+	}
+
+	FJoystickInputDevice* InputDevice = JoystickSubsystem->GetInputDevice();
+	if (InputDevice == nullptr)
 	{
 		return FJoystickInfo();
 	}
@@ -48,67 +64,33 @@ FJoystickInfo UJoystickDeviceManager::GetJoystickInfo(const int32 DeviceId) cons
 	return InputDevice->GetDeviceInfo(DeviceId);
 }
 
-FDeviceSDL* UJoystickDeviceManager::GetDeviceSDL() const
-{
-	if (!InputDevice.IsValid())
-	{
-		return nullptr;
-	}
-	
-	return InputDevice->GetDeviceSDL();
-}
-
-FDeviceInfoSDL* UJoystickDeviceManager::GetDeviceInfo(const int32 DeviceId) const
-{
-	if (!InputDevice.IsValid())
-	{
-		return nullptr;
-	}
-
-	FDeviceSDL* DeviceSDL = InputDevice->GetDeviceSDL();
-	if (DeviceSDL == nullptr)
-	{
-		return nullptr;
-	}
-
-	FDeviceInfoSDL* DeviceInfoSDL = DeviceSDL->GetDevice(DeviceId);
-	if (DeviceInfoSDL == nullptr)
-	{
-		return nullptr;
-	}
-	
-	return DeviceInfoSDL;
-}
-
 void UJoystickDeviceManager::MapJoystickDeviceToPlayer(int32 DeviceId, int32 Player)
 {
 	//TODO: Implement
 }
 
-void UJoystickDeviceManager::IgnoreGameControllers(const bool IgnoreControllers) const
+void UJoystickDeviceManager::SetIgnoreGameControllers(bool IgnoreControllers)
 {
-	if (!InputDevice.IsValid())
-	{
-		return;
-	}
-	
-	InputDevice->IgnoreGameControllers(IgnoreControllers);
-}
-
-void UJoystickDeviceManager::ReinitialiseJoystickData(const int32 DeviceId) const
-{	
-	if (!InputDevice.IsValid())
+	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
+	if (JoystickSubsystem == nullptr)
 	{
 		return;
 	}
 
-	InputDevice->ReinitialiseJoystickData(DeviceId);
+	JoystickSubsystem->SetIgnoreGameControllers(IgnoreControllers);
 }
 
 TArray<int32> UJoystickDeviceManager::GetDeviceIds() const
 {
 	TArray<int32> DeviceIds;
-	if (!InputDevice.IsValid())
+	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
+	if (JoystickSubsystem == nullptr)
+	{
+		return DeviceIds;
+	}
+
+	FJoystickInputDevice* InputDevice = JoystickSubsystem->GetInputDevice();
+	if (InputDevice == nullptr)
 	{
 		return DeviceIds;
 	}

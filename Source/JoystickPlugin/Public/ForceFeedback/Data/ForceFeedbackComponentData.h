@@ -18,9 +18,9 @@ public:
 
 	}
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Component|Data")
 		bool AutoInit = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Component|Data")
 		bool AutoStartOnInit = false;
 };

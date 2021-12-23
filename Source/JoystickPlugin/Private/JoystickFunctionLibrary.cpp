@@ -9,31 +9,6 @@
 
 #include "JoystickFunctionLibrary.h"
 #include "Interfaces/JoystickPluginInterface.h"
-#include "Interfaces/JoystickInterface.h"
-#include "JoystickDeviceManager.h"
-#include "JoystickPlugin.h"
-
-UJoystickDeviceManager* UJoystickFunctionLibrary::GetJoystickManager()
-{
-	const FJoystickPlugin& JoystickPlugin = static_cast<FJoystickPlugin&>(IJoystickPlugin::Get());
-	if (!JoystickPlugin.IsAvailable())
-	{
-		return nullptr;
-	}
-
-	return JoystickPlugin.GetDeviceManager();
-}
-
-UJoystickHapticDeviceManager* UJoystickFunctionLibrary::GetJoystickHapticManager()
-{
-	const FJoystickPlugin& JoystickPlugin = static_cast<FJoystickPlugin&>(IJoystickPlugin::Get());
-	if (!JoystickPlugin.IsAvailable())
-	{
-		return nullptr;
-	}
-
-	return JoystickPlugin.GetHapticDeviceManager();
-}
 
 FVector2D UJoystickFunctionLibrary::POVAxis(EJoystickPOVDirection Direction)
 {
@@ -59,5 +34,24 @@ FVector2D UJoystickFunctionLibrary::POVAxis(EJoystickPOVDirection Direction)
 		return FVector2D(-1, 1);
 	default:
 		return FVector2D(0, 0);
+	}
+}
+
+EJoystickPOVDirection UJoystickFunctionLibrary::HatValueToDirection(const int8 Value)
+{
+	switch (Value)
+	{
+	case SDL_HAT_CENTERED:  return EJoystickPOVDirection::DIRECTION_NONE;
+	case SDL_HAT_UP:        return EJoystickPOVDirection::DIRECTION_UP;
+	case SDL_HAT_RIGHTUP:   return EJoystickPOVDirection::DIRECTION_UP_RIGHT;
+	case SDL_HAT_RIGHT:	    return EJoystickPOVDirection::DIRECTION_RIGHT;
+	case SDL_HAT_RIGHTDOWN: return EJoystickPOVDirection::DIRECTION_DOWN_RIGHT;
+	case SDL_HAT_DOWN:	    return EJoystickPOVDirection::DIRECTION_DOWN;
+	case SDL_HAT_LEFTDOWN:  return EJoystickPOVDirection::DIRECTION_DOWN_LEFT;
+	case SDL_HAT_LEFT:	    return EJoystickPOVDirection::DIRECTION_LEFT;
+	case SDL_HAT_LEFTUP:    return EJoystickPOVDirection::DIRECTION_UP_LEFT;
+	default:
+		//UE_LOG(LogTemp, Warning, TEXT("Warning, POV unhandled case. %d"), (int32)value);
+		return EJoystickPOVDirection::DIRECTION_NONE;
 	}
 }

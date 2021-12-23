@@ -10,7 +10,9 @@ class UJoystickHapticDeviceManager : public UObject
 	GENERATED_BODY()
 	
 public:
-	void SetInputDevice(const TSharedPtr<FJoystickInputDevice> NewInputDevice);
+
+	UFUNCTION(BlueprintPure)
+		static UJoystickHapticDeviceManager* GetJoystickHapticDeviceManager() { return StaticClass()->GetDefaultObject<UJoystickHapticDeviceManager>(); }
 	
 	UFUNCTION(BlueprintCallable)
 		bool SetAutoCenter(int32 DeviceId, int32 Center);
@@ -40,7 +42,4 @@ public:
 		int32 GetEffectStatus(int32 DeviceId, int32 EffectId);
 
 	SDL_Haptic* GetHapticDevice(int32 DeviceId) const;
-	
-private:
-	TSharedPtr<FJoystickInputDevice> InputDevice;
 };

@@ -14,19 +14,19 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectConstantData
 
 public:
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Constant|Data")
 		FForceFeedbackEffectDirectionData DirectionData;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Constant|Data")
 		FForceFeedbackEffectDurationData DurationData;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Constant|Data")
 		FForceFeedbackEffectReplayData ReplayData;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Constant|Data")
 		FForceFeedbackEffectEnvelopeData EnvelopeData;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere) 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Constant|Data") 
 		float EffectLevel = 1.0f;
 };
 
