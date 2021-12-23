@@ -5,6 +5,8 @@
 #include "JoystickHapticDeviceManager.h"
 #include "JoystickInputDevice.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogJoystickPlugin, Log, All);
+
 class FJoystickPlugin : public IJoystickPlugin
 {
 
@@ -14,15 +16,12 @@ public:
 	void ShutdownModule() override;
 
 	void StartupModule() override;
-
-	UJoystickDeviceManager* GetDeviceManager() const { return JoystickDeviceManager.Get(); }
-	UJoystickHapticDeviceManager* GetHapticDeviceManager() const { return JoystickHapticDeviceManager.Get(); }
+	
+	TSharedPtr<FJoystickInputDevice> GetJoystickInputDevice() const { return JoystickInputDevice; }
 
 private:
 
 	void* SdlDllHandle = nullptr;
-
-	TSharedPtr<class FJoystickInputDevice> JoystickInputDevice;
-	TSharedPtr<class UJoystickDeviceManager> JoystickDeviceManager;
-	TSharedPtr<class UJoystickHapticDeviceManager> JoystickHapticDeviceManager;
+	
+	TSharedPtr<FJoystickInputDevice> JoystickInputDevice;
 };

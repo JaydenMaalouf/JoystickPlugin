@@ -10,20 +10,22 @@
 #include "JoystickPlugin.h"
 
 #include "JoystickInputDevice.h"
+#include "JoystickSubsystem.h"
 #include "Misc/Paths.h"
 #include "Interfaces/IPluginManager.h"
+
+DEFINE_LOG_CATEGORY(LogJoystickPlugin);
 
 #define LOCTEXT_NAMESPACE "JoystickPlugin"
 
 TSharedPtr<class IInputDevice> FJoystickPlugin::CreateInputDevice(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler)
 {
 	JoystickInputDevice = MakeShareable(new FJoystickInputDevice(InMessageHandler));
-
-	JoystickDeviceManager = MakeShareable(NewObject<UJoystickDeviceManager>());
-	JoystickDeviceManager->SetInputDevice(JoystickInputDevice);
-
-	JoystickHapticDeviceManager = MakeShareable(NewObject<UJoystickHapticDeviceManager>());
-	JoystickHapticDeviceManager->SetInputDevice(JoystickInputDevice);
+	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
+	if (JoystickSubsystem)
+	{
+		JoystickSubsystem->InitialiseInputDevice(JoystickInputDevice);
+	}
 	
 	return JoystickInputDevice;
 }
@@ -45,18 +47,10 @@ void FJoystickPlugin::ShutdownModule()
 	FPlatformProcess::FreeDllHandle(SdlDllHandle);
 
 	IJoystickPlugin::ShutdownModule();
-
+	
 	if (JoystickInputDevice.IsValid())
 	{
 		JoystickInputDevice.Reset();		
-	}
-	if (JoystickDeviceManager.IsValid())
-	{
-		JoystickDeviceManager.Reset();		
-	}
-	if (JoystickHapticDeviceManager.IsValid())
-	{
-		JoystickHapticDeviceManager.Reset();		
 	}
 }
 

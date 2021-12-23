@@ -45,10 +45,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void StopEffect(UForceFeedbackEffectBase* effect);
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Force Feedback|Component")
 		TMap<TSubclassOf<class UForceFeedbackEffectBase>, FForceFeedbackComponentData> EffectTypes;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Force Feedback|Component")
 		TArray<UForceFeedbackEffectBase*> Effects;
 
 };

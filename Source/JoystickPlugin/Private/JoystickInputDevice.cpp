@@ -10,21 +10,12 @@
 
 #include "JoystickInputDevice.h"
 
-#include "DeviceSDL.h"
 #include "JoystickFunctionLibrary.h"
+#include "JoystickSubsystem.h"
 
 
 FJoystickInputDevice::FJoystickInputDevice(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler) : MessageHandler(InMessageHandler)
 {
-	UE_LOG(JoystickPluginLog, Log, TEXT("FJoystickPlugin::StartupModule() creating Device SDL"));
-
-	DeviceSDL = MakeShareable(new FDeviceSDL(this));
-	DeviceSDL->Init();
-}
-
-FJoystickInputDevice::~FJoystickInputDevice()
-{
-	DeviceSDL = nullptr;
 }
 
 void FJoystickInputDevice::Tick(float DeltaTime)
@@ -53,6 +44,12 @@ void FJoystickInputDevice::SetMessageHandler(const TSharedRef<FGenericApplicatio
 
 void FJoystickInputDevice::InitInputDevice(const FDeviceInfoSDL &Device)
 {
+	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
+	if (JoystickSubsystem == nullptr)
+	{
+		return;
+	}
+	
 	int32 DeviceId = Device.DeviceId;
 	FJoystickInfo DeviceInfo;
 
@@ -60,14 +57,14 @@ void FJoystickInputDevice::InitInputDevice(const FDeviceInfoSDL &Device)
 	DeviceInfo.DeviceId = DeviceId;
 	DeviceInfo.Player = 0;
 
-	DeviceInfo.ProductId = FDeviceSDL::DeviceIndexToGUID(Device.DeviceIndex);
+	DeviceInfo.ProductId = JoystickSubsystem->DeviceIndexToGUID(Device.DeviceIndex);
 	DeviceInfo.ProductName = Device.DeviceName.Replace(TEXT(" "), TEXT("")).Replace(TEXT("."), TEXT(""));
 	DeviceInfo.DeviceName = DeviceInfo.ProductName;
 
-	UE_LOG(JoystickPluginLog, Log, TEXT("add device %s %i"), *DeviceInfo.DeviceName, DeviceId);
+	UE_LOG(LogJoystickPlugin, Log, TEXT("add device %s %i"), *DeviceInfo.DeviceName, DeviceId);
 	JoystickDeviceInfo.Emplace(DeviceId, DeviceInfo);
 
-	FJoystickDeviceData InitialState = DeviceSDL->InitialDeviceState(DeviceId);
+	FJoystickDeviceData InitialState = JoystickSubsystem->GetInitialDeviceState(DeviceId);
 	JoystickDeviceData.Emplace(DeviceId, InitialState);
 
 	// create FKeyDetails for axis
@@ -75,7 +72,7 @@ void FJoystickInputDevice::InitInputDevice(const FDeviceInfoSDL &Device)
 	for (int32 iAxis = 0; iAxis < InitialState.Axes.Num(); iAxis++)
 	{
 		FString strName = FString::Printf(TEXT("Joystick_%s_%d_Axis%d"), *DeviceInfo.DeviceName, DeviceInfo.DeviceId, iAxis);
-		UE_LOG(JoystickPluginLog, Log, TEXT("add %s %i"), *strName, DeviceId);
+		UE_LOG(LogJoystickPlugin, Log, TEXT("add %s %i"), *strName, DeviceId);
 		DeviceAxisKeys[DeviceId].Add(FKey(FName(*strName)));
 
 		if (!EKeys::GetKeyDetails(DeviceAxisKeys[DeviceId][iAxis]).IsValid())
@@ -90,7 +87,7 @@ void FJoystickInputDevice::InitInputDevice(const FDeviceInfoSDL &Device)
 	for (int32 iButton = 0; iButton < InitialState.Buttons.Num(); iButton++)
 	{
 		FString strName = FString::Printf(TEXT("Joystick_%s_%d_Button%d"), *DeviceInfo.DeviceName, DeviceInfo.DeviceId, iButton);
-		UE_LOG(JoystickPluginLog, Log, TEXT("add %s %i"), *strName, DeviceId);
+		UE_LOG(LogJoystickPlugin, Log, TEXT("add %s %i"), *strName, DeviceId);
 		DeviceButtonKeys[DeviceId].Add(FKey(FName(*strName)));
 
 		if (!EKeys::GetKeyDetails(DeviceButtonKeys[DeviceId][iButton]).IsValid())
@@ -109,7 +106,7 @@ void FJoystickInputDevice::InitInputDevice(const FDeviceInfoSDL &Device)
 		for (int32 iHat = 0; iHat < InitialState.Hats.Num(); iHat++)
 		{
 			FString strName = FString::Printf(TEXT("Joystick_%s_%d_Hat%d_%s"), *DeviceInfo.DeviceName, DeviceInfo.DeviceId, iHat, *_2DaxisNames[iAxis]);
-			UE_LOG(JoystickPluginLog, Log, TEXT("add %s %i"), *strName, DeviceId);
+			UE_LOG(LogJoystickPlugin, Log, TEXT("add %s %i"), *strName, DeviceId);
 			FKey key{ *strName };
 			DeviceHatKeys[iAxis][DeviceId].Add(key);
 
@@ -128,7 +125,7 @@ void FJoystickInputDevice::InitInputDevice(const FDeviceInfoSDL &Device)
 		for (int32 iBall = 0; iBall < InitialState.Balls.Num(); iBall++)
 		{
 			FString strName = FString::Printf(TEXT("Joystick_%s_%d_Ball%d_%s"), *DeviceInfo.DeviceName, DeviceInfo.DeviceId, iBall, *_2DaxisNames[iAxis]);
-			UE_LOG(JoystickPluginLog, Log, TEXT("add %s %i"), *strName, DeviceId);
+			UE_LOG(LogJoystickPlugin, Log, TEXT("add %s %i"), *strName, DeviceId);
 			FKey key{ *strName };
 			DeviceBallKeys[iAxis][DeviceId].Add(key);
 
@@ -147,7 +144,7 @@ void FJoystickInputDevice::InitInputDevice(const FDeviceInfoSDL &Device)
 
 void FJoystickInputDevice::JoystickPluggedIn(const FDeviceInfoSDL &DeviceInfoSDL)
 {
-	UE_LOG(JoystickPluginLog, Log, TEXT("FJoystickPlugin::JoystickPluggedIn() %i"), DeviceInfoSDL.DeviceId);
+	UE_LOG(LogJoystickPlugin, Log, TEXT("FJoystickPlugin::JoystickPluggedIn() %i"), DeviceInfoSDL.DeviceId);
 
 	InitInputDevice(DeviceInfoSDL);
 }
@@ -214,6 +211,12 @@ int32 FJoystickInputDevice::GetDeviceCount() const
 static FName JoystickInputInterfaceName = FName("JoystickPluginInput");
 void FJoystickInputDevice::SendControllerEvents()
 {
+	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
+	if (JoystickSubsystem == nullptr)
+	{
+		return;
+	}
+	
 	//UE_LOG(JoystickPluginLog, Log, TEXT("FJoystickDevice::SendControllerEvents()"));
 	
 	for (const TPair<int32, FJoystickInfo>& Device : JoystickDeviceInfo)
@@ -276,33 +279,12 @@ void FJoystickInputDevice::SendControllerEvents()
 		}
 	}
 
-	DeviceSDL->Update();
+	JoystickSubsystem->Update();
 }
 
-void FJoystickInputDevice::IgnoreGameControllers(const bool bIgnore) const
+void FJoystickInputDevice::ReinitialiseJoystickData(const int32 DeviceId, FJoystickDeviceData InitialState)
 {
-	if (DeviceSDL == nullptr)
-	{
-		return;
-	}
-	
-	DeviceSDL->IgnoreGameControllers(bIgnore);
-}
-
-FDeviceSDL* FJoystickInputDevice::GetDeviceSDL() const
-{
-	if (!DeviceSDL.IsValid())
-	{
-		return nullptr;
-	}
-	
-	return DeviceSDL.Get();
-}
-
-void FJoystickInputDevice::ReinitialiseJoystickData(const int32 DeviceId)
-{	
-	FJoystickDeviceData& JoystickState = JoystickDeviceData[DeviceId];
-	JoystickState = DeviceSDL->InitialDeviceState(DeviceId);
+	JoystickDeviceData[DeviceId] = InitialState;
 }
 
 void FJoystickInputDevice::GetDeviceIds(TArray<int32>& DeviceIds) const

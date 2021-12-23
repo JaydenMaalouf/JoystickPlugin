@@ -42,13 +42,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void StopEffect();
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Force Feedback|Component")
 		TSubclassOf<class UForceFeedbackEffectBase> EffectType;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Component")
 		FForceFeedbackComponentData ComponentData;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Force Feedback|Component")
 		UForceFeedbackEffectBase* Effect;
 
 };
