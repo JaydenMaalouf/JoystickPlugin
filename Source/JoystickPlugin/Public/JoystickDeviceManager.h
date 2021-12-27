@@ -1,6 +1,4 @@
 #pragma once
-#include <SDL_events.h>
-
 #include "JoystickInputDevice.h"
 #include "Data/JoystickDeviceData.h"
 
@@ -16,25 +14,28 @@ class UJoystickDeviceManager : public UObject
 	
 public:
 
-	UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintPure, Category = "Joystick|Functions")
 		static UJoystickDeviceManager* GetJoystickDeviceManager() { return StaticClass()->GetDefaultObject<UJoystickDeviceManager>(); }
 
-	UFUNCTION(BlueprintPure)
-		int32 JoystickCount() const;
+	UFUNCTION(BlueprintPure, Category = "Joystick|Functions")
+		int32 GetJoystickCount() const;
 	
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure, Category = "Joystick|Functions")
+		int32 GetValidDeviceCount() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Joystick|Functions")
 		FJoystickDeviceData GetJoystickData(const int32 DeviceId) const;
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Joystick|Functions")
 		FJoystickInfo GetJoystickInfo(const int32 DeviceId) const;
 
-	UFUNCTION(BlueprintCallable)
-		void MapJoystickDeviceToPlayer(int32 DeviceId, int32 Player);
+	UFUNCTION(BlueprintCallable, Category = "Joystick|Functions")
+		void MapJoystickDeviceToPlayer(int32 DeviceId, int32 PlayerId);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Joystick|Functions")
 		void SetIgnoreGameControllers(bool IgnoreControllers);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Joystick|Functions")
 		TArray<int32> GetDeviceIds() const;
 
 	UPROPERTY(BlueprintAssignable)

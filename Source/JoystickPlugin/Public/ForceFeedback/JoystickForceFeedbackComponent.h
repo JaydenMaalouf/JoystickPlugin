@@ -18,28 +18,28 @@ public:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-	UFUNCTION(BlueprintNativeEvent)
-		void OnInitialisedEffect(UForceFeedbackEffectBase* effect);
+	UFUNCTION(BlueprintNativeEvent, Category = "Force Feedback|Component|Events")
+		void OnInitialisedEffect(UForceFeedbackEffectBase* Effect);
 
-	UFUNCTION(BlueprintNativeEvent)
-		void OnStartedEffect(UForceFeedbackEffectBase* effect);
+	UFUNCTION(BlueprintNativeEvent, Category = "Force Feedback|Component|Events")
+		void OnStartedEffect(UForceFeedbackEffectBase* Effect);
 
-	UFUNCTION(BlueprintNativeEvent)
-		void OnStoppedEffect(UForceFeedbackEffectBase* effect);
+	UFUNCTION(BlueprintNativeEvent, Category = "Force Feedback|Component|Events")
+		void OnStoppedEffect(UForceFeedbackEffectBase* Effect);
 
-	UFUNCTION(BlueprintNativeEvent)
-		void OnUpdatedEffect(UForceFeedbackEffectBase* effect);
+	UFUNCTION(BlueprintNativeEvent, Category = "Force Feedback|Component|Events")
+		void OnUpdatedEffect(UForceFeedbackEffectBase* Effect);
 
-	UFUNCTION(BlueprintNativeEvent)
-		void OnDestroyedEffect(UForceFeedbackEffectBase* effect);
+	UFUNCTION(BlueprintNativeEvent, Category = "Force Feedback|Component|Events")
+		void OnDestroyedEffect(UForceFeedbackEffectBase* Effect);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Component|Functions")
 		UForceFeedbackEffectBase* GetEffect();
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Component|Functions")
 		void StartEffect();
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Component|Functions")
 		void StopEffect();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Force Feedback|Component")
@@ -49,6 +49,6 @@ public:
 		FForceFeedbackComponentData ComponentData;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Force Feedback|Component")
-		UForceFeedbackEffectBase* Effect;
+		UForceFeedbackEffectBase* ForcedFeedbackEffect;
 
 };

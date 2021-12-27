@@ -10,10 +10,10 @@ class JOYSTICKPLUGIN_API UForceFeedbackEffectRamp : public UForceFeedbackEffectB
     GENERATED_BODY()
 public:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Effect Data")
 		FForceFeedbackEffectRampData EffectData;
 
 protected:
 
-	SDL_HapticEffect ToSDLEffect() override;
+	virtual SDL_HapticEffect ToSDLEffect() override;
 };

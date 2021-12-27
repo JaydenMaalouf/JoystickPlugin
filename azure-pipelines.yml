@@ -8,22 +8,7 @@ trigger:
   - develop
 
 jobs:
-- job: SetupVersioning
-  steps:
-  - checkout: self
-    persistCredentials: true
-  - task: gitversion/setup@0
-    displayName: "GitVersion Setup"
-    inputs:
-      versionSpec: '5.x'
-  - task: gitversion/execute@0
-  - task: CmdLine@2
-    displayName: "Tag Git Branch"
-    condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'master'))
-    inputs:
-      script: |
-        git tag $(SemVer)
-        git push --tags
+- template: version.yml
 
 - ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
   - deployment: Production
@@ -34,26 +19,16 @@ jobs:
       runOnce:
         deploy:
           steps:
-          - script: |
-              mkdir "$(System.DefaultWorkingDirectory)/_joystick-plugin/source/\ThirdParty\SDL2\Win64"
-              copy "$(EpicGamesDirectory)\SDL\UE_4.27\Win64\SDL2.dll" "$(System.DefaultWorkingDirectory)/_joystick-plugin/source/\ThirdParty\SDL2\Win64\SDL2.dll"
-              copy "$(EpicGamesDirectory)\SDL\UE_4.27\Win64\SDL2.lib" "$(System.DefaultWorkingDirectory)/_joystick-plugin/source/\ThirdParty\SDL2\Win64\SDL2.lib"
-            displayName: 'Copy dll and lib to Plugin'
-          - script: '"$(LauncherDirectory)\UE_4.27\Engine\Build\BatchFiles\RunUAT.bat"  BuildPlugin -TargetPlatforms=Win64 -Plugin=$(System.DefaultWorkingDirectory)/_joystick-plugin/source/\JoystickPlugin.uplugin -Package=$(System.DefaultWorkingDirectory)/build/UE_4.27 -rocket'
-            displayName: 'Build Plugin'
-          - task: ArchiveFiles@2
-            displayName: 'Archive Plugin'
-            inputs:
-              rootFolderOrFile: '$(System.DefaultWorkingDirectory)/build/UE_4.27'
-              includeRootFolder: false
-              archiveFile: '$(System.DefaultWorkingDirectory)/output/JoystickPlugin-4.27-Win64-$(Release.ReleaseName).zip'
-          - task: ArchiveFiles@2
-            displayName: 'Archive SDL'
-            inputs:
-              rootFolderOrFile: 'E:\Epic Games\SDL\UE_4.27\Win64'
-              archiveFile: '$(System.DefaultWorkingDirectory)/output/SDL-4.27-Win64.zip'
+          # - template: package.yml
+          #   parameters:
+          #     platform: Win64
+          #     engineVersion: '4.26'
+          - template: package.yml
+            parameters:
+              platform: Win64
+              engineVersion: '4.27'
           - task: GitHubRelease@1
-            displayName: 'GitHub release (edit)'
+            displayName: 'Create GitHub Release'
             inputs:
               gitHubConnection: 'GitHub Connection'
               repositoryName: '$(Build.Repository.Name)'
@@ -65,7 +40,6 @@ jobs:
               assets: '$(System.DefaultWorkingDirectory)/output/*.zip'
               changeLogCompareToRelease: 'lastFullRelease'
               changeLogType: 'commitBased'
-
 - ${{ else }}:
   - deployment: NonProduction
     displayName: Non-Production Deployment
@@ -75,26 +49,16 @@ jobs:
       runOnce:
         deploy:
           steps:
-          - script: |
-              mkdir "$(System.DefaultWorkingDirectory)/_joystick-plugin/source/\ThirdParty\SDL2\Win64"
-              copy "$(EpicGamesDirectory)\SDL\UE_4.27\Win64\SDL2.dll" "$(System.DefaultWorkingDirectory)/_joystick-plugin/source/\ThirdParty\SDL2\Win64\SDL2.dll"
-              copy "$(EpicGamesDirectory)\SDL\UE_4.27\Win64\SDL2.lib" "$(System.DefaultWorkingDirectory)/_joystick-plugin/source/\ThirdParty\SDL2\Win64\SDL2.lib"
-            displayName: 'Copy dll and lib to Plugin'
-          - script: '"$(LauncherDirectory)\UE_4.27\Engine\Build\BatchFiles\RunUAT.bat"  BuildPlugin -TargetPlatforms=Win64 -Plugin=$(System.DefaultWorkingDirectory)/_joystick-plugin/source/\JoystickPlugin.uplugin -Package=$(System.DefaultWorkingDirectory)/build/UE_4.27 -rocket'
-            displayName: 'Build Plugin'
-          - task: ArchiveFiles@2
-            displayName: 'Archive Plugin'
-            inputs:
-              rootFolderOrFile: '$(System.DefaultWorkingDirectory)/build/UE_4.27'
-              includeRootFolder: false
-              archiveFile: '$(System.DefaultWorkingDirectory)/output/JoystickPlugin-4.27-Win64-$(Release.ReleaseName).zip'
-          - task: ArchiveFiles@2
-            displayName: 'Archive SDL'
-            inputs:
-              rootFolderOrFile: 'E:\Epic Games\SDL\UE_4.27\Win64'
-              archiveFile: '$(System.DefaultWorkingDirectory)/output/SDL-4.27-Win64.zip'
+          # - template: package.yml
+          #   parameters:
+          #     platform: Win64
+          #     engineVersion: '4.26'
+          - template: package.yml
+            parameters:
+              platform: Win64
+              engineVersion: '4.27'
           - task: GitHubRelease@1
-            displayName: 'GitHub release (edit)'
+            displayName: 'Create GitHub Release'
             inputs:
               gitHubConnection: 'GitHub Connection'
               repositoryName: '$(Build.Repository.Name)'

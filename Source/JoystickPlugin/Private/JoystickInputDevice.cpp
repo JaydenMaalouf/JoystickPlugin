@@ -13,7 +13,6 @@
 #include "JoystickFunctionLibrary.h"
 #include "JoystickSubsystem.h"
 
-
 FJoystickInputDevice::FJoystickInputDevice(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler) : MessageHandler(InMessageHandler)
 {
 }
@@ -149,41 +148,41 @@ void FJoystickInputDevice::JoystickPluggedIn(const FDeviceInfoSDL &DeviceInfoSDL
 	InitInputDevice(DeviceInfoSDL);
 }
 
-void FJoystickInputDevice::JoystickUnplugged(int32 DeviceId)
+void FJoystickInputDevice::JoystickUnplugged(const int32 DeviceId)
 {
 	FJoystickInfo& InputDevice = JoystickDeviceInfo[DeviceId];
 	InputDevice.Connected = false;
 }
 
-void FJoystickInputDevice::JoystickButton(int32 DeviceId, int32 Button, bool Pressed)
+void FJoystickInputDevice::JoystickButton(const int32 DeviceId, const int32 Button, const bool Pressed)
 {
-	FButtonData& state = JoystickDeviceData[DeviceId].Buttons[Button];
-	state.PreviousButtonState = state.ButtonState;
-	state.ButtonState = Pressed;
+	FButtonData& State = JoystickDeviceData[DeviceId].Buttons[Button];
+	State.PreviousButtonState = State.ButtonState;
+	State.ButtonState = Pressed;
 }
 
-void FJoystickInputDevice::JoystickAxis(int32 DeviceId, int32 Axis, float Value)
+void FJoystickInputDevice::JoystickAxis(const int32 DeviceId, const int32 Axis, const float Value)
 {
-	FAnalogData& state = JoystickDeviceData[DeviceId].Axes[Axis];
-	state.PreviousValue = state.Value;
-	state.Value = Value;
+	FAnalogData& State = JoystickDeviceData[DeviceId].Axes[Axis];
+	State.PreviousValue = State.Value;
+	State.Value = Value;
 }
 
-void FJoystickInputDevice::JoystickHat(int32 DeviceId, int32 Hat, EJoystickPOVDirection Value)
+void FJoystickInputDevice::JoystickHat(const int32 DeviceId, const int32 Hat, const EJoystickPOVDirection Value)
 {
-	FHatData& state = JoystickDeviceData[DeviceId].Hats[Hat];
-	state.PreviousDirection = state.Direction;
-	state.Direction = Value;
+	FHatData& State = JoystickDeviceData[DeviceId].Hats[Hat];
+	State.PreviousDirection = State.Direction;
+	State.Direction = Value;
 }
 
-void FJoystickInputDevice::JoystickBall(int32 DeviceId, int32 Ball, FVector2D Value)
+void FJoystickInputDevice::JoystickBall(const int32 DeviceId, const int32 Ball, const FVector2D Value)
 {
-	FBallData& state = JoystickDeviceData[DeviceId].Balls[Ball];
-	state.PreviousDirection = state.Direction;
-	state.Direction = Value;
+	FBallData& State = JoystickDeviceData[DeviceId].Balls[Ball];
+	State.PreviousDirection = State.Direction;
+	State.Direction = Value;
 }
 
-FJoystickDeviceData FJoystickInputDevice::GetDeviceData(int32 DeviceId)
+FJoystickDeviceData FJoystickInputDevice::GetDeviceData(const int32 DeviceId)
 {
 	if (!JoystickDeviceData.Contains(DeviceId))
 	{
@@ -193,7 +192,7 @@ FJoystickDeviceData FJoystickInputDevice::GetDeviceData(int32 DeviceId)
 	return JoystickDeviceData[DeviceId];
 }
 
-FJoystickInfo FJoystickInputDevice::GetDeviceInfo(int32 DeviceId)
+FJoystickInfo FJoystickInputDevice::GetDeviceInfo(const int32 DeviceId)
 {
 	if (!JoystickDeviceInfo.Contains(DeviceId))
 	{
@@ -290,4 +289,14 @@ void FJoystickInputDevice::ReinitialiseJoystickData(const int32 DeviceId, FJoyst
 void FJoystickInputDevice::GetDeviceIds(TArray<int32>& DeviceIds) const
 {
 	JoystickDeviceInfo.GenerateKeyArray(DeviceIds);
+}
+
+void FJoystickInputDevice::SetPlayerOwnership(const int32 DeviceId, const int32 PlayerId)
+{
+	if (!JoystickDeviceInfo.Contains(DeviceId))
+	{
+		return;
+	}
+	
+	JoystickDeviceInfo[DeviceId].Player = PlayerId;
 }

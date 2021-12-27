@@ -1,6 +1,6 @@
 #include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
 
-#include "JoystickFunctionLibrary.h"
+#include "Engine/Engine.h"
 #include "JoystickSubsystem.h"
 
 void UForceFeedbackEffectBase::BeginDestroy()

@@ -1,17 +1,19 @@
 ﻿#pragma once
 
-#include "JoystickDeviceManager.h"
-#include "JoystickHapticDeviceManager.h"
+#include "JoystickInputDevice.h"
+#include "Subsystems/EngineSubsystem.h"
 
 THIRD_PARTY_INCLUDES_START
 
 #include "SDL.h"
-#include "SDL_joystick.h"
-#include "SDL_gamecontroller.h"
 
 THIRD_PARTY_INCLUDES_END
 
+union SDL_Event;
+
 #include "JoystickSubsystem.generated.h"
+
+DECLARE_LOG_CATEGORY_EXTERN(LogJoystickPlugin, Log, All);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnJoystickSubsystemReady);
 
@@ -40,13 +42,15 @@ public:
 	FJoystickDeviceData GetInitialDeviceState(int32 DeviceId);
 	
 	FJoystickInputDevice* GetInputDevice() const { return InputDevice.Get(); }
+	
+	int32 GetJoystickCount() const;
 
 	UPROPERTY(BlueprintAssignable)
 		FOnJoystickSubsystemReady JoystickSubsystemReady;
 	
 private:
 
-	static int HandleSDLEvent(void* UserData, SDL_Event* Event);
+	static int32 HandleSDLEvent(void* UserData, SDL_Event* Event);
 
 	FDeviceInfoSDL AddDevice(int32 DeviceIndex);
 	void RemoveDevice(int32 DeviceId);

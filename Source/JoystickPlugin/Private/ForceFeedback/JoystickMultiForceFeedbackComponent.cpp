@@ -9,28 +9,28 @@ void UJoystickMultiForceFeedbackComponent::BeginPlay()
 		return;
 	}
 
-	for (auto& effectType : EffectTypes)
+	for (auto& EffectType : EffectTypes)
 	{
-		UForceFeedbackEffectBase* effect = NewObject<UForceFeedbackEffectBase>(this, effectType.Key);
-		if (effect == nullptr || effect->IsPendingKill())
+		UForceFeedbackEffectBase* Effect = NewObject<UForceFeedbackEffectBase>(this, EffectType.Key);
+		if (Effect == nullptr || Effect->IsPendingKill())
 		{
 			continue;
 		}
 
-		effect->OnInitialisedEffectDelegate.AddDynamic(this, &UJoystickMultiForceFeedbackComponent::OnInitialisedEffect);
-		effect->OnStartedEffectDelegate.AddDynamic(this, &UJoystickMultiForceFeedbackComponent::OnStartedEffect);
-		effect->OnStoppedEffectDelegate.AddDynamic(this, &UJoystickMultiForceFeedbackComponent::OnStoppedEffect);
-		effect->OnUpdatedEffectDelegate.AddDynamic(this, &UJoystickMultiForceFeedbackComponent::OnUpdatedEffect);
-		effect->OnDestroyedEffectDelegate.AddDynamic(this, &UJoystickMultiForceFeedbackComponent::OnDestroyedEffect);
+		Effect->OnInitialisedEffectDelegate.AddDynamic(this, &UJoystickMultiForceFeedbackComponent::OnInitialisedEffect);
+		Effect->OnStartedEffectDelegate.AddDynamic(this, &UJoystickMultiForceFeedbackComponent::OnStartedEffect);
+		Effect->OnStoppedEffectDelegate.AddDynamic(this, &UJoystickMultiForceFeedbackComponent::OnStoppedEffect);
+		Effect->OnUpdatedEffectDelegate.AddDynamic(this, &UJoystickMultiForceFeedbackComponent::OnUpdatedEffect);
+		Effect->OnDestroyedEffectDelegate.AddDynamic(this, &UJoystickMultiForceFeedbackComponent::OnDestroyedEffect);
 
-		effect->AutoStartOnInit = effectType.Value.AutoStartOnInit;
+		Effect->AutoStartOnInit = EffectType.Value.AutoStartOnInit;
 
-		if (effectType.Value.AutoInit)
+		if (EffectType.Value.AutoInit)
 		{
-			effect->InitialiseEffect();
+			Effect->InitialiseEffect();
 		}
 
-		Effects.Add(effect);
+		Effects.Add(Effect);
 	}
 }
 
@@ -43,43 +43,43 @@ void UJoystickMultiForceFeedbackComponent::EndPlay(const EEndPlayReason::Type En
 
 	for (int32 i = 0; i < Effects.Num(); i++)
 	{
-		UForceFeedbackEffectBase* effect = Effects[i];
-		if (effect == nullptr || effect->IsPendingKill())
+		UForceFeedbackEffectBase* Effect = Effects[i];
+		if (Effect == nullptr || Effect->IsPendingKill())
 		{
 			continue;
 		}
 
-		effect->OnInitialisedEffectDelegate.RemoveDynamic(this, &UJoystickMultiForceFeedbackComponent::OnInitialisedEffect);
-		effect->OnStartedEffectDelegate.RemoveDynamic(this, &UJoystickMultiForceFeedbackComponent::OnStartedEffect);
-		effect->OnStoppedEffectDelegate.RemoveDynamic(this, &UJoystickMultiForceFeedbackComponent::OnStoppedEffect);
-		effect->OnUpdatedEffectDelegate.RemoveDynamic(this, &UJoystickMultiForceFeedbackComponent::OnUpdatedEffect);
-		effect->OnDestroyedEffectDelegate.RemoveDynamic(this, &UJoystickMultiForceFeedbackComponent::OnDestroyedEffect);
+		Effect->OnInitialisedEffectDelegate.RemoveDynamic(this, &UJoystickMultiForceFeedbackComponent::OnInitialisedEffect);
+		Effect->OnStartedEffectDelegate.RemoveDynamic(this, &UJoystickMultiForceFeedbackComponent::OnStartedEffect);
+		Effect->OnStoppedEffectDelegate.RemoveDynamic(this, &UJoystickMultiForceFeedbackComponent::OnStoppedEffect);
+		Effect->OnUpdatedEffectDelegate.RemoveDynamic(this, &UJoystickMultiForceFeedbackComponent::OnUpdatedEffect);
+		Effect->OnDestroyedEffectDelegate.RemoveDynamic(this, &UJoystickMultiForceFeedbackComponent::OnDestroyedEffect);
 	}
 	
 	Effects.Empty();
 }
 
-void UJoystickMultiForceFeedbackComponent::OnInitialisedEffect_Implementation(UForceFeedbackEffectBase* effect)
+void UJoystickMultiForceFeedbackComponent::OnInitialisedEffect_Implementation(UForceFeedbackEffectBase* Effect)
 {
 
 }
 
-void UJoystickMultiForceFeedbackComponent::OnStartedEffect_Implementation(UForceFeedbackEffectBase* effect)
+void UJoystickMultiForceFeedbackComponent::OnStartedEffect_Implementation(UForceFeedbackEffectBase* Effect)
 {
 
 }
 
-void UJoystickMultiForceFeedbackComponent::OnStoppedEffect_Implementation(UForceFeedbackEffectBase* effect)
+void UJoystickMultiForceFeedbackComponent::OnStoppedEffect_Implementation(UForceFeedbackEffectBase* Effect)
 {
 
 }
 
-void UJoystickMultiForceFeedbackComponent::OnUpdatedEffect_Implementation(UForceFeedbackEffectBase* effect)
+void UJoystickMultiForceFeedbackComponent::OnUpdatedEffect_Implementation(UForceFeedbackEffectBase* Effect)
 {
 
 }
 
-void UJoystickMultiForceFeedbackComponent::OnDestroyedEffect_Implementation(UForceFeedbackEffectBase* effect)
+void UJoystickMultiForceFeedbackComponent::OnDestroyedEffect_Implementation(UForceFeedbackEffectBase* Effect)
 {
 
 }
@@ -89,36 +89,36 @@ TArray<UForceFeedbackEffectBase*> UJoystickMultiForceFeedbackComponent::GetEffec
 	return Effects;
 }
 
-UForceFeedbackEffectBase* UJoystickMultiForceFeedbackComponent::GetEffectByType(TSubclassOf<class UForceFeedbackEffectBase> effectType)
+UForceFeedbackEffectBase* UJoystickMultiForceFeedbackComponent::GetEffectByType(const TSubclassOf<class UForceFeedbackEffectBase> EffectType)
 {
 	for (int32 i = 0; i < Effects.Num(); i++)
 	{
-		UForceFeedbackEffectBase* effect = Effects[i];
-		if (effect->GetClass() == effectType)
+		UForceFeedbackEffectBase* Effect = Effects[i];
+		if (Effect->GetClass() == EffectType)
 		{
-			return effect;
+			return Effect;
 		}
 	}
 
 	return nullptr;
 }
 
-void UJoystickMultiForceFeedbackComponent::StartEffect(UForceFeedbackEffectBase* effect)
+void UJoystickMultiForceFeedbackComponent::StartEffect(UForceFeedbackEffectBase* Effect)
 {
-	if (effect == nullptr)
+	if (Effect == nullptr)
 	{
 		return;
 	}
 
-	effect->StartEffect();
+	Effect->StartEffect();
 }
 
-void UJoystickMultiForceFeedbackComponent::StopEffect(UForceFeedbackEffectBase* effect)
+void UJoystickMultiForceFeedbackComponent::StopEffect(UForceFeedbackEffectBase* Effect)
 {
-	if (effect == nullptr)
+	if (Effect == nullptr)
 	{
 		return;
 	}
 
-	effect->StopEffect();
+	Effect->StopEffect();
 }
