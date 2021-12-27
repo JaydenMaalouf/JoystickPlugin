@@ -24,7 +24,7 @@ jobs:
           #   parameters:
           #     platform: Win64
           #     engineVersion: '4.26'
-          #     releaseVersion: $(SemVer)
+          #     releaseVersion: $(Build.BuildNumber)
           - template: package.yml
             parameters:
               platform: Win64
@@ -57,12 +57,12 @@ jobs:
           #   parameters:
           #     platform: Win64
           #     engineVersion: '4.26'
-          #     releaseVersion: $(SemVer)
+          #     releaseVersion: $(Build.BuildNumber)
           - template: package.yml
             parameters:
               platform: Win64
               engineVersion: '4.27'
-              releaseVersion: $(SemVer)
+              releaseVersion: $(Build.BuildNumber)
           - task: GitHubRelease@1
             displayName: 'Create GitHub Release'
             inputs:
