@@ -9,6 +9,7 @@ jobs:
     inputs:
       versionSpec: '5.x'
   - task: gitversion/execute@0
+    displayName: "GitVersion Execute"
   - ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
     - task: CmdLine@2
       displayName: "Tag Git Branch"

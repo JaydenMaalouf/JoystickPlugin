@@ -3,6 +3,8 @@ parameters:
   type: string
 - name: platform
   type: string
+- name: releaseVersion
+  type: string
 
 steps:
 - script: |
@@ -17,7 +19,7 @@ steps:
   inputs:
     rootFolderOrFile: '$(System.DefaultWorkingDirectory)/build/UE_${{ parameters.engineVersion }}'
     includeRootFolder: false
-    archiveFile: '$(System.DefaultWorkingDirectory)/output/JoystickPlugin-${{ parameters.engineVersion }}-${{ parameters.platform }}-$(SemVer).zip'
+    archiveFile: '$(System.DefaultWorkingDirectory)/output/JoystickPlugin-${{ parameters.engineVersion }}-${{ parameters.platform }}-${{ parameters.releaseVersion }}.zip'
 - task: ArchiveFiles@2
   displayName: 'Archive SDL'
   inputs:
