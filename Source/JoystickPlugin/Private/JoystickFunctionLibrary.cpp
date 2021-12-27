@@ -8,7 +8,13 @@
 */
 
 #include "JoystickFunctionLibrary.h"
-#include "Interfaces/JoystickPluginInterface.h"
+
+THIRD_PARTY_INCLUDES_START
+
+#include "SDL.h"
+#include "SDL_joystick.h"
+
+THIRD_PARTY_INCLUDES_END
 
 FVector2D UJoystickFunctionLibrary::POVAxis(EJoystickPOVDirection Direction)
 {

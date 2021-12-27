@@ -1,13 +1,6 @@
 #pragma once
 
-
 #include "ForceFeedback/Types/ForceFeedbackDirectionType.h"
-
-THIRD_PARTY_INCLUDES_START
-
-#include "SDL_haptic.h"
-
-THIRD_PARTY_INCLUDES_END
 
 #include "ForceFeedbackEffectDirectionData.Generated.h"
 
@@ -18,10 +11,10 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectDirectionData
 
 public:
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Direction|Data")
 		EForceFeedbackDirectionType DirectionType = EForceFeedbackDirectionType::CARTESIAN;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ToolTip = "A vector describing the direction and magnitude of the effect on each axis. Each individual axis has a range of -1.0 to 1.0 and is independent of the other axes. Specifying a negative value for an axis reverses the input values from the axis."))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ToolTip = "A vector describing the direction and magnitude of the effect on each axis. Each individual axis has a range of -1.0 to 1.0 and is independent of the other axes. Specifying a negative value for an axis reverses the input values from the axis."), Category = "Force Feedback|Direction|Data")
 		FVector Direction = FVector::ZeroVector;
 
 	SDL_HapticDirection ToSDLDirection()

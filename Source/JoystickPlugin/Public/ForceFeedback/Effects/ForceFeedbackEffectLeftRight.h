@@ -10,10 +10,10 @@ class JOYSTICKPLUGIN_API UForceFeedbackEffectLeftRight : public UForceFeedbackEf
     GENERATED_BODY()
 public:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Effect Data")
 		FForceFeedbackEffectLeftRightData EffectData;
 
 protected:
 
-	SDL_HapticEffect ToSDLEffect() override;
+	virtual SDL_HapticEffect ToSDLEffect() override;
 };

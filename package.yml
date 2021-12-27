@@ -1,0 +1,25 @@
+parameters:
+- name: engineVersion
+  type: string
+- name: platform
+  type: string
+
+steps:
+- script: |
+    mkdir "$(Agent.BuildDirectory)\ThirdParty\SDL2\${{ parameters.platform }}"
+    copy "$(EpicGamesDirectory)\SDL\UE_${{ parameters.engineVersion }}\${{ parameters.platform }}\SDL2.dll" "$(Agent.BuildDirectory)\ThirdParty\SDL2\${{ parameters.platform }}\SDL2.dll"
+    copy "$(EpicGamesDirectory)\SDL\UE_${{ parameters.engineVersion }}\${{ parameters.platform }}\SDL2.lib" "$(Agent.BuildDirectory)\ThirdParty\SDL2\${{ parameters.platform }}\SDL2.lib"
+  displayName: 'Copy dll and lib to Plugin'
+- script: '"$(LauncherDirectory)\UE_${{ parameters.engineVersion }}\Engine\Build\BatchFiles\RunUAT.bat" BuildPlugin -TargetPlatforms=${{ parameters.platform }} -Plugin=$(Agent.BuildDirectory)\JoystickPlugin.uplugin -Package=$(System.DefaultWorkingDirectory)/build/UE_${{ parameters.engineVersion }} -rocket'
+  displayName: 'Build Plugin'
+- task: ArchiveFiles@2
+  displayName: 'Archive Plugin'
+  inputs:
+    rootFolderOrFile: '$(System.DefaultWorkingDirectory)/build/UE_${{ parameters.engineVersion }}'
+    includeRootFolder: false
+    archiveFile: '$(System.DefaultWorkingDirectory)/output/JoystickPlugin-${{ parameters.engineVersion }}-${{ parameters.platform }}-$(SemVer).zip'
+- task: ArchiveFiles@2
+  displayName: 'Archive SDL'
+  inputs:
+    rootFolderOrFile: '$(EpicGamesDirectory)\SDL\UE_${{ parameters.engineVersion }}\${{ parameters.platform }}'
+    archiveFile: '$(System.DefaultWorkingDirectory)/output/SDL-${{ parameters.engineVersion }}-${{ parameters.platform }}.zip'

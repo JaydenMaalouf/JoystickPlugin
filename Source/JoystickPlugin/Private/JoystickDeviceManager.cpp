@@ -9,11 +9,22 @@
 */
 
 #include "JoystickDeviceManager.h"
-#include "JoystickFunctionLibrary.h"
-#include "JoystickPlugin.h"
+
+#include "Engine/Engine.h"
 #include "JoystickSubsystem.h"
 
-int32 UJoystickDeviceManager::JoystickCount() const
+int32 UJoystickDeviceManager::GetJoystickCount() const
+{
+	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
+	if (JoystickSubsystem == nullptr)
+	{
+		return -1;
+	}
+
+	return JoystickSubsystem->GetJoystickCount();
+}
+
+int32 UJoystickDeviceManager::GetValidDeviceCount() const
 {
 	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
 	if (JoystickSubsystem == nullptr)
@@ -64,12 +75,24 @@ FJoystickInfo UJoystickDeviceManager::GetJoystickInfo(const int32 DeviceId) cons
 	return InputDevice->GetDeviceInfo(DeviceId);
 }
 
-void UJoystickDeviceManager::MapJoystickDeviceToPlayer(int32 DeviceId, int32 Player)
+void UJoystickDeviceManager::MapJoystickDeviceToPlayer(const int32 DeviceId, const int32 PlayerId)
 {
-	//TODO: Implement
+	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
+	if (JoystickSubsystem == nullptr)
+	{
+		return;
+	}
+
+	FJoystickInputDevice* InputDevice = JoystickSubsystem->GetInputDevice();
+	if (InputDevice == nullptr)
+	{
+		return;
+	}
+	
+	InputDevice->SetPlayerOwnership(DeviceId, PlayerId);
 }
 
-void UJoystickDeviceManager::SetIgnoreGameControllers(bool IgnoreControllers)
+void UJoystickDeviceManager::SetIgnoreGameControllers(const bool IgnoreControllers)
 {
 	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
 	if (JoystickSubsystem == nullptr)

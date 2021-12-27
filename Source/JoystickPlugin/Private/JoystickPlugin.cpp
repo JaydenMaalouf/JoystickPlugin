@@ -9,12 +9,9 @@
 
 #include "JoystickPlugin.h"
 
-#include "JoystickInputDevice.h"
 #include "JoystickSubsystem.h"
 #include "Misc/Paths.h"
 #include "Interfaces/IPluginManager.h"
-
-DEFINE_LOG_CATEGORY(LogJoystickPlugin);
 
 #define LOCTEXT_NAMESPACE "JoystickPlugin"
 

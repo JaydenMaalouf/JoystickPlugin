@@ -1,4 +1,6 @@
 ﻿#include "JoystickHapticDeviceManager.h"
+
+#include "Engine/Engine.h"
 #include "JoystickSubsystem.h"
 
 SDL_Haptic* UJoystickHapticDeviceManager::GetHapticDevice(const int32 DeviceId) const

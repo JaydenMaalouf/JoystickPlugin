@@ -3,7 +3,8 @@
 #include "JoystickFunctionLibrary.h"
 #include "JoystickInputDeviceAxisProperties.h"
 #include "JoystickInputSettings.h"
-#include "JoystickPlugin.h"
+
+DEFINE_LOG_CATEGORY(LogJoystickPlugin);
 
 UJoystickSubsystem::UJoystickSubsystem()
 {
@@ -28,7 +29,7 @@ void UJoystickSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 		OwnsSDL = true;
 	}
 
-	int Result = SDL_InitSubSystem(SDL_INIT_HAPTIC);
+	int32 Result = SDL_InitSubSystem(SDL_INIT_HAPTIC);
 	if (Result == 0)
 	{
 		UE_LOG(LogJoystickPlugin, Log, TEXT("DeviceSDL::InitSDL() SDL init subsystem haptic"));
@@ -86,13 +87,18 @@ void UJoystickSubsystem::InitialiseInputDevice(const TSharedPtr<FJoystickInputDe
 		return;
 	}
 
-	const int JoystickCount = SDL_NumJoysticks();
+	const int32 JoystickCount = GetJoystickCount();
 	for (int32 i = 0; i < JoystickCount; i++)
 	{
 		AddDevice(i);
 	}
 
 	SDL_AddEventWatch(HandleSDLEvent, this);
+}
+
+int32 UJoystickSubsystem::GetJoystickCount() const
+{
+	return SDL_NumJoysticks();
 }
 
 void UJoystickSubsystem::SetIgnoreGameControllers(const bool IgnoreControllers)
@@ -111,7 +117,7 @@ void UJoystickSubsystem::SetIgnoreGameControllers(const bool IgnoreControllers)
 	else if (!IgnoreControllers && IgnoreGameControllers)
 	{
 		IgnoreGameControllers = false;
-		const int JoystickCount = SDL_NumJoysticks();
+		const int32 JoystickCount = GetJoystickCount();
 		for (int32 i = 0; i < JoystickCount; i++)
 		{
 			if (SDL_IsGameController(i))
@@ -237,7 +243,7 @@ void UJoystickSubsystem::Update() const
 	}
 }
 
-int UJoystickSubsystem::HandleSDLEvent(void* Userdata, SDL_Event* Event)
+int32 UJoystickSubsystem::HandleSDLEvent(void* Userdata, SDL_Event* Event)
 {
 	UJoystickSubsystem& Self = *static_cast<UJoystickSubsystem*>(Userdata);
 	if (Self.InputDevice == nullptr)
@@ -283,7 +289,7 @@ int UJoystickSubsystem::HandleSDLEvent(void* Userdata, SDL_Event* Event)
 	case SDL_JOYBUTTONUP:
 		if (Self.DeviceMapping.Contains(Event->jbutton.which))
 		{
-			int32 DeviceId = Self.DeviceMapping[Event->jbutton.which];
+			const int32 DeviceId = Self.DeviceMapping[Event->jbutton.which];
 			Self.InputDevice->JoystickButton(DeviceId, Event->jbutton.button, Event->jbutton.state == SDL_PRESSED);
 
 			UE_LOG(LogJoystickPlugin, Log, TEXT("Event JoystickButton Device=%d Button=%d State=%d"), DeviceId, Event->jbutton.button, Event->jbutton.state);
@@ -292,21 +298,21 @@ int UJoystickSubsystem::HandleSDLEvent(void* Userdata, SDL_Event* Event)
 	case SDL_JOYAXISMOTION:
 		if (Self.DeviceMapping.Contains(Event->jaxis.which))
 		{
-			int32 DeviceId = Self.DeviceMapping[Event->jaxis.which];
+			const int32 DeviceId = Self.DeviceMapping[Event->jaxis.which];
 			Self.InputDevice->JoystickAxis(DeviceId, Event->jaxis.axis, Event->jaxis.value / (Event->jaxis.value < 0 ? 32768.0f : 32767.0f));
 		}
 		break;
 	case SDL_JOYHATMOTION:
 		if (Self.DeviceMapping.Contains(Event->jhat.which))
 		{
-			int32 DeviceId = Self.DeviceMapping[Event->jhat.which];
+			const int32 DeviceId = Self.DeviceMapping[Event->jhat.which];
 			Self.InputDevice->JoystickHat(DeviceId, Event->jhat.hat, UJoystickFunctionLibrary::HatValueToDirection(Event->jhat.value));
 		}
 		break;
 	case SDL_JOYBALLMOTION:
 		if (Self.DeviceMapping.Contains(Event->jball.which))
 		{
-			int32 DeviceId = Self.DeviceMapping[Event->jball.which];
+			const int32 DeviceId = Self.DeviceMapping[Event->jball.which];
 			Self.InputDevice->JoystickBall(DeviceId, Event->jball.ball, FVector2D(Event->jball.xrel, Event->jball.yrel));
 		}
 		break;
@@ -378,20 +384,20 @@ FJoystickDeviceData UJoystickSubsystem::GetInitialDeviceState(const int32 Device
 
 FString UJoystickSubsystem::DeviceGUIDtoString(const int32 DeviceIndex) const
 {
-	char buffer[32];
-	int8 sizeBuffer = sizeof(buffer);
+	char Buffer[32];
+	constexpr int8 SizeBuffer = sizeof(Buffer);
 
-	SDL_JoystickGUID guid = SDL_JoystickGetDeviceGUID(DeviceIndex);
-	SDL_JoystickGetGUIDString(guid, buffer, sizeBuffer);
-	return ANSI_TO_TCHAR(buffer);
+	const SDL_JoystickGUID GUID = SDL_JoystickGetDeviceGUID(DeviceIndex);
+	SDL_JoystickGetGUIDString(GUID, Buffer, SizeBuffer);
+	return ANSI_TO_TCHAR(Buffer);
 }
 
 FGuid UJoystickSubsystem::DeviceIndexToGUID(const int32 DeviceIndex) const
 {
-	FGuid result;
-	SDL_JoystickGUID guid = SDL_JoystickGetDeviceGUID(DeviceIndex);
-	memcpy(&result, &guid, sizeof(FGuid));
-	return result;
+	FGuid Result;
+	const SDL_JoystickGUID GUID = SDL_JoystickGetDeviceGUID(DeviceIndex);
+	memcpy(&Result, &GUID, sizeof(FGuid));
+	return Result;
 }
 
 void UJoystickSubsystem::ReinitialiseJoystickData(const int32 DeviceId)

@@ -1,15 +1,15 @@
 #pragma once
 
 #include "IInputDevice.h"
+#include "InputCoreTypes.h"
+#include "Containers/Array.h"
+
 #include "Data/DeviceInfoSDL.h"
 #include "Data/JoystickDeviceData.h"
 #include "Data/JoystickInfo.h"
 #include "GenericPlatform/GenericApplicationMessageHandler.h"
 
-struct FDeviceInfoSDL;
-class FDeviceSDL;
-
-class FJoystickInputDevice : public IInputDevice
+class FJoystickInputDevice final : public IInputDevice
 {
 	
 public:
@@ -36,6 +36,8 @@ public:
 	FJoystickInfo GetDeviceInfo(int32 DeviceId);
 	int32 GetDeviceCount() const;
 	void GetDeviceIds(TArray<int32>& DeviceIds) const;
+
+	void SetPlayerOwnership(int32 DeviceId, int32 PlayerId);
 	
 private:
 	void InitInputDevice(const FDeviceInfoSDL &Device);

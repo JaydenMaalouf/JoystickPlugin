@@ -1,5 +1,12 @@
 #pragma once
 
+THIRD_PARTY_INCLUDES_START
+
+#include "SDL_haptic.h"
+#include "SDL_joystick.h"
+
+THIRD_PARTY_INCLUDES_END
+
 struct _SDL_Joystick;
 typedef struct _SDL_Joystick SDL_Joystick;
 struct _SDL_Haptic;

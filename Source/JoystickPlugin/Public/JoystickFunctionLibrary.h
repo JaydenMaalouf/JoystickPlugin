@@ -1,12 +1,7 @@
 #pragma once
 
-#include "JoystickDeviceManager.h"
-#include "JoystickHapticDeviceManager.h"
-#include "Data/JoystickInfo.h"
 #include "Data/JoystickPOVDirection.h"
-
 #include "Kismet/BlueprintFunctionLibrary.h"
-
 #include "JoystickFunctionLibrary.generated.h"
 
 UCLASS()

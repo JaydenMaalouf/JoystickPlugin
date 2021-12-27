@@ -18,32 +18,32 @@ public:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-	UFUNCTION(BlueprintNativeEvent)
-		void OnInitialisedEffect(UForceFeedbackEffectBase* effect);
+	UFUNCTION(BlueprintNativeEvent, Category = "Force Feedback|Component|Events")
+		void OnInitialisedEffect(UForceFeedbackEffectBase* Effect);
 
-	UFUNCTION(BlueprintNativeEvent)
-		void OnStartedEffect(UForceFeedbackEffectBase* effect);
+	UFUNCTION(BlueprintNativeEvent, Category = "Force Feedback|Component|Events")
+		void OnStartedEffect(UForceFeedbackEffectBase* Effect);
 
-	UFUNCTION(BlueprintNativeEvent)
-		void OnStoppedEffect(UForceFeedbackEffectBase* effect);
+	UFUNCTION(BlueprintNativeEvent, Category = "Force Feedback|Component|Events")
+		void OnStoppedEffect(UForceFeedbackEffectBase* Effect);
 
-	UFUNCTION(BlueprintNativeEvent)
-		void OnUpdatedEffect(UForceFeedbackEffectBase* effect);
+	UFUNCTION(BlueprintNativeEvent, Category = "Force Feedback|Component|Events")
+		void OnUpdatedEffect(UForceFeedbackEffectBase* Effect);
 
-	UFUNCTION(BlueprintNativeEvent)
-		void OnDestroyedEffect(UForceFeedbackEffectBase* effect);
+	UFUNCTION(BlueprintNativeEvent, Category = "Force Feedback|Component|Events")
+		void OnDestroyedEffect(UForceFeedbackEffectBase* Effect);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Component|Functions")
 		TArray<UForceFeedbackEffectBase*> GetEffects();
 
-	UFUNCTION(BlueprintCallable)
-		UForceFeedbackEffectBase* GetEffectByType(TSubclassOf<class UForceFeedbackEffectBase> effectType);
+	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Component|Functions")
+		UForceFeedbackEffectBase* GetEffectByType(TSubclassOf<class UForceFeedbackEffectBase> EffectType);
 
-	UFUNCTION(BlueprintCallable)
-		void StartEffect(UForceFeedbackEffectBase* effect);
+	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Component|Functions")
+		void StartEffect(UForceFeedbackEffectBase* Effect);
 
-	UFUNCTION(BlueprintCallable)
-		void StopEffect(UForceFeedbackEffectBase* effect);
+	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Component|Functions")
+		void StopEffect(UForceFeedbackEffectBase* Effect);
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Force Feedback|Component")
 		TMap<TSubclassOf<class UForceFeedbackEffectBase>, FForceFeedbackComponentData> EffectTypes;

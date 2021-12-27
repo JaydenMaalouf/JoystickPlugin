@@ -1,12 +1,12 @@
 #pragma once
 
+#include "UObject/Object.h"
+
 THIRD_PARTY_INCLUDES_START
 
 #include "SDL_haptic.h"
 
 THIRD_PARTY_INCLUDES_END
-
-#include "UObject/Object.h"
 
 #include "ForceFeedbackEffectBase.generated.h"
 
@@ -24,70 +24,70 @@ public:
 
 	void BeginDestroy() override;
 
-    UFUNCTION(BlueprintCallable)
+    UFUNCTION(BlueprintCallable, Category = "Force Feedback|Functions")
         void InitialiseEffect();
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Functions")
 		void StartEffect();
 
-    UFUNCTION(BlueprintCallable)
+    UFUNCTION(BlueprintCallable, Category = "Force Feedback|Functions")
 		void StopEffect();
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Functions")
 		void DestroyEffect();
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Functions")
 		void UpdateEffect();
 
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent, Category = "Force Feedback|Events")
 		void OnInitialisedEffect();
 
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent, Category = "Force Feedback|Events")
 		void OnStartedEffect();
 
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent, Category = "Force Feedback|Events")
 		void OnStoppedEffect();
 
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent, Category = "Force Feedback|Events")
 		void OnUpdatedEffect();
 
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent, Category = "Force Feedback|Events")
 		void OnDestroyedEffect();
 
-	UFUNCTION(BlueprintCallable, BlueprintPure)
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Force Feedback|Functions")
 		int32 EffectStatus();
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Configuration", meta = (ExposeOnSpawn = true))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Effect Data", meta = (ExposeOnSpawn = true))
 		int32 DeviceId;
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadonly, Category = "Effect Configuration")
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadonly, Category = "Force Feedback|Effect Data")
 		int32 EffectId;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Effect Configuration")
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Force Feedback|Effect Data")
 		bool IsInitialised = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Configuration", meta = (ExposeOnSpawn = true))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Effect Data", meta = (ExposeOnSpawn = true))
 		bool AutoStartOnInit = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Configuration", meta = (ExposeOnSpawn = true))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Effect Data", meta = (ExposeOnSpawn = true))
 		int32 Iterations = 1;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Configuration", meta = (ExposeOnSpawn = true))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Effect Data", meta = (ExposeOnSpawn = true))
 		bool Infinite = false;
 
-	UPROPERTY(BlueprintAssignable, meta = (DisplayName = "OnInitialisedEffect"))
+	UPROPERTY(BlueprintAssignable, meta = (DisplayName = "OnInitialisedEffect"), Category = "Force Feedback|Delegates")
 		FOnInitialisedEffect OnInitialisedEffectDelegate;
 
-	UPROPERTY(BlueprintAssignable, meta = (DisplayName = "OnStartedEffect"))
+	UPROPERTY(BlueprintAssignable, meta = (DisplayName = "OnStartedEffect"), Category = "Force Feedback|Delegates")
 		FOnStartedEffect OnStartedEffectDelegate;
 
-	UPROPERTY(BlueprintAssignable, meta = (DisplayName = "OnStoppedEffect"))
+	UPROPERTY(BlueprintAssignable, meta = (DisplayName = "OnStoppedEffect"), Category = "Force Feedback|Delegates")
 		FOnStoppedEffect OnStoppedEffectDelegate;
 
-	UPROPERTY(BlueprintAssignable, meta = (DisplayName = "OnUpdatedEffect"))
+	UPROPERTY(BlueprintAssignable, meta = (DisplayName = "OnUpdatedEffect"), Category = "Force Feedback|Delegates")
 		FOnUpdatedEffect OnUpdatedEffectDelegate;
 
-	UPROPERTY(BlueprintAssignable, meta = (DisplayName = "OnDestroyedEffect"))
+	UPROPERTY(BlueprintAssignable, meta = (DisplayName = "OnDestroyedEffect"), Category = "Force Feedback|Delegates")
 		FOnDestroyedEffect OnDestroyedEffectDelegate;
 
 protected:
