@@ -25,7 +25,7 @@ jobs:
         git tag $(SemVer)
         git push --tags
 
-- ${{ if eq(Build.SourceBranchName, 'master') }}:
+- ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
   - deployment: Production
     displayName: Production Deployment
     environment: Production
