@@ -19,14 +19,17 @@ jobs:
       runOnce:
         deploy:
           steps:
+          - checkout: self
           # - template: package.yml
           #   parameters:
           #     platform: Win64
           #     engineVersion: '4.26'
+          #     releaseVersion: $(SemVer)
           - template: package.yml
             parameters:
               platform: Win64
               engineVersion: '4.27'
+              releaseVersion: $(SemVer)
           - task: GitHubRelease@1
             displayName: 'Create GitHub Release'
             inputs:
@@ -49,14 +52,17 @@ jobs:
       runOnce:
         deploy:
           steps:
+          - checkout: self
           # - template: package.yml
           #   parameters:
           #     platform: Win64
           #     engineVersion: '4.26'
+          #     releaseVersion: $(SemVer)
           - template: package.yml
             parameters:
               platform: Win64
               engineVersion: '4.27'
+              releaseVersion: $(SemVer)
           - task: GitHubRelease@1
             displayName: 'Create GitHub Release'
             inputs:
