@@ -29,7 +29,7 @@ jobs:
             parameters:
               platform: Win64
               engineVersion: '4.27'
-              releaseVersion: $(SemVer)
+              releaseVersion: $(Build.BuildNumber)
           - task: GitHubRelease@1
             displayName: 'Create GitHub Release'
             inputs:
@@ -38,8 +38,8 @@ jobs:
               action: 'create'
               target: '$(Build.SourceVersion)'
               tagSource: 'userSpecifiedTag'
-              tag: 'v$(SemVer)'
-              title: '$(SemVer)'
+              tag: v$(Build.BuildNumber)
+              title: $(Build.BuildNumber)
               assets: '$(System.DefaultWorkingDirectory)/output/*.zip'
               changeLogCompareToRelease: 'lastFullRelease'
               changeLogType: 'commitBased'
@@ -71,8 +71,8 @@ jobs:
               action: 'create'
               target: '$(Build.SourceVersion)'
               tagSource: 'userSpecifiedTag'
-              tag: 'v$(SemVer)'
-              title: '$(SemVer)'
+              tag: v$(Build.BuildNumber)
+              title: $(Build.BuildNumber)
               assets: '$(System.DefaultWorkingDirectory)/output/*.zip'
               isPreRelease: true
               changeLogCompareToRelease: 'lastFullRelease'
