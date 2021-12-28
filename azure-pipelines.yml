@@ -20,11 +20,16 @@ jobs:
         deploy:
           steps:
           - checkout: self
-          # - template: package.yml
-          #   parameters:
-          #     platform: Win64
-          #     engineVersion: '4.26'
-          #     releaseVersion: $(Build.BuildNumber)
+          - template: package.yml
+            parameters:
+              platform: Win64
+              engineVersion: '4.25'
+              releaseVersion: $(Build.BuildNumber)
+          - template: package.yml
+            parameters:
+              platform: Win64
+              engineVersion: '4.26'
+              releaseVersion: $(Build.BuildNumber)
           - template: package.yml
             parameters:
               platform: Win64
@@ -53,11 +58,16 @@ jobs:
         deploy:
           steps:
           - checkout: self
-          # - template: package.yml
-          #   parameters:
-          #     platform: Win64
-          #     engineVersion: '4.26'
-          #     releaseVersion: $(Build.BuildNumber)
+          - template: package.yml
+            parameters:
+              platform: Win64
+              engineVersion: '4.25'
+              releaseVersion: $(Build.BuildNumber)
+          - template: package.yml
+            parameters:
+              platform: Win64
+              engineVersion: '4.26'
+              releaseVersion: $(Build.BuildNumber)
           - template: package.yml
             parameters:
               platform: Win64
