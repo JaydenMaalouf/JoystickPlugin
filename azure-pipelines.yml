@@ -45,7 +45,7 @@ jobs:
               tagSource: 'userSpecifiedTag'
               tag: v$(Build.BuildNumber)
               title: $(Build.BuildNumber)
-              assets: '$(System.DefaultWorkingDirectory)/output/*.zip'
+              assets: '$(Build.StagingDirectory)/output/*.zip'
               changeLogCompareToRelease: 'lastFullRelease'
               changeLogType: 'commitBased'
 - ${{ else }}:
@@ -83,7 +83,7 @@ jobs:
               tagSource: 'userSpecifiedTag'
               tag: v$(Build.BuildNumber)
               title: $(Build.BuildNumber)
-              assets: '$(System.DefaultWorkingDirectory)/output/*.zip'
+              assets: '$(Build.StagingDirectory)/output/*.zip'
               isPreRelease: true
               changeLogCompareToRelease: 'lastFullRelease'
               changeLogType: 'commitBased'
