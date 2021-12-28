@@ -2,6 +2,8 @@
 
 #include "ForceFeedback/Types/ForceFeedbackDirectionType.h"
 
+#include "Runtime/Launch/Resources/Version.h"
+
 #include "ForceFeedbackEffectDirectionData.Generated.h"
 
 USTRUCT(BlueprintType)
@@ -35,9 +37,11 @@ public:
 		case EForceFeedbackDirectionType::SPHERICAL:
 			hapticDirection.type = SDL_HAPTIC_SPHERICAL;
 			break;
+#if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26 || ENGINE_MAJOR_VERSION > 4)
 		case EForceFeedbackDirectionType::STEERING_AXIS:
 			hapticDirection.type = SDL_HAPTIC_FIRST_AXIS;
 			break;
+#endif
 		}
 
 		return hapticDirection;
