@@ -13,6 +13,8 @@
 #include "JoystickFunctionLibrary.h"
 #include "JoystickSubsystem.h"
 
+#include "Runtime/Launch/Resources/Version.h"
+
 FJoystickInputDevice::FJoystickInputDevice(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler) : MessageHandler(InMessageHandler)
 {
 }
@@ -77,7 +79,11 @@ void FJoystickInputDevice::InitInputDevice(const FDeviceInfoSDL &Device)
 		if (!EKeys::GetKeyDetails(DeviceAxisKeys[DeviceId][iAxis]).IsValid())
 		{
 			FText textValue = FText::Format(LOCTEXT("Joystick_{0}_{1}_Axis{2}", "{0} {1} Axis {2}"), FText::FromString(DeviceInfo.ProductName), DeviceInfo.DeviceId, FText::AsNumber(iAxis));
+#if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26 || ENGINE_MAJOR_VERSION > 4)
 			EKeys::AddKey(FKeyDetails(DeviceAxisKeys[DeviceId][iAxis], textValue, FKeyDetails::GamepadKey | FKeyDetails::Axis1D));
+#else
+			EKeys::AddKey(FKeyDetails(DeviceAxisKeys[DeviceId][iAxis], textValue, FKeyDetails::GamepadKey | FKeyDetails::FloatAxis));
+#endif
 		}
 	}
 
@@ -112,7 +118,12 @@ void FJoystickInputDevice::InitInputDevice(const FDeviceInfoSDL &Device)
 			if (!EKeys::GetKeyDetails(key).IsValid())
 			{
 				FText textValue = FText::Format(LOCTEXT("Joystick_{0}_{1}_Hat{2}_{3}", "{0} {1} Hat {2} {3}"), FText::FromString(DeviceInfo.ProductName), DeviceInfo.DeviceId, FText::AsNumber(iHat), FText::FromString(_2DaxisNames[iAxis]));
+				
+#if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26 || ENGINE_MAJOR_VERSION > 4)
 				EKeys::AddKey(FKeyDetails(key, textValue, FKeyDetails::GamepadKey | FKeyDetails::Axis1D));
+#else
+				EKeys::AddKey(FKeyDetails(key, textValue, FKeyDetails::GamepadKey | FKeyDetails::FloatAxis));
+#endif
 			}
 		}
 	}
@@ -131,7 +142,11 @@ void FJoystickInputDevice::InitInputDevice(const FDeviceInfoSDL &Device)
 			if (!EKeys::GetKeyDetails(key).IsValid())
 			{
 				FText textValue = FText::Format(LOCTEXT("Joystick_{0}_{1}_Ball{2}_{3}", "{0} {1} Ball {2} {3}"), FText::FromString(DeviceInfo.ProductName), DeviceInfo.DeviceId, FText::AsNumber(iBall), FText::FromString(_2DaxisNames[iAxis]));
+#if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26 || ENGINE_MAJOR_VERSION > 4)
 				EKeys::AddKey(FKeyDetails(key, textValue, FKeyDetails::GamepadKey | FKeyDetails::Axis1D));
+#else
+				EKeys::AddKey(FKeyDetails(key, textValue, FKeyDetails::GamepadKey | FKeyDetails::FloatAxis));
+#endif
 			}
 		}
 	}
