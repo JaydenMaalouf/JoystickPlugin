@@ -11,17 +11,17 @@ steps:
     mkdir "$(Build.SourcesDirectory)\ThirdParty\SDL2\${{ parameters.platform }}"
     copy "$(EpicGamesDirectory)\SDL\UE_${{ parameters.engineVersion }}\${{ parameters.platform }}\SDL2.dll" "$(Build.SourcesDirectory)\ThirdParty\SDL2\${{ parameters.platform }}\SDL2.dll"
     copy "$(EpicGamesDirectory)\SDL\UE_${{ parameters.engineVersion }}\${{ parameters.platform }}\SDL2.lib" "$(Build.SourcesDirectory)\ThirdParty\SDL2\${{ parameters.platform }}\SDL2.lib"
-  displayName: 'Copy dll and lib to Plugin'
+  displayName: 'Copy dll and lib to Plugin - ${{ parameters.platform }} ${{ parameters.engineVersion }}'
 - script: '"$(LauncherDirectory)\UE_${{ parameters.engineVersion }}\Engine\Build\BatchFiles\RunUAT.bat" BuildPlugin -TargetPlatforms=${{ parameters.platform }} -Plugin=$(Build.SourcesDirectory)\JoystickPlugin.uplugin -Package=$(System.DefaultWorkingDirectory)/build/UE_${{ parameters.engineVersion }} -rocket'
-  displayName: 'Build Plugin'
+  displayName: 'Build Plugin - ${{ parameters.platform }} ${{ parameters.engineVersion }}'
 - task: ArchiveFiles@2
-  displayName: 'Archive Plugin'
+  displayName: 'Archive Plugin - ${{ parameters.platform }} ${{ parameters.engineVersion }}'
   inputs:
     rootFolderOrFile: '$(System.DefaultWorkingDirectory)/build/UE_${{ parameters.engineVersion }}'
     includeRootFolder: false
     archiveFile: '$(System.DefaultWorkingDirectory)/output/JoystickPlugin-${{ parameters.engineVersion }}-${{ parameters.platform }}-${{ parameters.releaseVersion }}.zip'
 - task: ArchiveFiles@2
-  displayName: 'Archive SDL'
+  displayName: 'Archive SDL - ${{ parameters.platform }} ${{ parameters.engineVersion }}'
   inputs:
     rootFolderOrFile: '$(EpicGamesDirectory)\SDL\UE_${{ parameters.engineVersion }}\${{ parameters.platform }}'
     archiveFile: '$(System.DefaultWorkingDirectory)/output/SDL-${{ parameters.engineVersion }}-${{ parameters.platform }}.zip'
