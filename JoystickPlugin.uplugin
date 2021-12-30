@@ -18,7 +18,7 @@
 		{
 			"Name": "JoystickPlugin",
 			"Type": "Runtime",
-			"LoadingPhase": "Default",
+			"LoadingPhase": "PostConfigInit",
 			"WhitelistPlatforms": [
 				"Win64"
 			]
