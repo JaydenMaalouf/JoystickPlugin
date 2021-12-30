@@ -13,3 +13,7 @@ This plugin aims to provide a simple plug and play system for Joysticks, Steerin
 
 Most of the other plugins require developers to re-compile SDL2 (the framework the plugins are built on) - which can be a real pain for beginners!  
 Thankfully JoystickPlugin comes built ontop of the existing implmentation within Unreal Engine; so no messing about with DLLs.
+
+# Credits
+
+Icons made by [Adib Sulthon](https://www.flaticon.com/authors/adib-sulthon "Adib Sulthon") from [www.flaticon.com](https://www.flaticon.com/ "Flaticon")

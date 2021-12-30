@@ -12,6 +12,7 @@
 
 #include "JoystickFunctionLibrary.h"
 #include "JoystickSubsystem.h"
+#include "GameFramework/InputSettings.h"
 
 #include "Runtime/Launch/Resources/Version.h"
 
@@ -150,6 +151,14 @@ void FJoystickInputDevice::InitInputDevice(const FDeviceInfoSDL &Device)
 			}
 		}
 	}
+	
+	UInputSettings* InputSettings = UInputSettings::GetInputSettings();
+	if (InputSettings == nullptr)
+	{
+		return;
+	}
+
+	InputSettings->ForceRebuildKeymaps();
 }
 
 #undef LOCTEXT_NAMESPACE
