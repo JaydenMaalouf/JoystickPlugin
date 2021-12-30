@@ -19,7 +19,7 @@ public:
 	 */
 	static inline IJoystickPlugin& Get()
 	{
-		return FModuleManager::LoadModuleChecked< IJoystickPlugin >("JoystickPlugin");
+		return FModuleManager::LoadModuleChecked<IJoystickPlugin>("JoystickPlugin");
 	}
 
 	/**
