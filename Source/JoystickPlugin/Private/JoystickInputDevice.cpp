@@ -60,7 +60,7 @@ void FJoystickInputDevice::InitInputDevice(const FDeviceInfoSDL &Device)
 	DeviceInfo.Player = 0;
 
 	DeviceInfo.ProductId = JoystickSubsystem->DeviceIndexToGUID(Device.DeviceIndex);
-	DeviceInfo.ProductName = Device.DeviceName.Replace(TEXT(" "), TEXT("")).Replace(TEXT("."), TEXT(""));
+	DeviceInfo.ProductName = Device.DeviceName.Replace(TEXT(" "), TEXT("")).Replace(TEXT("."), TEXT("")).Replace(TEXT(","), TEXT(""));
 	DeviceInfo.DeviceName = DeviceInfo.ProductName;
 
 	UE_LOG(LogJoystickPlugin, Log, TEXT("add device %s %i"), *DeviceInfo.DeviceName, DeviceId);
