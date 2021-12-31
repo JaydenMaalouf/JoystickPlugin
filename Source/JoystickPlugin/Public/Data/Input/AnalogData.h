@@ -11,31 +11,39 @@ struct JOYSTICKPLUGIN_API FAnalogData
 		: Index(INDEX_NONE)
 		, Value(0.f)
 		, PreviousValue(0.f)
-		, RangeMin(-1.f)
-		, RangeMax(-1.f)
+		, bRemapRanges(false)
+		, RangeMin(0.f)
+		, RangeMax(1.f)
 		, Offset(0.f)
 		, bInverted(false)
 		, bGamepadStick(false)
 	{
 	}
 
-	FAnalogData(const int32 InIndex, const float InValue, const float InRangeMin, const float InRangeMax, const float InOffset, const bool bInInverted, const bool bInGamepadStick, const FName InKeyName)
+	FAnalogData(const int32 InIndex, const float InValue, const float InRangeMin, const float InRangeMax, const float InOffset, const bool bInInverted, const bool bInGamepadStick)
 		: Index(InIndex)
 		, Value(InValue)
 		, PreviousValue(0.f)
+		, bRemapRanges(false)
 		, RangeMin(InRangeMin)
 		, RangeMax(InRangeMax)
-		, Offset(0.f)
+		, Offset(InOffset)
 		, bInverted(bInInverted)
 		, bGamepadStick(bInGamepadStick)
-		, KeyName(InKeyName)
 	{
 	}
 
 	/* Helper function to get the offset and normalized value */
 	float GetValue() const
 	{
-		return MapValue(Value);
+		if (bRemapRanges)
+		{
+			return MapValue(Value);
+		}
+		else
+		{
+			return Value;
+		}		
 	}
 
 	float GetPreviousValue() const
@@ -60,7 +68,7 @@ struct JOYSTICKPLUGIN_API FAnalogData
 	/* Whether the data represents a valid value */
 	bool HasValue() const
 	{
-		return ((Index != INDEX_NONE) && !KeyName.IsNone() && ((RangeMin != -1.f) || (RangeMax != -1.f)));
+		return ((Index != INDEX_NONE) && ((RangeMin != -1.f) || (RangeMax != -1.f)));
 	}
 
 	/* Index in the value data*/
@@ -71,6 +79,9 @@ struct JOYSTICKPLUGIN_API FAnalogData
 	
 	/* Last analog value */
 	float PreviousValue;
+
+	/* Should remap ranges */
+	bool bRemapRanges;
 
 	/* Min Analog value */
 	float RangeMin;
@@ -86,7 +97,4 @@ struct JOYSTICKPLUGIN_API FAnalogData
 
 	/* Is this axis centered on 0 instead of 0.5 */
 	bool bGamepadStick;
-	
-	/* Key name */
-	FName KeyName;	
 };

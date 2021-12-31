@@ -35,8 +35,8 @@ public:
 	void SetIgnoreGameControllers(bool IgnoreControllers);
 	void ReinitialiseJoystickData(const int32 DeviceId);
 
-	FString DeviceGUIDtoString(int32 DeviceIndex) const;
-	FGuid DeviceIndexToGUID(int32 DeviceIndex) const;
+	FString GetDeviceIndexGuidString(int32 DeviceIndex) const;
+	FGuid GetDeviceIndexGuid(int32 DeviceIndex) const;
 	
 	FDeviceInfoSDL* GetDeviceInfo(const int32 DeviceId);
 	FJoystickDeviceData GetInitialDeviceState(int32 DeviceId);

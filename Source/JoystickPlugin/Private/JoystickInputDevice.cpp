@@ -60,7 +60,7 @@ void FJoystickInputDevice::InitInputDevice(const FDeviceInfoSDL &Device)
 	DeviceInfo.DeviceId = DeviceId;
 	DeviceInfo.Player = 0;
 
-	DeviceInfo.ProductId = JoystickSubsystem->DeviceIndexToGUID(Device.DeviceIndex);
+	DeviceInfo.ProductId = JoystickSubsystem->GetDeviceIndexGuid(Device.DeviceIndex);
 	DeviceInfo.ProductName = Device.DeviceName.Replace(TEXT("."), TEXT("")).Replace(TEXT(","), TEXT(""));
 	DeviceInfo.DeviceName = DeviceInfo.ProductName.Replace(TEXT(" "), TEXT(""));
 
