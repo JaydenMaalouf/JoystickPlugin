@@ -9,6 +9,22 @@ FName UJoystickInputSettings::GetCategoryName() const
 	return TEXT("Plugins");
 }
 
+void UJoystickInputSettings::DeviceAdded(const FJoystickInputDeviceInformation JoystickInfo)
+{
+	const bool Exists = Devices.ContainsByPredicate([=](const FJoystickInputDeviceInformation& Device) { return Device.ProductId == JoystickInfo.ProductId; });
+	if (Exists)
+	{
+		return;
+	}
+	
+	Devices.Add(JoystickInfo);
+}
+
+void UJoystickInputSettings::DeviceRemoved(const FGuid JoystickGuid)
+{
+	Devices.RemoveAll([=](const FJoystickInputDeviceInformation& Device) { return Device.ProductId == JoystickGuid; });
+}
+
 #if WITH_EDITOR
 void UJoystickInputSettings::PostEditChangeChainProperty(FPropertyChangedChainEvent& PropertyChangedEvent)
 {

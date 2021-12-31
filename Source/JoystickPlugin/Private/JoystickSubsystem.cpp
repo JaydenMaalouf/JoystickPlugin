@@ -146,6 +146,7 @@ FDeviceInfoSDL UJoystickSubsystem::AddDevice(const int32 DeviceIndex)
 	}
 	
 	Device.InstanceId = SDL_JoystickInstanceID(Device.Joystick);
+	Device.ProductId = DeviceIndexToGUID(DeviceIndex);
 
 	// DEBUG
 	Device.DeviceName = FString(ANSI_TO_TCHAR(SDL_JoystickName(Device.Joystick)));
@@ -343,9 +344,7 @@ FJoystickDeviceData UJoystickSubsystem::GetInitialDeviceState(const int32 Device
 		const UJoystickInputSettings* InputSettings = GetDefault<UJoystickInputSettings>();
 		for (const FJoystickInputDeviceConfiguration& DeviceConfig : InputSettings->DeviceConfigurations)
 		{
-			const int32 DeviceGuid = FCString::Strtoi(*DeviceConfig.DeviceGUID, nullptr, 16);
-			
-			if ((DeviceConfig.DeviceName.IsEmpty() || Device.DeviceName == DeviceConfig.DeviceName) && (DeviceGuid == 0 || Device.DeviceId == DeviceGuid))
+			if ((DeviceConfig.DeviceName.IsEmpty() || Device.DeviceName == DeviceConfig.DeviceName) && (!DeviceConfig.ProductId.IsValid() || Device.ProductId == DeviceConfig.ProductId))
 			{
 				const int32 PropCount = DeviceConfig.AxisProperties.Num();
 				for (int32 i = 0; i < FMath::Min(AxesCount, PropCount); i++)
