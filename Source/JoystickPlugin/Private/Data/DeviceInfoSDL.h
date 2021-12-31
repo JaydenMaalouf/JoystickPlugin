@@ -30,6 +30,7 @@ struct FDeviceInfoSDL
 	int32 InstanceId;
 
 	FString DeviceName;
+	FGuid ProductId;
 
 	SDL_Haptic* Haptic;
 	SDL_Joystick* Joystick;

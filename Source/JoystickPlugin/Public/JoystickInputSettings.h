@@ -5,6 +5,7 @@
 #include "Engine/DeveloperSettings.h"
 
 #include "JoystickInputDeviceConfiguration.h"
+#include "JoystickInputDeviceInformation.h"
 
 #include "JoystickInputSettings.generated.h"
 
@@ -21,6 +22,12 @@ public:
 #endif
 
 	virtual FName GetCategoryName() const override;
+	
+    void DeviceAdded(FJoystickInputDeviceInformation JoystickInfo);
+    void DeviceRemoved(FGuid JoystickGuid);
+
+	UPROPERTY(config, VisibleAnywhere, Category="Device Configurations")
+	TArray<FJoystickInputDeviceInformation> Devices;
 
 	UPROPERTY(config, EditAnywhere, Category="Device Configurations")
 	TArray<FJoystickInputDeviceConfiguration> DeviceConfigurations;
