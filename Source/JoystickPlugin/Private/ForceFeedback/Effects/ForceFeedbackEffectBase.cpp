@@ -10,6 +10,11 @@ void UForceFeedbackEffectBase::BeginDestroy()
 	Super::BeginDestroy();
 }
 
+void UForceFeedbackEffectBase::Tick(float DeltaTime)
+{
+	ReceiveTick(DeltaTime);
+}
+
 void UForceFeedbackEffectBase::InitialiseEffect()
 {
 	if (IsInitialised)
