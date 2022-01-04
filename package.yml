@@ -19,7 +19,7 @@ steps:
   inputs:
     rootFolderOrFile: '$(Build.StagingDirectory)/build/UE_${{ parameters.engineVersion }}'
     includeRootFolder: false
-    archiveFile: '$(Build.StagingDirectory)/output/JoystickPlugin-${{ parameters.engineVersion }}-${{ parameters.platform }}-${{ parameters.releaseVersion }}.zip'
+    archiveFile: '$(Build.StagingDirectory)/output/JoystickPlugin-${{ parameters.engineVersion }}-${{ parameters.platform }}.zip'
 - task: ArchiveFiles@2
   displayName: 'Archive SDL - ${{ parameters.engineVersion }} ${{ parameters.platform }}'
   inputs:
