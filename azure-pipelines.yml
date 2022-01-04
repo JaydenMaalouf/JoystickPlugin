@@ -20,7 +20,7 @@ jobs:
         deploy:
           steps:
           - checkout: self
-          - script: |
+          - powershell: |
               $json = Get-Content 'JoystickPlugin.uplugin' -raw | ConvertFrom-Json
               $json.VersionName = $(Build.BuildNumber)
               $json | ConvertTo-Json -depth 32 | Set-Content 'JoystickPlugin.uplugin'
@@ -63,7 +63,7 @@ jobs:
         deploy:
           steps:
           - checkout: self
-          - script: |
+          - powershell: |
               $json = Get-Content 'JoystickPlugin.uplugin' -raw | ConvertFrom-Json
               $json.VersionName = $(Build.BuildNumber)
               $json | ConvertTo-Json -depth 32 | Set-Content 'JoystickPlugin.uplugin'
