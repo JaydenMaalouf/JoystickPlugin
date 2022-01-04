@@ -17,11 +17,11 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceInformation
 	}
 
 	UPROPERTY(VisibleAnywhere, Category="Device Config")
-	FString DeviceName;
+		FString DeviceName;
 
 	UPROPERTY(VisibleAnywhere, Category="Device Config")
-	FString ProductName;
+		FString ProductName;
 
 	UPROPERTY(VisibleAnywhere, Category="Device Config")
-	FGuid ProductId;
+		FGuid ProductId;
 };

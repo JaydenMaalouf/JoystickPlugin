@@ -22,6 +22,8 @@ class JOYSTICKPLUGIN_API UForceFeedbackEffectBase : public UObject, public FTick
 {
     GENERATED_BODY()
 public:
+	UForceFeedbackEffectBase();
+	
     virtual void BeginDestroy() override;
 	
 	// Begin FTickableGameObject Interface.
@@ -75,16 +77,16 @@ public:
 		int32 EffectId;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Force Feedback|Effect Data")
-		bool IsInitialised = false;
+		bool IsInitialised;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Effect Data", meta = (ExposeOnSpawn = true))
-		bool AutoStartOnInit = false;
+		bool AutoStartOnInit;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Effect Data", meta = (ExposeOnSpawn = true))
-		int32 Iterations = 1;
+		int32 Iterations;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Effect Data", meta = (ExposeOnSpawn = true))
-		bool Infinite = false;
+		bool Infinite;
 
 	UPROPERTY(BlueprintAssignable, meta = (DisplayName = "OnInitialisedEffect"), Category = "Force Feedback|Delegates")
 		FOnInitialisedEffect OnInitialisedEffectDelegate;
