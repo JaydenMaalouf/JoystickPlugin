@@ -19,25 +19,25 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceAxisProperties
 
 	/** Whether the axis is enabled. */
 	UPROPERTY(EditAnywhere, Category="Axis Properties")
-	bool bEnabled;
+		bool bEnabled;
 
 	/** Whether the value of the axis as supplied from the driver should be inverted. */
 	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="bEnabled"))
-	bool bInverted;
+		bool bInverted;
 
 	/** Whether this is a gamepad stick, which means it should scale from -1 to 1 instead of 0 to 1 */
 	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="bEnabled"))
-	bool bGamepadStick;
+		bool bGamepadStick;
 	
 	/** The amount to offset the axis value by to get the desired range (note that this offset is applied after the value has been inverted). */
 	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="bEnabled"))
-	float RangeMin;
+		float RangeMin;
 	
 	/** The amount to offset the axis value by to get the desired range (note that this offset is applied after the value has been inverted). */
 	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="bEnabled"))
-	float RangeMax;
+		float RangeMax;
 
 	/** The amount to offset the axis value by to get the desired range (note that this offset is applied after the value has been inverted). */
 	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="bEnabled"))
-	float Offset;
+		float Offset;
 };

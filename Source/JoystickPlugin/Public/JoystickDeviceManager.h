@@ -38,8 +38,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Functions")
 		TArray<int32> GetDeviceIds() const;
 
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY(BlueprintAssignable, Category = "Joystick|Delegates")
 		FOnJoystickPluggedIn JoystickPluggedIn;
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY(BlueprintAssignable, Category = "Joystick|Delegates")
 		FOnJoystickUnplugged JoystickUnplugged;
 };

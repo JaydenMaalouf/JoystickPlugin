@@ -13,8 +13,11 @@ struct JOYSTICKPLUGIN_API FButtonData
 	{
 	}
 	
-	bool ButtonState;
-	bool PreviousButtonState;
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
+		bool ButtonState;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
+		bool PreviousButtonState;
 
 	FName KeyName;
 };

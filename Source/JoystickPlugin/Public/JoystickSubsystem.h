@@ -45,9 +45,12 @@ public:
 	
 	int32 GetJoystickCount() const;
 
-	UPROPERTY(BlueprintAssignable)
-		FOnJoystickSubsystemReady JoystickSubsystemReady;
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Joystick Subsystem|Functions")
+		bool IsReady() const { return IsInitialised; }
 	
+	UPROPERTY(BlueprintAssignable, Category = "Joystick Subsystem|Delegates")
+		FOnJoystickSubsystemReady JoystickSubsystemReady;
+
 private:
 
 	static int32 HandleSDLEvent(void* UserData, SDL_Event* Event);
@@ -65,4 +68,5 @@ private:
 	
 	bool IgnoreGameControllers;
 	bool OwnsSDL;
+	bool IsInitialised;
 };
