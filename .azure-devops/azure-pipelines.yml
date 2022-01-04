@@ -48,7 +48,7 @@ jobs:
               action: 'create'
               target: '$(Build.SourceVersion)'
               tagSource: 'userSpecifiedTag'
-              tag: v$(Build.BuildNumber)
+              tag: $(Build.BuildNumber)
               title: $(Build.BuildNumber)
               assets: '$(Build.StagingDirectory)/output/*.zip'
               changeLogCompareToRelease: 'lastFullRelease'
@@ -91,7 +91,7 @@ jobs:
               action: 'create'
               target: '$(Build.SourceVersion)'
               tagSource: 'userSpecifiedTag'
-              tag: v$(Build.BuildNumber)
+              tag: $(Build.BuildNumber)
               title: $(Build.BuildNumber)
               assets: '$(Build.StagingDirectory)/output/*.zip'
               isPreRelease: true
