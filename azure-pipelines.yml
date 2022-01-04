@@ -20,7 +20,11 @@ jobs:
         deploy:
           steps:
           - checkout: self
-          - script: jq '.VersionName="$(Build.BuildNumber)"' JoystickPlugin.uplugin >> tmp.json && mv tmp.json JoystickPlugin.uplugin
+          - script: |
+              $json = Get-Content 'JoystickPlugin.uplugin' -raw | ConvertFrom-Json
+              $json.VersionName = $(Build.BuildNumber)
+              $json | ConvertTo-Json -depth 32 | Set-Content 'JoystickPlugin.uplugin'
+            displayName: Update uplugin
           - template: package.yml
             parameters:
               platform: Win64
@@ -59,7 +63,11 @@ jobs:
         deploy:
           steps:
           - checkout: self
-          - script: jq '.VersionName="$(Build.BuildNumber)"' JoystickPlugin.uplugin >> tmp.json && mv tmp.json JoystickPlugin.uplugin
+          - script: |
+              $json = Get-Content 'JoystickPlugin.uplugin' -raw | ConvertFrom-Json
+              $json.VersionName = $(Build.BuildNumber)
+              $json | ConvertTo-Json -depth 32 | Set-Content 'JoystickPlugin.uplugin'
+            displayName: Update uplugin
           - template: package.yml
             parameters:
               platform: Win64
