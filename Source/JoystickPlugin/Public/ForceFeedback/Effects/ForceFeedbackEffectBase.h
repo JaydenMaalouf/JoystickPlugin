@@ -1,6 +1,7 @@
 #pragma once
 
 #include "UObject/Object.h"
+#include "Tickable.h"
 
 THIRD_PARTY_INCLUDES_START
 
