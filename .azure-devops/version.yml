@@ -11,9 +11,13 @@ jobs:
   - task: gitversion/execute@0
     displayName: "GitVersion Show Config"
     inputs:
+      targetPath: '$(Build.SourcesDirectory)\.azure-devops\'
+      useConfigFile: true
       configFilePath: 'GitVersion.yml'
       additionalArguments: '/showConfig'
   - task: gitversion/execute@0
     displayName: "GitVersion Execute"
     inputs:
+      targetPath: '$(Build.SourcesDirectory)\.azure-devops\'
+      useConfigFile: true
       configFilePath: 'GitVersion.yml'
