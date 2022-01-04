@@ -16,8 +16,8 @@ public:
 	UFUNCTION(BlueprintPure, Category = "SDL2 Input|Joystick input")
 		static FVector2D POVAxis(EJoystickPOVDirection Direction);
 	
-	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback|Functions", meta = (DeterminesOutputType = "ClassType"))
-		static UForceFeedbackEffectBase* CreateEffect(UObject* Outer, TSubclassOf<class UForceFeedbackEffectBase> ClassType, bool AutoInitialise, const bool AutoStart);
+	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback|Functions", meta = (DeterminesOutputType = "ClassType", HidePin = "Outer", DefaultToSelf = "Outer"))
+		static UForceFeedbackEffectBase* CreateEffect(UObject* Outer, TSubclassOf<class UForceFeedbackEffectBase> ClassType, bool AutoInitialise = true, const bool AutoStart = false);
 	
 	static EJoystickPOVDirection HatValueToDirection(int8 Value);
 };
