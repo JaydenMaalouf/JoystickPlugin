@@ -20,6 +20,11 @@ jobs:
         deploy:
           steps:
           - checkout: self
+          - task: FileTransform@1
+            inputs:
+              folderPath: '$(System.DefaultWorkingDirectory)'
+              fileType: 'json'
+              targetFiles: 'JoystickPlugin.uplugin'
           - template: package.yml
             parameters:
               platform: Win64
@@ -58,6 +63,11 @@ jobs:
         deploy:
           steps:
           - checkout: self
+          - task: FileTransform@1
+            inputs:
+              folderPath: '$(System.DefaultWorkingDirectory)'
+              fileType: 'json'
+              targetFiles: 'JoystickPlugin.uplugin'
           - template: package.yml
             parameters:
               platform: Win64
