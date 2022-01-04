@@ -8,7 +8,7 @@ trigger:
   - feature/*
 
 jobs:
-- template: .azure-devops/version.yml
+- template: version.yml
 
 - ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
   - deployment: Production
@@ -25,17 +25,17 @@ jobs:
               $json.VersionName = "$(Build.BuildNumber)"
               $json | ConvertTo-Json -depth 32 | Set-Content 'JoystickPlugin.uplugin'
             displayName: Update uplugin
-          - template: .azure-devops/package.yml
+          - template: package.yml
             parameters:
               platform: Win64
               engineVersion: '4.25'
               releaseVersion: $(Build.BuildNumber)
-          - template: .azure-devops/package.yml
+          - template: package.yml
             parameters:
               platform: Win64
               engineVersion: '4.26'
               releaseVersion: $(Build.BuildNumber)
-          - template: .azure-devops/package.yml
+          - template: package.yml
             parameters:
               platform: Win64
               engineVersion: '4.27'
@@ -68,17 +68,17 @@ jobs:
               $json.VersionName = "$(Build.BuildNumber)"
               $json | ConvertTo-Json -depth 32 | Set-Content 'JoystickPlugin.uplugin'
             displayName: Update uplugin
-          - template: .azure-devops/package.yml
+          - template: package.yml
             parameters:
               platform: Win64
               engineVersion: '4.25'
               releaseVersion: $(Build.BuildNumber)
-          - template: .azure-devops/package.yml
+          - template: package.yml
             parameters:
               platform: Win64
               engineVersion: '4.26'
               releaseVersion: $(Build.BuildNumber)
-          - template: .azure-devops/package.yml
+          - template: package.yml
             parameters:
               platform: Win64
               engineVersion: '4.27'
