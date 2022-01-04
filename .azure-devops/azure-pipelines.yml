@@ -5,10 +5,10 @@ pool: Default
 pr: none
 trigger:
   - master
-  - develop
+  - feature/*
 
 jobs:
-- template: version.yml
+- template: .azure-devops/version.yml
 
 - ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
   - deployment: Production
@@ -25,17 +25,17 @@ jobs:
               $json.VersionName = "$(Build.BuildNumber)"
               $json | ConvertTo-Json -depth 32 | Set-Content 'JoystickPlugin.uplugin'
             displayName: Update uplugin
-          - template: package.yml
+          - template: .azure-devops/package.yml
             parameters:
               platform: Win64
               engineVersion: '4.25'
               releaseVersion: $(Build.BuildNumber)
-          - template: package.yml
+          - template: .azure-devops/package.yml
             parameters:
               platform: Win64
               engineVersion: '4.26'
               releaseVersion: $(Build.BuildNumber)
-          - template: package.yml
+          - template: .azure-devops/package.yml
             parameters:
               platform: Win64
               engineVersion: '4.27'
@@ -68,17 +68,17 @@ jobs:
               $json.VersionName = "$(Build.BuildNumber)"
               $json | ConvertTo-Json -depth 32 | Set-Content 'JoystickPlugin.uplugin'
             displayName: Update uplugin
-          - template: package.yml
+          - template: .azure-devops/package.yml
             parameters:
               platform: Win64
               engineVersion: '4.25'
               releaseVersion: $(Build.BuildNumber)
-          - template: package.yml
+          - template: .azure-devops/package.yml
             parameters:
               platform: Win64
               engineVersion: '4.26'
               releaseVersion: $(Build.BuildNumber)
-          - template: package.yml
+          - template: .azure-devops/package.yml
             parameters:
               platform: Win64
               engineVersion: '4.27'
