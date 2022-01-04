@@ -9,55 +9,48 @@
 
 #include "JoystickPlugin.h"
 
-#include "Core.h"
-#include <Engine.h>
-
-#if WITH_EDITOR
-	#include "InputSettingsCustomization.h"
-#endif
-
-IMPLEMENT_MODULE(FJoystickPlugin, JoystickPlugin)
+#include "JoystickSubsystem.h"
+#include "Misc/Paths.h"
+#include "Interfaces/IPluginManager.h"
 
 #define LOCTEXT_NAMESPACE "JoystickPlugin"
 
+TSharedPtr<class IInputDevice> FJoystickPlugin::CreateInputDevice(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler)
+{
+	JoystickInputDevice = MakeShareable(new FJoystickInputDevice(InMessageHandler));
+	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
+	if (JoystickSubsystem)
+	{
+		JoystickSubsystem->InitialiseInputDevice(JoystickInputDevice);
+	}
+	
+	return JoystickInputDevice;
+}
 
 void FJoystickPlugin::StartupModule()
 {
+	const FString BaseDir = IPluginManager::Get().FindPlugin("JoystickPlugin")->GetBaseDir();
+	const FString SDLDir = FPaths::Combine(*BaseDir, TEXT("ThirdParty"), TEXT("SDL2"), TEXT("/Win64/"));
+
+	FPlatformProcess::PushDllDirectory(*SDLDir);
+	SdlDllHandle = FPlatformProcess::GetDllHandle(*(SDLDir + "SDL2.dll"));
+	FPlatformProcess::PopDllDirectory(*SDLDir);
+
 	IJoystickPlugin::StartupModule();
+}
 
-	// Get the base directory of this plugin
-	FString BaseDir = "./";
-	// Add on the relative location of the third party dll and load it
-	FString LibraryPath;
-#if PLATFORM_WINDOWS
-	LibraryPath = FPaths::Combine(*BaseDir, TEXT("SDL2.dll"));	
-#endif // PLATFORM_WINDOWS
+void FJoystickPlugin::ShutdownModule()
+{
+	FPlatformProcess::FreeDllHandle(SdlDllHandle);
 
-	SDL2LibraryHandle = !LibraryPath.IsEmpty() ? FPlatformProcess::GetDllHandle(*LibraryPath) : nullptr;
-
-	if (SDL2LibraryHandle == nullptr)
+	IJoystickPlugin::ShutdownModule();
+	
+	if (JoystickInputDevice.IsValid())
 	{
-		UE_LOG(JoystickPluginLog, Error, TEXT("ThirdPartyLibraryError - Failed load sdl2.dll - %s"), *LibraryPath);
-		//FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("ThirdPartyLibraryError", "Failed load sdl2.dll"));
-#if PLATFORM_WINDOWS
-		LibraryPath = FPaths::Combine(*BaseDir, TEXT("SDL2.dll"));
-#endif // PLATFORM_WINDOWS
-		SDL2LibraryHandle = !LibraryPath.IsEmpty() ? FPlatformProcess::GetDllHandle(*LibraryPath) : nullptr;
-		if (SDL2LibraryHandle == nullptr) {
-			UE_LOG(JoystickPluginLog, Error, TEXT("ThirdPartyLibraryError - Failed load sdl2.dll - %s"), *LibraryPath);
-			FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("ThirdPartyLibraryError", "Failed load sdl2.dll"));
-			exit(99);
-		}
+		JoystickInputDevice.Reset();		
 	}
-
-	JoystickDevice = MakeShareable(new ::FJoystickDevice());
-	//return;
-
-#if WITH_EDITOR
-	// Replace parts of the input settings widget to make them wide enough to fit long joystick names
-	FInputActionMappingCustomizationExtended::Register();
-	FInputAxisMappingCustomizationExtended::Register();
-#endif
 }
 
 #undef LOCTEXT_NAMESPACE
+
+IMPLEMENT_MODULE(FJoystickPlugin, JoystickPlugin)
