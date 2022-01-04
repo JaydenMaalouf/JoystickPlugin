@@ -5,7 +5,7 @@ pool: Default
 pr: none
 trigger:
   - master
-  - develop
+  - feature/*
 
 jobs:
 - template: version.yml
