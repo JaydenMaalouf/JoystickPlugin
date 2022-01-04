@@ -17,12 +17,17 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdatedEffect, UForceFeedbackEffe
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDestroyedEffect, UForceFeedbackEffectBase*, effect);
 
 UCLASS(BlueprintType)
-class JOYSTICKPLUGIN_API UForceFeedbackEffectBase : public UObject
+class JOYSTICKPLUGIN_API UForceFeedbackEffectBase : public UObject, public FTickableGameObject
 {
     GENERATED_BODY()
 public:
-
-	void BeginDestroy() override;
+    virtual void BeginDestroy() override;
+	
+	virtual void Tick(float DeltaTime) override;
+	virtual bool IsTickable() const override { return IsInitialised; }
+	virtual bool IsTickableInEditor() const override { return false; }
+	virtual bool IsTickableWhenPaused() const override { return false; }
+	virtual TStatId GetStatId() const override { return TStatId(); }
 
     UFUNCTION(BlueprintCallable, Category = "Force Feedback|Functions")
         void InitialiseEffect();
@@ -53,6 +58,9 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Force Feedback|Events")
 		void OnDestroyedEffect();
+	
+	UFUNCTION(BlueprintImplementableEvent, meta=(DisplayName = "Tick"))
+		void ReceiveTick(float DeltaSeconds);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Force Feedback|Functions")
 		int32 EffectStatus() const;
