@@ -8,8 +8,11 @@ struct JOYSTICKPLUGIN_API FHatData
 {	
 	GENERATED_BODY()
 	
-	EJoystickPOVDirection Direction;
-	EJoystickPOVDirection PreviousDirection;
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
+		EJoystickPOVDirection Direction;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
+		EJoystickPOVDirection PreviousDirection;
 
 	FName KeyName;
 };

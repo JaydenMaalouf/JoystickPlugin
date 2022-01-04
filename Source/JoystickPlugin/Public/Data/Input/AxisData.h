@@ -33,7 +33,6 @@ struct JOYSTICKPLUGIN_API FAxisData
 	{
 	}
 
-	/* Helper function to get the offset and normalized value */
 	float GetValue() const
 	{
 		if (bRemapRanges)
@@ -72,29 +71,38 @@ struct JOYSTICKPLUGIN_API FAxisData
 	}
 
 	/* Index in the value data*/
-	int32 Index;
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
+		int32 Index;
 
 	/* Current analog value */
-	float Value;
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
+		float Value;
 	
 	/* Last analog value */
-	float PreviousValue;
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
+		float PreviousValue;
 
 	/* Should remap ranges */
-	bool bRemapRanges;
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
+		bool bRemapRanges;
 
 	/* Min Analog value */
-	float RangeMin;
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
+		float RangeMin;
 	
 	/* Max analog value */
-	float RangeMax;
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
+		float RangeMax;
 	
 	/* Offset to apply to normalized axis value */
-	float Offset;
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
+		float Offset;
 
 	/* Is this axis inverted */
-	bool bInverted;
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
+		bool bInverted;
 
 	/* Is this axis centered on 0 instead of 0.5 */
-	bool bGamepadStick;
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
+		bool bGamepadStick;
 };

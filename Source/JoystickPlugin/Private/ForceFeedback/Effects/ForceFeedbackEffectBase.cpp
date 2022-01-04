@@ -3,6 +3,14 @@
 #include "JoystickHapticDeviceManager.h"
 #include "JoystickSubsystem.h"
 
+UForceFeedbackEffectBase::UForceFeedbackEffectBase()
+	: IsInitialised(false)
+	, AutoStartOnInit(false)
+	, Iterations(1)
+	, Infinite(false)
+{
+}
+
 void UForceFeedbackEffectBase::BeginDestroy()
 {
 	DestroyEffect();

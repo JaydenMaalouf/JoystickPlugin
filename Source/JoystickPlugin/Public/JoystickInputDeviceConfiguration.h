@@ -9,11 +9,11 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceConfiguration
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, Category="Device Config")
-	FString DeviceName;
+		FString DeviceName;
 
 	UPROPERTY(EditAnywhere, Category="Device Config")
-	FGuid ProductId;
+		FGuid ProductId;
 
 	UPROPERTY(EditAnywhere, Category="Device Config")
-	TArray<FJoystickInputDeviceAxisProperties> AxisProperties;
+		TArray<FJoystickInputDeviceAxisProperties> AxisProperties;
 };

@@ -13,7 +13,15 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectPeriodicData
 {
 	GENERATED_BODY()
 
-public:
+	FForceFeedbackEffectPeriodicData()
+		: EffectType(EForceFeedbackPeriodicEffectType::SINE)
+		, Period(0.2f)
+		, Magnitude(1.0f)
+		, Offset(0.0f)
+		, Phase(0.0f)
+	{
+		
+	}
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Periodic|Data")
 		FForceFeedbackEffectDirectionData DirectionData;
@@ -31,15 +39,15 @@ public:
 		EForceFeedbackPeriodicEffectType EffectType;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Periodic|Data")
-		float Period = 0.2f;
+		float Period;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Periodic|Data")
-		float Magnitude = 1.0f;
+		float Magnitude;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Periodic|Data")
-		float Offset = 0.0f;
+		float Offset;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Periodic|Data")
-		float Phase = 0.0f;
+		float Phase;
 };
 

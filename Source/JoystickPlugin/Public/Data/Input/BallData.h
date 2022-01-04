@@ -7,8 +7,11 @@ struct JOYSTICKPLUGIN_API FBallData
 {	
 	GENERATED_BODY()
 	
-	FVector2D Direction;
-	FVector2D PreviousDirection;
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
+		FVector2D Direction;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
+		FVector2D PreviousDirection;
 
 	FName KeyName;
 };
