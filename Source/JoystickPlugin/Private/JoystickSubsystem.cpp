@@ -1,5 +1,6 @@
 ﻿#include "JoystickSubsystem.h"
 
+#include "JoystickDeviceManager.h"
 #include "JoystickFunctionLibrary.h"
 #include "JoystickInputDeviceAxisProperties.h"
 #include "JoystickInputSettings.h"

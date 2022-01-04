@@ -55,7 +55,7 @@ public:
 		void OnDestroyedEffect();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Force Feedback|Functions")
-		int32 EffectStatus();
+		int32 EffectStatus() const;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Effect Data", meta = (ExposeOnSpawn = true))
 		int32 DeviceId;
@@ -91,6 +91,9 @@ public:
 		FOnDestroyedEffect OnDestroyedEffectDelegate;
 
 protected:
+	
+	SDL_HapticEffect Effect;
 
-	virtual SDL_HapticEffect ToSDLEffect();
+	virtual void CreateEffect();
+	virtual void UpdateEffectData();
 };
