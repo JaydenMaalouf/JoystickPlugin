@@ -48,7 +48,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Component")
 		FForceFeedbackComponentData ComponentData;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Force Feedback|Component")
+	UPROPERTY(VisibleAnywhere, Category = "Force Feedback|Component")
 		UForceFeedbackEffectBase* ForcedFeedbackEffect;
 
 };

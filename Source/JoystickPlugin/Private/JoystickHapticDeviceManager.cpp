@@ -28,10 +28,10 @@ bool UJoystickHapticDeviceManager::SetAutoCenter(const int32 DeviceId, const int
 		return false;
 	}
 
-	int32 result = SDL_HapticSetAutocenter(HapticDevice, Center);
-	if (result == -1) {
-		TCHAR* errorMessage = ANSI_TO_TCHAR(SDL_GetError());
-		UE_LOG(LogJoystickPlugin, Log,TEXT("Autocenter error: %s") , errorMessage);
+	const int32 Result = SDL_HapticSetAutocenter(HapticDevice, Center);
+	if (Result == -1) {
+		const FString ErrorMessage = FString(SDL_GetError());
+		UE_LOG(LogJoystickPlugin, Log,TEXT("Autocenter error: %s") , *ErrorMessage);
 		return false;
 	}
 
@@ -46,10 +46,10 @@ bool UJoystickHapticDeviceManager::SetGain(const int32 DeviceId, const int32 Gai
 		return false;
 	}
 
-	int32 result = SDL_HapticSetGain(HapticDevice, Gain);
-	if (result == -1) {
-		TCHAR* errorMessage = ANSI_TO_TCHAR(SDL_GetError());
-		UE_LOG(LogJoystickPlugin, Log, TEXT("Gain error: %s"), errorMessage);
+	const int32 Result = SDL_HapticSetGain(HapticDevice, Gain);
+	if (Result == -1) {
+		const FString ErrorMessage = FString(SDL_GetError());
+		UE_LOG(LogJoystickPlugin, Log, TEXT("Gain error: %s"), *ErrorMessage);
 		return false;
 	}
 
@@ -64,14 +64,14 @@ int32 UJoystickHapticDeviceManager::GetEffectStatus(const int32 DeviceId, const 
 		return -1;
 	}
 
-	int32 result = SDL_HapticGetEffectStatus(HapticDevice,EffectId);
-	if (result == -1) {
-		TCHAR* errorMessage = ANSI_TO_TCHAR(SDL_GetError());
-		UE_LOG(LogJoystickPlugin, Log, TEXT("GetEffectStatus error: %s"), errorMessage);
+	const int32 Result = SDL_HapticGetEffectStatus(HapticDevice,EffectId);
+	if (Result == -1) {
+		const FString ErrorMessage = FString(SDL_GetError());
+		UE_LOG(LogJoystickPlugin, Log, TEXT("GetEffectStatus error: %s"), *ErrorMessage);
 		return -1;
 	}
 
-	return result;
+	return Result;
 }
 
 void UJoystickHapticDeviceManager::PauseDevice(const int32 DeviceId) const
@@ -107,17 +107,17 @@ void UJoystickHapticDeviceManager::StopAllEffects(const int32 DeviceId) const
 	SDL_HapticStopAll(HapticDevice);
 }
 
-UForceFeedbackEffectBase* UJoystickHapticDeviceManager::CreateEffect(const TSubclassOf<UForceFeedbackEffectBase> ClassType, const bool AutoStart) const
+UForceFeedbackEffectBase* UJoystickHapticDeviceManager::CreateEffect(UObject* Outer, const TSubclassOf<UForceFeedbackEffectBase> ClassType, const bool AutoStart) const
 {
-	UForceFeedbackEffectBase* effect = NewObject<UForceFeedbackEffectBase>(ClassType);
-	effect->AutoStartOnInit = AutoStart;
+	UForceFeedbackEffectBase* ForceFeedbackEffect = NewObject<UForceFeedbackEffectBase>(Outer, ClassType);
+	ForceFeedbackEffect->AutoStartOnInit = AutoStart;
 
 	if (AutoStart) 
 	{
-		effect->InitialiseEffect();
+		ForceFeedbackEffect->InitialiseEffect();
 	}
 
-	return effect;
+	return ForceFeedbackEffect;
 }
 
 int32 UJoystickHapticDeviceManager::GetNumEffects(const int32 DeviceId) const

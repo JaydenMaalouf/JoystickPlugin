@@ -48,7 +48,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Force Feedback|Component")
 		TMap<TSubclassOf<class UForceFeedbackEffectBase>, FForceFeedbackComponentData> EffectTypes;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Force Feedback|Component")
+	UPROPERTY(VisibleAnywhere, Category = "Force Feedback|Component")
 		TArray<UForceFeedbackEffectBase*> Effects;
 
 };

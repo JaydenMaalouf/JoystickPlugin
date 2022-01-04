@@ -15,5 +15,5 @@ public:
 
 protected:
 
-	virtual SDL_HapticEffect ToSDLEffect() override;
+	virtual void UpdateEffectData() override;
 };
