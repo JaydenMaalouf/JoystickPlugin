@@ -45,10 +45,10 @@ public:
 	
 	int32 GetJoystickCount() const;
 
-	UFUNCTION(BlueprintCallable, BlueprintPure)
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Joystick Subsystem|Functions")
 		bool IsReady() const { return IsInitialised; }
 	
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY(BlueprintAssignable, Category = "Joystick Subsystem|Delegates")
 		FOnJoystickSubsystemReady JoystickSubsystemReady;
 
 private:
