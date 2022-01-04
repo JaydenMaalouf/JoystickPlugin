@@ -29,9 +29,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback|Functions")
 		void StopAllEffects(int32 DeviceId) const;
 	
-	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback|Functions", meta = (DeterminesOutputType = "ClassType", DynamicOutputParam = "ReturnedEffect"))
-		UForceFeedbackEffectBase* CreateEffect(UObject* Outer, TSubclassOf<UForceFeedbackEffectBase> ClassType, bool AutoStart) const;
-	
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Joystick|Force Feedback|Functions")
 		int32 GetNumEffects(int32 DeviceId) const;
 	
