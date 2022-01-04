@@ -6,7 +6,7 @@ branches:
   develop:
     tag: beta
   feature:
-    tag: alpha.{BranchName}
+    tag: alpha
     mode: ContinuousDeployment
   hotfix:
     tag: ''
