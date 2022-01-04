@@ -356,13 +356,13 @@ FJoystickDeviceData UJoystickSubsystem::GetInitialDeviceState(const int32 Device
 					}
 					
 					const FJoystickInputDeviceAxisProperties& AxisProps = DeviceConfig.AxisProperties[i];
-					FAnalogData& AnalogData = State.Axes[i];
-					AnalogData.bRemapRanges = AxisProps.bEnabled;
-					AnalogData.RangeMin = AxisProps.RangeMin;
-					AnalogData.RangeMax = AxisProps.RangeMax;
-					AnalogData.Offset = AxisProps.Offset;
-					AnalogData.bInverted = AxisProps.bInverted;
-					AnalogData.bGamepadStick = AxisProps.bGamepadStick;
+					FAxisData& AxisData = State.Axes[i];
+					AxisData.bRemapRanges = AxisProps.bEnabled;
+					AxisData.RangeMin = AxisProps.RangeMin;
+					AxisData.RangeMax = AxisProps.RangeMax;
+					AxisData.Offset = AxisProps.Offset;
+					AxisData.bInverted = AxisProps.bInverted;
+					AxisData.bGamepadStick = AxisProps.bGamepadStick;
 				}
 				
 				break;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Containers/Array.h"
-#include "Data/Input/AnalogData.h"
+#include "Data/Input/AxisData.h"
 #include "Data/Input/BallData.h"
 #include "Data/Input/ButtonData.h"
 #include "Data/Input/HatData.h"
@@ -27,7 +27,7 @@ struct JOYSTICKPLUGIN_API FJoystickDeviceData
 		FString DeviceName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadonly, Category = JoystickState)
-		TArray<FAnalogData> Axes;
+		TArray<FAxisData> Axes;
 
 	UPROPERTY(EditAnywhere, BlueprintReadonly, Category = JoystickState)
 		TArray<FButtonData> Buttons;

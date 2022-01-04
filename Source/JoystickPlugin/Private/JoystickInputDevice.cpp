@@ -227,7 +227,7 @@ void FJoystickInputDevice::JoystickButton(const int32 DeviceId, const int32 Butt
 
 void FJoystickInputDevice::JoystickAxis(const int32 DeviceId, const int32 Axis, const float Value)
 {
-	FAnalogData& State = JoystickDeviceData[DeviceId].Axes[Axis];
+	FAxisData& State = JoystickDeviceData[DeviceId].Axes[Axis];
 	State.PreviousValue = State.Value;
 	State.Value = Value;
 }
