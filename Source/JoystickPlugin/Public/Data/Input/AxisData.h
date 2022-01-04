@@ -1,13 +1,13 @@
 ﻿#pragma once
 
-#include "AnalogData.generated.h"
+#include "AxisData.generated.h"
 
 USTRUCT(BlueprintType)
-struct JOYSTICKPLUGIN_API FAnalogData
+struct JOYSTICKPLUGIN_API FAxisData
 {
 	GENERATED_BODY()
 	
-	FAnalogData()
+	FAxisData()
 		: Index(INDEX_NONE)
 		, Value(0.f)
 		, PreviousValue(0.f)
@@ -20,7 +20,7 @@ struct JOYSTICKPLUGIN_API FAnalogData
 	{
 	}
 
-	FAnalogData(const int32 InIndex, const float InValue, const float InRangeMin, const float InRangeMax, const float InOffset, const bool bInInverted, const bool bInGamepadStick)
+	FAxisData(const int32 InIndex, const float InValue, const float InRangeMin, const float InRangeMax, const float InOffset, const bool bInInverted, const bool bInGamepadStick)
 		: Index(InIndex)
 		, Value(InValue)
 		, PreviousValue(0.f)
@@ -51,17 +51,17 @@ struct JOYSTICKPLUGIN_API FAnalogData
 		return MapValue(PreviousValue);
 	}
 
-	float MapValue(float input) const
+	float MapValue(float Input) const
 	{		
 		const float Factor = 1.f / (RangeMax - RangeMin);
 		if (bGamepadStick)
 		{
 			// Need to do the re-centering before inverting
-			const float NormalizedValue = ((input * Factor) - 0.5f) * 2 * (bInverted ? -1.0f : 1.0f);
+			const float NormalizedValue = ((Input * Factor) - 0.5f) * 2 * (bInverted ? -1.0f : 1.0f);
 			return NormalizedValue + Offset;
 		}
 
-		const float NormalizedValue = (bInverted ? (input * Factor * -1.f) : (input * Factor));
+		const float NormalizedValue = (bInverted ? (Input * Factor * -1.f) : (Input * Factor));
 		return NormalizedValue + Offset;
 	}
 
