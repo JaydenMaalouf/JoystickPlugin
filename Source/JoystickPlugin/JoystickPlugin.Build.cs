@@ -1,9 +1,7 @@
+using System.IO;
+
 namespace UnrealBuildTool.Rules
 {
-    using System;
-    using System.IO;
-    using System.Collections.Generic;
-
     public class JoystickPlugin : ModuleRules
     {
         public JoystickPlugin(ReadOnlyTargetRules Target) : base(Target)
@@ -14,48 +12,37 @@ namespace UnrealBuildTool.Rules
                     "Core",
                     "CoreUObject",
                     "Engine",
+                    "ApplicationCore",
                     "InputCore",
-                    "Slate",
-                    "SlateCore"
+                    "SlateCore",
+                    "Slate"
                 });
 
-            bEnableUndefinedIdentifierWarnings = false;
-
-            PrivateIncludePathModuleNames.Add("SDL2");
-
-            //PrivateIncludePaths.AddRange(
-            //	new string[] {
-            //			Path.Combine(EngineDirectory, "/Source/ThirdParty/SDL2/SDL-gui-backend/include"),
-            //	}
-            //);
-
-            AddEngineThirdPartyPrivateStaticDependencies(Target, "SDL2");
-
-            PrivateIncludePathModuleNames.AddRange(
+            PrivateDependencyModuleNames.AddRange(
                 new string[]
                 {
-                    "InputDevice",
+                    "Projects",
+                    "InputDevice"
                 });
+            
+#if UE_4_26_OR_LATER
+            PrivateDependencyModuleNames.Add("DeveloperSettings");
+#endif
+            
+            var SDL2IncPath = Path.Combine(EngineDirectory, "Source", "ThirdParty", "SDL2", "SDL-gui-backend", "include");
 
-            if (Target.Type == TargetRules.TargetType.Editor)
+            PublicIncludePaths.Add(SDL2IncPath);
+
+            var SDLDirectory = Path.Combine(PluginDirectory, "ThirdParty", "SDL2");
+            var SDLPlatformDir = Path.Combine(SDLDirectory, Target.Platform.ToString());
+
+            if (Target.Platform == UnrealTargetPlatform.Win64)
             {
-                PrivateIncludePathModuleNames.AddRange(
-                    new string[]
-                    {
-                        "PropertyEditor",
-                        "ActorPickerMode",
-                        "DetailCustomizations",
-                    });
+                RuntimeDependencies.Add(Path.Combine(SDLPlatformDir, "SDL2.dll"));
+                PublicAdditionalLibraries.Add(Path.Combine(SDLPlatformDir, "SDL2.lib"));
 
-                PrivateDependencyModuleNames.AddRange(
-                    new string[]
-                    {
-                        "PropertyEditor",
-                        "DetailCustomizations",
-						// ... add private dependencies that you statically link with here ...
-					});
+                PublicDelayLoadDLLs.Add("SDL2.dll");
             }
         }
     }
-
 }

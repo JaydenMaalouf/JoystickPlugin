@@ -1,0 +1,19 @@
+jobs:
+- job: SetupVersioning
+  displayName: Setup Versioning
+  steps:
+  - checkout: self
+    persistCredentials: true
+  - task: gitversion/setup@0
+    displayName: "GitVersion Setup"
+    inputs:
+      versionSpec: '5.x'
+  - task: gitversion/execute@0
+    displayName: "GitVersion Execute"
+  # - ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
+  #   - task: CmdLine@2
+  #     displayName: "Tag Git Branch"
+  #     inputs:
+  #       script: |
+  #         git tag $(SemVer)
+  #         git push --tags
