@@ -23,11 +23,13 @@ class JOYSTICKPLUGIN_API UForceFeedbackEffectBase : public UObject, public FTick
 public:
     virtual void BeginDestroy() override;
 	
-	virtual void Tick(float DeltaTime) override;
-	virtual bool IsTickable() const override { return IsInitialised; }
-	virtual bool IsTickableInEditor() const override { return false; }
-	virtual bool IsTickableWhenPaused() const override { return false; }
-	virtual TStatId GetStatId() const override { return TStatId(); }
+	// Begin FTickableGameObject Interface.
+	virtual void Tick(float DeltaTime);
+	virtual bool IsTickable() const { return IsInitialised; }
+	virtual bool IsTickableInEditor() const { return false; }
+	virtual bool IsTickableWhenPaused() const { return false; }
+	virtual TStatId GetStatId() const { return TStatId(); }
+    // End FTickableGameObject Interface.
 
     UFUNCTION(BlueprintCallable, Category = "Force Feedback|Functions")
         void InitialiseEffect();
