@@ -43,6 +43,24 @@ FVector2D UJoystickFunctionLibrary::POVAxis(EJoystickPOVDirection Direction)
 	}
 }
 
+UForceFeedbackEffectBase* UJoystickFunctionLibrary::CreateEffect(UObject* Outer, const TSubclassOf<class UForceFeedbackEffectBase> ClassType, const bool AutoInitialise, const bool AutoStart)
+{
+	UForceFeedbackEffectBase* ForceFeedbackEffect = NewObject<UForceFeedbackEffectBase>(Outer, ClassType);
+	ForceFeedbackEffect->AutoStartOnInit = AutoInitialise;
+	
+	if (AutoInitialise)
+	{
+		ForceFeedbackEffect->InitialiseEffect();
+	}
+	
+	if (AutoStart)
+	{
+		ForceFeedbackEffect->StartEffect();
+	}
+
+	return ForceFeedbackEffect;
+}
+
 EJoystickPOVDirection UJoystickFunctionLibrary::HatValueToDirection(const int8 Value)
 {
 	switch (Value)

@@ -107,19 +107,6 @@ void UJoystickHapticDeviceManager::StopAllEffects(const int32 DeviceId) const
 	SDL_HapticStopAll(HapticDevice);
 }
 
-UForceFeedbackEffectBase* UJoystickHapticDeviceManager::CreateEffect(UObject* Outer, const TSubclassOf<UForceFeedbackEffectBase> ClassType, const bool AutoStart) const
-{
-	UForceFeedbackEffectBase* ForceFeedbackEffect = NewObject<UForceFeedbackEffectBase>(Outer, ClassType);
-	ForceFeedbackEffect->AutoStartOnInit = AutoStart;
-
-	if (AutoStart) 
-	{
-		ForceFeedbackEffect->InitialiseEffect();
-	}
-
-	return ForceFeedbackEffect;
-}
-
 int32 UJoystickHapticDeviceManager::GetNumEffects(const int32 DeviceId) const
 {
 	SDL_Haptic* HapticDevice = GetHapticDevice(DeviceId);
