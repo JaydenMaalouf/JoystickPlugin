@@ -22,7 +22,7 @@ jobs:
           - checkout: self
           - powershell: |
               $json = Get-Content 'JoystickPlugin.uplugin' -raw | ConvertFrom-Json
-              $json.VersionName = $(Build.BuildNumber)
+              $json.VersionName = "$(Build.BuildNumber)"
               $json | ConvertTo-Json -depth 32 | Set-Content 'JoystickPlugin.uplugin'
             displayName: Update uplugin
           - template: package.yml
@@ -65,7 +65,7 @@ jobs:
           - checkout: self
           - powershell: |
               $json = Get-Content 'JoystickPlugin.uplugin' -raw | ConvertFrom-Json
-              $json.VersionName = $(Build.BuildNumber)
+              $json.VersionName = "$(Build.BuildNumber)"
               $json | ConvertTo-Json -depth 32 | Set-Content 'JoystickPlugin.uplugin'
             displayName: Update uplugin
           - template: package.yml
