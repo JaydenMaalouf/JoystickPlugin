@@ -6,21 +6,24 @@ USTRUCT(BlueprintType)
 struct JOYSTICKPLUGIN_API FForceFeedbackComponentData
 {
 	GENERATED_BODY()
-public:
 
-	FForceFeedbackComponentData() 
+	FForceFeedbackComponentData()
+		: AutoInit(false)
+		, AutoStartOnInit(false)
 	{
 
 	}
 
-	FForceFeedbackComponentData(bool autoInit, bool autoStartOnInit) : AutoInit(autoInit), AutoStartOnInit(autoStartOnInit)
+	FForceFeedbackComponentData(const bool bAutoInit, const bool bAutoStartOnInit)
+		: AutoInit(bAutoInit)
+		, AutoStartOnInit(bAutoStartOnInit)
 	{
 
 	}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Component|Data")
-		bool AutoInit = false;
+		bool AutoInit;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Component|Data")
-		bool AutoStartOnInit = false;
+		bool AutoStartOnInit;
 };

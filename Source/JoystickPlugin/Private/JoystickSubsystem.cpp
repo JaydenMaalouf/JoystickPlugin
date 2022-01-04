@@ -8,8 +8,11 @@
 DEFINE_LOG_CATEGORY(LogJoystickPlugin);
 
 UJoystickSubsystem::UJoystickSubsystem()
+	: IgnoreGameControllers(true)
+	, OwnsSDL(false)
+	, IsInitialised(false)
 {
-	IgnoreGameControllers = true;
+	
 }
 
 void UJoystickSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -52,6 +55,8 @@ void UJoystickSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	{
 		JoystickSubsystemReady.Broadcast();		
 	}
+
+	IsInitialised = true;
 }
 
 void UJoystickSubsystem::Deinitialize()
@@ -71,6 +76,8 @@ void UJoystickSubsystem::Deinitialize()
 	{
 		SDL_Quit();
 	}
+
+	IsInitialised = false;
 }
 
 void UJoystickSubsystem::InitialiseInputDevice(const TSharedPtr<FJoystickInputDevice> NewInputDevice)

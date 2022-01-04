@@ -10,27 +10,36 @@ struct JOYSTICKPLUGIN_API FJoystickInfo
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadonly, Category = JoystickInfo)
-		int32 Player = -1;
+	FJoystickInfo()
+		: Player(-1)
+		, DeviceId(-1)
+		, IsRumbleDevice(false)
+		, Connected(false)
+	{
+		
+	}
 
-	UPROPERTY(VisibleAnywhere, Category = JoystickInfo)
-		int32 DeviceId = -1;
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
+		int32 Player;
 
-	UPROPERTY(EditAnywhere, BlueprintReadonly, Category = JoystickInfo)
-		bool IsRumbleDevice = false;
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
+		int32 DeviceId;
 
-	UPROPERTY(EditAnywhere, BlueprintReadonly, Category = JoystickInfo)
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
+		bool IsRumbleDevice;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
 		FGuid ProductId;
 
-	UPROPERTY(EditAnywhere, BlueprintReadonly, Category = JoystickInfo)
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
 		FString ProductName;
 
-	UPROPERTY(EditAnywhere, BlueprintReadonly, Category = JoystickInfo)
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
 		FString DeviceName;
 
-	UPROPERTY(EditAnywhere, BlueprintReadonly, Category = JoystickInfo)
-		bool Connected = false;
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
+		bool Connected;
 
-	UPROPERTY(EditAnywhere, BlueprintReadonly, Category = JoystickInfo)
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
 		TArray<EInputType> InputType;
 };

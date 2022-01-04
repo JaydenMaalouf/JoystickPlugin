@@ -14,7 +14,13 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectCustomData
 {
 	GENERATED_BODY()
 
-public:
+	FForceFeedbackEffectCustomData()
+		: Channels(0)
+		, Period(0)
+		, Samples(0)
+	{
+		
+	}
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Custom|Data")
 		FForceFeedbackEffectDirectionData DirectionData;
@@ -29,13 +35,13 @@ public:
 		FForceFeedbackEffectEnvelopeData EnvelopeData;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Custom|Data")
-		uint8 Channels = 0;
+		uint8 Channels;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ClampMin = "0", ClampMax = "65535"), Category = "Force Feedback|Custom|Data")
-		int32 Period = 0;
+		int32 Period;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ClampMin = "0", ClampMax = "65535"), Category = "Force Feedback|Custom|Data")
-		int32 Samples = 0;
+		int32 Samples;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ClampMin = "0", ClampMax = "65535"), Category = "Force Feedback|Custom|Data")
 		TArray<int32> Data;

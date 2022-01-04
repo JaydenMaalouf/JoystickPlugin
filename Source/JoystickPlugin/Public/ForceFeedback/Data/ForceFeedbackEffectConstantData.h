@@ -12,7 +12,11 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectConstantData
 {
 	GENERATED_BODY()
 
-public:
+	FForceFeedbackEffectConstantData()
+		: EffectLevel(1.0f)
+	{
+		
+	}
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Constant|Data")
 		FForceFeedbackEffectDirectionData DirectionData;
@@ -27,6 +31,6 @@ public:
 		FForceFeedbackEffectEnvelopeData EnvelopeData;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Constant|Data") 
-		float EffectLevel = 1.0f;
+		float EffectLevel;
 };
 
