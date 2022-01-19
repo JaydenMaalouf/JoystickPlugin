@@ -8,7 +8,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnJoystickPluggedIn, int32, DeviceI
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnJoystickUnplugged, int32, DeviceId);
 
 UCLASS(BlueprintType)
-class UJoystickDeviceManager : public UObject
+class JOYSTICKPLUGIN_API UJoystickDeviceManager : public UObject
 {
 	GENERATED_BODY()
 	

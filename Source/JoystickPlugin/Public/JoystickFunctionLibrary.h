@@ -6,7 +6,7 @@
 #include "JoystickFunctionLibrary.generated.h"
 
 UCLASS()
-class UJoystickFunctionLibrary : public UBlueprintFunctionLibrary
+class JOYSTICKPLUGIN_API UJoystickFunctionLibrary : public UBlueprintFunctionLibrary
 {
 	
 	GENERATED_BODY()

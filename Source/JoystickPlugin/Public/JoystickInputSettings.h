@@ -4,8 +4,8 @@
 #include "CoreMinimal.h"
 #include "Engine/DeveloperSettings.h"
 
-#include "JoystickInputDeviceConfiguration.h"
-#include "JoystickInputDeviceInformation.h"
+#include "Data/Settings/JoystickInputDeviceConfiguration.h"
+#include "Data/Settings/JoystickInputDeviceInformation.h"
 
 #include "JoystickInputSettings.generated.h"
 

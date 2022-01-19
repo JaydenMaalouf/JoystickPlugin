@@ -68,7 +68,7 @@ void FJoystickInputDevice::InitInputDevice(const FDeviceInfoSDL &Device)
 	JoystickDeviceInfo.Emplace(DeviceId, DeviceInfo);
 
 	FJoystickDeviceData InitialState = JoystickSubsystem->GetInitialDeviceState(DeviceId);
-	JoystickDeviceData.Emplace(DeviceId, InitialState);
+	FJoystickDeviceData& JoystickState = JoystickDeviceData.Emplace(DeviceId, InitialState);
 
 	FString BaseKeyName = FString::Printf(TEXT("Joystick_%s_%d"), *DeviceInfo.DeviceName, DeviceInfo.DeviceId);
 	FString BaseDisplayName = FString::Printf(TEXT("%s %d"), *DeviceInfo.ProductName, DeviceInfo.DeviceId);
@@ -95,7 +95,10 @@ void FJoystickInputDevice::InitInputDevice(const FDeviceInfoSDL &Device)
 			EKeys::AddKey(AxisKeyDetails);
 			UE_LOG(LogJoystickPlugin, Log, TEXT("add key %s (%s) %i"), *AxisKeyName, *AxisDisplayName, DeviceId);
 		}
-		DeviceAxisKeys[DeviceId][AxisKeyIndex] = AxisKeyDetails.GetKey();
+
+		const FKey& MappedKey = AxisKeyDetails.GetKey();
+		DeviceAxisKeys[DeviceId][AxisKeyIndex] = MappedKey;
+		JoystickState.Axes[AxisKeyIndex].Key = MappedKey;
 	}
 
 	// create FKeyDetails for buttons
@@ -191,6 +194,7 @@ void FJoystickInputDevice::InitInputDevice(const FDeviceInfoSDL &Device)
 		InputSettings->PostInitProperties();
 	}
 
+	UpdateAxisProperties();
 }
 
 #undef LOCTEXT_NAMESPACE
@@ -372,11 +376,6 @@ void FJoystickInputDevice::SendControllerEvents()
 	JoystickSubsystem->Update();
 }
 
-void FJoystickInputDevice::ReinitialiseJoystickData(const int32 DeviceId, FJoystickDeviceData InitialState)
-{
-	JoystickDeviceData[DeviceId] = InitialState;
-}
-
 void FJoystickInputDevice::GetDeviceIds(TArray<int32>& DeviceIds) const
 {
 	JoystickDeviceInfo.GenerateKeyArray(DeviceIds);
@@ -390,4 +389,53 @@ void FJoystickInputDevice::SetPlayerOwnership(const int32 DeviceId, const int32 
 	}
 	
 	JoystickDeviceInfo[DeviceId].Player = PlayerId;
+}
+
+void FJoystickInputDevice::UpdateAxisProperties()
+{	
+	const UJoystickInputSettings* InputSettings = GetDefault<UJoystickInputSettings>();
+	if (InputSettings == nullptr)
+	{
+		return;
+	}
+	
+	for (const TPair<int32, FJoystickInfo>& Device : JoystickDeviceInfo)
+	{
+		FJoystickDeviceData* DeviceData = JoystickDeviceData.Find(Device.Key);
+		if (DeviceData == nullptr)
+		{
+			continue;
+		}
+		
+		const FJoystickInputDeviceConfiguration* DeviceConfig = InputSettings->
+			DeviceConfigurations.FindByPredicate([&](const FJoystickInputDeviceConfiguration& PredicateDeviceConfig)
+			{
+				return (PredicateDeviceConfig.DeviceName.IsEmpty() || Device.Value.ProductName == PredicateDeviceConfig.DeviceName) &&
+					(!PredicateDeviceConfig.ProductId.IsValid() || Device.Value.ProductId == PredicateDeviceConfig.ProductId);
+			});	
+		if (DeviceConfig == nullptr)
+		{
+			continue;
+		}
+
+		for(FAxisData& AxisKeyData : DeviceData->Axes)
+		{		
+			const FJoystickInputDeviceAxisProperties* AxisProperties = DeviceConfig->AxisProperties.Find(AxisKeyData.Key);
+			if (AxisProperties == nullptr)
+			{
+				continue;
+			}
+	
+			AxisKeyData.bRemapRanges = AxisProperties->bEnabled;
+			AxisKeyData.InputOffset = AxisProperties->InputOffset;
+			AxisKeyData.bInvertInput = AxisProperties->bInvertInput;
+			AxisKeyData.InputRangeMin = AxisProperties->InputRangeMin;
+			AxisKeyData.InputRangeMax = AxisProperties->InputRangeMax;
+			AxisKeyData.OutputRangeMin = AxisProperties->OutputRangeMin;
+			AxisKeyData.OutputRangeMax = AxisProperties->OutputRangeMax;
+			AxisKeyData.bInvertOutput = AxisProperties->bInvertOutput;		
+		}	
+		
+	}
+	
 }

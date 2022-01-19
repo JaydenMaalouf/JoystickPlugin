@@ -2,7 +2,7 @@
 
 #include "JoystickDeviceManager.h"
 #include "JoystickFunctionLibrary.h"
-#include "JoystickInputDeviceAxisProperties.h"
+#include "Data/Settings/JoystickInputDeviceAxisProperties.h"
 #include "JoystickInputSettings.h"
 
 DEFINE_LOG_CATEGORY(LogJoystickPlugin);
@@ -335,7 +335,7 @@ int32 UJoystickSubsystem::HandleSDLEvent(void* Userdata, SDL_Event* Event)
 FJoystickDeviceData UJoystickSubsystem::GetInitialDeviceState(const int32 DeviceId)
 {
 	const FDeviceInfoSDL Device = Devices[DeviceId];
-	FJoystickDeviceData State(DeviceId);
+	FJoystickDeviceData State;
 
 	if (Device.Joystick)
 	{
@@ -348,35 +348,7 @@ FJoystickDeviceData UJoystickSubsystem::GetInitialDeviceState(const int32 Device
 		State.Buttons.SetNumZeroed(ButtonCount);
 		State.Hats.SetNumZeroed(HatsCount);
 		State.Balls.SetNumZeroed(BallsCount);
-		
-		const UJoystickInputSettings* InputSettings = GetDefault<UJoystickInputSettings>();
-		for (const FJoystickInputDeviceConfiguration& DeviceConfig : InputSettings->DeviceConfigurations)
-		{
-			if ((DeviceConfig.DeviceName.IsEmpty() || Device.DeviceName == DeviceConfig.DeviceName) && (!DeviceConfig.ProductId.IsValid() || Device.ProductId == DeviceConfig.ProductId))
-			{
-				const int32 PropCount = DeviceConfig.AxisProperties.Num();
-				for (int32 i = 0; i < FMath::Min(AxesCount, PropCount); i++)
-				{
-					if (!DeviceConfig.AxisProperties.IsValidIndex(i) || !State.Axes.IsValidIndex(i))
-					{
-						continue;
-					}
-					
-					const FJoystickInputDeviceAxisProperties& AxisProps = DeviceConfig.AxisProperties[i];
-					FAxisData& AxisData = State.Axes[i];
-					AxisData.bRemapRanges = AxisProps.bEnabled;
-					AxisData.RangeMin = AxisProps.RangeMin;
-					AxisData.RangeMax = AxisProps.RangeMax;
-					AxisData.Offset = AxisProps.Offset;
-					AxisData.bInverted = AxisProps.bInverted;
-					AxisData.bGamepadStick = AxisProps.bGamepadStick;
-				}
-				
-				break;
-			}
-		}
 	}
-
 	
 	//UE_LOG(JoystickPluginLog, Log, TEXT("DeviceSDL::getDeviceState() %s"), device.Name));
 
@@ -399,17 +371,6 @@ FGuid UJoystickSubsystem::GetDeviceIndexGuid(const int32 DeviceIndex) const
 	const SDL_JoystickGUID GUID = SDL_JoystickGetDeviceGUID(DeviceIndex);
 	memcpy(&Result, &GUID, sizeof(FGuid));
 	return Result;
-}
-
-void UJoystickSubsystem::ReinitialiseJoystickData(const int32 DeviceId)
-{	
-	if (!InputDevice.IsValid())
-	{
-		return;
-	}
-
-	const FJoystickDeviceData InitialState = GetInitialDeviceState(DeviceId);
-	InputDevice->ReinitialiseJoystickData(DeviceId, InitialState);
 }
 
 FDeviceInfoSDL* UJoystickSubsystem::GetDeviceInfo(const int32 DeviceId)
