@@ -40,14 +40,9 @@ void UJoystickInputSettings::PostEditChangeChainProperty(FPropertyChangedChainEv
 	{
 		return;
 	}
-
-	TArray<int32> DeviceIds;
-	InputDevice->GetDeviceIds(DeviceIds);
-
-	for(const int32& DeviceId : DeviceIds)
-	{
-		JoystickSubsystem->ReinitialiseJoystickData(DeviceId);
-	}
+	
+	InputDevice->UpdateAxisProperties();
+	
 }
 
 FText UJoystickInputSettings::GetSectionText() const

@@ -15,7 +15,8 @@ namespace UnrealBuildTool.Rules
                     "ApplicationCore",
                     "InputCore",
                     "SlateCore",
-                    "Slate"
+                    "Slate", 
+                    "UMG"
                 });
 
             PrivateDependencyModuleNames.AddRange(

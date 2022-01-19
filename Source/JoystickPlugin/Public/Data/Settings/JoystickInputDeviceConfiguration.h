@@ -15,5 +15,5 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceConfiguration
 		FGuid ProductId;
 
 	UPROPERTY(EditAnywhere, Category="Device Config")
-		TArray<FJoystickInputDeviceAxisProperties> AxisProperties;
+		TMap<FKey, FJoystickInputDeviceAxisProperties> AxisProperties;
 };

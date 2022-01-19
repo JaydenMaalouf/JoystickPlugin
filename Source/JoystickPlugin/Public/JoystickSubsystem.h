@@ -18,7 +18,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogJoystickPlugin, Log, All);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnJoystickSubsystemReady);
 
 UCLASS()
-class UJoystickSubsystem : public UEngineSubsystem
+class JOYSTICKPLUGIN_API UJoystickSubsystem : public UEngineSubsystem
 {
 	GENERATED_BODY()
 public:
@@ -33,7 +33,6 @@ public:
 	void Update() const;
 	
 	void SetIgnoreGameControllers(bool IgnoreControllers);
-	void ReinitialiseJoystickData(const int32 DeviceId);
 
 	FString GetDeviceIndexGuidString(int32 DeviceIndex) const;
 	FGuid GetDeviceIndexGuid(int32 DeviceIndex) const;

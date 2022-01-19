@@ -12,23 +12,31 @@ struct JOYSTICKPLUGIN_API FAxisData
 		, Value(0.f)
 		, PreviousValue(0.f)
 		, bRemapRanges(false)
-		, RangeMin(0.f)
-		, RangeMax(1.f)
-		, Offset(0.f)
-		, bInverted(false)
+		, InputOffset(0.f)
+		, bInvertInput(false)
+		, InputRangeMin(0.f)
+		, InputRangeMax(1.f)
+		, OutputRangeMin(0.f)
+		, OutputRangeMax(1.f)
+		, bInvertOutput(false)
 		, bGamepadStick(false)
 	{
 	}
 
-	FAxisData(const int32 InIndex, const float InValue, const float InRangeMin, const float InRangeMax, const float InOffset, const bool bInInverted, const bool bInGamepadStick)
+	FAxisData(const int32 InIndex, const float InValue,
+			const float InInputRangeMin, const float InInputRangeMax, const float InOutputRangeMin, const float InOutputRangeMax,
+			const float InOffset, const bool bInInvertInput, const bool bInInvertOutput, const bool bInGamepadStick)
 		: Index(InIndex)
 		, Value(InValue)
 		, PreviousValue(0.f)
 		, bRemapRanges(false)
-		, RangeMin(InRangeMin)
-		, RangeMax(InRangeMax)
-		, Offset(InOffset)
-		, bInverted(bInInverted)
+		, InputOffset(InOffset)
+		, bInvertInput(bInInvertInput)
+		, InputRangeMin(InInputRangeMin)
+		, InputRangeMax(InInputRangeMax)
+		, OutputRangeMin(InOutputRangeMin)
+		, OutputRangeMax(InOutputRangeMax)
+		, bInvertOutput(bInInvertOutput)
 		, bGamepadStick(bInGamepadStick)
 	{
 	}
@@ -51,23 +59,17 @@ struct JOYSTICKPLUGIN_API FAxisData
 	}
 
 	float MapValue(float Input) const
-	{		
-		const float Factor = 1.f / (RangeMax - RangeMin);
-		if (bGamepadStick)
-		{
-			// Need to do the re-centering before inverting
-			const float NormalizedValue = ((Input * Factor) - 0.5f) * 2 * (bInverted ? -1.0f : 1.0f);
-			return NormalizedValue + Offset;
-		}
-
-		const float NormalizedValue = (bInverted ? (Input * Factor * -1.f) : (Input * Factor));
-		return NormalizedValue + Offset;
+	{
+		const float NormalizedValue = (bInvertInput ? (Input * -1.0f) : Input);
+		const float OffsetNormalizedValue = NormalizedValue + InputOffset;
+		const float MappedValue = FMath::GetMappedRangeValueClamped(FVector2D(InputRangeMin, InputRangeMax), FVector2D(OutputRangeMin, OutputRangeMax), OffsetNormalizedValue);
+		return bInvertOutput ? (MappedValue * -1.0f) : MappedValue;
 	}
 
 	/* Whether the data represents a valid value */
 	bool HasValue() const
 	{
-		return ((Index != INDEX_NONE) && ((RangeMin != -1.f) || (RangeMax != -1.f)));
+		return ((Index != INDEX_NONE) && ((InputRangeMin != -1.f) || (InputRangeMax != -1.f)));
 	}
 
 	/* Index in the value data*/
@@ -85,24 +87,38 @@ struct JOYSTICKPLUGIN_API FAxisData
 	/* Should remap ranges */
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
 		bool bRemapRanges;
-
-	/* Min Analog value */
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
-		float RangeMin;
-	
-	/* Max analog value */
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
-		float RangeMax;
 	
 	/* Offset to apply to normalized axis value */
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
-		float Offset;
+		float InputOffset;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
+		bool bInvertInput;
+
+	/* Min Analog value */
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
+		float InputRangeMin;
+	
+	/* Max analog value */
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
+		float InputRangeMax;	
+
+	/* Min Analog value */
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
+		float OutputRangeMin;
+	
+	/* Max analog value */
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
+		float OutputRangeMax;
 
 	/* Is this axis inverted */
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
-		bool bInverted;
+		bool bInvertOutput;
 
 	/* Is this axis centered on 0 instead of 0.5 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
 		bool bGamepadStick;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
+		FKey Key;
 };

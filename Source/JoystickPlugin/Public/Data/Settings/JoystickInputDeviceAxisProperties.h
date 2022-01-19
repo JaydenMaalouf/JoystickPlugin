@@ -9,11 +9,13 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceAxisProperties
 
 	FJoystickInputDeviceAxisProperties()
 		: bEnabled(true)
-		, bInverted(false)
-		, bGamepadStick(false)
-		, RangeMin(0.f)
-		, RangeMax(1.f)
-		, Offset(0.f)
+		, InputOffset(0.f)
+		, bInvertInput(false)
+		, InputRangeMin(0.f)
+		, InputRangeMax(1.f)
+		, OutputRangeMin(0.f)
+		, OutputRangeMax(1.f)
+		, bInvertOutput(false)
 	{
 	}
 
@@ -21,23 +23,31 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceAxisProperties
 	UPROPERTY(EditAnywhere, Category="Axis Properties")
 		bool bEnabled;
 
+	/** The amount to offset the axis value by to get the desired range (note that this offset is applied after the value has been inverted). */
+	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="bEnabled"))
+		float InputOffset;
+
 	/** Whether the value of the axis as supplied from the driver should be inverted. */
 	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="bEnabled"))
-		bool bInverted;
-
-	/** Whether this is a gamepad stick, which means it should scale from -1 to 1 instead of 0 to 1 */
-	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="bEnabled"))
-		bool bGamepadStick;
+		bool bInvertInput;
 	
 	/** The amount to offset the axis value by to get the desired range (note that this offset is applied after the value has been inverted). */
 	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="bEnabled"))
-		float RangeMin;
+		float InputRangeMin;
 	
 	/** The amount to offset the axis value by to get the desired range (note that this offset is applied after the value has been inverted). */
 	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="bEnabled"))
-		float RangeMax;
-
+		float InputRangeMax;
+	
 	/** The amount to offset the axis value by to get the desired range (note that this offset is applied after the value has been inverted). */
 	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="bEnabled"))
-		float Offset;
+		float OutputRangeMin;
+	
+	/** The amount to offset the axis value by to get the desired range (note that this offset is applied after the value has been inverted). */
+	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="bEnabled"))
+		float OutputRangeMax;
+
+	/** Whether the value of the axis as supplied from the driver should be inverted. */
+	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="bEnabled"))
+		bool bInvertOutput;
 };

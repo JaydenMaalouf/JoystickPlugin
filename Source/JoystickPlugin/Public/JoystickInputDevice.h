@@ -22,8 +22,6 @@ public:
 	virtual bool Exec(UWorld* InWorld, const TCHAR* Cmd, FOutputDevice& Ar) override;
 	virtual void SetChannelValue(int32 ControllerId, FForceFeedbackChannelType ChannelType, float Value) override;
 	virtual void SetChannelValues(int32 ControllerId, const FForceFeedbackValues& Values) override;
-
-	void ReinitialiseJoystickData(int32 DeviceId, FJoystickDeviceData InitialState);
 	
 	void JoystickPluggedIn(const FDeviceInfoSDL &Device);
 	void JoystickUnplugged(int32 DeviceId);
@@ -38,6 +36,8 @@ public:
 	void GetDeviceIds(TArray<int32>& DeviceIds) const;
 
 	void SetPlayerOwnership(int32 DeviceId, int32 PlayerId);
+
+	void UpdateAxisProperties();
 	
 private:
 	void InitInputDevice(const FDeviceInfoSDL &Device);
