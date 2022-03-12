@@ -24,6 +24,11 @@ void UJoystickInputSettings::DeviceRemoved(const FGuid JoystickGuid)
 	Devices.RemoveAll([=](const FJoystickInputDeviceInformation& Device) { return Device.ProductId == JoystickGuid; });
 }
 
+void UJoystickInputSettings::ResetDevices()
+{
+	Devices.Empty();
+}
+
 #if WITH_EDITOR
 void UJoystickInputSettings::PostEditChangeChainProperty(FPropertyChangedChainEvent& PropertyChangedEvent)
 {
@@ -42,7 +47,6 @@ void UJoystickInputSettings::PostEditChangeChainProperty(FPropertyChangedChainEv
 	}
 	
 	InputDevice->UpdateAxisProperties();
-	
 }
 
 FText UJoystickInputSettings::GetSectionText() const

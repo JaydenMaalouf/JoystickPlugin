@@ -25,6 +25,7 @@ public:
 	
     void DeviceAdded(FJoystickInputDeviceInformation JoystickInfo);
     void DeviceRemoved(FGuid JoystickGuid);
+	void ResetDevices();
 
 	UPROPERTY(config, VisibleAnywhere, Category="Device Configurations")
 	TArray<FJoystickInputDeviceInformation> Devices;

@@ -19,6 +19,12 @@ void UJoystickSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 	
+	UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
+	if (JoystickInputSettings != nullptr)
+	{
+		JoystickInputSettings->ResetDevices();
+	}
+	
 	UE_LOG(LogJoystickPlugin, Log, TEXT("DeviceSDL Starting"));
 
 	if (SDL_WasInit(0) != 0)
