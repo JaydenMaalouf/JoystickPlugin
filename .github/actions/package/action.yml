@@ -22,8 +22,8 @@ runs:
       copy /b/v/y "${{ inputs.epicGamesDirectory }}\SDL\UE_${{ inputs.engineVersion }}\${{ inputs.platform }}\SDL2.lib" "${{ github.workspace }}\ThirdParty\SDL2\${{ inputs.platform }}\SDL2.lib"
     shell: cmd
   - name: 'Build Plugin - ${{ inputs.engineVersion }} ${{ inputs.platform }}'
-    run: "${{ inputs.launcherDirectory }}\UE_${{ inputs.engineVersion }}\Engine\Build\BatchFiles\RunUAT.bat" BuildPlugin -TargetPlatforms=${{ inputs.platform }} -Plugin=${{ github.workspace }}\JoystickPlugin.uplugin -Package=${{ runner.temp }}/build/UE_${{ inputs.engineVersion }} -rocket
+    run: '"${{ inputs.launcherDirectory }}\UE_${{ inputs.engineVersion }}\Engine\Build\BatchFiles\RunUAT.bat" BuildPlugin -TargetPlatforms=${{ inputs.platform }} -Plugin=${{ github.workspace }}\JoystickPlugin.uplugin -Package=${{ runner.temp }}/build/UE_${{ inputs.engineVersion }} -rocket'
     shell: cmd
   - name: Archive Plugin - ${{ inputs.engineVersion }} ${{ inputs.platform }}
-    run: Compress-Archive -Path "${{ runner.temp }}/build/UE_${{ inputs.engineVersion }}" -DestinationPath "${{ runner.temp }}/output/JoystickPlugin-${{ inputs.engineVersion }}-${{ inputs.platform }}.zip"
+    run: 'Compress-Archive -Path "${{ runner.temp }}/build/UE_${{ inputs.engineVersion }}" -DestinationPath "${{ runner.temp }}/output/JoystickPlugin-${{ inputs.engineVersion }}-${{ inputs.platform }}.zip"'
     shell: pwsh
