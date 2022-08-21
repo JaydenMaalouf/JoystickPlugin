@@ -8,7 +8,7 @@
 */
 
 #include "JoystickPlugin.h"
-
+#include "Misc/Paths.h"
 #include "JoystickInputDevice.h"
 #include "JoystickSubsystem.h"
 #include "Interfaces/IPluginManager.h"

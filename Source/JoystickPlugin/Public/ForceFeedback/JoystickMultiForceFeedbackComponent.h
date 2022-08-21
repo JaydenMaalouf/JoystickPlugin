@@ -1,4 +1,5 @@
 #pragma once
+#include "Components/ActorComponent.h"
 #include "Data/ForceFeedbackComponentData.h"
 #include "JoystickMultiForceFeedbackComponent.generated.h"
 

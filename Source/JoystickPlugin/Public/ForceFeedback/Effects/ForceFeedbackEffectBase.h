@@ -1,9 +1,9 @@
 #pragma once
 
+#include "Tickable.h"
+
 THIRD_PARTY_INCLUDES_START
-
 #include "SDL_haptic.h"
-
 THIRD_PARTY_INCLUDES_END
 
 #include "ForceFeedbackEffectBase.generated.h"
