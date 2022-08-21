@@ -76,13 +76,13 @@ public:
 	/** When true gamepad keys are allowed in the input chord representing the selected key, otherwise they are ignored. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Key Selection")
 	bool bAllowGamepadKeys;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Key Selection")
 	float MinRangeOffset;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Key Selection")
 	float MaxRangeOffset;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Key Selection")
 	float AxisSelectionTimeout;
 

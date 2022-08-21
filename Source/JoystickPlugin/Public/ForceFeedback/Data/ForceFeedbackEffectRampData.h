@@ -14,27 +14,25 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectRampData
 
 	FForceFeedbackEffectRampData()
 		: RampStart(-1.0f)
-		, RampEnd(1.0f)
+		  , RampEnd(1.0f)
 	{
-		
 	}
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Ramp|Data")
-		FForceFeedbackEffectDirectionData DirectionData;
+	FForceFeedbackEffectDirectionData DirectionData;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Ramp|Data")
-		FForceFeedbackEffectDurationData DurationData;
+	FForceFeedbackEffectDurationData DurationData;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Ramp|Data")
-		FForceFeedbackEffectReplayData ReplayData;
+	FForceFeedbackEffectReplayData ReplayData;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Ramp|Data")
-		FForceFeedbackEffectEnvelopeData EnvelopeData;
+	FForceFeedbackEffectEnvelopeData EnvelopeData;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Ramp|Data")
-		float RampStart;
+	float RampStart;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Ramp|Data")
-		float RampEnd;
+	float RampEnd;
 };
-

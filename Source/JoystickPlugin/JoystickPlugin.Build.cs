@@ -6,7 +6,7 @@ public class JoystickPlugin : ModuleRules
 	public JoystickPlugin(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PublicDependencyModuleNames.AddRange(
-			new string[]
+			new[]
 			{
 				"Core",
 				"CoreUObject",
@@ -19,7 +19,7 @@ public class JoystickPlugin : ModuleRules
 			});
 
 		PrivateDependencyModuleNames.AddRange(
-			new string[]
+			new[]
 			{
 				"Projects",
 				"InputDevice"

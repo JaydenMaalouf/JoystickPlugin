@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Containers/Array.h"
 #include "Data/Input/AxisData.h"
 #include "Data/Input/BallData.h"
 #include "Data/Input/ButtonData.h"
@@ -14,14 +13,14 @@ struct JOYSTICKPLUGIN_API FJoystickDeviceData
 	GENERATED_BODY()
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickState)
-		TArray<FAxisData> Axes;
+	TArray<FAxisData> Axes;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickState)
-		TArray<FButtonData> Buttons;
+	TArray<FButtonData> Buttons;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickState)
-		TArray<FHatData> Hats;
+	TArray<FHatData> Hats;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickState)
-		TArray<FBallData> Balls;
+	TArray<FBallData> Balls;
 };

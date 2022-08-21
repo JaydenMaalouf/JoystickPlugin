@@ -2,6 +2,7 @@
 
 #include "Engine/Engine.h"
 #include "JoystickSubsystem.h"
+#include "Data/DeviceInfoSDL.h"
 
 SDL_Haptic* UJoystickHapticDeviceManager::GetHapticDevice(const int32 DeviceId) const
 {
@@ -11,16 +12,17 @@ SDL_Haptic* UJoystickHapticDeviceManager::GetHapticDevice(const int32 DeviceId) 
 		return nullptr;
 	}
 
-	const FDeviceInfoSDL* DeviceInfo = JoystickSubsystem->GetDeviceInfo(DeviceId);
-	if (DeviceInfo == nullptr)
+	FDeviceInfoSDL DeviceInfo;
+	const bool Result = JoystickSubsystem->GetDeviceInfo(DeviceId, DeviceInfo);
+	if (!Result)
 	{
 		return nullptr;
 	}
 
-	return DeviceInfo->Haptic;
+	return DeviceInfo.Haptic;
 }
 
-bool UJoystickHapticDeviceManager::SetAutoCenter(const int32 DeviceId, const int32 Center) 
+bool UJoystickHapticDeviceManager::SetAutoCenter(const int32 DeviceId, const int32 Center)
 {
 	SDL_Haptic* HapticDevice = GetHapticDevice(DeviceId);
 	if (HapticDevice == nullptr)
@@ -29,16 +31,17 @@ bool UJoystickHapticDeviceManager::SetAutoCenter(const int32 DeviceId, const int
 	}
 
 	const int32 Result = SDL_HapticSetAutocenter(HapticDevice, Center);
-	if (Result == -1) {
+	if (Result == -1)
+	{
 		const FString ErrorMessage = FString(SDL_GetError());
-		UE_LOG(LogJoystickPlugin, Log,TEXT("Autocenter error: %s") , *ErrorMessage);
+		UE_LOG(LogJoystickPlugin, Log, TEXT("Autocenter error: %s"), *ErrorMessage);
 		return false;
 	}
 
 	return true;
 }
 
-bool UJoystickHapticDeviceManager::SetGain(const int32 DeviceId, const int32 Gain) 
+bool UJoystickHapticDeviceManager::SetGain(const int32 DeviceId, const int32 Gain)
 {
 	SDL_Haptic* HapticDevice = GetHapticDevice(DeviceId);
 	if (HapticDevice == nullptr)
@@ -47,7 +50,8 @@ bool UJoystickHapticDeviceManager::SetGain(const int32 DeviceId, const int32 Gai
 	}
 
 	const int32 Result = SDL_HapticSetGain(HapticDevice, Gain);
-	if (Result == -1) {
+	if (Result == -1)
+	{
 		const FString ErrorMessage = FString(SDL_GetError());
 		UE_LOG(LogJoystickPlugin, Log, TEXT("Gain error: %s"), *ErrorMessage);
 		return false;
@@ -56,7 +60,7 @@ bool UJoystickHapticDeviceManager::SetGain(const int32 DeviceId, const int32 Gai
 	return true;
 }
 
-int32 UJoystickHapticDeviceManager::GetEffectStatus(const int32 DeviceId, const int32 EffectId) 
+int32 UJoystickHapticDeviceManager::GetEffectStatus(const int32 DeviceId, const int32 EffectId)
 {
 	SDL_Haptic* HapticDevice = GetHapticDevice(DeviceId);
 	if (HapticDevice == nullptr)
@@ -64,8 +68,9 @@ int32 UJoystickHapticDeviceManager::GetEffectStatus(const int32 DeviceId, const 
 		return -1;
 	}
 
-	const int32 Result = SDL_HapticGetEffectStatus(HapticDevice,EffectId);
-	if (Result == -1) {
+	const int32 Result = SDL_HapticGetEffectStatus(HapticDevice, EffectId);
+	if (Result == -1)
+	{
 		const FString ErrorMessage = FString(SDL_GetError());
 		UE_LOG(LogJoystickPlugin, Log, TEXT("GetEffectStatus error: %s"), *ErrorMessage);
 		return -1;
