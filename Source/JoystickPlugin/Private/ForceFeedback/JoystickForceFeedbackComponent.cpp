@@ -1,10 +1,12 @@
 #include "ForceFeedback/JoystickForceFeedbackComponent.h"
 
+#include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
+
 void UJoystickForceFeedbackComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (EffectType == nullptr) 
+	if (EffectType == nullptr)
 	{
 		return;
 	}
@@ -21,9 +23,9 @@ void UJoystickForceFeedbackComponent::BeginPlay()
 	ForcedFeedbackEffect->OnUpdatedEffectDelegate.AddDynamic(this, &UJoystickForceFeedbackComponent::OnUpdatedEffect);
 	ForcedFeedbackEffect->OnDestroyedEffectDelegate.AddDynamic(this, &UJoystickForceFeedbackComponent::OnDestroyedEffect);
 
-	ForcedFeedbackEffect->AutoStartOnInit = ComponentData.AutoStartOnInit;
+	ForcedFeedbackEffect->AutoStartOnInitialisation = ComponentData.AutoStartOnInit;
 
-	if (ComponentData.AutoInit) 
+	if (ComponentData.AutoInit)
 	{
 		ForcedFeedbackEffect->InitialiseEffect();
 	}
@@ -45,29 +47,24 @@ void UJoystickForceFeedbackComponent::EndPlay(const EEndPlayReason::Type EndPlay
 	ForcedFeedbackEffect = nullptr;
 }
 
-void UJoystickForceFeedbackComponent::OnInitialisedEffect_Implementation(UForceFeedbackEffectBase* Effect)
+void UJoystickForceFeedbackComponent::OnInitialisedEffect_Implementation(const UForceFeedbackEffectBase* Effect)
 {
-
 }
 
-void UJoystickForceFeedbackComponent::OnStartedEffect_Implementation(UForceFeedbackEffectBase* Effect)
+void UJoystickForceFeedbackComponent::OnStartedEffect_Implementation(const UForceFeedbackEffectBase* Effect)
 {
-
 }
 
-void UJoystickForceFeedbackComponent::OnStoppedEffect_Implementation(UForceFeedbackEffectBase* Effect)
+void UJoystickForceFeedbackComponent::OnStoppedEffect_Implementation(const UForceFeedbackEffectBase* Effect)
 {
-
 }
 
-void UJoystickForceFeedbackComponent::OnUpdatedEffect_Implementation(UForceFeedbackEffectBase* Effect)
+void UJoystickForceFeedbackComponent::OnUpdatedEffect_Implementation(const UForceFeedbackEffectBase* Effect)
 {
-
 }
 
-void UJoystickForceFeedbackComponent::OnDestroyedEffect_Implementation(UForceFeedbackEffectBase* Effect)
+void UJoystickForceFeedbackComponent::OnDestroyedEffect_Implementation(const UForceFeedbackEffectBase* Effect)
 {
-
 }
 
 UForceFeedbackEffectBase* UJoystickForceFeedbackComponent::GetEffect()

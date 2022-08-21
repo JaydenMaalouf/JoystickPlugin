@@ -8,22 +8,22 @@ THIRD_PARTY_INCLUDES_START
 THIRD_PARTY_INCLUDES_END
 
 struct _SDL_Joystick;
-typedef struct _SDL_Joystick SDL_Joystick;
+using SDL_Joystick = struct _SDL_Joystick;
 struct _SDL_Haptic;
-typedef struct _SDL_Haptic SDL_Haptic;
+using SDL_Haptic = struct _SDL_Haptic;
 
 struct FDeviceInfoSDL
 {
 	FDeviceInfoSDL()
 		: DeviceIndex(0)
-		, DeviceId(0)
-		, InstanceId(0)
-		, DeviceName("Unknown Device")
-		, Haptic(nullptr)
-		, Joystick(nullptr)
+		  , DeviceId(0)
+		  , InstanceId(0)
+		  , DeviceName("Unknown Device")
+		  , Haptic(nullptr)
+		  , Joystick(nullptr)
 	{
 	}
-	
+
 	int32 DeviceIndex;
 
 	int32 DeviceId;
