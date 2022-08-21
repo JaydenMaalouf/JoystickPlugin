@@ -1,0 +1,31 @@
+name: release-plugin
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  release-plugin:
+    runs-on: self-hosted
+    steps:
+    - uses: .github/template/version
+    - run: |
+        $json = Get-Content 'JoystickPlugin.uplugin' -raw | ConvertFrom-Json
+        $json.VersionName = "$(Build.BuildNumber)"
+        $json | ConvertTo-Json -depth 32 | Set-Content 'JoystickPlugin.uplugin'
+      shell: powershell
+    - uses: .github/template/package
+      with:
+        platform: Win64
+        engineVersion: '4.25'
+        releaseVersion: $(Build.BuildNumber)
+    - uses: .github/template/package
+      with:
+        platform: Win64
+        engineVersion: '4.26'
+        releaseVersion: $(Build.BuildNumber)
+    - uses: .github/template/package
+      with:
+        platform: Win64
+        engineVersion: '4.27'
+        releaseVersion: $(Build.BuildNumber)
