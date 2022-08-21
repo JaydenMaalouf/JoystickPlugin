@@ -1,22 +1,21 @@
 #pragma once
 
 #include "Interfaces/JoystickPluginInterface.h"
-#include "JoystickInputDevice.h"
 
-class FJoystickPlugin : public IJoystickPlugin
+class FJoystickInputDevice;
+
+class FJoystickPlugin final : public IJoystickPlugin
 {
-
 public:
-	virtual TSharedPtr<class IInputDevice> CreateInputDevice(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler) override;
+	virtual TSharedPtr<IInputDevice> CreateInputDevice(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler) override;
 
 	virtual void ShutdownModule() override;
 	virtual void StartupModule() override;
-	
+
 	TSharedPtr<FJoystickInputDevice> GetJoystickInputDevice() const { return JoystickInputDevice; }
 
 private:
-
-	void* SdlDllHandle = nullptr;
 	
+	void* SdlDllHandle = nullptr;
 	TSharedPtr<FJoystickInputDevice> JoystickInputDevice;
 };

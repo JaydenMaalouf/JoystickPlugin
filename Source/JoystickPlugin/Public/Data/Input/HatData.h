@@ -5,14 +5,14 @@
 
 USTRUCT(BlueprintType)
 struct JOYSTICKPLUGIN_API FHatData
-{	
+{
 	GENERATED_BODY()
-	
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
-		EJoystickPOVDirection Direction;
-	
+	EJoystickPOVDirection Direction;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
-		EJoystickPOVDirection PreviousDirection;
+	EJoystickPOVDirection PreviousDirection;
 
 	FName KeyName;
 };

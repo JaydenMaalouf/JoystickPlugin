@@ -1,10 +1,13 @@
 #include "ForceFeedback/JoystickMultiForceFeedbackComponent.h"
 
+#include "ForceFeedback/Data/ForceFeedbackComponentData.h"
+#include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
+
 void UJoystickMultiForceFeedbackComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (EffectTypes.Num() == 0) 
+	if (EffectTypes.Num() == 0)
 	{
 		return;
 	}
@@ -23,7 +26,7 @@ void UJoystickMultiForceFeedbackComponent::BeginPlay()
 		Effect->OnUpdatedEffectDelegate.AddDynamic(this, &UJoystickMultiForceFeedbackComponent::OnUpdatedEffect);
 		Effect->OnDestroyedEffectDelegate.AddDynamic(this, &UJoystickMultiForceFeedbackComponent::OnDestroyedEffect);
 
-		Effect->AutoStartOnInit = EffectType.Value.AutoStartOnInit;
+		Effect->AutoStartOnInitialisation = EffectType.Value.AutoStartOnInit;
 
 		if (EffectType.Value.AutoInit)
 		{
@@ -55,33 +58,28 @@ void UJoystickMultiForceFeedbackComponent::EndPlay(const EEndPlayReason::Type En
 		Effect->OnUpdatedEffectDelegate.RemoveDynamic(this, &UJoystickMultiForceFeedbackComponent::OnUpdatedEffect);
 		Effect->OnDestroyedEffectDelegate.RemoveDynamic(this, &UJoystickMultiForceFeedbackComponent::OnDestroyedEffect);
 	}
-	
+
 	Effects.Empty();
 }
 
-void UJoystickMultiForceFeedbackComponent::OnInitialisedEffect_Implementation(UForceFeedbackEffectBase* Effect)
+void UJoystickMultiForceFeedbackComponent::OnInitialisedEffect_Implementation(const UForceFeedbackEffectBase* Effect)
 {
-
 }
 
-void UJoystickMultiForceFeedbackComponent::OnStartedEffect_Implementation(UForceFeedbackEffectBase* Effect)
+void UJoystickMultiForceFeedbackComponent::OnStartedEffect_Implementation(const UForceFeedbackEffectBase* Effect)
 {
-
 }
 
-void UJoystickMultiForceFeedbackComponent::OnStoppedEffect_Implementation(UForceFeedbackEffectBase* Effect)
+void UJoystickMultiForceFeedbackComponent::OnStoppedEffect_Implementation(const UForceFeedbackEffectBase* Effect)
 {
-
 }
 
-void UJoystickMultiForceFeedbackComponent::OnUpdatedEffect_Implementation(UForceFeedbackEffectBase* Effect)
+void UJoystickMultiForceFeedbackComponent::OnUpdatedEffect_Implementation(const UForceFeedbackEffectBase* Effect)
 {
-
 }
 
-void UJoystickMultiForceFeedbackComponent::OnDestroyedEffect_Implementation(UForceFeedbackEffectBase* Effect)
+void UJoystickMultiForceFeedbackComponent::OnDestroyedEffect_Implementation(const UForceFeedbackEffectBase* Effect)
 {
-
 }
 
 TArray<UForceFeedbackEffectBase*> UJoystickMultiForceFeedbackComponent::GetEffects()

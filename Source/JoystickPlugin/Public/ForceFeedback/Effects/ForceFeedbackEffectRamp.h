@@ -7,13 +7,11 @@
 UCLASS(Blueprintable)
 class JOYSTICKPLUGIN_API UForceFeedbackEffectRamp : public UForceFeedbackEffectBase
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 public:
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Effect Data")
-		FForceFeedbackEffectRampData EffectData;
+	FForceFeedbackEffectRampData EffectData;
 
 protected:
-
 	virtual void UpdateEffectData() override;
 };

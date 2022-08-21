@@ -6,18 +6,18 @@ USTRUCT(BlueprintType)
 struct JOYSTICKPLUGIN_API FButtonData
 {
 	GENERATED_BODY()
-	
+
 	FButtonData()
 		: ButtonState(false)
-		, PreviousButtonState(false)
+		  , PreviousButtonState(false)
 	{
 	}
-	
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
-		bool ButtonState;
-	
+	bool ButtonState;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
-		bool PreviousButtonState;
+	bool PreviousButtonState;
 
 	FName KeyName;
 };
