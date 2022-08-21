@@ -3,7 +3,7 @@
 #include "ForceFeedbackPeriodicEffectType.Generated.h"
 
 UENUM(BlueprintType)
-enum class EForceFeedbackPeriodicEffectType : uint8 
+enum class EForceFeedbackPeriodicEffectType : uint8
 {
 	SINE,
 	TRIANGLE,

@@ -15,39 +15,37 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectPeriodicData
 
 	FForceFeedbackEffectPeriodicData()
 		: EffectType(EForceFeedbackPeriodicEffectType::SINE)
-		, Period(0.2f)
-		, Magnitude(1.0f)
-		, Offset(0.0f)
-		, Phase(0.0f)
+		  , Period(0.2f)
+		  , Magnitude(1.0f)
+		  , Offset(0.0f)
+		  , Phase(0.0f)
 	{
-		
 	}
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Periodic|Data")
-		FForceFeedbackEffectDirectionData DirectionData;
+	FForceFeedbackEffectDirectionData DirectionData;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Periodic|Data")
-		FForceFeedbackEffectDurationData DurationData;
+	FForceFeedbackEffectDurationData DurationData;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Periodic|Data")
-		FForceFeedbackEffectReplayData ReplayData;
+	FForceFeedbackEffectReplayData ReplayData;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Periodic|Data")
-		FForceFeedbackEffectEnvelopeData EnvelopeData;
+	FForceFeedbackEffectEnvelopeData EnvelopeData;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Periodic|Data")
-		EForceFeedbackPeriodicEffectType EffectType;
+	EForceFeedbackPeriodicEffectType EffectType;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Periodic|Data")
-		float Period;
+	float Period;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Periodic|Data")
-		float Magnitude;
+	float Magnitude;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Periodic|Data")
-		float Offset;
+	float Offset;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Periodic|Data")
-		float Phase;
+	float Phase;
 };
-

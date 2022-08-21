@@ -51,7 +51,7 @@ UJoystickInputSelector::UJoystickInputSelector(const FObjectInitializer& ObjectI
 
 	if (!IsRunningDedicatedServer())
 	{
-		static ConstructorHelpers::FObjectFinder<UFont> RobotoFontObj(*UWidget::GetDefaultFontName());
+		static ConstructorHelpers::FObjectFinder<UFont> RobotoFontObj(*GetDefaultFontName());
 		TextStyle.Font = FSlateFontInfo(RobotoFontObj.Object, 24, FName("Bold"));
 	}
 }
@@ -274,7 +274,7 @@ void UJoystickInputSelector::SetTextBlockVisibility(const ESlateVisibility InVis
 {
 	if (JoystickInputSelector.IsValid())
 	{
-		EVisibility SlateVisibility = UWidget::ConvertSerializedVisibilityToRuntime(InVisibility);
+		EVisibility SlateVisibility = ConvertSerializedVisibilityToRuntime(InVisibility);
 		JoystickInputSelector->SetTextBlockVisibility(SlateVisibility);
 	}
 }

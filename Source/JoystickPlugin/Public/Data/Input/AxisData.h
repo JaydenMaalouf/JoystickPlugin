@@ -6,38 +6,38 @@ USTRUCT(BlueprintType)
 struct JOYSTICKPLUGIN_API FAxisData
 {
 	GENERATED_BODY()
-	
+
 	FAxisData()
 		: Index(INDEX_NONE)
-		, Value(0.f)
-		, PreviousValue(0.f)
-		, bRemapRanges(false)
-		, InputOffset(0.f)
-		, bInvertInput(false)
-		, InputRangeMin(0.f)
-		, InputRangeMax(1.f)
-		, OutputRangeMin(0.f)
-		, OutputRangeMax(1.f)
-		, bInvertOutput(false)
-		, bGamepadStick(false)
+		  , Value(0.f)
+		  , PreviousValue(0.f)
+		  , bRemapRanges(false)
+		  , InputOffset(0.f)
+		  , bInvertInput(false)
+		  , InputRangeMin(0.f)
+		  , InputRangeMax(1.f)
+		  , OutputRangeMin(0.f)
+		  , OutputRangeMax(1.f)
+		  , bInvertOutput(false)
+		  , bGamepadStick(false)
 	{
 	}
 
 	FAxisData(const int32 InIndex, const float InValue,
-			const float InInputRangeMin, const float InInputRangeMax, const float InOutputRangeMin, const float InOutputRangeMax,
-			const float InOffset, const bool bInInvertInput, const bool bInInvertOutput, const bool bInGamepadStick)
+	          const float InInputRangeMin, const float InInputRangeMax, const float InOutputRangeMin, const float InOutputRangeMax,
+	          const float InOffset, const bool bInInvertInput, const bool bInInvertOutput, const bool bInGamepadStick)
 		: Index(InIndex)
-		, Value(InValue)
-		, PreviousValue(0.f)
-		, bRemapRanges(false)
-		, InputOffset(InOffset)
-		, bInvertInput(bInInvertInput)
-		, InputRangeMin(InInputRangeMin)
-		, InputRangeMax(InInputRangeMax)
-		, OutputRangeMin(InOutputRangeMin)
-		, OutputRangeMax(InOutputRangeMax)
-		, bInvertOutput(bInInvertOutput)
-		, bGamepadStick(bInGamepadStick)
+		  , Value(InValue)
+		  , PreviousValue(0.f)
+		  , bRemapRanges(false)
+		  , InputOffset(InOffset)
+		  , bInvertInput(bInInvertInput)
+		  , InputRangeMin(InInputRangeMin)
+		  , InputRangeMax(InInputRangeMax)
+		  , OutputRangeMin(InOutputRangeMin)
+		  , OutputRangeMax(InOutputRangeMax)
+		  , bInvertOutput(bInInvertOutput)
+		  , bGamepadStick(bInGamepadStick)
 	{
 	}
 
@@ -47,10 +47,7 @@ struct JOYSTICKPLUGIN_API FAxisData
 		{
 			return MapValue(Value);
 		}
-		else
-		{
-			return Value;
-		}		
+		return Value;
 	}
 
 	float GetPreviousValue() const
@@ -74,51 +71,51 @@ struct JOYSTICKPLUGIN_API FAxisData
 
 	/* Index in the value data*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
-		int32 Index;
+	int32 Index;
 
 	/* Current analog value */
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
-		float Value;
-	
+	float Value;
+
 	/* Last analog value */
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
-		float PreviousValue;
+	float PreviousValue;
 
 	/* Should remap ranges */
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
-		bool bRemapRanges;
-	
+	bool bRemapRanges;
+
 	/* Offset to apply to normalized axis value */
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
-		float InputOffset;
-	
+	float InputOffset;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
-		bool bInvertInput;
+	bool bInvertInput;
 
 	/* Min Analog value */
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
-		float InputRangeMin;
-	
+	float InputRangeMin;
+
 	/* Max analog value */
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
-		float InputRangeMax;	
+	float InputRangeMax;
 
 	/* Min Analog value */
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
-		float OutputRangeMin;
-	
+	float OutputRangeMin;
+
 	/* Max analog value */
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
-		float OutputRangeMax;
+	float OutputRangeMax;
 
 	/* Is this axis inverted */
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
-		bool bInvertOutput;
+	bool bInvertOutput;
 
 	/* Is this axis centered on 0 instead of 0.5 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
-		bool bGamepadStick;
+	bool bGamepadStick;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
-		FKey Key;
+	FKey Key;
 };

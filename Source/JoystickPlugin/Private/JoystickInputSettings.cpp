@@ -1,51 +1,58 @@
 #include "JoystickInputSettings.h"
 
+#include "JoystickInputDevice.h"
 #include "Engine/Engine.h"
 #include "JoystickSubsystem.h"
 
 FName UJoystickInputSettings::GetCategoryName() const
 {
-	return TEXT("Plugins");
+	return TEXT("Engine");
 }
 
 void UJoystickInputSettings::DeviceAdded(const FJoystickInputDeviceInformation JoystickInfo)
 {
-	const bool Exists = Devices.ContainsByPredicate([=](const FJoystickInputDeviceInformation& Device) { return Device.ProductId == JoystickInfo.ProductId; });
+	const bool Exists = ConnectedDevices.ContainsByPredicate([&](const FJoystickInputDeviceInformation& Device)
+	{
+		return Device.ProductId == JoystickInfo.ProductId;
+	});
 	if (Exists)
 	{
 		return;
 	}
-	
-	Devices.Add(JoystickInfo);
+
+	ConnectedDevices.Add(JoystickInfo);
 }
 
 void UJoystickInputSettings::DeviceRemoved(const FGuid JoystickGuid)
 {
-	Devices.RemoveAll([=](const FJoystickInputDeviceInformation& Device) { return Device.ProductId == JoystickGuid; });
+	ConnectedDevices.RemoveAll([&](const FJoystickInputDeviceInformation& Device)
+	{
+		return Device.ProductId == JoystickGuid;
+	});
 }
 
 void UJoystickInputSettings::ResetDevices()
 {
-	Devices.Empty();
+	ConnectedDevices.Empty();
 }
 
 #if WITH_EDITOR
 void UJoystickInputSettings::PostEditChangeChainProperty(FPropertyChangedChainEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeChainProperty(PropertyChangedEvent);
-	
-	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
+
+	const UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
 	if (JoystickSubsystem == nullptr)
 	{
 		return;
 	}
-	
+
 	FJoystickInputDevice* InputDevice = JoystickSubsystem->GetInputDevice();
 	if (InputDevice == nullptr)
 	{
 		return;
 	}
-	
+
 	InputDevice->UpdateAxisProperties();
 }
 
