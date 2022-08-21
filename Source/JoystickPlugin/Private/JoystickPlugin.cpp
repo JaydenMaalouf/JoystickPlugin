@@ -8,9 +8,9 @@
 */
 
 #include "JoystickPlugin.h"
-
-#include "JoystickSubsystem.h"
 #include "Misc/Paths.h"
+#include "JoystickInputDevice.h"
+#include "JoystickSubsystem.h"
 #include "Interfaces/IPluginManager.h"
 
 #define LOCTEXT_NAMESPACE "JoystickPlugin"
@@ -23,7 +23,7 @@ TSharedPtr<class IInputDevice> FJoystickPlugin::CreateInputDevice(const TSharedR
 	{
 		JoystickSubsystem->InitialiseInputDevice(JoystickInputDevice);
 	}
-	
+
 	return JoystickInputDevice;
 }
 
@@ -44,10 +44,10 @@ void FJoystickPlugin::ShutdownModule()
 	FPlatformProcess::FreeDllHandle(SdlDllHandle);
 
 	IJoystickPlugin::ShutdownModule();
-	
+
 	if (JoystickInputDevice.IsValid())
 	{
-		JoystickInputDevice.Reset();		
+		JoystickInputDevice.Reset();
 	}
 }
 

@@ -9,21 +9,19 @@ struct JOYSTICKPLUGIN_API FForceFeedbackComponentData
 
 	FForceFeedbackComponentData()
 		: AutoInit(false)
-		, AutoStartOnInit(false)
+		  , AutoStartOnInit(false)
 	{
-
 	}
 
 	FForceFeedbackComponentData(const bool bAutoInit, const bool bAutoStartOnInit)
 		: AutoInit(bAutoInit)
-		, AutoStartOnInit(bAutoStartOnInit)
+		  , AutoStartOnInit(bAutoStartOnInit)
 	{
-
 	}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Component|Data")
-		bool AutoInit;
+	bool AutoInit;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Component|Data")
-		bool AutoStartOnInit;
+	bool AutoStartOnInit;
 };

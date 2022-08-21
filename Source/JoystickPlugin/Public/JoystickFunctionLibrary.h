@@ -6,18 +6,13 @@
 #include "JoystickFunctionLibrary.generated.h"
 
 UCLASS()
-class UJoystickFunctionLibrary : public UBlueprintFunctionLibrary
+class JOYSTICKPLUGIN_API UJoystickFunctionLibrary final : public UBlueprintFunctionLibrary
 {
-	
 	GENERATED_BODY()
 
 public:
-
 	UFUNCTION(BlueprintPure, Category = "SDL2 Input|Joystick input")
-		static FVector2D POVAxis(EJoystickPOVDirection Direction);
-	
-	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback|Functions", meta = (DeterminesOutputType = "ClassType", HidePin = "Outer", DefaultToSelf = "Outer"))
-		static UForceFeedbackEffectBase* CreateEffect(UObject* Outer, TSubclassOf<class UForceFeedbackEffectBase> ClassType, bool AutoInitialise = true, const bool AutoStart = false);
-	
+	static FVector2D POVAxis(const EJoystickPOVDirection Direction);
+
 	static EJoystickPOVDirection HatValueToDirection(int8 Value);
 };
