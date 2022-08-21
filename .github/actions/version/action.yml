@@ -9,6 +9,13 @@ runs:
       versionSpec: '5.x'
       includePrerelease: true
   - name: Determine Version
+    id: gitversion
     uses: gittools/actions/gitversion/execute@v0.9.7
     with:
       useConfigFile: true
+  - name: Inject Version
+    run: |
+      $json = Get-Content 'JoystickPlugin.uplugin' -raw | ConvertFrom-Json
+      $json.VersionName = "${{ steps.gitversion.outputs.semVer }}"
+      $json | ConvertTo-Json -depth 32 | Set-Content 'JoystickPlugin.uplugin'
+    shell: powershell
