@@ -1,5 +1,6 @@
 name: release-plugin
 on:
+  workflow_dispatch:
   push:
     branches:
       - master
@@ -8,6 +9,10 @@ jobs:
   release-plugin:
     runs-on: self-hosted
     steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.workflow_run.head_branch }}
     - uses: "./.github/template/version"
     - run: |
         $json = Get-Content 'JoystickPlugin.uplugin' -raw | ConvertFrom-Json
