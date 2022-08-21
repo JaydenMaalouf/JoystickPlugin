@@ -24,3 +24,10 @@ runs:
   - name: 'Build Plugin - ${{ inputs.engineVersion }} ${{ inputs.platform }}'
     run: '"${{ inputs.launcherDirectory }}\UE_${{ inputs.engineVersion }}\Engine\Build\BatchFiles\RunUAT.bat" BuildPlugin -TargetPlatforms=${{ inputs.platform }} -Plugin=${{ github.workspace }}\JoystickPlugin.uplugin -Package=${{ runner.temp }}/build/UE_${{ inputs.engineVersion }} -rocket'
     shell: cmd
+  - name: Archive Plugin - ${{ inputs.engineVersion }} ${{ inputs.platform }}
+    uses: thedoctor0/zip-release@main
+    with:
+      type: 'zip'
+      filename: JoystickPlugin-${{ inputs.engineVersion }}-${{ inputs.platform }}.zip
+      directory: ${{ runner.temp }}/build/UE_${{ inputs.engineVersion }}
+      path: ${{ runner.temp }}/output/
