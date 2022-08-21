@@ -15,11 +15,6 @@ jobs:
         fetch-depth: 0
     - name: Setup Versioning
       uses: ./.github/actions/version
-    - run: |
-        $json = Get-Content 'JoystickPlugin.uplugin' -raw | ConvertFrom-Json
-        $json.VersionName = "$(Build.BuildNumber)"
-        $json | ConvertTo-Json -depth 32 | Set-Content 'JoystickPlugin.uplugin'
-      shell: powershell
     - uses: ./.github/actions/package
       with:
         platform: Win64
