@@ -3,7 +3,7 @@
 #include "ForceFeedbackConditionEffectType.Generated.h"
 
 UENUM(BlueprintType)
-enum class EForceFeedbackConditionEffectType : uint8 
+enum class EForceFeedbackConditionEffectType : uint8
 {
 	SPRING,
 	DAMPER,

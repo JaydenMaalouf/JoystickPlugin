@@ -7,13 +7,11 @@
 UCLASS(Blueprintable)
 class JOYSTICKPLUGIN_API UForceFeedbackEffectLeftRight : public UForceFeedbackEffectBase
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 public:
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Effect Data")
-		FForceFeedbackEffectLeftRightData EffectData;
+	FForceFeedbackEffectLeftRightData EffectData;
 
 protected:
-
 	virtual void UpdateEffectData() override;
 };
