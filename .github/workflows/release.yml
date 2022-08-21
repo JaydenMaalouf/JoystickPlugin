@@ -11,23 +11,23 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - uses: .github/actions/version
+    - uses: ./.github/actions/version
     - run: |
         $json = Get-Content 'JoystickPlugin.uplugin' -raw | ConvertFrom-Json
         $json.VersionName = "$(Build.BuildNumber)"
         $json | ConvertTo-Json -depth 32 | Set-Content 'JoystickPlugin.uplugin'
       shell: powershell
-    - uses: .github/actions/package
+    - uses: ./.github/actions/package
       with:
         platform: Win64
         engineVersion: '4.25'
         releaseVersion: $(Build.BuildNumber)
-    - uses: .github/actions/package
+    - uses: ./.github/actions/package
       with:
         platform: Win64
         engineVersion: '4.26'
         releaseVersion: $(Build.BuildNumber)
-    - uses: .github/actions/package
+    - uses: ./.github/actions/package
       with:
         platform: Win64
         engineVersion: '4.27'
