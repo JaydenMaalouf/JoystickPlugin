@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "InputCoreTypes.h"
+
 #include "AxisData.generated.h"
 
 USTRUCT(BlueprintType)
@@ -55,7 +57,7 @@ struct JOYSTICKPLUGIN_API FAxisData
 		return MapValue(PreviousValue);
 	}
 
-	float MapValue(float Input) const
+	float MapValue(const float Input) const
 	{
 		const float NormalizedValue = (bInvertInput ? (Input * -1.0f) : Input);
 		const float OffsetNormalizedValue = NormalizedValue + InputOffset;
