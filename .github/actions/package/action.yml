@@ -17,12 +17,16 @@ runs:
   steps:
   - name: Copy dll and lib to Plugin - ${{ inputs.engineVersion }} ${{ inputs.platform }}
     run: |
-      mkdir "${{ github.workspace }}\ThirdParty\SDL2\${{ inputs.platform }}"
-      copy /b/v/y "${{ inputs.epicGamesDirectory }}\SDL\UE_${{ inputs.engineVersion }}\${{ inputs.platform }}\SDL2.dll" "${{ github.workspace }}\ThirdParty\SDL2\${{ inputs.platform }}\SDL2.dll"
-      copy /b/v/y "${{ inputs.epicGamesDirectory }}\SDL\UE_${{ inputs.engineVersion }}\${{ inputs.platform }}\SDL2.lib" "${{ github.workspace }}\ThirdParty\SDL2\${{ inputs.platform }}\SDL2.lib"
-    shell: cmd
+      $InputFolder = "${{ inputs.epicGamesDirectory }}/SDL/UE_${{ inputs.engineVersion }}/${{ inputs.platform }}"
+      $OutputFolder = "${{ github.workspace }}/ThirdParty/SDL2/${{ inputs.platform }}"
+      if (-Not(Test-Path $OutputFolder)) {
+        New-Item $OutputFolder -ItemType Directory
+      }
+      Copy-Item "$InputFolder/SDL2.dll" -Destination "$OutputFolder"
+      Copy-Item "$InputFolder/SDL2.lib" -Destination "$OutputFolder"
+    shell: pwsh
   - name: Build Plugin - ${{ inputs.engineVersion }} ${{ inputs.platform }}
-    run: '"${{ inputs.launcherDirectory }}\UE_${{ inputs.engineVersion }}\Engine\Build\BatchFiles\RunUAT.bat" BuildPlugin -TargetPlatforms=${{ inputs.platform }} -Plugin=${{ github.workspace }}\JoystickPlugin.uplugin -Package=${{ runner.temp }}/build/UE_${{ inputs.engineVersion }} -rocket'
+    run: '"${{ inputs.launcherDirectory }}/UE_${{ inputs.engineVersion }}/Engine/Build/BatchFiles/RunUAT.bat" BuildPlugin -TargetPlatforms=${{ inputs.platform }} -Plugin=${{ github.workspace }}/JoystickPlugin.uplugin -Package=${{ runner.temp }}/build/UE_${{ inputs.engineVersion }} -rocket'
     shell: cmd
   - name: Archive Plugin - ${{ inputs.engineVersion }} ${{ inputs.platform }}
     run: |

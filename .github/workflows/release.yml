@@ -45,4 +45,4 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         artifacts: "${{ runner.temp }}/output/*.zip"
-        tag: ${{ steps.gitversion.outputs.semVer }}
+        tag: ${{ env.GitVersion_SemVer }}
