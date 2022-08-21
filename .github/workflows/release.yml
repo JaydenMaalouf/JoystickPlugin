@@ -20,16 +20,22 @@ jobs:
       with:
         platform: Win64
         engineVersion: '4.25'
-        releaseVersion: $(Build.BuildNumber)
+        releaseVersion: ${{ steps.gitversion.outputs.semVer }}
+        epicGamesDirectory: ${{ secrets.EPIC_GAMES_DIRECTORY }}
+        launcherDirectory: ${{ secrets.LAUNCHER_DIRECTORY }}
     - name: Package Plugin - 4.26
       uses: ./.github/actions/package
       with:
         platform: Win64
         engineVersion: '4.26'
-        releaseVersion: $(Build.BuildNumber)
+        releaseVersion: ${{ steps.gitversion.outputs.semVer }}
+        epicGamesDirectory: ${{ secrets.EPIC_GAMES_DIRECTORY }}
+        launcherDirectory: ${{ secrets.LAUNCHER_DIRECTORY }}
     - name: Package Plugin - 4.27
       uses: ./.github/actions/package
       with:
         platform: Win64
         engineVersion: '4.27'
-        releaseVersion: $(Build.BuildNumber)
+        releaseVersion: ${{ steps.gitversion.outputs.semVer }}
+        epicGamesDirectory: ${{ secrets.EPIC_GAMES_DIRECTORY }}
+        launcherDirectory: ${{ secrets.LAUNCHER_DIRECTORY }}
