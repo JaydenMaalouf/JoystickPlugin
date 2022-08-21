@@ -39,3 +39,9 @@ jobs:
         releaseVersion: ${{ steps.gitversion.outputs.semVer }}
         epicGamesDirectory: ${{ secrets.EPIC_GAMES_DIRECTORY }}
         launcherDirectory: ${{ secrets.LAUNCHER_DIRECTORY }}
+    - name: Create Release
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "${{ runner.temp }}/output/*.zip"
+        tag: ${{ steps.gitversion.outputs.semVer }}
+        token: ${{ secrets.YOUR_GITHUB_TOKEN }}
