@@ -15,17 +15,20 @@ jobs:
         fetch-depth: 0
     - name: Setup Versioning
       uses: ./.github/actions/version
-    - uses: ./.github/actions/package
+    - name: Package Plugin - 4.25
+      uses: ./.github/actions/package
       with:
         platform: Win64
         engineVersion: '4.25'
         releaseVersion: $(Build.BuildNumber)
-    - uses: ./.github/actions/package
+    - name: Package Plugin - 4.26
+      uses: ./.github/actions/package
       with:
         platform: Win64
         engineVersion: '4.26'
         releaseVersion: $(Build.BuildNumber)
-    - uses: ./.github/actions/package
+    - name: Package Plugin - 4.27
+      uses: ./.github/actions/package
       with:
         platform: Win64
         engineVersion: '4.27'
