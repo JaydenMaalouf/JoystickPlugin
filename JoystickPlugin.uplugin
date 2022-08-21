@@ -1,7 +1,7 @@
 {
   "FileVersion": 3,
   "Version": 1,
-  "VersionName": "BLAH",
+  "VersionName": "1.0.0",
   "FriendlyName": "Joystick Plugin",
   "Description": "Unreal Engine Plugin to add Joystick Controllers as Input Devices (with Force Feedback support)",
   "Category": "Input Devices",
