@@ -60,7 +60,7 @@ void UForceFeedbackEffectBase::InitialiseEffect()
 	IsInitialised = true;
 
 	//Safety check to ensure we don't try calling BP during destruction
-	if (this->IsPendingKillOrUnreachable())
+	if (!IsValid(this))
 	{
 		return;
 	}
@@ -103,7 +103,7 @@ void UForceFeedbackEffectBase::DestroyEffect()
 	IsInitialised = false;
 
 	//Safety check to ensure we don't try calling BP during destruction
-	if (this->IsPendingKillOrUnreachable())
+	if (!IsValid(this))
 	{
 		return;
 	}
@@ -154,7 +154,7 @@ void UForceFeedbackEffectBase::StartEffect()
 	}
 
 	//Safety check to ensure we don't try calling BP during destruction
-	if (this->IsPendingKillOrUnreachable())
+	if (!IsValid(this))
 	{
 		return;
 	}
@@ -188,7 +188,7 @@ void UForceFeedbackEffectBase::StopEffect()
 	SDL_HapticStopEffect(HapticDevice, EffectId);
 
 	//Safety check to ensure we don't try calling BP during destruction
-	if (IsPendingKillOrUnreachable())
+	if (!IsValid(this))
 	{
 		return;
 	}
@@ -224,7 +224,7 @@ void UForceFeedbackEffectBase::UpdateEffect()
 	}
 
 	//Safety check to ensure we don't try calling BP during destruction
-	if (this->IsPendingKillOrUnreachable())
+	if (!IsValid(this))
 	{
 		return;
 	}

@@ -15,7 +15,7 @@ void UJoystickMultiForceFeedbackComponent::BeginPlay()
 	for (auto& EffectType : EffectTypes)
 	{
 		UForceFeedbackEffectBase* Effect = NewObject<UForceFeedbackEffectBase>(this, EffectType.Key);
-		if (Effect == nullptr || Effect->IsPendingKill())
+		if (!IsValid(Effect))
 		{
 			continue;
 		}
@@ -47,7 +47,7 @@ void UJoystickMultiForceFeedbackComponent::EndPlay(const EEndPlayReason::Type En
 	for (int32 i = 0; i < Effects.Num(); i++)
 	{
 		UForceFeedbackEffectBase* Effect = Effects[i];
-		if (Effect == nullptr || Effect->IsPendingKill())
+		if (!IsValid(Effect))
 		{
 			continue;
 		}
