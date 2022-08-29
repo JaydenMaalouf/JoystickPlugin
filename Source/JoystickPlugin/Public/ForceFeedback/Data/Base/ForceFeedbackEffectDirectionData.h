@@ -43,11 +43,6 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectDirectionData
 			case EForceFeedbackDirectionType::SPHERICAL:
 				HapticDirection.type = SDL_HAPTIC_SPHERICAL;
 				break;
-#if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26 || ENGINE_MAJOR_VERSION > 4)
-			case EForceFeedbackDirectionType::STEERING_AXIS:
-				HapticDirection.type = SDL_HAPTIC_FIRST_AXIS;
-				break;
-#endif
 		}
 
 		return HapticDirection;

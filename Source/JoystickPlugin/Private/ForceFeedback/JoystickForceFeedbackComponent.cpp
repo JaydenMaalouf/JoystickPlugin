@@ -12,7 +12,7 @@ void UJoystickForceFeedbackComponent::BeginPlay()
 	}
 
 	ForcedFeedbackEffect = NewObject<UForceFeedbackEffectBase>(this, EffectType);
-	if (ForcedFeedbackEffect == nullptr || ForcedFeedbackEffect->IsPendingKill())
+	if (!IsValid(ForcedFeedbackEffect))
 	{
 		return;
 	}
@@ -33,7 +33,7 @@ void UJoystickForceFeedbackComponent::BeginPlay()
 
 void UJoystickForceFeedbackComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	if (ForcedFeedbackEffect == nullptr || ForcedFeedbackEffect->IsPendingKill())
+	if (!IsValid(ForcedFeedbackEffect))
 	{
 		return;
 	}

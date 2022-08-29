@@ -56,8 +56,7 @@ FReply SJoystickInputSelector::OnKeyUp(const FGeometry& MyGeometry, const FKeyEv
 	{
 		SetIsSelectingKey(false);
 
-		if ((InKeyEvent.GetKey() == EKeys::PS4_Special) || // Required?
-			(bEscapeCancelsSelection && (KeyUp == EKeys::Escape || IsEscapeKey(KeyUp))))
+		if (bEscapeCancelsSelection && (KeyUp == EKeys::Escape || IsEscapeKey(KeyUp)))
 		{
 			return FReply::Handled();
 		}
@@ -97,8 +96,7 @@ FReply SJoystickInputSelector::OnAnalogValueChanged(const FGeometry& MyGeometry,
 	// Don't allow chords consisting of just modifier keys.
 	if (bIsSelectingKey && (bAllowGamepadKeys || AxisKey.IsGamepadKey() == false) && (AxisKey.IsModifierKey() == false || ModifierKey == EModifierKey::None))
 	{
-		if ((InAnalogInputEvent.GetKey() == EKeys::PS4_Special) || // Required?
-			(bEscapeCancelsSelection && (AxisKey == EKeys::Escape || IsEscapeKey(AxisKey))))
+		if (bEscapeCancelsSelection && (AxisKey == EKeys::Escape || IsEscapeKey(AxisKey)))
 		{
 			return FReply::Handled();
 		}
