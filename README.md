@@ -10,7 +10,7 @@ Visit the [Wiki](https://github.com/JaydenMaalouf/JoystickPlugin/wiki) for a gui
 
 ## What is the purpose of this plugin?
 
-This plugin aims to provide a simple plug and play system for Joysticks and Steering Wheels (with Forced Feedback capabilities) for Unreal Engine 4 (support for 5.0 coming soon).
+This plugin aims to provide a simple plug and play system for Joysticks and Steering Wheels (with Forced Feedback capabilities) for Unreal Engine 4/5.
 
 ## How is this any different to the existing plugins?
 
