@@ -3,9 +3,9 @@ on:
   workflow_dispatch:
   push:
     paths-ignore:
-      - '.github/**'
-      - 'README.md'
-      - 'LICENSE'
+      - ".github/**"
+      - "README.md"
+      - "LICENSE"
     branches:
       - master
 
@@ -13,48 +13,49 @@ jobs:
   release-plugin:
     runs-on: self-hosted
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
-    - name: Setup Versioning
-      uses: ./.github/actions/version
-    - name: Package Plugin - 4.25
-      uses: ./.github/actions/package
-      with:
-        platform: Win64
-        engineVersion: '4.25'
-        releaseVersion: ${{ steps.gitversion.outputs.semVer }}
-        epicGamesDirectory: ${{ secrets.EPIC_GAMES_DIRECTORY }}
-        launcherDirectory: ${{ secrets.LAUNCHER_DIRECTORY }}
-    - name: Package Plugin - 4.26
-      uses: ./.github/actions/package
-      with:
-        platform: Win64
-        engineVersion: '4.26'
-        releaseVersion: ${{ steps.gitversion.outputs.semVer }}
-        epicGamesDirectory: ${{ secrets.EPIC_GAMES_DIRECTORY }}
-        launcherDirectory: ${{ secrets.LAUNCHER_DIRECTORY }}
-    - name: Package Plugin - 4.27
-      uses: ./.github/actions/package
-      with:
-        platform: Win64
-        engineVersion: '4.27'
-        releaseVersion: ${{ steps.gitversion.outputs.semVer }}
-        epicGamesDirectory: ${{ secrets.EPIC_GAMES_DIRECTORY }}
-        launcherDirectory: ${{ secrets.LAUNCHER_DIRECTORY }}
-    - name: Package Plugin - 5.0
-      uses: ./.github/actions/package
-      with:
-        platform: Win64
-        engineVersion: '5.0'
-        releaseVersion: ${{ steps.gitversion.outputs.semVer }}
-        epicGamesDirectory: ${{ secrets.EPIC_GAMES_DIRECTORY }}
-        launcherDirectory: ${{ secrets.LAUNCHER_DIRECTORY }}
-    - name: Create Release
-      uses: ncipollo/release-action@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        artifacts: "${{ runner.temp }}/output/*.zip"
-        tag: ${{ env.GitVersion_SemVer }}
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Setup Versioning
+        uses: ./.github/actions/version
+      - name: Package Plugin - 4.26
+        uses: ./.github/actions/package
+        with:
+          platform: Win64
+          engineVersion: "4.26"
+          releaseVersion: ${{ steps.gitversion.outputs.semVer }}
+          epicGamesDirectory: ${{ secrets.EPIC_GAMES_DIRECTORY }}
+          launcherDirectory: ${{ secrets.LAUNCHER_DIRECTORY }}
+      - name: Package Plugin - 4.27
+        uses: ./.github/actions/package
+        with:
+          platform: Win64
+          engineVersion: "4.27"
+          releaseVersion: ${{ steps.gitversion.outputs.semVer }}
+          epicGamesDirectory: ${{ secrets.EPIC_GAMES_DIRECTORY }}
+          launcherDirectory: ${{ secrets.LAUNCHER_DIRECTORY }}
+      - name: Package Plugin - 5.0
+        uses: ./.github/actions/package
+        with:
+          platform: Win64
+          engineVersion: "5.0"
+          releaseVersion: ${{ steps.gitversion.outputs.semVer }}
+          epicGamesDirectory: ${{ secrets.EPIC_GAMES_DIRECTORY }}
+          launcherDirectory: ${{ secrets.LAUNCHER_DIRECTORY }}
+      - name: Package Plugin - 5.1
+        uses: ./.github/actions/package
+        with:
+          platform: Win64
+          engineVersion: "5.1"
+          releaseVersion: ${{ steps.gitversion.outputs.semVer }}
+          epicGamesDirectory: ${{ secrets.EPIC_GAMES_DIRECTORY }}
+          launcherDirectory: ${{ secrets.LAUNCHER_DIRECTORY }}
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          artifacts: "${{ runner.temp }}/output/*.zip"
+          tag: ${{ env.GitVersion_SemVer }}
+          prerelease: ${{ github.ref != 'refs/heads/master' }}
