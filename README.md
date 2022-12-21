@@ -1,4 +1,4 @@
-[![](https://img.shields.io/github/workflow/status/JaydenMaalouf/JoystickPlugin/release-plugin)](https://github.com/JaydenMaalouf/JoystickPlugin/actions/workflows/release.yml)
+[![](https://img.shields.io/github/actions/workflow/status/JaydenMaalouf/JoystickPlugin/release.yml?branch=master)](https://github.com/JaydenMaalouf/JoystickPlugin/actions/workflows/release.yml)
 [![](https://img.shields.io/github/v/release/JaydenMaalouf/JoystickPlugin)](https://github.com/JaydenMaalouf/JoystickPlugin/releases/latest)
 
 # JoystickPlugin
