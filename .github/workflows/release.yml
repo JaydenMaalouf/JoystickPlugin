@@ -58,3 +58,4 @@ jobs:
         with:
           artifacts: "${{ runner.temp }}/output/*.zip"
           tag: ${{ env.GitVersion_SemVer }}
+          prerelease: ${{ github.ref != 'refs/heads/master' }}
