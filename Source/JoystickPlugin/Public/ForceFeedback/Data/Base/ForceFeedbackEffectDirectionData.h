@@ -10,7 +10,7 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectDirectionData
 	GENERATED_BODY()
 
 	FForceFeedbackEffectDirectionData()
-		: DirectionType(EForceFeedbackDirectionType::CARTESIAN)
+		: DirectionType(EForceFeedbackDirectionType::Cartesian)
 		  , Direction(FVector::ZeroVector)
 	{
 	}
@@ -34,14 +34,14 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectDirectionData
 
 		switch (DirectionType)
 		{
-			case EForceFeedbackDirectionType::POLAR:
+			case EForceFeedbackDirectionType::Polar:
 				HapticDirection.type = SDL_HAPTIC_POLAR;
 				break;
-			case EForceFeedbackDirectionType::SPHERICAL:
+			case EForceFeedbackDirectionType::Spherical:
 				HapticDirection.type = SDL_HAPTIC_SPHERICAL;
 				break;
 			default:
-			case EForceFeedbackDirectionType::CARTESIAN:
+			case EForceFeedbackDirectionType::Cartesian:
 				HapticDirection.type = SDL_HAPTIC_CARTESIAN;
 				break;
 		}

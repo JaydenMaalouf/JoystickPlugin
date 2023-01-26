@@ -12,7 +12,7 @@
 class FJoystickInputDevice final : public IInputDevice
 {
 public:
-	FJoystickInputDevice(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler);
+	explicit FJoystickInputDevice(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler);
 
 	virtual void Tick(float DeltaTime) override;
 	virtual void SendControllerEvents() override;

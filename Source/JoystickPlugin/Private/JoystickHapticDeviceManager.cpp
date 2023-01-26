@@ -7,7 +7,7 @@
 SDL_Haptic* UJoystickHapticDeviceManager::GetHapticDevice(const int DeviceId) const
 {
 	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
-	if (JoystickSubsystem == nullptr)
+	if (!IsValid(JoystickSubsystem))
 	{
 		return nullptr;
 	}

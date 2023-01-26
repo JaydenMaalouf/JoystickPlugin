@@ -18,8 +18,7 @@
 TSharedPtr<class IInputDevice> FJoystickPlugin::CreateInputDevice(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler)
 {
 	JoystickInputDevice = MakeShareable(new FJoystickInputDevice(InMessageHandler));
-	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
-	if (JoystickSubsystem)
+	if (UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>())
 	{
 		JoystickSubsystem->InitialiseInputDevice(JoystickInputDevice);
 	}

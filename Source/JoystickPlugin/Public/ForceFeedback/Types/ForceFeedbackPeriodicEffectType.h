@@ -5,9 +5,9 @@
 UENUM(BlueprintType)
 enum class EForceFeedbackPeriodicEffectType : uint8
 {
-	SINE,
-	TRIANGLE,
-	SAWTOOTHUP,
-	SAWTOOTHDOWN,
-	LEFTRIGHT
+	Sine,
+	Triangle,
+	SawtoothUp,
+	SawtoothDown,
+	LeftRight
 };

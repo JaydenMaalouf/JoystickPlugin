@@ -14,7 +14,7 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectPeriodicData
 	GENERATED_BODY()
 
 	FForceFeedbackEffectPeriodicData()
-		: EffectType(EForceFeedbackPeriodicEffectType::SINE)
+		: EffectType(EForceFeedbackPeriodicEffectType::Sine)
 		  , Period(0.2f)
 		  , Magnitude(1.0f)
 		  , Offset(0.0f)

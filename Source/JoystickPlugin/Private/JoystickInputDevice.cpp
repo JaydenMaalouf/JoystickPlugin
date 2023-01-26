@@ -47,7 +47,7 @@ void FJoystickInputDevice::SetMessageHandler(const TSharedRef<FGenericApplicatio
 void FJoystickInputDevice::InitInputDevice(const FDeviceInfoSDL& Device)
 {
 	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
-	if (JoystickSubsystem == nullptr)
+	if (!IsValid(JoystickSubsystem))
 	{
 		return;
 	}
@@ -188,13 +188,13 @@ void FJoystickInputDevice::InitInputDevice(const FDeviceInfoSDL& Device)
 	}
 
 	UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
-	if (JoystickInputSettings != nullptr)
+	if (IsValid(JoystickInputSettings))
 	{
 		JoystickInputSettings->DeviceAdded(FJoystickInputDeviceInformation(DeviceInfo));
 	}
 
 	UInputSettings* InputSettings = UInputSettings::GetInputSettings();
-	if (InputSettings != nullptr)
+	if (IsValid(InputSettings))
 	{
 		InputSettings->PostInitProperties();
 	}
@@ -219,7 +219,7 @@ void FJoystickInputDevice::JoystickUnplugged(const int DeviceId)
 	InputDevice.Connected = false;
 
 	UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
-	if (JoystickInputSettings == nullptr)
+	if (!IsValid(JoystickInputSettings))
 	{
 		return;
 	}
@@ -331,7 +331,7 @@ static FName JoystickInputInterfaceName = FName("JoystickPluginInput");
 void FJoystickInputDevice::SendControllerEvents()
 {
 	const UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
-	if (JoystickSubsystem == nullptr)
+	if (!IsValid(JoystickSubsystem))
 	{
 		return;
 	}
@@ -449,7 +449,7 @@ void FJoystickInputDevice::SetPlayerOwnership(const int DeviceId, const int Play
 void FJoystickInputDevice::UpdateAxisProperties()
 {
 	const UJoystickInputSettings* InputSettings = GetDefault<UJoystickInputSettings>();
-	if (InputSettings == nullptr)
+	if (!IsValid(InputSettings))
 	{
 		return;
 	}

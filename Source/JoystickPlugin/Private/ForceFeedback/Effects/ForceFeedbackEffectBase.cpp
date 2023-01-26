@@ -36,7 +36,7 @@ void UForceFeedbackEffectBase::InitialiseEffect()
 	}
 
 	const UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
-	if (HapticDeviceManager == nullptr)
+	if (!IsValid(HapticDeviceManager))
 	{
 		return;
 	}
@@ -87,7 +87,7 @@ void UForceFeedbackEffectBase::DestroyEffect()
 	StopEffect();
 
 	const UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
-	if (HapticDeviceManager == nullptr)
+	if (!IsValid(HapticDeviceManager))
 	{
 		return;
 	}
@@ -129,7 +129,7 @@ void UForceFeedbackEffectBase::StartEffect()
 	}
 
 	const UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
-	if (HapticDeviceManager == nullptr)
+	if (!IsValid(HapticDeviceManager))
 	{
 		return;
 	}
@@ -174,7 +174,7 @@ void UForceFeedbackEffectBase::StopEffect()
 	}
 
 	const UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
-	if (HapticDeviceManager == nullptr)
+	if (!IsValid(HapticDeviceManager))
 	{
 		return;
 	}
@@ -203,7 +203,7 @@ void UForceFeedbackEffectBase::StopEffect()
 void UForceFeedbackEffectBase::UpdateEffect()
 {
 	const UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
-	if (HapticDeviceManager == nullptr)
+	if (!IsValid(HapticDeviceManager))
 	{
 		return;
 	}
@@ -239,7 +239,7 @@ void UForceFeedbackEffectBase::UpdateEffect()
 int UForceFeedbackEffectBase::EffectStatus() const
 {
 	UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
-	if (HapticDeviceManager == nullptr)
+	if (!IsValid(HapticDeviceManager))
 	{
 		return -1;
 	}
