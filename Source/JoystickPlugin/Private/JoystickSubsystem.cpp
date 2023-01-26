@@ -18,7 +18,7 @@ void UJoystickSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	Super::Initialize(Collection);
 
 	UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
-	if (JoystickInputSettings != nullptr)
+	if (IsValid(JoystickInputSettings))
 	{
 		JoystickInputSettings->ResetDevices();
 	}

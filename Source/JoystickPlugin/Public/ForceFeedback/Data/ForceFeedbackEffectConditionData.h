@@ -13,7 +13,7 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectConditionData
 	GENERATED_BODY()
 
 	FForceFeedbackEffectConditionData()
-		: EffectType(EForceFeedbackConditionEffectType::SPRING)
+		: EffectType(EForceFeedbackConditionEffectType::Spring)
 		  , LeftCoefficient(FVector::ZeroVector)
 		  , LeftSat(FVector::ZeroVector)
 		  , RightCoefficient(FVector::ZeroVector)

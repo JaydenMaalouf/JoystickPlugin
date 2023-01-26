@@ -103,7 +103,7 @@ UForceFeedbackEffectBase* UJoystickMultiForceFeedbackComponent::GetEffectByType(
 
 void UJoystickMultiForceFeedbackComponent::StartEffect(UForceFeedbackEffectBase* Effect)
 {
-	if (Effect == nullptr)
+	if (!IsValid(Effect))
 	{
 		return;
 	}
@@ -113,7 +113,7 @@ void UJoystickMultiForceFeedbackComponent::StartEffect(UForceFeedbackEffectBase*
 
 void UJoystickMultiForceFeedbackComponent::StopEffect(UForceFeedbackEffectBase* Effect)
 {
-	if (Effect == nullptr)
+	if (!IsValid(Effect))
 	{
 		return;
 	}

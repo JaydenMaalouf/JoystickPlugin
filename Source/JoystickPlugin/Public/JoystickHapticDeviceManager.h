@@ -5,7 +5,7 @@
 #include "JoystickHapticDeviceManager.generated.h"
 
 UCLASS(BlueprintType)
-class JOYSTICKPLUGIN_API UJoystickHapticDeviceManager : public UObject
+class JOYSTICKPLUGIN_API UJoystickHapticDeviceManager final : public UObject
 {
 	GENERATED_BODY()
 
