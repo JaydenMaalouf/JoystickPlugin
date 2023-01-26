@@ -30,9 +30,9 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectRampData
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Ramp|Data")
 	FForceFeedbackEffectEnvelopeData EnvelopeData;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Ramp|Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Ramp|Data", meta=(UIMin="-1", UIMax="1", ClampMin="-1", ClampMax="1"))
 	float RampStart;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Ramp|Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Ramp|Data", meta=(UIMin="-1", UIMax="1", ClampMin="-1", ClampMax="1"))
 	float RampEnd;
 };

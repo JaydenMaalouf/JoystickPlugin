@@ -29,6 +29,6 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectConstantData
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Constant|Data")
 	FForceFeedbackEffectEnvelopeData EnvelopeData;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Constant|Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Constant|Data", meta=(UIMin="-1", UIMax="1", ClampMin="-1", ClampMax="1"))
 	float EffectLevel;
 };

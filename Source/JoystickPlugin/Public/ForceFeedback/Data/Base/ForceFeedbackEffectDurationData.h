@@ -13,7 +13,7 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectDurationData
 	{
 	}
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ShortToolTip = "Duration", ToolTip = "The duration of the effect."), Category = "Force Feedback|Duration|Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ShortToolTip = "Duration", ToolTip = "The duration of the effect.", UIMin="0", ClampMin="0", EditCondition="!InfiniteDuration"), Category = "Force Feedback|Duration|Data")
 	float Duration;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ShortToolTip = "Infinite Duration", ToolTip = "Whether the effect should run infinitely."), Category = "Force Feedback|Duration|Data")

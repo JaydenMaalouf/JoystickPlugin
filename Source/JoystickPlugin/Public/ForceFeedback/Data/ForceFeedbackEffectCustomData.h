@@ -36,12 +36,12 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectCustomData
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Custom|Data")
 	uint8 Channels;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ClampMin = "0", ClampMax = "65535"), Category = "Force Feedback|Custom|Data")
-	int32 Period;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (UIMin="0", UIMax="1", ClampMin="0", ClampMax="1"), Category = "Force Feedback|Custom|Data")
+	float Period;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ClampMin = "0", ClampMax = "65535"), Category = "Force Feedback|Custom|Data")
-	int32 Samples;
+	int Samples;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ClampMin = "0", ClampMax = "65535"), Category = "Force Feedback|Custom|Data")
-	TArray<int32> Data;
+	TArray<int> Data;
 };

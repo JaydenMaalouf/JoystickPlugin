@@ -24,10 +24,10 @@ struct FDeviceInfoSDL
 	{
 	}
 
-	int32 DeviceIndex;
+	int DeviceIndex;
 
-	int32 DeviceId;
-	int32 InstanceId;
+	int DeviceId;
+	int InstanceId;
 
 	FString DeviceName;
 	FGuid ProductId;

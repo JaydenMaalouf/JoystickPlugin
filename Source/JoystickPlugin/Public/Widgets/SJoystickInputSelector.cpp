@@ -109,7 +109,7 @@ FReply SJoystickInputSelector::OnAnalogValueChanged(const FGeometry& MyGeometry,
 			                                   : FInputChord(AxisKey);
 
 		UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
-		if (JoystickInputSettings == nullptr)
+		if (!IsValid(JoystickInputSettings))
 		{
 			return FReply::Handled();
 		}
@@ -125,8 +125,7 @@ FReply SJoystickInputSelector::OnAnalogValueChanged(const FGeometry& MyGeometry,
 
 		const float AxisValue = InAnalogInputEvent.GetAnalogValue();
 		FKeySelectorData& SelectedKeyData = KeyData.FindOrAdd(NewSelectedKey);
-		const FJoystickInputDeviceAxisProperties* AxisProperties = DeviceConfiguration->AxisProperties.Find(AxisKey);
-		if (AxisProperties)
+		if (const FJoystickInputDeviceAxisProperties* AxisProperties = DeviceConfiguration->AxisProperties.Find(AxisKey))
 		{
 			if (AxisValue == AxisProperties->OutputRangeMin)
 			{

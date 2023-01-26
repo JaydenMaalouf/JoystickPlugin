@@ -4,10 +4,10 @@
 #include "JoystickSubsystem.h"
 #include "Data/DeviceInfoSDL.h"
 
-SDL_Haptic* UJoystickHapticDeviceManager::GetHapticDevice(const int32 DeviceId) const
+SDL_Haptic* UJoystickHapticDeviceManager::GetHapticDevice(const int DeviceId) const
 {
 	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
-	if (JoystickSubsystem == nullptr)
+	if (!IsValid(JoystickSubsystem))
 	{
 		return nullptr;
 	}
@@ -22,7 +22,7 @@ SDL_Haptic* UJoystickHapticDeviceManager::GetHapticDevice(const int32 DeviceId) 
 	return DeviceInfo.Haptic;
 }
 
-bool UJoystickHapticDeviceManager::SetAutoCenter(const int32 DeviceId, const int32 Center)
+bool UJoystickHapticDeviceManager::SetAutoCenter(const int DeviceId, const int Center)
 {
 	SDL_Haptic* HapticDevice = GetHapticDevice(DeviceId);
 	if (HapticDevice == nullptr)
@@ -30,7 +30,7 @@ bool UJoystickHapticDeviceManager::SetAutoCenter(const int32 DeviceId, const int
 		return false;
 	}
 
-	const int32 Result = SDL_HapticSetAutocenter(HapticDevice, Center);
+	const int Result = SDL_HapticSetAutocenter(HapticDevice, Center);
 	if (Result == -1)
 	{
 		const FString ErrorMessage = FString(SDL_GetError());
@@ -41,7 +41,7 @@ bool UJoystickHapticDeviceManager::SetAutoCenter(const int32 DeviceId, const int
 	return true;
 }
 
-bool UJoystickHapticDeviceManager::SetGain(const int32 DeviceId, const int32 Gain)
+bool UJoystickHapticDeviceManager::SetGain(const int DeviceId, const int Gain)
 {
 	SDL_Haptic* HapticDevice = GetHapticDevice(DeviceId);
 	if (HapticDevice == nullptr)
@@ -49,7 +49,7 @@ bool UJoystickHapticDeviceManager::SetGain(const int32 DeviceId, const int32 Gai
 		return false;
 	}
 
-	const int32 Result = SDL_HapticSetGain(HapticDevice, Gain);
+	const int Result = SDL_HapticSetGain(HapticDevice, Gain);
 	if (Result == -1)
 	{
 		const FString ErrorMessage = FString(SDL_GetError());
@@ -60,7 +60,7 @@ bool UJoystickHapticDeviceManager::SetGain(const int32 DeviceId, const int32 Gai
 	return true;
 }
 
-int32 UJoystickHapticDeviceManager::GetEffectStatus(const int32 DeviceId, const int32 EffectId)
+int UJoystickHapticDeviceManager::GetEffectStatus(const int DeviceId, const int EffectId)
 {
 	SDL_Haptic* HapticDevice = GetHapticDevice(DeviceId);
 	if (HapticDevice == nullptr)
@@ -68,7 +68,7 @@ int32 UJoystickHapticDeviceManager::GetEffectStatus(const int32 DeviceId, const 
 		return -1;
 	}
 
-	const int32 Result = SDL_HapticGetEffectStatus(HapticDevice, EffectId);
+	const int Result = SDL_HapticGetEffectStatus(HapticDevice, EffectId);
 	if (Result == -1)
 	{
 		const FString ErrorMessage = FString(SDL_GetError());
@@ -79,7 +79,7 @@ int32 UJoystickHapticDeviceManager::GetEffectStatus(const int32 DeviceId, const 
 	return Result;
 }
 
-void UJoystickHapticDeviceManager::PauseDevice(const int32 DeviceId) const
+void UJoystickHapticDeviceManager::PauseDevice(const int DeviceId) const
 {
 	SDL_Haptic* HapticDevice = GetHapticDevice(DeviceId);
 	if (HapticDevice == nullptr)
@@ -90,7 +90,7 @@ void UJoystickHapticDeviceManager::PauseDevice(const int32 DeviceId) const
 	SDL_HapticPause(HapticDevice);
 }
 
-void UJoystickHapticDeviceManager::UnpauseDevice(const int32 DeviceId) const
+void UJoystickHapticDeviceManager::UnpauseDevice(const int DeviceId) const
 {
 	SDL_Haptic* HapticDevice = GetHapticDevice(DeviceId);
 	if (HapticDevice == nullptr)
@@ -101,7 +101,7 @@ void UJoystickHapticDeviceManager::UnpauseDevice(const int32 DeviceId) const
 	SDL_HapticUnpause(HapticDevice);
 }
 
-void UJoystickHapticDeviceManager::StopAllEffects(const int32 DeviceId) const
+void UJoystickHapticDeviceManager::StopAllEffects(const int DeviceId) const
 {
 	SDL_Haptic* HapticDevice = GetHapticDevice(DeviceId);
 	if (HapticDevice == nullptr)
@@ -112,7 +112,7 @@ void UJoystickHapticDeviceManager::StopAllEffects(const int32 DeviceId) const
 	SDL_HapticStopAll(HapticDevice);
 }
 
-int32 UJoystickHapticDeviceManager::GetNumEffects(const int32 DeviceId) const
+int UJoystickHapticDeviceManager::GetNumEffects(const int DeviceId) const
 {
 	SDL_Haptic* HapticDevice = GetHapticDevice(DeviceId);
 	if (HapticDevice == nullptr)
@@ -123,7 +123,7 @@ int32 UJoystickHapticDeviceManager::GetNumEffects(const int32 DeviceId) const
 	return SDL_HapticNumEffects(HapticDevice);
 }
 
-int32 UJoystickHapticDeviceManager::GetNumEffectsPlaying(const int32 DeviceId) const
+int UJoystickHapticDeviceManager::GetNumEffectsPlaying(const int DeviceId) const
 {
 	SDL_Haptic* HapticDevice = GetHapticDevice(DeviceId);
 	if (HapticDevice == nullptr)

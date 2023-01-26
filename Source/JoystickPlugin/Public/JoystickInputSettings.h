@@ -9,7 +9,7 @@
 #include "JoystickInputSettings.generated.h"
 
 UCLASS(config=Input, DefaultConfig)
-class JOYSTICKPLUGIN_API UJoystickInputSettings : public UDeveloperSettings
+class JOYSTICKPLUGIN_API UJoystickInputSettings final : public UDeveloperSettings
 {
 	GENERATED_BODY()
 

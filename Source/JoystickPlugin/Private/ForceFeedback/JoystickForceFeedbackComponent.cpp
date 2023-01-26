@@ -6,7 +6,7 @@ void UJoystickForceFeedbackComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (EffectType == nullptr)
+	if (!IsValid(EffectType))
 	{
 		return;
 	}
@@ -67,14 +67,14 @@ void UJoystickForceFeedbackComponent::OnDestroyedEffect_Implementation(const UFo
 {
 }
 
-UForceFeedbackEffectBase* UJoystickForceFeedbackComponent::GetEffect()
+UForceFeedbackEffectBase* UJoystickForceFeedbackComponent::GetEffect() const
 {
 	return ForcedFeedbackEffect;
 }
 
-void UJoystickForceFeedbackComponent::StartEffect()
+void UJoystickForceFeedbackComponent::StartEffect() const
 {
-	if (ForcedFeedbackEffect == nullptr)
+	if (!IsValid(ForcedFeedbackEffect))
 	{
 		return;
 	}
@@ -82,9 +82,9 @@ void UJoystickForceFeedbackComponent::StartEffect()
 	ForcedFeedbackEffect->StartEffect();
 }
 
-void UJoystickForceFeedbackComponent::StopEffect()
+void UJoystickForceFeedbackComponent::StopEffect() const
 {
-	if (ForcedFeedbackEffect == nullptr)
+	if (!IsValid(ForcedFeedbackEffect))
 	{
 		return;
 	}

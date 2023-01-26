@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Data/JoystickPOVDirection.h"
-#include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "JoystickFunctionLibrary.generated.h"
 
