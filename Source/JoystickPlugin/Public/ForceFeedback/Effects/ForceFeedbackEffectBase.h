@@ -9,9 +9,13 @@ THIRD_PARTY_INCLUDES_END
 #include "ForceFeedbackEffectBase.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInitialisedEffect, const UForceFeedbackEffectBase*, Effect);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStartedEffect, const UForceFeedbackEffectBase*, Effect);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStoppedEffect, const UForceFeedbackEffectBase*, Effect);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdatedEffect, const UForceFeedbackEffectBase*, Effect);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDestroyedEffect, const UForceFeedbackEffectBase*, Effect);
 
 UCLASS(BlueprintType)
@@ -65,28 +69,28 @@ public:
 	void ReceiveTick(float DeltaSeconds);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Force Feedback|Functions")
-	int32 EffectStatus() const;
+	int EffectStatus() const;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Effect Data", meta = (ExposeOnSpawn = true))
-	int32 DeviceId;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback", meta = (ExposeOnSpawn = true))
+	int DeviceId;
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadonly, Category = "Force Feedback|Effect Data")
-	int32 EffectId;
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadonly, Category = "Force Feedback")
+	int EffectId;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Force Feedback|Effect Data")
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Force Feedback")
 	bool IsInitialised;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Effect Data", meta = (ExposeOnSpawn = true))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback", meta = (ExposeOnSpawn = true))
 	bool AutoStartOnInitialisation;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Effect Data", meta = (ExposeOnSpawn = true))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback", meta = (ExposeOnSpawn = true))
 	bool AutoInitialise;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Effect Data", meta = (ExposeOnSpawn = true))
-	int32 Iterations;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback", meta = (ExposeOnSpawn = true, EditCondition="!InfiniteIterations", UIMin="0", ClampMin="0"))
+	int Iterations;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Effect Data", meta = (ExposeOnSpawn = true))
-	bool Infinite;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback", meta = (ExposeOnSpawn = true))
+	bool InfiniteIterations;
 
 	UPROPERTY(BlueprintAssignable, meta = (DisplayName = "OnInitialisedEffect"), Category = "Force Feedback|Delegates")
 	FOnInitialisedEffect OnInitialisedEffectDelegate;

@@ -10,7 +10,7 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceInformation
 	FJoystickInputDeviceInformation()
 	{
 	}
-	
+
 	FJoystickInputDeviceInformation(const FJoystickInfo& Device) :
 		DeviceName(Device.DeviceName)
 		, ProductName(Device.ProductName)

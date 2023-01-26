@@ -25,7 +25,7 @@ struct JOYSTICKPLUGIN_API FAxisData
 	{
 	}
 
-	FAxisData(const int32 InIndex, const float InValue,
+	FAxisData(const int InIndex, const float InValue,
 	          const float InInputRangeMin, const float InInputRangeMax, const float InOutputRangeMin, const float InOutputRangeMax,
 	          const float InOffset, const bool bInInvertInput, const bool bInInvertOutput, const bool bInGamepadStick)
 		: Index(InIndex)
@@ -73,7 +73,7 @@ struct JOYSTICKPLUGIN_API FAxisData
 
 	/* Index in the value data*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
-	int32 Index;
+	int Index;
 
 	/* Current analog value */
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")

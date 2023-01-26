@@ -15,15 +15,15 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectEnvelopeData
 	{
 	}
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Envelope|Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Envelope|Data", meta=(UIMin="0", ClampMin="0"))
 	float AttackDuration;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Envelope|Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Envelope|Data", meta=(UIMin="0", UIMax="1", ClampMin="0", ClampMax="1"))
 	float AttackLevel;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Envelope|Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Envelope|Data", meta=(UIMin="0", ClampMin="0"))
 	float FadeDuration;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Envelope|Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Envelope|Data", meta=(UIMin="0", UIMax="1", ClampMin="0", ClampMax="1"))
 	float FadeLevel;
 };

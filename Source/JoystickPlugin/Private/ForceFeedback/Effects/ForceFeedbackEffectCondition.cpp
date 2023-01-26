@@ -7,6 +7,7 @@ void UForceFeedbackEffectCondition::UpdateEffectData()
 
 	switch (EffectData.EffectType)
 	{
+		default:
 		case(EForceFeedbackConditionEffectType::SPRING):
 			{
 				Effect.type = SDL_HAPTIC_SPRING;
@@ -31,32 +32,29 @@ void UForceFeedbackEffectCondition::UpdateEffectData()
 				//effect.condition.type = SDL_HAPTIC_INERTIA;
 				break;
 			}
-		default:
-			{
-			}
 	}
 
 	Effect.condition.direction = EffectData.DirectionData.ToSDLDirection();
-	Effect.condition.length = EffectData.DurationData.InfiniteDuration ? SDL_HAPTIC_INFINITY : FMath::Clamp(static_cast<Uint32>(EffectData.DurationData.Duration * 1000.0f), static_cast<Uint32>(0), static_cast<Uint32>(UINT32_MAX));
-	Effect.condition.delay = FMath::Clamp(static_cast<Uint16>(EffectData.ReplayData.Delay * 1000.0f), static_cast<Uint16>(0), static_cast<Uint16>(UINT16_MAX));
-	Effect.condition.interval = FMath::Clamp(static_cast<Uint16>(EffectData.ReplayData.RetriggerDelay * 1000.0f), static_cast<Uint16>(0), static_cast<Uint16>(UINT16_MAX));
+	Effect.condition.length = EffectData.DurationData.InfiniteDuration ? SDL_HAPTIC_INFINITY : FMath::Clamp(EffectData.DurationData.Duration * 1000.0f, 0, UINT32_MAX);
+	Effect.condition.delay = FMath::Clamp(EffectData.ReplayData.Delay * 1000.0f, 0, UINT16_MAX);
+	Effect.condition.interval = FMath::Clamp(EffectData.ReplayData.RetriggerDelay * 1000.0f, 0, UINT16_MAX);
 
-	Effect.condition.right_sat[0] = FMath::Clamp(static_cast<Uint16>(EffectData.RightSat.X * float(UINT16_MAX)), static_cast<Uint16>(0), static_cast<Uint16>(UINT16_MAX));
-	Effect.condition.right_sat[1] = FMath::Clamp(static_cast<Uint16>(EffectData.RightSat.Y * float(UINT16_MAX)), static_cast<Uint16>(0), static_cast<Uint16>(UINT16_MAX));
-	Effect.condition.right_sat[2] = FMath::Clamp(static_cast<Uint16>(EffectData.RightSat.Z * float(UINT16_MAX)), static_cast<Uint16>(0), static_cast<Uint16>(UINT16_MAX));
-	Effect.condition.left_sat[0] = FMath::Clamp(static_cast<Uint16>(EffectData.LeftSat.X * float(UINT16_MAX)), static_cast<Uint16>(0), static_cast<Uint16>(UINT16_MAX));
-	Effect.condition.left_sat[1] = FMath::Clamp(static_cast<Uint16>(EffectData.LeftSat.Y * float(UINT16_MAX)), static_cast<Uint16>(0), static_cast<Uint16>(UINT16_MAX));
-	Effect.condition.left_sat[2] = FMath::Clamp(static_cast<Uint16>(EffectData.LeftSat.Z * float(UINT16_MAX)), static_cast<Uint16>(0), static_cast<Uint16>(UINT16_MAX));
-	Effect.condition.right_coeff[0] = FMath::Clamp(static_cast<Sint16>(EffectData.RightCoeff.X * float(INT16_MAX)), static_cast<Sint16>(INT16_MIN), static_cast<Sint16>(INT16_MAX));
-	Effect.condition.right_coeff[1] = FMath::Clamp(static_cast<Sint16>(EffectData.RightCoeff.Y * float(INT16_MAX)), static_cast<Sint16>(INT16_MIN), static_cast<Sint16>(INT16_MAX));
-	Effect.condition.right_coeff[2] = FMath::Clamp(static_cast<Sint16>(EffectData.RightCoeff.Z * float(INT16_MAX)), static_cast<Sint16>(INT16_MIN), static_cast<Sint16>(INT16_MAX));
-	Effect.condition.left_coeff[0] = FMath::Clamp(static_cast<Sint16>(EffectData.LeftCoeff.X * float(INT16_MAX)), static_cast<Sint16>(INT16_MIN), static_cast<Sint16>(INT16_MAX));
-	Effect.condition.left_coeff[1] = FMath::Clamp(static_cast<Sint16>(EffectData.LeftCoeff.Y * float(INT16_MAX)), static_cast<Sint16>(INT16_MIN), static_cast<Sint16>(INT16_MAX));
-	Effect.condition.left_coeff[2] = FMath::Clamp(static_cast<Sint16>(EffectData.LeftCoeff.Z * float(INT16_MAX)), static_cast<Sint16>(INT16_MIN), static_cast<Sint16>(INT16_MAX));
-	Effect.condition.deadband[0] = FMath::Clamp(static_cast<Uint16>(EffectData.Deadband.X * float(UINT16_MAX)), static_cast<Uint16>(0), static_cast<Uint16>(UINT16_MAX));
-	Effect.condition.deadband[1] = FMath::Clamp(static_cast<Uint16>(EffectData.Deadband.Y * float(UINT16_MAX)), static_cast<Uint16>(0), static_cast<Uint16>(UINT16_MAX));
-	Effect.condition.deadband[2] = FMath::Clamp(static_cast<Uint16>(EffectData.Deadband.Z * float(UINT16_MAX)), static_cast<Uint16>(0), static_cast<Uint16>(UINT16_MAX));
-	Effect.condition.center[0] = FMath::Clamp(static_cast<Sint16>(EffectData.Center.X * float(INT16_MAX)), static_cast<Sint16>(INT16_MIN), static_cast<Sint16>(INT16_MAX));
-	Effect.condition.center[1] = FMath::Clamp(static_cast<Sint16>(EffectData.Center.Y * float(INT16_MAX)), static_cast<Sint16>(INT16_MIN), static_cast<Sint16>(INT16_MAX));
-	Effect.condition.center[2] = FMath::Clamp(static_cast<Sint16>(EffectData.Center.Z * float(INT16_MAX)), static_cast<Sint16>(INT16_MIN), static_cast<Sint16>(INT16_MAX));
+	Effect.condition.right_sat[0] = FMath::Clamp(EffectData.RightSat.X * UINT16_MAX, 0, UINT16_MAX);
+	Effect.condition.right_sat[1] = FMath::Clamp(EffectData.RightSat.Y * UINT16_MAX, 0, UINT16_MAX);
+	Effect.condition.right_sat[2] = FMath::Clamp(EffectData.RightSat.Z * UINT16_MAX, 0, UINT16_MAX);
+	Effect.condition.left_sat[0] = FMath::Clamp(EffectData.LeftSat.X * UINT16_MAX, 0, UINT16_MAX);
+	Effect.condition.left_sat[1] = FMath::Clamp(EffectData.LeftSat.Y * UINT16_MAX, 0, UINT16_MAX);
+	Effect.condition.left_sat[2] = FMath::Clamp(EffectData.LeftSat.Z * UINT16_MAX, 0, UINT16_MAX);
+	Effect.condition.right_coeff[0] = FMath::Clamp(EffectData.RightCoefficient.X * INT16_MAX, INT16_MIN, INT16_MAX);
+	Effect.condition.right_coeff[1] = FMath::Clamp(EffectData.RightCoefficient.Y * INT16_MAX, INT16_MIN, INT16_MAX);
+	Effect.condition.right_coeff[2] = FMath::Clamp(EffectData.RightCoefficient.Z * INT16_MAX, INT16_MIN, INT16_MAX);
+	Effect.condition.left_coeff[0] = FMath::Clamp(EffectData.LeftCoefficient.X * INT16_MAX, INT16_MIN, INT16_MAX);
+	Effect.condition.left_coeff[1] = FMath::Clamp(EffectData.LeftCoefficient.Y * INT16_MAX, INT16_MIN, INT16_MAX);
+	Effect.condition.left_coeff[2] = FMath::Clamp(EffectData.LeftCoefficient.Z * INT16_MAX, INT16_MIN, INT16_MAX);
+	Effect.condition.deadband[0] = FMath::Clamp(EffectData.DeadZone.X * UINT16_MAX, 0, UINT16_MAX);
+	Effect.condition.deadband[1] = FMath::Clamp(EffectData.DeadZone.Y * UINT16_MAX, 0, UINT16_MAX);
+	Effect.condition.deadband[2] = FMath::Clamp(EffectData.DeadZone.Z * UINT16_MAX, 0, UINT16_MAX);
+	Effect.condition.center[0] = FMath::Clamp(EffectData.Center.X * INT16_MAX, INT16_MIN, INT16_MAX);
+	Effect.condition.center[1] = FMath::Clamp(EffectData.Center.Y * INT16_MAX, INT16_MIN, INT16_MAX);
+	Effect.condition.center[2] = FMath::Clamp(EffectData.Center.Z * INT16_MAX, INT16_MIN, INT16_MAX);
 }
