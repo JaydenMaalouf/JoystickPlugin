@@ -11,11 +11,10 @@ FName UJoystickInputSettings::GetCategoryName() const
 
 void UJoystickInputSettings::DeviceAdded(const FJoystickInputDeviceInformation JoystickInfo)
 {
-	const bool Exists = ConnectedDevices.ContainsByPredicate([&](const FJoystickInputDeviceInformation& Device)
+	if (ConnectedDevices.ContainsByPredicate([&](const FJoystickInputDeviceInformation& Device)
 	{
 		return Device.ProductId == JoystickInfo.ProductId;
-	});
-	if (Exists)
+	}))
 	{
 		return;
 	}
@@ -42,7 +41,7 @@ void UJoystickInputSettings::PostEditChangeChainProperty(FPropertyChangedChainEv
 	Super::PostEditChangeChainProperty(PropertyChangedEvent);
 
 	const UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
-	if (JoystickSubsystem == nullptr)
+	if (!IsValid(JoystickSubsystem))
 	{
 		return;
 	}

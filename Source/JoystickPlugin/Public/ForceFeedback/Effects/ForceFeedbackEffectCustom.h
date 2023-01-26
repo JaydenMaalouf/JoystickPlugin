@@ -9,7 +9,7 @@ class JOYSTICKPLUGIN_API UForceFeedbackEffectCustom : public UForceFeedbackEffec
 {
 	GENERATED_BODY()
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Effect Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback")
 	FForceFeedbackEffectCustomData EffectData;
 
 protected:

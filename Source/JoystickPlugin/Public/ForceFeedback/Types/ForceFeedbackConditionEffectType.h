@@ -5,8 +5,8 @@
 UENUM(BlueprintType)
 enum class EForceFeedbackConditionEffectType : uint8
 {
-	SPRING,
-	DAMPER,
-	INERTIA,
-	FRICTION
+	Spring,
+	Damper,
+	Inertia,
+	Friction
 };

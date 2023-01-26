@@ -18,10 +18,10 @@ struct JOYSTICKPLUGIN_API FJoystickInfo
 	}
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
-	int32 Player;
+	int Player;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
-	int32 DeviceId;
+	int DeviceId;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
 	bool IsRumbleDevice;

@@ -57,7 +57,6 @@ EJoystickPOVDirection UJoystickFunctionLibrary::HatValueToDirection(const int8 V
 		case SDL_HAT_LEFT: return EJoystickPOVDirection::DIRECTION_LEFT;
 		case SDL_HAT_LEFTUP: return EJoystickPOVDirection::DIRECTION_UP_LEFT;
 		default:
-			//UE_LOG(LogTemp, Warning, TEXT("Warning, POV unhandled case. %d"), (int32)value);
 			return EJoystickPOVDirection::DIRECTION_NONE;
 	}
 }

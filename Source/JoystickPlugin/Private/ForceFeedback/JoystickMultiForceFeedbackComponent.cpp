@@ -44,7 +44,7 @@ void UJoystickMultiForceFeedbackComponent::EndPlay(const EEndPlayReason::Type En
 		return;
 	}
 
-	for (int32 i = 0; i < Effects.Num(); i++)
+	for (int i = 0; i < Effects.Num(); i++)
 	{
 		UForceFeedbackEffectBase* Effect = Effects[i];
 		if (!IsValid(Effect))
@@ -89,7 +89,7 @@ TArray<UForceFeedbackEffectBase*> UJoystickMultiForceFeedbackComponent::GetEffec
 
 UForceFeedbackEffectBase* UJoystickMultiForceFeedbackComponent::GetEffectByType(const TSubclassOf<class UForceFeedbackEffectBase> EffectType)
 {
-	for (int32 i = 0; i < Effects.Num(); i++)
+	for (int i = 0; i < Effects.Num(); i++)
 	{
 		UForceFeedbackEffectBase* Effect = Effects[i];
 		if (Effect->GetClass() == EffectType)
@@ -103,7 +103,7 @@ UForceFeedbackEffectBase* UJoystickMultiForceFeedbackComponent::GetEffectByType(
 
 void UJoystickMultiForceFeedbackComponent::StartEffect(UForceFeedbackEffectBase* Effect)
 {
-	if (Effect == nullptr)
+	if (!IsValid(Effect))
 	{
 		return;
 	}
@@ -113,7 +113,7 @@ void UJoystickMultiForceFeedbackComponent::StartEffect(UForceFeedbackEffectBase*
 
 void UJoystickMultiForceFeedbackComponent::StopEffect(UForceFeedbackEffectBase* Effect)
 {
-	if (Effect == nullptr)
+	if (!IsValid(Effect))
 	{
 		return;
 	}

@@ -8,7 +8,7 @@ UForceFeedbackEffectBase::UForceFeedbackEffectBase()
 	  , AutoStartOnInitialisation(false)
 	  , AutoInitialise(false)
 	  , Iterations(1)
-	  , Infinite(false)
+	  , InfiniteIterations(false)
 {
 	if (AutoInitialise)
 	{
@@ -36,7 +36,7 @@ void UForceFeedbackEffectBase::InitialiseEffect()
 	}
 
 	const UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
-	if (HapticDeviceManager == nullptr)
+	if (!IsValid(HapticDeviceManager))
 	{
 		return;
 	}
@@ -87,7 +87,7 @@ void UForceFeedbackEffectBase::DestroyEffect()
 	StopEffect();
 
 	const UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
-	if (HapticDeviceManager == nullptr)
+	if (!IsValid(HapticDeviceManager))
 	{
 		return;
 	}
@@ -122,14 +122,14 @@ void UForceFeedbackEffectBase::StartEffect()
 		return;
 	}
 
-	const int32 Status = EffectStatus();
+	const int Status = EffectStatus();
 	if (Status == 1)
 	{
 		return;
 	}
 
 	const UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
-	if (HapticDeviceManager == nullptr)
+	if (!IsValid(HapticDeviceManager))
 	{
 		return;
 	}
@@ -140,12 +140,12 @@ void UForceFeedbackEffectBase::StartEffect()
 		return;
 	}
 
-	if (Infinite)
+	if (InfiniteIterations)
 	{
 		Iterations = SDL_HAPTIC_INFINITY;
 	}
 
-	const int32 Result = SDL_HapticRunEffect(HapticDevice, EffectId, Iterations);
+	const int Result = SDL_HapticRunEffect(HapticDevice, EffectId, Iterations);
 	if (Result == -1)
 	{
 		const FString ErrorMessage = FString(SDL_GetError());
@@ -174,7 +174,7 @@ void UForceFeedbackEffectBase::StopEffect()
 	}
 
 	const UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
-	if (HapticDeviceManager == nullptr)
+	if (!IsValid(HapticDeviceManager))
 	{
 		return;
 	}
@@ -203,7 +203,7 @@ void UForceFeedbackEffectBase::StopEffect()
 void UForceFeedbackEffectBase::UpdateEffect()
 {
 	const UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
-	if (HapticDeviceManager == nullptr)
+	if (!IsValid(HapticDeviceManager))
 	{
 		return;
 	}
@@ -215,7 +215,7 @@ void UForceFeedbackEffectBase::UpdateEffect()
 	}
 
 	UpdateEffectData();
-	const int32 Result = SDL_HapticUpdateEffect(HapticDevice, EffectId, &Effect);
+	const int Result = SDL_HapticUpdateEffect(HapticDevice, EffectId, &Effect);
 	if (Result == -1)
 	{
 		const FString ErrorMessage = FString(SDL_GetError());
@@ -236,10 +236,10 @@ void UForceFeedbackEffectBase::UpdateEffect()
 	}
 }
 
-int32 UForceFeedbackEffectBase::EffectStatus() const
+int UForceFeedbackEffectBase::EffectStatus() const
 {
 	UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
-	if (HapticDeviceManager == nullptr)
+	if (!IsValid(HapticDeviceManager))
 	{
 		return -1;
 	}

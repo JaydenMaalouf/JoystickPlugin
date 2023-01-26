@@ -30,13 +30,13 @@ public:
 	void OnDestroyedEffect(const UForceFeedbackEffectBase* Effect);
 
 	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Component|Functions")
-	UForceFeedbackEffectBase* GetEffect();
+	UForceFeedbackEffectBase* GetEffect() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Component|Functions")
-	void StartEffect();
+	void StartEffect() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Component|Functions")
-	void StopEffect();
+	void StopEffect() const;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Force Feedback|Component")
 	TSubclassOf<class UForceFeedbackEffectBase> EffectType;
