@@ -28,9 +28,9 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectDirectionData
 	{
 		SDL_HapticDirection HapticDirection;
 
-		HapticDirection.dir[0] = FMath::Clamp(Direction.X * INT32_MAX, INT32_MIN, INT32_MAX);
-		HapticDirection.dir[1] = FMath::Clamp(Direction.Y * INT32_MAX, INT32_MIN, INT32_MAX);
-		HapticDirection.dir[2] = FMath::Clamp(Direction.Z * INT32_MAX, INT32_MIN, INT32_MAX);
+		HapticDirection.dir[0] = FMath::Clamp<Sint32>(Direction.X * INT32_MAX, INT32_MIN, INT32_MAX);
+		HapticDirection.dir[1] = FMath::Clamp<Sint32>(Direction.Y * INT32_MAX, INT32_MIN, INT32_MAX);
+		HapticDirection.dir[2] = FMath::Clamp<Sint32>(Direction.Z * INT32_MAX, INT32_MIN, INT32_MAX);
 
 		switch (DirectionType)
 		{
