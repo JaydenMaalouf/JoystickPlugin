@@ -13,9 +13,9 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectReplayData
 	{
 	}
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ShortToolTip = "Delay before starting", ToolTip = "Delay before starting the effect."), Category = "Force Feedback|Replay|Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ShortToolTip = "Delay before starting", ToolTip = "Delay before starting the effect.", UIMin="0", ClampMin="0"), Category = "Force Feedback|Replay|Data")
 	float Delay;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ShortToolTip = "Retrigger Delay", ToolTip = "Delay before the effect can be retriggerd."), Category = "Force Feedback|Replay|Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ShortToolTip = "Retrigger Delay", ToolTip = "Delay before the effect can be retriggerd.", UIMin="0", ClampMin="0"), Category = "Force Feedback|Replay|Data")
 	float RetriggerDelay;
 };

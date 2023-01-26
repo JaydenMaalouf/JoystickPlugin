@@ -18,8 +18,10 @@ union SDL_Event;
 #include "JoystickSubsystem.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogJoystickPlugin, Log, All);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnJoystickSubsystemReady);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnJoystickEvent, int32, DeviceId);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnJoystickEvent, int, DeviceId);
 
 UCLASS(BlueprintType)
 class JOYSTICKPLUGIN_API UJoystickSubsystem : public UEngineSubsystem
@@ -37,25 +39,25 @@ public:
 	bool IsReady() const;
 
 	UFUNCTION(BlueprintPure, Category = "Joystick|Functions")
-	int32 GetJoystickCount() const;
+	int GetJoystickCount() const;
 
 	UFUNCTION(BlueprintPure, Category = "Joystick|Functions")
-	int32 GetRegisteredDeviceCount() const;
+	int GetRegisteredDeviceCount() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Functions")
-	bool GetJoystickData(const int32 DeviceId, FJoystickDeviceData& DeviceData) const;
+	bool GetJoystickData(const int DeviceId, FJoystickDeviceData& DeviceData) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Functions")
-	bool GetJoystickInfo(const int32 DeviceId, FJoystickInfo& DeviceInfo) const;
+	bool GetJoystickInfo(const int DeviceId, FJoystickInfo& DeviceInfo) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Functions")
-	void MapJoystickDeviceToPlayer(const int32 DeviceId, const int32 PlayerId);
+	void MapJoystickDeviceToPlayer(const int DeviceId, const int PlayerId);
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Functions")
 	void SetIgnoreGameControllers(const bool IgnoreControllers);
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Functions")
-	void GetDeviceIds(TArray<int32>& DeviceIds) const;
+	void GetDeviceIds(TArray<int>& DeviceIds) const;
 
 	UPROPERTY(BlueprintAssignable, Category = "Joystick|Delegates")
 	FOnJoystickEvent JoystickPluggedInDelegate;
@@ -66,11 +68,11 @@ public:
 	void InitialiseInputDevice(const TSharedPtr<FJoystickInputDevice> NewInputDevice);
 	void Update() const;
 
-	FString GetDeviceIndexGuidString(int32 DeviceIndex) const;
-	void GetDeviceIndexGuid(const int32 DeviceIndex, FGuid& Guid) const;
+	FString GetDeviceIndexGuidString(int DeviceIndex) const;
+	void GetDeviceIndexGuid(const int DeviceIndex, FGuid& Guid) const;
 
-	bool GetDeviceInfo(const int32 DeviceId, FDeviceInfoSDL& DeviceInfoSDL);
-	bool GetInitialDeviceState(const int32 DeviceId, FJoystickDeviceData& DeviceState);
+	bool GetDeviceInfo(const int DeviceId, FDeviceInfoSDL& DeviceInfoSDL);
+	bool GetInitialDeviceState(const int DeviceId, FJoystickDeviceData& DeviceState);
 
 	FJoystickInputDevice* GetInputDevice() const;
 
@@ -78,17 +80,17 @@ public:
 	FOnJoystickSubsystemReady JoystickSubsystemReady;
 
 private:
-	static int32 HandleSDLEvent(void* UserData, SDL_Event* Event);
+	static int HandleSDLEvent(void* UserData, SDL_Event* Event);
 
-	bool AddDevice(const int32 DeviceIndex);
+	bool AddDevice(const int DeviceIndex);
 	void AddHapticDevice(FDeviceInfoSDL& Device);
-	bool RemoveDevice(const int32 DeviceId);
+	bool RemoveDevice(const int DeviceId);
 
 	void JoystickPluggedIn(const FDeviceInfoSDL& Device) const;
-	void JoystickUnplugged(const int32 DeviceId) const;
+	void JoystickUnplugged(const int DeviceId) const;
 
-	TMap<int32, FDeviceInfoSDL> Devices;
-	TMap<int32, int32> DeviceMapping;
+	TMap<int, FDeviceInfoSDL> Devices;
+	TMap<int, int> DeviceMapping;
 
 	TSharedPtr<FJoystickInputDevice> InputDevicePtr;
 

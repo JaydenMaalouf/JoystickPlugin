@@ -14,28 +14,28 @@ public:
 	static UJoystickHapticDeviceManager* GetJoystickHapticDeviceManager() { return StaticClass()->GetDefaultObject<UJoystickHapticDeviceManager>(); }
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback|Functions")
-	bool SetAutoCenter(int32 DeviceId, int32 Center);
+	bool SetAutoCenter(int DeviceId, int Center);
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback|Functions")
-	bool SetGain(int32 DeviceId, int32 Gain);
+	bool SetGain(int DeviceId, int Gain);
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback|Functions")
-	void PauseDevice(int32 DeviceId) const;
+	void PauseDevice(int DeviceId) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback|Functions")
-	void UnpauseDevice(int32 DeviceId) const;
+	void UnpauseDevice(int DeviceId) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback|Functions")
-	void StopAllEffects(int32 DeviceId) const;
+	void StopAllEffects(int DeviceId) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Joystick|Force Feedback|Functions")
-	int32 GetNumEffects(int32 DeviceId) const;
+	int GetNumEffects(int DeviceId) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Joystick|Force Feedback|Functions")
-	int32 GetNumEffectsPlaying(int32 DeviceId) const;
+	int GetNumEffectsPlaying(int DeviceId) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Joystick|Force Feedback|Functions")
-	int32 GetEffectStatus(int32 DeviceId, int32 EffectId);
+	int GetEffectStatus(int DeviceId, int EffectId);
 
-	SDL_Haptic* GetHapticDevice(int32 DeviceId) const;
+	SDL_Haptic* GetHapticDevice(int DeviceId) const;
 };

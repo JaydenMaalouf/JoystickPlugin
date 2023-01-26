@@ -15,7 +15,6 @@ public:
 	TSharedPtr<FJoystickInputDevice> GetJoystickInputDevice() const { return JoystickInputDevice; }
 
 private:
-	
 	void* SdlDllHandle = nullptr;
 	TSharedPtr<FJoystickInputDevice> JoystickInputDevice;
 };
