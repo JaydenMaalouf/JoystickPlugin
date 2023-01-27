@@ -1,3 +1,6 @@
+// JoystickPlugin is licensed under the MIT License.
+// Copyright Jayden Maalouf. All Rights Reserved.
+
 #include "ForceFeedback/JoystickForceFeedbackComponent.h"
 
 #include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
