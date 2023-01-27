@@ -1,7 +1,9 @@
+// JoystickPlugin is licensed under the MIT License.
+// Copyright Jayden Maalouf. All Rights Reserved.
+
 #include "SJoystickInputSelector.h"
 
 #include "JoystickInputSettings.h"
-#include "JoystickSubsystem.h"
 #include "Widgets/Text/STextBlock.h"
 #include "Widgets/Input/SButton.h"
 

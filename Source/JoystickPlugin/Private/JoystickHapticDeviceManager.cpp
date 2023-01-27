@@ -1,4 +1,7 @@
-﻿#include "JoystickHapticDeviceManager.h"
+﻿// JoystickPlugin is licensed under the MIT License.
+// Copyright Jayden Maalouf. All Rights Reserved.
+
+#include "JoystickHapticDeviceManager.h"
 
 #include "Engine/Engine.h"
 #include "JoystickSubsystem.h"
