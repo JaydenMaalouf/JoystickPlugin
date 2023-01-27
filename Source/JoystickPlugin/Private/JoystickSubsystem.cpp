@@ -1,4 +1,7 @@
-﻿#include "JoystickSubsystem.h"
+﻿// JoystickPlugin is licensed under the MIT License.
+// Copyright Jayden Maalouf. All Rights Reserved.
+
+#include "JoystickSubsystem.h"
 
 #include "JoystickFunctionLibrary.h"
 #include "JoystickInputDevice.h"
