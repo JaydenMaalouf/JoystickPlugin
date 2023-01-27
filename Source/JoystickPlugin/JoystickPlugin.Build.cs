@@ -11,35 +11,26 @@ public class JoystickPlugin : ModuleRules
 				"Core",
 				"CoreUObject",
 				"Engine",
-				"ApplicationCore",
-				"InputCore",
 				"SlateCore",
 				"Slate",
-				"UMG"
+				"ApplicationCore",
+				"InputCore",
+				"InputDevice",
+				"UMG",
+				"Projects"
 			});
 
-		PrivateDependencyModuleNames.AddRange(
-			new[]
-			{
-				"Projects",
-				"InputDevice"
-			});
+		var Sdl2IncludePath = Path.Combine(EngineDirectory, "Source", "ThirdParty", "SDL2", "SDL-gui-backend", "include");
 
-#if UE_4_26_OR_LATER
-		PrivateDependencyModuleNames.Add("DeveloperSettings");
-#endif
+		PublicIncludePaths.Add(Sdl2IncludePath);
 
-		var SDL2IncPath = Path.Combine(EngineDirectory, "Source", "ThirdParty", "SDL2", "SDL-gui-backend", "include");
-
-		PublicIncludePaths.Add(SDL2IncPath);
-
-		var SDLDirectory = Path.Combine(PluginDirectory, "ThirdParty", "SDL2");
-		var SDLPlatformDir = Path.Combine(SDLDirectory, Target.Platform.ToString());
+		var SdlDirectory = Path.Combine(PluginDirectory, "ThirdParty", "SDL2");
+		var SdlPlatformDirectory = Path.Combine(SdlDirectory, Target.Platform.ToString());
 
 		if (Target.Platform == UnrealTargetPlatform.Win64)
 		{
-			RuntimeDependencies.Add(Path.Combine(SDLPlatformDir, "SDL2.dll"));
-			PublicAdditionalLibraries.Add(Path.Combine(SDLPlatformDir, "SDL2.lib"));
+			RuntimeDependencies.Add(Path.Combine(SdlPlatformDirectory, "SDL2.dll"));
+			PublicAdditionalLibraries.Add(Path.Combine(SdlPlatformDirectory, "SDL2.lib"));
 
 			PublicDelayLoadDLLs.Add("SDL2.dll");
 		}
