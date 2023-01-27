@@ -9,25 +9,32 @@
 #include "JoystickInputSettings.generated.h"
 
 UCLASS(config=Input, DefaultConfig)
-class JOYSTICKPLUGIN_API UJoystickInputSettings final : public UDeveloperSettings
+class JOYSTICKPLUGIN_API UJoystickInputSettings final : public UObject
 {
 	GENERATED_BODY()
 
 public:
 #if WITH_EDITOR
 	virtual void PostEditChangeChainProperty(FPropertyChangedChainEvent& PropertyChangedEvent) override;
-	virtual FText GetSectionText() const override;
 #endif
-
-	virtual FName GetCategoryName() const override;
 
 	void DeviceAdded(FJoystickInputDeviceInformation JoystickInfo);
 	void DeviceRemoved(FGuid JoystickGuid);
 	void ResetDevices();
+	
+	const FJoystickInputDeviceConfiguration* GetInputDeviceConfiguration(const FJoystickInfo& Device) const;
+	const FJoystickInputDeviceConfiguration* GetInputDeviceConfigurationByKey(const FKey& Key) const;
+	const FJoystickInputDeviceAxisProperties* GetAxisPropertiesByKey(const FKey& AxisKey) const;
 
-	UPROPERTY(VisibleAnywhere, Category="Device Configurations")
+	UPROPERTY(VisibleAnywhere, Category="Information")
 	TArray<FJoystickInputDeviceInformation> ConnectedDevices;
+	
+	UPROPERTY(config, EditAnywhere, Category="Joystick Input Settings", meta=(ToolTip="When creating the input keys for devices, use the device name in the key. Default will prefix the key with \"Joystick\" instead.", ConfigRestartRequired=true))
+	bool UseDeviceName;
 
-	UPROPERTY(config, EditAnywhere, Category="Device Configurations")
+	UPROPERTY(config, EditAnywhere, Category="Joystick Input Settings")
 	TArray<FJoystickInputDeviceConfiguration> DeviceConfigurations;
+	
+private:
+	int GetDeviceIndexByKey(const FKey& Key) const;
 };
