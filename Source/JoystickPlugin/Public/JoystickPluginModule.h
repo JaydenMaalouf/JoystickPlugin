@@ -4,7 +4,7 @@
 
 class FJoystickInputDevice;
 
-class FJoystickPlugin final : public IJoystickPlugin
+class JOYSTICKPLUGIN_API FJoystickPluginModule final : public IJoystickPlugin
 {
 public:
 	virtual TSharedPtr<IInputDevice> CreateInputDevice(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler) override;
