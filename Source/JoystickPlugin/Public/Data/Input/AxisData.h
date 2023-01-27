@@ -1,4 +1,7 @@
-﻿#pragma once
+﻿// JoystickPlugin is licensed under the MIT License.
+// Copyright Jayden Maalouf. All Rights Reserved.
+
+#pragma once
 
 #include "InputCoreTypes.h"
 
