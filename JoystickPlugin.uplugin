@@ -22,6 +22,14 @@
       "WhitelistPlatforms": [
         "Win64"
       ]
+    },
+    {
+      "Name": "JoystickPluginEditor",
+      "Type": "Editor",
+      "LoadingPhase": "PostEngineInit",
+      "AdditionalDependencies": [
+        "Engine"
+      ]
     }
   ]
 }

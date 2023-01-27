@@ -7,7 +7,7 @@
 * of the BSD license.  See the LICENSE file for details.
 */
 
-#include "JoystickPlugin.h"
+#include "JoystickPluginModule.h"
 #include "Misc/Paths.h"
 #include "JoystickInputDevice.h"
 #include "JoystickSubsystem.h"
@@ -15,7 +15,7 @@
 
 #define LOCTEXT_NAMESPACE "JoystickPlugin"
 
-TSharedPtr<class IInputDevice> FJoystickPlugin::CreateInputDevice(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler)
+TSharedPtr<class IInputDevice> FJoystickPluginModule::CreateInputDevice(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler)
 {
 	JoystickInputDevice = MakeShareable(new FJoystickInputDevice(InMessageHandler));
 	if (UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>())
@@ -26,7 +26,7 @@ TSharedPtr<class IInputDevice> FJoystickPlugin::CreateInputDevice(const TSharedR
 	return JoystickInputDevice;
 }
 
-void FJoystickPlugin::StartupModule()
+void FJoystickPluginModule::StartupModule()
 {
 	const FString BaseDir = IPluginManager::Get().FindPlugin("JoystickPlugin")->GetBaseDir();
 	const FString SDLDir = FPaths::Combine(*BaseDir, TEXT("ThirdParty"), TEXT("SDL2"), TEXT("/Win64/"));
@@ -38,7 +38,7 @@ void FJoystickPlugin::StartupModule()
 	IJoystickPlugin::StartupModule();
 }
 
-void FJoystickPlugin::ShutdownModule()
+void FJoystickPluginModule::ShutdownModule()
 {
 	FPlatformProcess::FreeDllHandle(SdlDllHandle);
 
@@ -52,4 +52,4 @@ void FJoystickPlugin::ShutdownModule()
 
 #undef LOCTEXT_NAMESPACE
 
-IMPLEMENT_MODULE(FJoystickPlugin, JoystickPlugin)
+IMPLEMENT_MODULE(FJoystickPluginModule, JoystickPlugin)

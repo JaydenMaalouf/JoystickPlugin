@@ -7,6 +7,7 @@
 #include "Data/DeviceInfoSDL.h"
 #include "Data/JoystickDeviceData.h"
 #include "Data/JoystickInfo.h"
+#include "Data/Settings/JoystickInputDeviceConfiguration.h"
 #include "GenericPlatform/GenericApplicationMessageHandler.h"
 
 class FJoystickInputDevice final : public IInputDevice
@@ -30,15 +31,23 @@ public:
 
 	bool GetDeviceData(int DeviceId, FJoystickDeviceData& DeviceData);
 	bool GetDeviceInfo(int DeviceId, FJoystickInfo& DeviceInfo);
+	bool GetKeyDeviceInfo(const FKey& Key, FJoystickInfo& DeviceInfo);
 	int GetDeviceCount() const;
+	int GetDeviceIdByKey(const FKey& Key);
 	void GetDeviceIds(TArray<int>& DeviceIds) const;
+	int GetDeviceIndexByKey(const FKey& Key);
 
 	void SetPlayerOwnership(int DeviceId, int PlayerId);
 
+	void ResetAxisProperties();
 	void UpdateAxisProperties();
 
 private:
-	void InitInputDevice(const FDeviceInfoSDL& Device);
+	void InitialiseInputDevice(const FDeviceInfoSDL& Device);
+	void InitialiseAxis(const int DeviceId, const FJoystickDeviceData& JoystickState, const FString& BaseKeyName, const FString& BaseDisplayName);
+	void InitialiseButtons(const int DeviceId, const FJoystickDeviceData& JoystickState, const FString& BaseKeyName, const FString& BaseDisplayName);
+	void InitialiseHats(const int DeviceId, const FJoystickDeviceData& JoystickState, const FString& BaseKeyName, const FString& BaseDisplayName);
+	void InitialiseBalls(const int DeviceId, const FJoystickDeviceData& JoystickState, const FString& BaseKeyName, const FString& BaseDisplayName);
 
 	TMap<int, FJoystickDeviceData> JoystickDeviceData;
 	TMap<int, FJoystickInfo> JoystickDeviceInfo;
@@ -47,6 +56,9 @@ private:
 	TMap<int, TArray<FKey>> DeviceAxisKeys;
 	TMap<int, TArray<FKey>> DeviceHatKeys[2];
 	TMap<int, TArray<FKey>> DeviceBallKeys[2];
+	TMap<int, TArray<FKey>> DeviceKeys;
+
+	const TArray<FString> AxisNames = {TEXT("X"), TEXT("Y")};
 
 	TSharedRef<FGenericApplicationMessageHandler> MessageHandler;
 };

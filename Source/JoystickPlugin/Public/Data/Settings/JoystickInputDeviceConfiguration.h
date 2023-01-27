@@ -8,12 +8,24 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceConfiguration
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, Category="Device Config")
-	FString DeviceName;
+	FJoystickInputDeviceConfiguration(): OverrideDeviceName(false)
+	{
+	}
 
-	UPROPERTY(EditAnywhere, Category="Device Config")
+	FJoystickInputDeviceConfiguration(const FGuid JoystickProductId): OverrideDeviceName(false)
+	{
+		ProductId = JoystickProductId;
+	}
+
+	UPROPERTY(EditAnywhere, Category="Device Config", meta=(ToolTip="Used to determine the device to apply the configuration to."))
 	FGuid ProductId;
 
-	UPROPERTY(EditAnywhere, Category="Device Config")
-	TMap<FKey, FJoystickInputDeviceAxisProperties> AxisProperties;
+	UPROPERTY(EditAnywhere, Category="Device Config", meta=(ToolTip="If enabled and the global setting for using Device Names as input, it will use the name specified as part of the key name. Requires a restart to apply.", ConfigRestartRequired=true))
+	bool OverrideDeviceName;
+
+	UPROPERTY(EditAnywhere, Category="Device Config", meta=(EditCondition="OverrideDeviceName", EditConditionHides), NoClear)
+	FString DeviceName;
+
+	UPROPERTY(EditAnywhere, Category="Device Config", meta=(TitleProperty="AxisIndex"))
+	TArray<FJoystickInputDeviceAxisProperties> AxisProperties;
 };
