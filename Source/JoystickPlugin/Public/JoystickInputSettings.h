@@ -17,6 +17,7 @@ class JOYSTICKPLUGIN_API UJoystickInputSettings final : public UObject
 	GENERATED_BODY()
 
 public:
+	UJoystickInputSettings();
 #if WITH_EDITOR
 	virtual void PostEditChangeChainProperty(FPropertyChangedChainEvent& PropertyChangedEvent) override;
 #endif
@@ -34,6 +35,12 @@ public:
 	
 	UPROPERTY(config, EditAnywhere, Category="Joystick Input Settings", meta=(ToolTip="When creating the input keys for devices, use the device name in the key. Default will prefix the key with \"Joystick\" instead.", ConfigRestartRequired=true))
 	bool UseDeviceName;
+	
+	UPROPERTY(config, EditAnywhere, Category="Joystick Input Settings", meta=(ConfigRestartRequired=true))
+	bool IgnoreGameControllers;
+	
+	UPROPERTY(config, EditAnywhere, Category="Joystick Input Settings", meta=(ConfigRestartRequired=true))
+	bool DebugLogs;
 
 	UPROPERTY(config, EditAnywhere, Category="Joystick Input Settings")
 	TArray<FJoystickInputDeviceConfiguration> DeviceConfigurations;

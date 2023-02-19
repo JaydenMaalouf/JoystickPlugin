@@ -6,6 +6,17 @@
 #include "JoystickInputDevice.h"
 #include "JoystickSubsystem.h"
 
+UJoystickInputSettings::UJoystickInputSettings()
+{
+	UseDeviceName = false;
+	IgnoreGameControllers = false;
+#if WITH_EDITOR
+	DebugLogs = true;
+#else
+	DebugLogs = false;
+#endif
+}
+
 void UJoystickInputSettings::DeviceAdded(const FJoystickInputDeviceInformation JoystickInfo)
 {
 	if (ConnectedDevices.ContainsByPredicate([&](const FJoystickInputDeviceInformation& Device)
@@ -48,7 +59,7 @@ int UJoystickInputSettings::GetDeviceIndexByKey(const FKey& Key) const
 		return -1;
 	}
 
-	FJoystickInputDevice* InputDevice = JoystickSubsystem->GetInputDevice();
+	const FJoystickInputDevice* InputDevice = JoystickSubsystem->GetInputDevice();
 	if (InputDevice == nullptr)
 	{
 		return -1;

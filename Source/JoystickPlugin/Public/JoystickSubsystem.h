@@ -48,10 +48,10 @@ public:
 	int GetRegisteredDeviceCount() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Functions")
-	bool GetJoystickData(const int DeviceId, FJoystickDeviceData& DeviceData) const;
+	bool GetJoystickData(const int DeviceId, FJoystickDeviceData& JoystickDeviceData) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Functions")
-	bool GetJoystickInfo(const int DeviceId, FJoystickInfo& DeviceInfo) const;
+	bool GetJoystickInfo(const int DeviceId, FJoystickInfo& JoystickInfo) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Functions")
 	void MapJoystickDeviceToPlayer(const int DeviceId, const int PlayerId);
@@ -74,8 +74,8 @@ public:
 	FString GetDeviceIndexGuidString(int DeviceIndex) const;
 	void GetDeviceIndexGuid(const int DeviceIndex, FGuid& Guid) const;
 
-	bool GetDeviceInfo(const int DeviceId, FDeviceInfoSDL& DeviceInfoSDL);
-	bool GetInitialDeviceState(const int DeviceId, FJoystickDeviceData& DeviceState);
+	FDeviceInfoSDL* GetDeviceInfo(const int DeviceId);
+	FJoystickDeviceData GetInitialDeviceState(const int DeviceId, bool& Result);
 
 	FJoystickInputDevice* GetInputDevice() const;
 
@@ -86,11 +86,14 @@ private:
 	static int HandleSDLEvent(void* UserData, SDL_Event* Event);
 
 	bool AddDevice(const int DeviceIndex);
-	void AddHapticDevice(FDeviceInfoSDL& Device);
+	void AddHapticDevice(FDeviceInfoSDL& Device) const;
 	bool RemoveDevice(const int DeviceId);
 
 	void JoystickPluggedIn(const FDeviceInfoSDL& Device) const;
 	void JoystickUnplugged(const int DeviceId) const;
+
+	template <typename FmtType, typename... Types>
+	static void Log(const FmtType& Fmt, Types... Args);
 
 	TMap<int, FDeviceInfoSDL> Devices;
 	TMap<int, int> DeviceMapping;
