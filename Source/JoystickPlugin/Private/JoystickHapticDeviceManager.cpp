@@ -15,14 +15,13 @@ SDL_Haptic* UJoystickHapticDeviceManager::GetHapticDevice(const int DeviceId) co
 		return nullptr;
 	}
 
-	FDeviceInfoSDL DeviceInfo;
-	const bool Result = JoystickSubsystem->GetDeviceInfo(DeviceId, DeviceInfo);
-	if (!Result)
+	const FDeviceInfoSDL* DeviceInfo = JoystickSubsystem->GetDeviceInfo(DeviceId);
+	if (DeviceInfo == nullptr)
 	{
 		return nullptr;
 	}
 
-	return DeviceInfo.Haptic;
+	return DeviceInfo->Haptic;
 }
 
 bool UJoystickHapticDeviceManager::SetAutoCenter(const int DeviceId, const int Center)

@@ -184,14 +184,14 @@ void FJoystickInputDevice::InitialiseInputDevice(const FDeviceInfoSDL& Device)
 	UE_LOG(LogJoystickPlugin, Log, TEXT("add device %s %i"), *DeviceInfo.DeviceName, DeviceId);
 	JoystickDeviceInfo.Emplace(DeviceId, DeviceInfo);
 
-	FJoystickDeviceData InitialState;
-	const bool InitialDeviceStateResult = JoystickSubsystem->GetInitialDeviceState(DeviceId, InitialState);
+	bool InitialDeviceStateResult = false;
+	const FJoystickDeviceData InitialState = JoystickSubsystem->GetInitialDeviceState(DeviceId, InitialDeviceStateResult);
 	if (!InitialDeviceStateResult)
 	{
 		return;
 	}
 
-	FJoystickDeviceData& JoystickState = JoystickDeviceData.Emplace(DeviceId, InitialState);
+	const FJoystickDeviceData& JoystickState = JoystickDeviceData.Emplace(DeviceId, InitialState);
 	UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
 	if (!IsValid(JoystickInputSettings))
 	{
@@ -338,37 +338,35 @@ void FJoystickInputDevice::JoystickBall(const int DeviceId, const int Ball, cons
 	State.Direction = Value;
 }
 
-bool FJoystickInputDevice::GetDeviceData(const int DeviceId, FJoystickDeviceData& DeviceData)
+FJoystickDeviceData* FJoystickInputDevice::GetDeviceData(const int DeviceId)
 {
 	if (!JoystickDeviceData.Contains(DeviceId))
 	{
-		return false;
+		return nullptr;
 	}
 
-	DeviceData = JoystickDeviceData[DeviceId];
-	return true;
+	return JoystickDeviceData.Find(DeviceId);
 }
 
-bool FJoystickInputDevice::GetDeviceInfo(const int DeviceId, FJoystickInfo& DeviceInfo)
+FJoystickInfo* FJoystickInputDevice::GetDeviceInfo(const int DeviceId)
 {
 	if (!JoystickDeviceInfo.Contains(DeviceId))
 	{
-		return false;
+		return nullptr;
 	}
 
-	DeviceInfo = JoystickDeviceInfo[DeviceId];
-	return true;
+	return JoystickDeviceInfo.Find(DeviceId);
 }
 
-bool FJoystickInputDevice::GetKeyDeviceInfo(const FKey& Key, FJoystickInfo& DeviceInfo)
+FJoystickInfo* FJoystickInputDevice::GetKeyDeviceInfo(const FKey& Key)
 {
-	const int DeviceId = GetDeviceIdByKey(Key);
+	const int DeviceId = this->GetDeviceIdByKey(Key);
 	if (DeviceId == -1)
 	{
-		return false;
+		return nullptr;
 	}
 
-	return GetDeviceInfo(DeviceId, DeviceInfo);
+	return GetDeviceInfo(DeviceId);
 }
 
 int FJoystickInputDevice::GetDeviceCount() const
@@ -564,7 +562,7 @@ void FJoystickInputDevice::UpdateAxisProperties()
 	}
 }
 
-int FJoystickInputDevice::GetDeviceIndexByKey(const FKey& Key)
+int FJoystickInputDevice::GetDeviceIndexByKey(const FKey& Key) const
 {
 	for (const TPair<int, TArray<FKey>>& Device : DeviceAxisKeys)
 	{
@@ -619,7 +617,7 @@ int FJoystickInputDevice::GetDeviceIndexByKey(const FKey& Key)
 	return -1;
 }
 
-int FJoystickInputDevice::GetDeviceIdByKey(const FKey& Key)
+int FJoystickInputDevice::GetDeviceIdByKey(const FKey& Key) const
 {
 	for (const TPair<int, TArray<FKey>>& Device : DeviceKeys)
 	{
