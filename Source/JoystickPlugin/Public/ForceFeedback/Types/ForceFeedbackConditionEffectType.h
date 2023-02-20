@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "ForceFeedbackConditionEffectType.Generated.h"
+#include "ForceFeedbackConditionEffectType.generated.h"
 
 UENUM(BlueprintType)
 enum class EForceFeedbackConditionEffectType : uint8
