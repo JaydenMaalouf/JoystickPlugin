@@ -9,7 +9,7 @@
 #include "ForceFeedback/Data/Base/ForceFeedbackEffectEnvelopeData.h"
 
 #include "ForceFeedback/Types/ForceFeedbackPeriodicEffectType.h"
-#include "ForceFeedbackEffectPeriodicData.Generated.h"
+#include "ForceFeedbackEffectPeriodicData.generated.h"
 
 USTRUCT(BlueprintType)
 struct JOYSTICKPLUGIN_API FForceFeedbackEffectPeriodicData
