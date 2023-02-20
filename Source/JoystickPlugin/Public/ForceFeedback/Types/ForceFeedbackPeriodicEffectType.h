@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "ForceFeedbackPeriodicEffectType.Generated.h"
+#include "ForceFeedbackPeriodicEffectType.generated.h"
 
 UENUM(BlueprintType)
 enum class EForceFeedbackPeriodicEffectType : uint8
