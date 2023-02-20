@@ -75,7 +75,7 @@ public:
 	void GetDeviceIndexGuid(const int DeviceIndex, FGuid& Guid) const;
 
 	FDeviceInfoSDL* GetDeviceInfo(const int DeviceId);
-	FJoystickDeviceData GetInitialDeviceState(const int DeviceId, bool& Result);
+	FJoystickDeviceData CreateInitialDeviceState(const int DeviceId);
 
 	FJoystickInputDevice* GetInputDevice() const;
 
@@ -100,7 +100,6 @@ private:
 
 	TSharedPtr<FJoystickInputDevice> InputDevicePtr;
 
-	bool IgnoreGameControllers;
 	bool OwnsSDL;
 	bool IsInitialised;
 };

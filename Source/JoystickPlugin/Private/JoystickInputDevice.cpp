@@ -184,13 +184,7 @@ void FJoystickInputDevice::InitialiseInputDevice(const FDeviceInfoSDL& Device)
 	UE_LOG(LogJoystickPlugin, Log, TEXT("add device %s %i"), *DeviceInfo.DeviceName, DeviceId);
 	JoystickDeviceInfo.Emplace(DeviceId, DeviceInfo);
 
-	bool InitialDeviceStateResult = false;
-	const FJoystickDeviceData InitialState = JoystickSubsystem->GetInitialDeviceState(DeviceId, InitialDeviceStateResult);
-	if (!InitialDeviceStateResult)
-	{
-		return;
-	}
-
+	const FJoystickDeviceData InitialState = JoystickSubsystem->CreateInitialDeviceState(DeviceId);
 	const FJoystickDeviceData& JoystickState = JoystickDeviceData.Emplace(DeviceId, InitialState);
 	UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
 	if (!IsValid(JoystickInputSettings))

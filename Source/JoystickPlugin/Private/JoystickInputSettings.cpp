@@ -51,6 +51,18 @@ const FJoystickInputDeviceConfiguration* UJoystickInputSettings::GetInputDeviceC
 	});
 }
 
+bool UJoystickInputSettings::GetIgnoreGameControllers() const
+{
+	return IgnoreGameControllers;
+}
+
+bool UJoystickInputSettings::SetIgnoreGameControllers(const bool NewIgnoreGameControllers)
+{
+	const bool OldIgnoreGameControllers = IgnoreGameControllers;
+	IgnoreGameControllers = NewIgnoreGameControllers;
+	return OldIgnoreGameControllers != NewIgnoreGameControllers;
+}
+
 int UJoystickInputSettings::GetDeviceIndexByKey(const FKey& Key) const
 {
 	const UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
