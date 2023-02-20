@@ -10,8 +10,7 @@
 DEFINE_LOG_CATEGORY(LogJoystickPlugin);
 
 UJoystickSubsystem::UJoystickSubsystem()
-	: IgnoreGameControllers(true)
-	  , OwnsSDL(false)
+	: OwnsSDL(false)
 	  , IsInitialised(false)
 {
 }
@@ -28,7 +27,7 @@ void UJoystickSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 	Log(TEXT("DeviceSDL Starting"));
 
-	if (SDL_WasInit(SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC) != 0)
+	if (SDL_WasInit(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC) != 0)
 	{
 		Log(TEXT("SDL already loaded"));
 		OwnsSDL = false;
@@ -36,7 +35,7 @@ void UJoystickSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	else
 	{
 		Log(TEXT("DeviceSDL::InitSDL() SDL init 0"));
-		SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC);
+		SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER  | SDL_INIT_HAPTIC);
 		OwnsSDL = true;
 	}
 
@@ -157,9 +156,15 @@ void UJoystickSubsystem::MapJoystickDeviceToPlayer(const int DeviceId, const int
 
 void UJoystickSubsystem::SetIgnoreGameControllers(const bool IgnoreControllers)
 {
-	if (IgnoreControllers && !IgnoreGameControllers)
+	UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
+	if (!IsValid(JoystickInputSettings))
 	{
-		IgnoreGameControllers = true;
+		return;
+	}
+	
+	const bool ChangedValue = JoystickInputSettings->SetIgnoreGameControllers(IgnoreControllers);
+	if (ChangedValue && IgnoreControllers)
+	{
 		for (const auto& Device : Devices)
 		{
 			if (DeviceMapping.Contains(Device.Value.InstanceId) && SDL_IsGameController(Device.Value.DeviceIndex))
@@ -168,9 +173,8 @@ void UJoystickSubsystem::SetIgnoreGameControllers(const bool IgnoreControllers)
 			}
 		}
 	}
-	else if (!IgnoreControllers && IgnoreGameControllers)
+	else if (ChangedValue && !IgnoreControllers)
 	{
-		IgnoreGameControllers = false;
 		const int JoystickCount = GetJoystickCount();
 		for (int i = 0; i < JoystickCount; i++)
 		{
@@ -231,7 +235,14 @@ void UJoystickSubsystem::AddHapticDevice(FDeviceInfoSDL& Device) const
 
 bool UJoystickSubsystem::AddDevice(const int DeviceIndex)
 {
-	if (SDL_IsGameController(DeviceIndex) && IgnoreGameControllers)
+	const UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
+	if (!IsValid(JoystickInputSettings))
+	{
+		return false;
+	}
+
+	auto a = SDL_IsGameController(DeviceIndex);
+	if (a == SDL_TRUE && JoystickInputSettings->GetIgnoreGameControllers())
 	{
 		// Let UE handle it
 		return false;
@@ -406,7 +417,7 @@ int UJoystickSubsystem::HandleSDLEvent(void* UserData, SDL_Event* Event)
 	return 0;
 }
 
-FJoystickDeviceData UJoystickSubsystem::GetInitialDeviceState(const int DeviceId, bool& Result)
+FJoystickDeviceData UJoystickSubsystem::CreateInitialDeviceState(const int DeviceId)
 {
 	const FDeviceInfoSDL* DeviceInfo = GetDeviceInfo(DeviceId);
 	if (DeviceInfo == nullptr || DeviceInfo->Joystick == nullptr)
