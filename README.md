@@ -20,12 +20,18 @@ It was designed with Unreal in mind, rather than a generic C++ plugin - making u
 # Credits
 
 Thank you to the following for the working basis:
-* [tsky1971](https://github.com/tsky1971)
-* [Ikarus76](https://github.com/Ikarus76)
-* [SamPersson](https://github.com/SamPersson)
+
+- [tsky1971](https://github.com/tsky1971)
+- [Ikarus76](https://github.com/Ikarus76)
+- [SamPersson](https://github.com/SamPersson)
+
+Extended thanks to the following for contributing to the plugin:
+
+- [MalikuMane](https://github.com/MalikuMane)
 
 Also special thanks to the following for assisting in finding bugs:
-* [brifsttar](https://github.com/brifsttar)
-* [Juris3D](https://github.com/Juris3D)
+
+- [brifsttar](https://github.com/brifsttar)
+- [Juris3D](https://github.com/Juris3D)
 
 Icons made by [Adib Sulthon](https://www.flaticon.com/authors/adib-sulthon "Adib Sulthon") from [www.flaticon.com](https://www.flaticon.com/ "Flaticon")
