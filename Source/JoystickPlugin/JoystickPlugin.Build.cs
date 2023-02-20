@@ -34,5 +34,12 @@ public class JoystickPlugin : ModuleRules
 
 			PublicDelayLoadDLLs.Add("SDL2.dll");
 		}
+		else if (Target.Platform == UnrealTargetPlatform.Linux)
+		{
+			RuntimeDependencies.Add(Path.Combine(SdlPlatformDirectory, "libSDL2.so"));
+			PublicAdditionalLibraries.Add(Path.Combine(SdlPlatformDirectory, "libSDL2.a"));
+
+			PublicDelayLoadDLLs.Add("libSDL2.so");
+		}
 	}
 }
