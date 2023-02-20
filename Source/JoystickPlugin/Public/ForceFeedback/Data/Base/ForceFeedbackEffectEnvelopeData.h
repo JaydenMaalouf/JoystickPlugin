@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "ForceFeedbackEffectEnvelopeData.Generated.h"
+#include "ForceFeedbackEffectEnvelopeData.generated.h"
 
 USTRUCT(BlueprintType)
 struct JOYSTICKPLUGIN_API FForceFeedbackEffectEnvelopeData
