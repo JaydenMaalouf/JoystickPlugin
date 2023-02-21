@@ -74,7 +74,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Force Feedback|Functions")
 	int EffectStatus() const;
 
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Force Feedback|Functions")
+	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Functions")
 	void SetDeviceId(const int NewDeviceId);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback", meta = (ExposeOnSpawn = true))
