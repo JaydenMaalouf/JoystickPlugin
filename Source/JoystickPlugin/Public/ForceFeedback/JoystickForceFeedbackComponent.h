@@ -14,6 +14,8 @@ class JOYSTICKPLUGIN_API UJoystickForceFeedbackComponent : public UActorComponen
 	GENERATED_BODY()
 
 public:
+	UJoystickForceFeedbackComponent(const FObjectInitializer& ObjectInitializer);
+	
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
@@ -40,6 +42,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Component|Functions")
 	void StopEffect() const;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Force Feedback|Component")
+	int DeviceId;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Force Feedback|Component")
 	TSubclassOf<class UForceFeedbackEffectBase> EffectType;

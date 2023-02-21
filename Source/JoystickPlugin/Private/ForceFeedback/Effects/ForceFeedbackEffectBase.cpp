@@ -6,8 +6,11 @@
 #include "JoystickHapticDeviceManager.h"
 #include "JoystickSubsystem.h"
 
-UForceFeedbackEffectBase::UForceFeedbackEffectBase()
-	: IsInitialised(false)
+UForceFeedbackEffectBase::UForceFeedbackEffectBase(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+	  , DeviceId(0)
+	  , EffectId(-1)
+	  , IsInitialised(false)
 	  , AutoStartOnInitialisation(false)
 	  , AutoInitialise(false)
 	  , Iterations(1)
@@ -87,8 +90,6 @@ void UForceFeedbackEffectBase::DestroyEffect()
 		return;
 	}
 
-	StopEffect();
-
 	const UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
 	if (!IsValid(HapticDeviceManager))
 	{
@@ -104,9 +105,10 @@ void UForceFeedbackEffectBase::DestroyEffect()
 	SDL_HapticDestroyEffect(HapticDevice, EffectId);
 
 	IsInitialised = false;
+	EffectId = -1;
 
 	//Safety check to ensure we don't try calling BP during destruction
-	if (!IsValid(this))
+	if (!this->IsValidLowLevel())
 	{
 		return;
 	}
@@ -157,7 +159,7 @@ void UForceFeedbackEffectBase::StartEffect()
 	}
 
 	//Safety check to ensure we don't try calling BP during destruction
-	if (!IsValid(this))
+	if (!this->IsValidLowLevel())
 	{
 		return;
 	}
@@ -191,7 +193,7 @@ void UForceFeedbackEffectBase::StopEffect()
 	SDL_HapticStopEffect(HapticDevice, EffectId);
 
 	//Safety check to ensure we don't try calling BP during destruction
-	if (!IsValid(this))
+	if (!this->IsValidLowLevel())
 	{
 		return;
 	}
@@ -248,6 +250,17 @@ int UForceFeedbackEffectBase::EffectStatus() const
 	}
 
 	return HapticDeviceManager->GetEffectStatus(DeviceId, EffectId);
+}
+
+void UForceFeedbackEffectBase::SetDeviceId(const int NewDeviceId)
+{
+	if (IsInitialised)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Cannot update Effect DeviceId post initialisation."));
+		return;
+	}
+
+	DeviceId = NewDeviceId;
 }
 
 void UForceFeedbackEffectBase::CreateEffect()
