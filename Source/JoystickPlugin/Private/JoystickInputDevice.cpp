@@ -6,7 +6,6 @@
 #include "JoystickInputSettings.h"
 #include "JoystickSubsystem.h"
 #include "GameFramework/InputSettings.h"
-
 #include "Runtime/Launch/Resources/Version.h"
 
 FJoystickInputDevice::FJoystickInputDevice(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler) : MessageHandler(InMessageHandler)
