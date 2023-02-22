@@ -5,7 +5,6 @@
 #include "JoystickFunctionLibrary.h"
 #include "JoystickHapticDeviceManager.h"
 #include "JoystickSubsystem.h"
-#include "UObject/Object.h"
 
 UForceFeedbackEffectBase::UForceFeedbackEffectBase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -67,10 +66,17 @@ void UForceFeedbackEffectBase::InitialiseEffect()
 	IsInitialised = true;
 
 	//Safety check to ensure we don't try calling BP during destruction
+#if ENGINE_MAJOR_VERSION < 5
+	if (this->IsPendingKillOrUnreachable())
+	{
+		return;
+	}
+#else
 	if (!IsValidChecked(this))
 	{
 		return;
 	}
+#endif
 
 	OnInitialisedEffect();
 	if (OnInitialisedEffectDelegate.IsBound())
@@ -109,10 +115,17 @@ void UForceFeedbackEffectBase::DestroyEffect()
 	EffectId = -1;
 
 	//Safety check to ensure we don't try calling BP during destruction
+#if ENGINE_MAJOR_VERSION < 5
+	if (this->IsPendingKillOrUnreachable())
+	{
+		return;
+	}
+#else
 	if (!IsValidChecked(this))
 	{
 		return;
 	}
+#endif
 
 	OnDestroyedEffect();
 	if (OnDestroyedEffectDelegate.IsBound())
@@ -160,10 +173,17 @@ void UForceFeedbackEffectBase::StartEffect()
 	}
 
 	//Safety check to ensure we don't try calling BP during destruction
+#if ENGINE_MAJOR_VERSION < 5
+	if (this->IsPendingKillOrUnreachable())
+	{
+		return;
+	}
+#else
 	if (!IsValidChecked(this))
 	{
 		return;
 	}
+#endif
 
 	OnStartedEffect();
 	if (OnStartedEffectDelegate.IsBound())
@@ -194,10 +214,17 @@ void UForceFeedbackEffectBase::StopEffect()
 	SDL_HapticStopEffect(HapticDevice, EffectId);
 
 	//Safety check to ensure we don't try calling BP during destruction
+#if ENGINE_MAJOR_VERSION < 5
+	if (this->IsPendingKillOrUnreachable())
+	{
+		return;
+	}
+#else
 	if (!IsValidChecked(this))
 	{
 		return;
 	}
+#endif
 
 	OnStoppedEffect();
 	if (OnStoppedEffectDelegate.IsBound())
@@ -230,10 +257,17 @@ void UForceFeedbackEffectBase::UpdateEffect()
 	}
 
 	//Safety check to ensure we don't try calling BP during destruction
+#if ENGINE_MAJOR_VERSION < 5
+	if (this->IsPendingKillOrUnreachable())
+	{
+		return;
+	}
+#else
 	if (!IsValidChecked(this))
 	{
 		return;
 	}
+#endif
 
 	OnUpdatedEffect();
 	if (OnUpdatedEffectDelegate.IsBound())
