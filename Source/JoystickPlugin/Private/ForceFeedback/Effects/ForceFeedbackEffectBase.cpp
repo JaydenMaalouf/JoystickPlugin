@@ -2,7 +2,7 @@
 // Copyright Jayden Maalouf. All Rights Reserved.
 
 #include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
-
+#include "JoystickFunctionLibrary.h"
 #include "JoystickHapticDeviceManager.h"
 #include "JoystickSubsystem.h"
 
@@ -59,14 +59,14 @@ void UForceFeedbackEffectBase::InitialiseEffect()
 	if (EffectId == -1)
 	{
 		const FString ErrorMessage = FString(SDL_GetError());
-		UE_LOG(LogTemp, Log, TEXT("HapticNewEffect error: %s"), *ErrorMessage);
+		UJoystickFunctionLibrary::Log(TEXT("HapticNewEffect error: %s"), *ErrorMessage);
 		return;
 	}
 
 	IsInitialised = true;
 
 	//Safety check to ensure we don't try calling BP during destruction
-	if (!IsValid(this))
+	if (!IsValidChecked(this))
 	{
 		return;
 	}
@@ -108,7 +108,7 @@ void UForceFeedbackEffectBase::DestroyEffect()
 	EffectId = -1;
 
 	//Safety check to ensure we don't try calling BP during destruction
-	if (!this->IsValidLowLevel())
+	if (!IsValidChecked(this))
 	{
 		return;
 	}
@@ -154,12 +154,12 @@ void UForceFeedbackEffectBase::StartEffect()
 	if (Result == -1)
 	{
 		const FString ErrorMessage = FString(SDL_GetError());
-		UE_LOG(LogTemp, Log, TEXT("HapticRunEffect error: %s"), *ErrorMessage);
+		UJoystickFunctionLibrary::Log(TEXT("HapticRunEffect error: %s"), *ErrorMessage);
 		return;
 	}
 
 	//Safety check to ensure we don't try calling BP during destruction
-	if (!this->IsValidLowLevel())
+	if (!IsValidChecked(this))
 	{
 		return;
 	}
@@ -193,7 +193,7 @@ void UForceFeedbackEffectBase::StopEffect()
 	SDL_HapticStopEffect(HapticDevice, EffectId);
 
 	//Safety check to ensure we don't try calling BP during destruction
-	if (!this->IsValidLowLevel())
+	if (!IsValidChecked(this))
 	{
 		return;
 	}
@@ -224,12 +224,12 @@ void UForceFeedbackEffectBase::UpdateEffect()
 	if (Result == -1)
 	{
 		const FString ErrorMessage = FString(SDL_GetError());
-		UE_LOG(LogTemp, Log, TEXT("HapticUpdateEffect error: %s"), *ErrorMessage);
+		UJoystickFunctionLibrary::Log(TEXT("HapticUpdateEffect error: %s"), *ErrorMessage);
 		return;
 	}
 
 	//Safety check to ensure we don't try calling BP during destruction
-	if (!IsValid(this))
+	if (!IsValidChecked(this))
 	{
 		return;
 	}
@@ -256,7 +256,7 @@ void UForceFeedbackEffectBase::SetDeviceId(const int NewDeviceId)
 {
 	if (IsInitialised)
 	{
-		UE_LOG(LogTemp, Log, TEXT("Cannot update Effect DeviceId post initialisation."));
+		UJoystickFunctionLibrary::Log(TEXT("Cannot update Effect DeviceId post initialisation."));
 		return;
 	}
 
