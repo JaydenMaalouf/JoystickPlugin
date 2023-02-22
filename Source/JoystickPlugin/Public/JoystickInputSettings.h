@@ -5,6 +5,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DeveloperSettings.h"
+#include "InputCoreTypes.h"
 
 #include "Data/Settings/JoystickInputDeviceConfiguration.h"
 #include "Data/Settings/JoystickInputDeviceInformation.h"
