@@ -7,11 +7,11 @@
 #include "InputCoreTypes.h"
 #include "Containers/Array.h"
 
-#include "Data/DeviceInfoSDL.h"
 #include "Data/JoystickDeviceData.h"
 #include "Data/JoystickInfo.h"
-#include "Data/Settings/JoystickInputDeviceConfiguration.h"
 #include "GenericPlatform/GenericApplicationMessageHandler.h"
+
+struct FDeviceInfoSDL;
 
 class FJoystickInputDevice final : public IInputDevice
 {

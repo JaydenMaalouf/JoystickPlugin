@@ -2,6 +2,7 @@
 // Copyright Jayden Maalouf. All Rights Reserved.
 
 #pragma once
+
 #include "Data/JoystickInfo.h"
 
 #include "JoystickInputDeviceInformation.generated.h"

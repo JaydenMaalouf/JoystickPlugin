@@ -2,7 +2,6 @@
 // Copyright Jayden Maalouf. All Rights Reserved.
 
 #include "ForceFeedback/JoystickForceFeedbackComponent.h"
-
 #include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
 
 UJoystickForceFeedbackComponent::UJoystickForceFeedbackComponent(const FObjectInitializer& ObjectInitializer)

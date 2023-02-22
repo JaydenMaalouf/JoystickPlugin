@@ -5,7 +5,10 @@
 
 #include "Data/JoystickPOVDirection.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+
 #include "JoystickFunctionLibrary.generated.h"
+
+DECLARE_LOG_CATEGORY_EXTERN(LogJoystickPlugin, Log, All);
 
 UCLASS()
 class JOYSTICKPLUGIN_API UJoystickFunctionLibrary final : public UBlueprintFunctionLibrary
@@ -17,4 +20,7 @@ public:
 	static FVector2D POVAxis(const EJoystickPOVDirection Direction);
 
 	static EJoystickPOVDirection HatValueToDirection(int8 Value);
+
+	template <typename FmtType, typename... Types>
+	static void Log(const FmtType& Fmt, Types... Args);
 };

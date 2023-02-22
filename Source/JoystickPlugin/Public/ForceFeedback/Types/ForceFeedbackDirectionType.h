@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "Runtime/Launch/Resources/Version.h"
-
 #include "ForceFeedbackDirectionType.Generated.h"
 
 UENUM(BlueprintType)

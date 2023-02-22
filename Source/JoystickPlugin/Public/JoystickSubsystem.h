@@ -16,11 +16,7 @@ THIRD_PARTY_INCLUDES_START
 
 THIRD_PARTY_INCLUDES_END
 
-union SDL_Event;
-
 #include "JoystickSubsystem.generated.h"
-
-DECLARE_LOG_CATEGORY_EXTERN(LogJoystickPlugin, Log, All);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnJoystickSubsystemReady);
 
@@ -91,9 +87,6 @@ private:
 
 	void JoystickPluggedIn(const FDeviceInfoSDL& Device) const;
 	void JoystickUnplugged(const int DeviceId) const;
-
-	template <typename FmtType, typename... Types>
-	static void Log(const FmtType& Fmt, Types... Args);
 
 	TMap<int, FDeviceInfoSDL> Devices;
 	TMap<int, int> DeviceMapping;

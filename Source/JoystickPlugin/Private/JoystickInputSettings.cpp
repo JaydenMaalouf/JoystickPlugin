@@ -2,7 +2,6 @@
 // Copyright Jayden Maalouf. All Rights Reserved.
 
 #include "JoystickInputSettings.h"
-
 #include "JoystickInputDevice.h"
 #include "JoystickSubsystem.h"
 

@@ -7,8 +7,8 @@
 #include "ForceFeedback/Data/Base/ForceFeedbackEffectDurationData.h"
 #include "ForceFeedback/Data/Base/ForceFeedbackEffectReplayData.h"
 #include "ForceFeedback/Data/Base/ForceFeedbackEffectEnvelopeData.h"
-
 #include "ForceFeedback/Types/ForceFeedbackPeriodicEffectType.h"
+
 #include "ForceFeedbackEffectPeriodicData.Generated.h"
 
 USTRUCT(BlueprintType)

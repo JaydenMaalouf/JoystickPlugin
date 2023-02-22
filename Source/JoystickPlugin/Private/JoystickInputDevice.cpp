@@ -2,7 +2,6 @@
 // Copyright Jayden Maalouf. All Rights Reserved.
 
 #include "JoystickInputDevice.h"
-
 #include "JoystickFunctionLibrary.h"
 #include "JoystickInputSettings.h"
 #include "JoystickSubsystem.h"
@@ -59,7 +58,7 @@ void FJoystickInputDevice::InitialiseAxis(const int DeviceId, const FJoystickDev
 		if (!EKeys::GetKeyDetails(AxisKey).IsValid())
 		{
 			EKeys::AddKey(AxisKeyDetails);
-			UE_LOG(LogJoystickPlugin, Log, TEXT("add key %s (%s) %i"), *AxisKeyName, *AxisDisplayName, DeviceId);
+			UJoystickFunctionLibrary::Log(TEXT("add key %s (%s) %i"), *AxisKeyName, *AxisDisplayName, DeviceId);
 		}
 
 		const FKey& MappedKey = AxisKeyDetails.GetKey();
@@ -85,7 +84,7 @@ void FJoystickInputDevice::InitialiseButtons(const int DeviceId, const FJoystick
 		if (!EKeys::GetKeyDetails(ButtonKey).IsValid())
 		{
 			EKeys::AddKey(ButtonKeyDetails);
-			UE_LOG(LogJoystickPlugin, Log, TEXT("add button %s (%s) %i"), *ButtonKeyName, *ButtonDisplayName, DeviceId);
+			UJoystickFunctionLibrary::Log(TEXT("add button %s (%s) %i"), *ButtonKeyName, *ButtonDisplayName, DeviceId);
 		}
 
 		const FKey& MappedKey = ButtonKeyDetails.GetKey();
@@ -118,7 +117,7 @@ void FJoystickInputDevice::InitialiseHats(const int DeviceId, const FJoystickDev
 			if (!EKeys::GetKeyDetails(HatKey).IsValid())
 			{
 				EKeys::AddKey(HatKeyDetails);
-				UE_LOG(LogJoystickPlugin, Log, TEXT("add hat %s (%s) %i"), *HatKeyName, *HatDisplayName, DeviceId);
+				UJoystickFunctionLibrary::Log(TEXT("add hat %s (%s) %i"), *HatKeyName, *HatDisplayName, DeviceId);
 			}
 
 			const FKey& MappedKey = HatKeyDetails.GetKey();
@@ -152,7 +151,7 @@ void FJoystickInputDevice::InitialiseBalls(const int DeviceId, const FJoystickDe
 			if (!EKeys::GetKeyDetails(BallKey).IsValid())
 			{
 				EKeys::AddKey(BallKeyDetails);
-				UE_LOG(LogJoystickPlugin, Log, TEXT("add ball %s (%s) %i"), *BallKeyName, *BallDisplayName, DeviceId);
+				UJoystickFunctionLibrary::Log(TEXT("add ball %s (%s) %i"), *BallKeyName, *BallDisplayName, DeviceId);
 			}
 
 			const FKey& MappedKey = BallKeyDetails.GetKey();
@@ -181,7 +180,7 @@ void FJoystickInputDevice::InitialiseInputDevice(const FDeviceInfoSDL& Device)
 	DeviceInfo.ProductName = Device.DeviceName.Replace(TEXT("."), TEXT("")).Replace(TEXT(","), TEXT(""));
 	DeviceInfo.DeviceName = DeviceInfo.ProductName.Replace(TEXT(" "), TEXT(""));
 
-	UE_LOG(LogJoystickPlugin, Log, TEXT("add device %s %i"), *DeviceInfo.DeviceName, DeviceId);
+	UJoystickFunctionLibrary::Log(TEXT("add device %s %i"), *DeviceInfo.DeviceName, DeviceId);
 	JoystickDeviceInfo.Emplace(DeviceId, DeviceInfo);
 
 	const FJoystickDeviceData InitialState = JoystickSubsystem->CreateInitialDeviceState(DeviceId);
@@ -241,7 +240,7 @@ void FJoystickInputDevice::InitialiseInputDevice(const FDeviceInfoSDL& Device)
 
 void FJoystickInputDevice::JoystickPluggedIn(const FDeviceInfoSDL& Device)
 {
-	UE_LOG(LogJoystickPlugin, Log, TEXT("FJoystickPlugin::JoystickPluggedIn() %i"), Device.DeviceId);
+	UJoystickFunctionLibrary::Log(TEXT("FJoystickPlugin::JoystickPluggedIn() %i"), Device.DeviceId);
 
 	InitialiseInputDevice(Device);
 }
@@ -377,8 +376,6 @@ void FJoystickInputDevice::SendControllerEvents()
 	{
 		return;
 	}
-
-	//UE_LOG(JoystickPluginLog, Log, TEXT("FJoystickDevice::SendControllerEvents()"));
 
 	for (const TPair<int, FJoystickInfo>& Device : JoystickDeviceInfo)
 	{

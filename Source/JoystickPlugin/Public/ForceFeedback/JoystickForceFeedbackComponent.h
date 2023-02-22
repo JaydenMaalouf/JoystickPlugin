@@ -2,8 +2,10 @@
 // Copyright Jayden Maalouf. All Rights Reserved.
 
 #pragma once
+
 #include "Components/ActorComponent.h"
 #include "Data/ForceFeedbackComponentData.h"
+
 #include "JoystickForceFeedbackComponent.generated.h"
 
 class UForceFeedbackEffectBase;
@@ -47,7 +49,7 @@ public:
 	int DeviceId;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Force Feedback|Component")
-	TSubclassOf<class UForceFeedbackEffectBase> EffectType;
+	TSubclassOf<UForceFeedbackEffectBase> EffectType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Component")
 	FForceFeedbackComponentData ComponentData;
