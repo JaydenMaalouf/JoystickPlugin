@@ -8,13 +8,13 @@
 UENUM(BlueprintType)
 enum class EJoystickPOVDirection : uint8
 {
-	DIRECTION_NONE,
-	DIRECTION_UP,
-	DIRECTION_UP_RIGHT,
-	DIRECTION_RIGHT,
-	DIRECTION_DOWN_RIGHT,
-	DIRECTION_DOWN,
-	DIRECTION_DOWN_LEFT,
-	DIRECTION_LEFT,
-	DIRECTION_UP_LEFT,
+	Direction_None,
+	Direction_UP,
+	Direction_UP_Right,
+	Direction_Right,
+	Direction_Down_Right,
+	Direction_Down,
+	Direction_Down_Left,
+	Direction_Left,
+	Direction_UP_Left
 };

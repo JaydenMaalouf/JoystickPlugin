@@ -2,6 +2,7 @@
 // Copyright Jayden Maalouf. All Rights Reserved.
 
 #include "JoystickFunctionLibrary.h"
+#include "JoystickInputSettings.h"
 
 THIRD_PARTY_INCLUDES_START
 
@@ -14,23 +15,23 @@ FVector2D UJoystickFunctionLibrary::POVAxis(const EJoystickPOVDirection Directio
 {
 	switch (Direction)
 	{
-		case EJoystickPOVDirection::DIRECTION_NONE:
+		case EJoystickPOVDirection::Direction_None:
 			return FVector2D(0, 0);
-		case EJoystickPOVDirection::DIRECTION_UP:
+		case EJoystickPOVDirection::Direction_UP:
 			return FVector2D(0, 1);
-		case EJoystickPOVDirection::DIRECTION_UP_RIGHT:
+		case EJoystickPOVDirection::Direction_UP_Right:
 			return FVector2D(1, 1);
-		case EJoystickPOVDirection::DIRECTION_RIGHT:
+		case EJoystickPOVDirection::Direction_Right:
 			return FVector2D(1, 0);
-		case EJoystickPOVDirection::DIRECTION_DOWN_RIGHT:
+		case EJoystickPOVDirection::Direction_Down_Right:
 			return FVector2D(1, -1);
-		case EJoystickPOVDirection::DIRECTION_DOWN:
+		case EJoystickPOVDirection::Direction_Down:
 			return FVector2D(0, -1);
-		case EJoystickPOVDirection::DIRECTION_DOWN_LEFT:
+		case EJoystickPOVDirection::Direction_Down_Left:
 			return FVector2D(-1, -1);
-		case EJoystickPOVDirection::DIRECTION_LEFT:
+		case EJoystickPOVDirection::Direction_Left:
 			return FVector2D(-1, 0);
-		case EJoystickPOVDirection::DIRECTION_UP_LEFT:
+		case EJoystickPOVDirection::Direction_UP_Left:
 			return FVector2D(-1, 1);
 		default:
 			return FVector2D(0, 0);
@@ -41,16 +42,33 @@ EJoystickPOVDirection UJoystickFunctionLibrary::HatValueToDirection(const int8 V
 {
 	switch (Value)
 	{
-		case SDL_HAT_CENTERED: return EJoystickPOVDirection::DIRECTION_NONE;
-		case SDL_HAT_UP: return EJoystickPOVDirection::DIRECTION_UP;
-		case SDL_HAT_RIGHTUP: return EJoystickPOVDirection::DIRECTION_UP_RIGHT;
-		case SDL_HAT_RIGHT: return EJoystickPOVDirection::DIRECTION_RIGHT;
-		case SDL_HAT_RIGHTDOWN: return EJoystickPOVDirection::DIRECTION_DOWN_RIGHT;
-		case SDL_HAT_DOWN: return EJoystickPOVDirection::DIRECTION_DOWN;
-		case SDL_HAT_LEFTDOWN: return EJoystickPOVDirection::DIRECTION_DOWN_LEFT;
-		case SDL_HAT_LEFT: return EJoystickPOVDirection::DIRECTION_LEFT;
-		case SDL_HAT_LEFTUP: return EJoystickPOVDirection::DIRECTION_UP_LEFT;
+		case SDL_HAT_CENTERED: return EJoystickPOVDirection::Direction_None;
+		case SDL_HAT_UP: return EJoystickPOVDirection::Direction_UP;
+		case SDL_HAT_RIGHTUP: return EJoystickPOVDirection::Direction_UP_Right;
+		case SDL_HAT_RIGHT: return EJoystickPOVDirection::Direction_Right;
+		case SDL_HAT_RIGHTDOWN: return EJoystickPOVDirection::Direction_Down_Right;
+		case SDL_HAT_DOWN: return EJoystickPOVDirection::Direction_Down;
+		case SDL_HAT_LEFTDOWN: return EJoystickPOVDirection::Direction_Down_Left;
+		case SDL_HAT_LEFT: return EJoystickPOVDirection::Direction_Left;
+		case SDL_HAT_LEFTUP: return EJoystickPOVDirection::Direction_UP_Left;
 		default:
-			return EJoystickPOVDirection::DIRECTION_NONE;
+			return EJoystickPOVDirection::Direction_None;
+	}
+}
+
+DEFINE_LOG_CATEGORY(LogJoystickPlugin);
+
+template <typename FmtType, typename... Types>
+void UJoystickFunctionLibrary::Log(const FmtType& Fmt, Types... Args)
+{
+	const UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
+	if (!IsValid(JoystickInputSettings))
+	{
+		return;
+	}
+
+	if (JoystickInputSettings->DebugLogs)
+	{
+		UE_LOG(LogJoystickPlugin, Log, TEXT("%s"), *FString::Printf(Fmt, Args...));		
 	}
 }

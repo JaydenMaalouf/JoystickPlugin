@@ -4,6 +4,7 @@
 #pragma once
 
 #include "Data/JoystickPOVDirection.h"
+
 #include "HatData.generated.h"
 
 USTRUCT(BlueprintType)

@@ -2,12 +2,9 @@
 // Copyright Jayden Maalouf. All Rights Reserved.
 
 #include "JoystickSubsystem.h"
-
 #include "JoystickFunctionLibrary.h"
 #include "JoystickInputDevice.h"
 #include "JoystickInputSettings.h"
-
-DEFINE_LOG_CATEGORY(LogJoystickPlugin);
 
 UJoystickSubsystem::UJoystickSubsystem()
 	: OwnsSDL(false)
@@ -25,16 +22,16 @@ void UJoystickSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 		JoystickInputSettings->ResetDevices();
 	}
 
-	Log(TEXT("DeviceSDL Starting"));
+	UJoystickFunctionLibrary::Log(TEXT("DeviceSDL Starting"));
 
 	if (SDL_WasInit(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC) != 0)
 	{
-		Log(TEXT("SDL already loaded"));
+		UJoystickFunctionLibrary::Log(TEXT("SDL already loaded"));
 		OwnsSDL = false;
 	}
 	else
 	{
-		Log(TEXT("DeviceSDL::InitSDL() SDL init 0"));
+		UJoystickFunctionLibrary::Log(TEXT("DeviceSDL::InitSDL() SDL init 0"));
 		SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER  | SDL_INIT_HAPTIC);
 		OwnsSDL = true;
 	}
@@ -51,7 +48,7 @@ void UJoystickSubsystem::Deinitialize()
 {
 	Super::Deinitialize();
 
-	Log(TEXT("DeviceSDL Closing"));
+	UJoystickFunctionLibrary::Log(TEXT("DeviceSDL Closing"));
 
 	for (const auto& Device : Devices)
 	{
@@ -202,33 +199,33 @@ void UJoystickSubsystem::AddHapticDevice(FDeviceInfoSDL& Device) const
 	Device.Haptic = SDL_HapticOpenFromJoystick(Device.Joystick);
 	if (Device.Haptic != nullptr)
 	{
-		Log(TEXT("--- Haptic device detected"));
+		UJoystickFunctionLibrary::Log(TEXT("--- Haptic device detected"));
 
-		Log(TEXT("Number of Haptic Axis: %i"), SDL_HapticNumAxes(Device.Haptic));
-		Log(TEXT("Rumble Support: %i"), SDL_HapticRumbleSupported(Device.Haptic));
+		UJoystickFunctionLibrary::Log(TEXT("Number of Haptic Axis: %i"), SDL_HapticNumAxes(Device.Haptic));
+		UJoystickFunctionLibrary::Log(TEXT("Rumble Support: %i"), SDL_HapticRumbleSupported(Device.Haptic));
 
 		
-		Log(TEXT("SDL_HAPTIC_CONSTANT support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_CONSTANT));
-		Log(TEXT("SDL_HAPTIC_SINE support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_SINE));
-		Log(TEXT("SDL_HAPTIC_TRIANGLE support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_TRIANGLE));
-		Log(TEXT("SDL_HAPTIC_SAWTOOTHUP support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_SAWTOOTHUP));
-		Log(TEXT("SDL_HAPTIC_SAWTOOTHDOWN support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_SAWTOOTHDOWN));
-		Log(TEXT("SDL_HAPTIC_RAMP support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_RAMP));
-		Log(TEXT("SDL_HAPTIC_SPRING support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_SPRING));
-		Log(TEXT("SDL_HAPTIC_DAMPER support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_DAMPER));
-		Log(TEXT("SDL_HAPTIC_INERTIA support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_INERTIA));
-		Log(TEXT("SDL_HAPTIC_FRICTION support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_FRICTION));
-		Log(TEXT("SDL_HAPTIC_CUSTOM support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_CUSTOM));
-		Log(TEXT("SDL_HAPTIC_GAIN support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_GAIN));
-		Log(TEXT("SDL_HAPTIC_AUTOCENTER support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_AUTOCENTER));
+		UJoystickFunctionLibrary::Log(TEXT("SDL_HAPTIC_CONSTANT support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_CONSTANT));
+		UJoystickFunctionLibrary::Log(TEXT("SDL_HAPTIC_SINE support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_SINE));
+		UJoystickFunctionLibrary::Log(TEXT("SDL_HAPTIC_TRIANGLE support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_TRIANGLE));
+		UJoystickFunctionLibrary::Log(TEXT("SDL_HAPTIC_SAWTOOTHUP support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_SAWTOOTHUP));
+		UJoystickFunctionLibrary::Log(TEXT("SDL_HAPTIC_SAWTOOTHDOWN support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_SAWTOOTHDOWN));
+		UJoystickFunctionLibrary::Log(TEXT("SDL_HAPTIC_RAMP support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_RAMP));
+		UJoystickFunctionLibrary::Log(TEXT("SDL_HAPTIC_SPRING support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_SPRING));
+		UJoystickFunctionLibrary::Log(TEXT("SDL_HAPTIC_DAMPER support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_DAMPER));
+		UJoystickFunctionLibrary::Log(TEXT("SDL_HAPTIC_INERTIA support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_INERTIA));
+		UJoystickFunctionLibrary::Log(TEXT("SDL_HAPTIC_FRICTION support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_FRICTION));
+		UJoystickFunctionLibrary::Log(TEXT("SDL_HAPTIC_CUSTOM support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_CUSTOM));
+		UJoystickFunctionLibrary::Log(TEXT("SDL_HAPTIC_GAIN support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_GAIN));
+		UJoystickFunctionLibrary::Log(TEXT("SDL_HAPTIC_AUTOCENTER support: %i"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_AUTOCENTER));
 
 		if (SDL_HapticRumbleInit(Device.Haptic) != -1)
 		{
-			Log(TEXT("--- init Rumble device SUCCESSFUL"));
+			UJoystickFunctionLibrary::Log(TEXT("--- init Rumble device SUCCESSFUL"));
 		}
 		else
 		{
-			Log(TEXT("ERROR HapticRumbleInit FAILED"));
+			UJoystickFunctionLibrary::Log(TEXT("ERROR HapticRumbleInit FAILED"));
 		}
 	}
 }
@@ -262,13 +259,13 @@ bool UJoystickSubsystem::AddDevice(const int DeviceIndex)
 
 	// DEBUG
 	Device.DeviceName = FString(ANSI_TO_TCHAR(SDL_JoystickName(Device.Joystick)));
-	Log(TEXT("--- Instance ID: %d"), Device.InstanceId);
-	Log(TEXT("--- Device Index: %d"), Device.DeviceIndex);
-	Log(TEXT("--- %s"), *Device.DeviceName);
-	Log(TEXT("--- Number of Axis %i"), SDL_JoystickNumAxes(Device.Joystick));
-	Log(TEXT("--- Number of Balls %i"), SDL_JoystickNumBalls(Device.Joystick));
-	Log(TEXT("--- Number of Buttons %i"), SDL_JoystickNumButtons(Device.Joystick));
-	Log(TEXT("--- Number of Hats %i"), SDL_JoystickNumHats(Device.Joystick));
+	UJoystickFunctionLibrary::Log(TEXT("--- Instance ID: %d"), Device.InstanceId);
+	UJoystickFunctionLibrary::Log(TEXT("--- Device Index: %d"), Device.DeviceIndex);
+	UJoystickFunctionLibrary::Log(TEXT("--- %s"), *Device.DeviceName);
+	UJoystickFunctionLibrary::Log(TEXT("--- Number of Axis %i"), SDL_JoystickNumAxes(Device.Joystick));
+	UJoystickFunctionLibrary::Log(TEXT("--- Number of Balls %i"), SDL_JoystickNumBalls(Device.Joystick));
+	UJoystickFunctionLibrary::Log(TEXT("--- Number of Buttons %i"), SDL_JoystickNumButtons(Device.Joystick));
+	UJoystickFunctionLibrary::Log(TEXT("--- Number of Hats %i"), SDL_JoystickNumHats(Device.Joystick));
 
 	if (SDL_JoystickIsHaptic(Device.Joystick))
 	{
@@ -308,18 +305,18 @@ bool UJoystickSubsystem::RemoveDevice(const int DeviceId)
 
 	if (DeviceInfo->Haptic != nullptr)
 	{
-		Log(TEXT("Closing Haptic Device for %d"), DeviceId);
+		UJoystickFunctionLibrary::Log(TEXT("Closing Haptic Device for %d"), DeviceId);
 		SDL_HapticClose(DeviceInfo->Haptic);
 		DeviceInfo->Haptic = nullptr;
 	}
 	if (DeviceInfo->Joystick != nullptr)
 	{
-		Log(TEXT("Closing Joystick Device for %d"), DeviceId);
+		UJoystickFunctionLibrary::Log(TEXT("Closing Joystick Device for %d"), DeviceId);
 		SDL_JoystickClose(DeviceInfo->Joystick);
 		DeviceInfo->Joystick = nullptr;
 	}
 
-	Log(TEXT("Device Removed %d"), DeviceId);
+	UJoystickFunctionLibrary::Log(TEXT("Device Removed %d"), DeviceId);
 	DeviceMapping.Remove(DeviceInfo->InstanceId);
 	return true;
 }
@@ -386,7 +383,7 @@ int UJoystickSubsystem::HandleSDLEvent(void* UserData, SDL_Event* Event)
 				const int DeviceId = JoystickSubsystem.DeviceMapping[Event->jbutton.which];
 				InputDevice->JoystickButton(DeviceId, Event->jbutton.button, Event->jbutton.state == SDL_PRESSED);
 
-				Log(TEXT("Event JoystickButton Device=%d Button=%d State=%d"), DeviceId, Event->jbutton.button, Event->jbutton.state);
+				UJoystickFunctionLibrary::Log(TEXT("Event JoystickButton Device=%d Button=%d State=%d"), DeviceId, Event->jbutton.button, Event->jbutton.state);
 			}
 			break;
 		case SDL_JOYAXISMOTION:
@@ -512,20 +509,5 @@ void UJoystickSubsystem::JoystickUnplugged(const int DeviceId) const
 	if (JoystickUnpluggedDelegate.IsBound())
 	{
 		JoystickUnpluggedDelegate.Broadcast(DeviceId);
-	}
-}
-
-template <typename FmtType, typename... Types>
-void UJoystickSubsystem::Log(const FmtType& Fmt, Types... Args)
-{
-	const UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
-	if (!IsValid(JoystickInputSettings))
-	{
-		return;
-	}
-
-	if (JoystickInputSettings->DebugLogs)
-	{
-		UE_LOG(LogJoystickPlugin, Log, TEXT("%s"), *FString::Printf(Fmt, Args...));		
 	}
 }

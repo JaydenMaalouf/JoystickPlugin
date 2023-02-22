@@ -10,11 +10,6 @@ THIRD_PARTY_INCLUDES_START
 
 THIRD_PARTY_INCLUDES_END
 
-struct _SDL_Joystick;
-using SDL_Joystick = struct _SDL_Joystick;
-struct _SDL_Haptic;
-using SDL_Haptic = struct _SDL_Haptic;
-
 struct FDeviceInfoSDL
 {
 	FDeviceInfoSDL()

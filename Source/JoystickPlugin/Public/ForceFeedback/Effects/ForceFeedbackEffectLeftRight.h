@@ -5,6 +5,7 @@
 
 #include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
 #include "ForceFeedback/Data/ForceFeedbackEffectLeftRightData.h"
+
 #include "ForceFeedbackEffectLeftRight.generated.h"
 
 UCLASS(Blueprintable)

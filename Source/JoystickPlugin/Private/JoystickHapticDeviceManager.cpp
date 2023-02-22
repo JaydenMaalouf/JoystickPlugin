@@ -2,7 +2,7 @@
 // Copyright Jayden Maalouf. All Rights Reserved.
 
 #include "JoystickHapticDeviceManager.h"
-
+#include "JoystickFunctionLibrary.h"
 #include "Engine/Engine.h"
 #include "JoystickSubsystem.h"
 #include "Data/DeviceInfoSDL.h"
@@ -36,7 +36,7 @@ bool UJoystickHapticDeviceManager::SetAutoCenter(const int DeviceId, const int C
 	if (Result == -1)
 	{
 		const FString ErrorMessage = FString(SDL_GetError());
-		UE_LOG(LogJoystickPlugin, Log, TEXT("Autocenter error: %s"), *ErrorMessage);
+		UJoystickFunctionLibrary::Log(TEXT("Autocenter error: %s"), *ErrorMessage);
 		return false;
 	}
 
@@ -55,7 +55,7 @@ bool UJoystickHapticDeviceManager::SetGain(const int DeviceId, const int Gain)
 	if (Result == -1)
 	{
 		const FString ErrorMessage = FString(SDL_GetError());
-		UE_LOG(LogJoystickPlugin, Log, TEXT("Gain error: %s"), *ErrorMessage);
+		UJoystickFunctionLibrary::Log(TEXT("Gain error: %s"), *ErrorMessage);
 		return false;
 	}
 
@@ -74,7 +74,7 @@ int UJoystickHapticDeviceManager::GetEffectStatus(const int DeviceId, const int 
 	if (Result == -1)
 	{
 		const FString ErrorMessage = FString(SDL_GetError());
-		UE_LOG(LogJoystickPlugin, Log, TEXT("GetEffectStatus error: %s"), *ErrorMessage);
+		UJoystickFunctionLibrary::Log(TEXT("GetEffectStatus error: %s"), *ErrorMessage);
 		return -1;
 	}
 

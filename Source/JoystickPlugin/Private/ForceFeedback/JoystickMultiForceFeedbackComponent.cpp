@@ -2,7 +2,6 @@
 // Copyright Jayden Maalouf. All Rights Reserved.
 
 #include "ForceFeedback/JoystickMultiForceFeedbackComponent.h"
-
 #include "ForceFeedback/Data/ForceFeedbackComponentData.h"
 #include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
 
