@@ -5,6 +5,7 @@
 #include "JoystickFunctionLibrary.h"
 #include "JoystickHapticDeviceManager.h"
 #include "JoystickSubsystem.h"
+#include "Runtime/Launch/Resources/Version.h"
 
 UForceFeedbackEffectBase::UForceFeedbackEffectBase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
