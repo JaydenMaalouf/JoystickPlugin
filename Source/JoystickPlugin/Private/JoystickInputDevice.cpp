@@ -390,7 +390,15 @@ void FJoystickInputDevice::SendControllerEvents()
 			continue;
 		}
 
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
+		IPlatformInputDeviceMapper& DeviceMapper = IPlatformInputDeviceMapper::Get();
+		FPlatformUserId PlatformUser = PLATFORMUSERID_NONE;
+		FInputDeviceId InputDevice = INPUTDEVICEID_NONE;
+		DeviceMapper.RemapControllerIdToPlatformUserAndDevice(CurrentDevice.Player, OUT PlatformUser, OUT InputDevice);
+#else
 		const int PlayerId = CurrentDevice.Player;
+#endif
+		
 		FInputDeviceScope InputScope(this, JoystickInputInterfaceName, DeviceId, CurrentDevice.DeviceName);
 		const FJoystickDeviceData& CurrentDeviceData = JoystickDeviceData[DeviceId];
 
@@ -402,7 +410,11 @@ void FJoystickInputDevice::SendControllerEvents()
 				const FKey& AxisKey = DeviceAxisKeys[DeviceId][AxisIndex];
 				if (AxisKey.IsValid())
 				{
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
+					MessageHandler->OnControllerAnalog(AxisKey.GetFName(), PlatformUser, InputDevice, CurrentDeviceData.Axes[AxisIndex].GetValue());
+#else
 					MessageHandler->OnControllerAnalog(AxisKey.GetFName(), PlayerId, CurrentDeviceData.Axes[AxisIndex].GetValue());
+#endif
 				}
 			}
 		}
@@ -417,8 +429,13 @@ void FJoystickInputDevice::SendControllerEvents()
 				if (XHatKey.IsValid() && YHatKey.IsValid())
 				{
 					const FVector2D& POVAxis = UJoystickFunctionLibrary::POVAxis(CurrentDeviceData.Hats[HatIndex].Direction);
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
+					MessageHandler->OnControllerAnalog(XHatKey.GetFName(), PlatformUser, InputDevice, POVAxis.X);
+					MessageHandler->OnControllerAnalog(YHatKey.GetFName(), PlatformUser, InputDevice, POVAxis.Y);
+#else
 					MessageHandler->OnControllerAnalog(XHatKey.GetFName(), PlayerId, POVAxis.X);
 					MessageHandler->OnControllerAnalog(YHatKey.GetFName(), PlayerId, POVAxis.Y);
+#endif
 				}
 			}
 		}
@@ -433,8 +450,13 @@ void FJoystickInputDevice::SendControllerEvents()
 				if (XBallKey.IsValid() && YBallKey.IsValid())
 				{
 					const FVector2D& BallAxis = CurrentDeviceData.Balls[BallIndex].Direction;
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
+					MessageHandler->OnControllerAnalog(XBallKey.GetFName(), PlatformUser, InputDevice, BallAxis.X);
+					MessageHandler->OnControllerAnalog(YBallKey.GetFName(), PlatformUser, InputDevice, BallAxis.Y);
+#else
 					MessageHandler->OnControllerAnalog(XBallKey.GetFName(), PlayerId, BallAxis.X);
 					MessageHandler->OnControllerAnalog(YBallKey.GetFName(), PlayerId, BallAxis.Y);
+#endif
 				}
 			}
 		}
@@ -452,11 +474,19 @@ void FJoystickInputDevice::SendControllerEvents()
 					{
 						if (ButtonData.ButtonState)
 						{
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
+							MessageHandler->OnControllerButtonPressed(ButtonKey.GetFName(), PlatformUser, InputDevice, false);
+#else
 							MessageHandler->OnControllerButtonPressed(ButtonKey.GetFName(), PlayerId, false);
+#endif
 						}
 						else
 						{
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
+							MessageHandler->OnControllerButtonReleased(ButtonKey.GetFName(), PlatformUser, InputDevice, false);
+#else
 							MessageHandler->OnControllerButtonReleased(ButtonKey.GetFName(), PlayerId, false);
+#endif
 						}
 
 						ButtonData.PreviousButtonState = ButtonData.ButtonState;

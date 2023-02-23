@@ -5,7 +5,7 @@
 
 #include "ForceFeedback/Types/ForceFeedbackDirectionType.h"
 
-#include "ForceFeedbackEffectDirectionData.Generated.h"
+#include "ForceFeedbackEffectDirectionData.generated.h"
 
 USTRUCT(BlueprintType)
 struct JOYSTICKPLUGIN_API FForceFeedbackEffectDirectionData
