@@ -8,7 +8,7 @@
 #include "ForceFeedback/Data/Base/ForceFeedbackEffectReplayData.h"
 #include "ForceFeedback/Types/ForceFeedbackConditionEffectType.h"
 
-#include "ForceFeedbackEffectConditionData.Generated.h"
+#include "ForceFeedbackEffectConditionData.generated.h"
 
 USTRUCT(BlueprintType)
 struct JOYSTICKPLUGIN_API FForceFeedbackEffectConditionData
