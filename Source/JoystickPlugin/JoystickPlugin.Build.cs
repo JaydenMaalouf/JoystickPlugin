@@ -36,7 +36,7 @@ public class JoystickPlugin : ModuleRules
 		}
 		else if (Target.Platform == UnrealTargetPlatform.Linux)
 		{
-            //SDL should be loaded as part of the engine
+            		//SDL should be loaded as part of the engine
 		}
 	}
 }
