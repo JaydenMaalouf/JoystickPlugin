@@ -16,6 +16,7 @@ This plugin aims to provide a simple plug and play system for Joysticks and Stee
 
 This plugin has been rebuilt (almost entirely) from it's forked version.  
 It was designed with Unreal in mind, rather than a generic C++ plugin - making use of Subsystems, Project Settings and more!
+The plugin is also multi-platform, supporting Linux and Windows distributions.
 
 # Credits
 
