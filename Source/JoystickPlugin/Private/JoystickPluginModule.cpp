@@ -22,19 +22,23 @@ TSharedPtr<class IInputDevice> FJoystickPluginModule::CreateInputDevice(const TS
 
 void FJoystickPluginModule::StartupModule()
 {
+#if PLATFORM_WINDOWS
 	const FString BaseDir = IPluginManager::Get().FindPlugin("JoystickPlugin")->GetBaseDir();
 	const FString SDLDir = FPaths::Combine(*BaseDir, TEXT("ThirdParty"), TEXT("SDL2"), TEXT("/Win64/"));
 
 	FPlatformProcess::PushDllDirectory(*SDLDir);
 	SdlDllHandle = FPlatformProcess::GetDllHandle(*(SDLDir + "SDL2.dll"));
 	FPlatformProcess::PopDllDirectory(*SDLDir);
+#endif
 
 	IJoystickPlugin::StartupModule();
 }
 
 void FJoystickPluginModule::ShutdownModule()
 {
+#if PLATFORM_WINDOWS
 	FPlatformProcess::FreeDllHandle(SdlDllHandle);
+#endif
 
 	IJoystickPlugin::ShutdownModule();
 
