@@ -16,6 +16,8 @@ struct FDeviceInfoSDL
 		: DeviceIndex(0)
 		  , DeviceId(0)
 		  , InstanceId(0)
+		  , IsGamepad(false)
+		  , HasRumble(false)
 		  , DeviceName("Unknown Device")
 		  , Haptic(nullptr)
 		  , Joystick(nullptr)
@@ -26,6 +28,9 @@ struct FDeviceInfoSDL
 
 	int DeviceId;
 	int InstanceId;
+
+	bool IsGamepad;
+	bool HasRumble;
 
 	FString DeviceName;
 	FGuid ProductId;

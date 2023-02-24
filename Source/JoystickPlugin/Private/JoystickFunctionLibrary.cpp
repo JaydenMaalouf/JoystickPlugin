@@ -17,9 +17,9 @@ FVector2D UJoystickFunctionLibrary::POVAxis(const EJoystickPOVDirection Directio
 	{
 		case EJoystickPOVDirection::Direction_None:
 			return FVector2D(0, 0);
-		case EJoystickPOVDirection::Direction_UP:
+		case EJoystickPOVDirection::Direction_Up:
 			return FVector2D(0, 1);
-		case EJoystickPOVDirection::Direction_UP_Right:
+		case EJoystickPOVDirection::Direction_Up_Right:
 			return FVector2D(1, 1);
 		case EJoystickPOVDirection::Direction_Right:
 			return FVector2D(1, 0);
@@ -31,7 +31,7 @@ FVector2D UJoystickFunctionLibrary::POVAxis(const EJoystickPOVDirection Directio
 			return FVector2D(-1, -1);
 		case EJoystickPOVDirection::Direction_Left:
 			return FVector2D(-1, 0);
-		case EJoystickPOVDirection::Direction_UP_Left:
+		case EJoystickPOVDirection::Direction_Up_Left:
 			return FVector2D(-1, 1);
 		default:
 			return FVector2D(0, 0);
@@ -43,32 +43,15 @@ EJoystickPOVDirection UJoystickFunctionLibrary::HatValueToDirection(const int8 V
 	switch (Value)
 	{
 		case SDL_HAT_CENTERED: return EJoystickPOVDirection::Direction_None;
-		case SDL_HAT_UP: return EJoystickPOVDirection::Direction_UP;
-		case SDL_HAT_RIGHTUP: return EJoystickPOVDirection::Direction_UP_Right;
+		case SDL_HAT_UP: return EJoystickPOVDirection::Direction_Up;
+		case SDL_HAT_RIGHTUP: return EJoystickPOVDirection::Direction_Up_Right;
 		case SDL_HAT_RIGHT: return EJoystickPOVDirection::Direction_Right;
 		case SDL_HAT_RIGHTDOWN: return EJoystickPOVDirection::Direction_Down_Right;
 		case SDL_HAT_DOWN: return EJoystickPOVDirection::Direction_Down;
 		case SDL_HAT_LEFTDOWN: return EJoystickPOVDirection::Direction_Down_Left;
 		case SDL_HAT_LEFT: return EJoystickPOVDirection::Direction_Left;
-		case SDL_HAT_LEFTUP: return EJoystickPOVDirection::Direction_UP_Left;
+		case SDL_HAT_LEFTUP: return EJoystickPOVDirection::Direction_Up_Left;
 		default:
 			return EJoystickPOVDirection::Direction_None;
-	}
-}
-
-DEFINE_LOG_CATEGORY(LogJoystickPlugin);
-
-template <typename FmtType, typename... Types>
-void UJoystickFunctionLibrary::Log(const FmtType& Fmt, Types... Args)
-{
-	const UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
-	if (!IsValid(JoystickInputSettings))
-	{
-		return;
-	}
-
-	if (JoystickInputSettings->DebugLogs)
-	{
-		UE_LOG(LogJoystickPlugin, Log, TEXT("%s"), *FString::Printf(Fmt, Args...));		
 	}
 }
