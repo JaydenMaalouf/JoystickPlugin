@@ -10,9 +10,9 @@ UJoystickInputSettings::UJoystickInputSettings()
 	UseDeviceName = false;
 	IgnoreGameControllers = false;
 #if WITH_EDITOR
-	DebugLogs = true;
+	EnableLogs = true;
 #else
-	DebugLogs = false;
+	EnableLogs = false;
 #endif
 }
 

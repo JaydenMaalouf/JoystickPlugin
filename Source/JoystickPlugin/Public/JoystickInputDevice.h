@@ -6,7 +6,6 @@
 #include "IInputDevice.h"
 #include "InputCoreTypes.h"
 #include "Containers/Array.h"
-
 #include "Data/JoystickDeviceData.h"
 #include "Data/JoystickInfo.h"
 #include "GenericPlatform/GenericApplicationMessageHandler.h"
@@ -24,6 +23,7 @@ public:
 	virtual bool Exec(UWorld* InWorld, const TCHAR* Cmd, FOutputDevice& Ar) override;
 	virtual void SetChannelValue(int ControllerId, FForceFeedbackChannelType ChannelType, float Value) override;
 	virtual void SetChannelValues(int ControllerId, const FForceFeedbackValues& Values) override;
+	virtual bool IsGamepadAttached() const override;
 
 	void JoystickPluggedIn(const FDeviceInfoSDL& Device);
 	void JoystickUnplugged(int DeviceId);

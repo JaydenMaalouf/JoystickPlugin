@@ -15,7 +15,8 @@ struct JOYSTICKPLUGIN_API FJoystickInfo
 	FJoystickInfo()
 		: Player(-1)
 		  , DeviceId(-1)
-		  , IsRumbleDevice(false)
+		  , IsGamepad(false)
+		  , HasRumble(false)
 		  , Connected(false)
 	{
 	}
@@ -27,7 +28,10 @@ struct JOYSTICKPLUGIN_API FJoystickInfo
 	int DeviceId;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
-	bool IsRumbleDevice;
+	bool IsGamepad;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
+	bool HasRumble;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
 	FGuid ProductId;

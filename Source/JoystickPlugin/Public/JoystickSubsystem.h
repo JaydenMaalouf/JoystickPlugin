@@ -6,17 +6,12 @@
 #include "Data/DeviceInfoSDL.h"
 #include "Subsystems/EngineSubsystem.h"
 
+#include "JoystickSubsystem.generated.h"
+
 struct FJoystickInfo;
 struct FJoystickDeviceData;
 class FJoystickInputDevice;
-
-THIRD_PARTY_INCLUDES_START
-
-#include "SDL.h"
-
-THIRD_PARTY_INCLUDES_END
-
-#include "JoystickSubsystem.generated.h"
+union SDL_Event;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnJoystickSubsystemReady);
 
