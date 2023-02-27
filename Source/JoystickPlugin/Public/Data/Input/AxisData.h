@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "InputCoreTypes.h"
-
 #include "AxisData.generated.h"
 
 USTRUCT(BlueprintType)

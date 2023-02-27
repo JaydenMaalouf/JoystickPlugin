@@ -2,8 +2,10 @@
 // Copyright Jayden Maalouf. All Rights Reserved.
 
 #pragma once
+
 #include "Components/ActorComponent.h"
 #include "Data/ForceFeedbackComponentData.h"
+
 #include "JoystickForceFeedbackComponent.generated.h"
 
 class UForceFeedbackEffectBase;
@@ -14,6 +16,8 @@ class JOYSTICKPLUGIN_API UJoystickForceFeedbackComponent : public UActorComponen
 	GENERATED_BODY()
 
 public:
+	UJoystickForceFeedbackComponent(const FObjectInitializer& ObjectInitializer);
+	
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
@@ -42,7 +46,10 @@ public:
 	void StopEffect() const;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Force Feedback|Component")
-	TSubclassOf<class UForceFeedbackEffectBase> EffectType;
+	int DeviceId;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Force Feedback|Component")
+	TSubclassOf<UForceFeedbackEffectBase> EffectType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Component")
 	FForceFeedbackComponentData ComponentData;

@@ -4,6 +4,7 @@
 #pragma once
 
 #include "JoystickInputDeviceAxisProperties.h"
+
 #include "JoystickInputDeviceConfiguration.generated.h"
 
 USTRUCT()

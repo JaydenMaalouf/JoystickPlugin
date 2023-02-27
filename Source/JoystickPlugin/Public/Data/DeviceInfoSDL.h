@@ -10,17 +10,14 @@ THIRD_PARTY_INCLUDES_START
 
 THIRD_PARTY_INCLUDES_END
 
-struct _SDL_Joystick;
-using SDL_Joystick = struct _SDL_Joystick;
-struct _SDL_Haptic;
-using SDL_Haptic = struct _SDL_Haptic;
-
 struct FDeviceInfoSDL
 {
 	FDeviceInfoSDL()
 		: DeviceIndex(0)
 		  , DeviceId(0)
 		  , InstanceId(0)
+		  , IsGamepad(false)
+		  , HasRumble(false)
 		  , DeviceName("Unknown Device")
 		  , Haptic(nullptr)
 		  , Joystick(nullptr)
@@ -31,6 +28,9 @@ struct FDeviceInfoSDL
 
 	int DeviceId;
 	int InstanceId;
+
+	bool IsGamepad;
+	bool HasRumble;
 
 	FString DeviceName;
 	FGuid ProductId;
