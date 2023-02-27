@@ -34,5 +34,6 @@ Also special thanks to the following for assisting in finding bugs:
 
 - [brifsttar](https://github.com/brifsttar)
 - [Juris3D](https://github.com/Juris3D)
+- [craytex](https://github.com/craytex)
 
 Icons made by [Adib Sulthon](https://www.flaticon.com/authors/adib-sulthon "Adib Sulthon") from [www.flaticon.com](https://www.flaticon.com/ "Flaticon")
