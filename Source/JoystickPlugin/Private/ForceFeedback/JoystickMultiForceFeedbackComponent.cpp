@@ -2,9 +2,14 @@
 // Copyright Jayden Maalouf. All Rights Reserved.
 
 #include "ForceFeedback/JoystickMultiForceFeedbackComponent.h"
-
 #include "ForceFeedback/Data/ForceFeedbackComponentData.h"
 #include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
+
+UJoystickMultiForceFeedbackComponent::UJoystickMultiForceFeedbackComponent(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+	  , DeviceId(0)
+{
+}
 
 void UJoystickMultiForceFeedbackComponent::BeginPlay()
 {
@@ -22,6 +27,8 @@ void UJoystickMultiForceFeedbackComponent::BeginPlay()
 		{
 			continue;
 		}
+
+		Effect->SetDeviceId(DeviceId);
 
 		Effect->OnInitialisedEffectDelegate.AddDynamic(this, &UJoystickMultiForceFeedbackComponent::OnInitialisedEffect);
 		Effect->OnStartedEffectDelegate.AddDynamic(this, &UJoystickMultiForceFeedbackComponent::OnStartedEffect);

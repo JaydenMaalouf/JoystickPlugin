@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "ForceFeedbackEffectDurationData.Generated.h"
+#include "ForceFeedbackEffectDurationData.generated.h"
 
 USTRUCT(BlueprintType)
 struct JOYSTICKPLUGIN_API FForceFeedbackEffectDurationData

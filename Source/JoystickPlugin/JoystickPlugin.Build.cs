@@ -34,5 +34,9 @@ public class JoystickPlugin : ModuleRules
 
 			PublicDelayLoadDLLs.Add("SDL2.dll");
 		}
+		else if (Target.Platform == UnrealTargetPlatform.Linux)
+		{
+			//SDL should be loaded as part of the engine
+		}
 	}
 }

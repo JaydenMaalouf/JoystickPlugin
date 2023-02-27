@@ -3,9 +3,7 @@
 
 #pragma once
 
-#include "Runtime/Launch/Resources/Version.h"
-
-#include "ForceFeedbackDirectionType.Generated.h"
+#include "ForceFeedbackDirectionType.generated.h"
 
 UENUM(BlueprintType)
 enum class EForceFeedbackDirectionType : uint8

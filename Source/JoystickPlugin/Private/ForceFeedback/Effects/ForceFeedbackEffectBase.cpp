@@ -2,12 +2,16 @@
 // Copyright Jayden Maalouf. All Rights Reserved.
 
 #include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
-
 #include "JoystickHapticDeviceManager.h"
+#include "JoystickLogManager.h"
 #include "JoystickSubsystem.h"
+#include "Runtime/Launch/Resources/Version.h"
 
-UForceFeedbackEffectBase::UForceFeedbackEffectBase()
-	: IsInitialised(false)
+UForceFeedbackEffectBase::UForceFeedbackEffectBase(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+	  , DeviceId(0)
+	  , EffectId(-1)
+	  , IsInitialised(false)
 	  , AutoStartOnInitialisation(false)
 	  , AutoInitialise(false)
 	  , Iterations(1)
@@ -44,29 +48,27 @@ void UForceFeedbackEffectBase::InitialiseEffect()
 		return;
 	}
 
-	SDL_Haptic* HapticDevice = HapticDeviceManager->GetHapticDevice(DeviceId);
-	if (HapticDevice == nullptr)
-	{
-		return;
-	}
-
 	CreateEffect();
-
-	EffectId = SDL_HapticNewEffect(HapticDevice, &Effect);
+	EffectId = HapticDeviceManager->CreateEffect(DeviceId, Effect);
 	if (EffectId == -1)
 	{
-		const FString ErrorMessage = FString(SDL_GetError());
-		UE_LOG(LogTemp, Log, TEXT("HapticNewEffect error: %s"), *ErrorMessage);
 		return;
 	}
 
 	IsInitialised = true;
 
 	//Safety check to ensure we don't try calling BP during destruction
-	if (!IsValid(this))
+#if ENGINE_MAJOR_VERSION < 5
+	if (this->IsPendingKillOrUnreachable())
 	{
 		return;
 	}
+#else
+	if (!IsValidChecked(this))
+	{
+		return;
+	}
+#endif
 
 	OnInitialisedEffect();
 	if (OnInitialisedEffectDelegate.IsBound())
@@ -87,29 +89,29 @@ void UForceFeedbackEffectBase::DestroyEffect()
 		return;
 	}
 
-	StopEffect();
-
 	const UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
 	if (!IsValid(HapticDeviceManager))
 	{
 		return;
 	}
 
-	SDL_Haptic* HapticDevice = HapticDeviceManager->GetHapticDevice(DeviceId);
-	if (HapticDevice == nullptr)
-	{
-		return;
-	}
-
-	SDL_HapticDestroyEffect(HapticDevice, EffectId);
+	HapticDeviceManager->DestroyEffect(DeviceId, EffectId);
 
 	IsInitialised = false;
+	EffectId = -1;
 
 	//Safety check to ensure we don't try calling BP during destruction
-	if (!IsValid(this))
+#if ENGINE_MAJOR_VERSION < 5
+	if (this->IsPendingKillOrUnreachable())
 	{
 		return;
 	}
+#else
+	if (!IsValidChecked(this))
+	{
+		return;
+	}
+#endif
 
 	OnDestroyedEffect();
 	if (OnDestroyedEffectDelegate.IsBound())
@@ -137,30 +139,29 @@ void UForceFeedbackEffectBase::StartEffect()
 		return;
 	}
 
-	SDL_Haptic* HapticDevice = HapticDeviceManager->GetHapticDevice(DeviceId);
-	if (HapticDevice == nullptr)
-	{
-		return;
-	}
-
 	if (InfiniteIterations)
 	{
 		Iterations = SDL_HAPTIC_INFINITY;
 	}
 
-	const int Result = SDL_HapticRunEffect(HapticDevice, EffectId, Iterations);
-	if (Result == -1)
+	const bool Result = HapticDeviceManager->RunEffect(DeviceId, EffectId, Iterations);
+	if (Result == false)
 	{
-		const FString ErrorMessage = FString(SDL_GetError());
-		UE_LOG(LogTemp, Log, TEXT("HapticRunEffect error: %s"), *ErrorMessage);
 		return;
 	}
 
 	//Safety check to ensure we don't try calling BP during destruction
-	if (!IsValid(this))
+#if ENGINE_MAJOR_VERSION < 5
+	if (this->IsPendingKillOrUnreachable())
 	{
 		return;
 	}
+#else
+	if (!IsValidChecked(this))
+	{
+		return;
+	}
+#endif
 
 	OnStartedEffect();
 	if (OnStartedEffectDelegate.IsBound())
@@ -182,19 +183,24 @@ void UForceFeedbackEffectBase::StopEffect()
 		return;
 	}
 
-	SDL_Haptic* HapticDevice = HapticDeviceManager->GetHapticDevice(DeviceId);
-	if (HapticDevice == nullptr)
+	const bool Result = HapticDeviceManager->StopEffect(DeviceId, EffectId);
+	if (Result == false)
 	{
 		return;
 	}
-
-	SDL_HapticStopEffect(HapticDevice, EffectId);
 
 	//Safety check to ensure we don't try calling BP during destruction
-	if (!IsValid(this))
+#if ENGINE_MAJOR_VERSION < 5
+	if (this->IsPendingKillOrUnreachable())
 	{
 		return;
 	}
+#else
+	if (!IsValidChecked(this))
+	{
+		return;
+	}
+#endif
 
 	OnStoppedEffect();
 	if (OnStoppedEffectDelegate.IsBound())
@@ -211,26 +217,25 @@ void UForceFeedbackEffectBase::UpdateEffect()
 		return;
 	}
 
-	SDL_Haptic* HapticDevice = HapticDeviceManager->GetHapticDevice(DeviceId);
-	if (HapticDevice == nullptr)
-	{
-		return;
-	}
-
 	UpdateEffectData();
-	const int Result = SDL_HapticUpdateEffect(HapticDevice, EffectId, &Effect);
-	if (Result == -1)
+	const bool Result = HapticDeviceManager->UpdateEffect(DeviceId, EffectId, Effect);
+	if (Result == false)
 	{
-		const FString ErrorMessage = FString(SDL_GetError());
-		UE_LOG(LogTemp, Log, TEXT("HapticUpdateEffect error: %s"), *ErrorMessage);
 		return;
 	}
 
 	//Safety check to ensure we don't try calling BP during destruction
-	if (!IsValid(this))
+#if ENGINE_MAJOR_VERSION < 5
+	if (this->IsPendingKillOrUnreachable())
 	{
 		return;
 	}
+#else
+	if (!IsValidChecked(this))
+	{
+		return;
+	}
+#endif
 
 	OnUpdatedEffect();
 	if (OnUpdatedEffectDelegate.IsBound())
@@ -248,6 +253,17 @@ int UForceFeedbackEffectBase::EffectStatus() const
 	}
 
 	return HapticDeviceManager->GetEffectStatus(DeviceId, EffectId);
+}
+
+void UForceFeedbackEffectBase::SetDeviceId(const int NewDeviceId)
+{
+	if (IsInitialised)
+	{
+		FJoystickLogManager::Get()->LogWarning(TEXT("Cannot update Effect DeviceId post initialisation."));
+		return;
+	}
+
+	DeviceId = NewDeviceId;
 }
 
 void UForceFeedbackEffectBase::CreateEffect()

@@ -26,7 +26,7 @@ class JOYSTICKPLUGIN_API UForceFeedbackEffectBase : public UObject, public FTick
 {
 	GENERATED_BODY()
 public:
-	UForceFeedbackEffectBase();
+	UForceFeedbackEffectBase(const FObjectInitializer& ObjectInitializer);
 
 	virtual void BeginDestroy() override;
 
@@ -73,6 +73,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Force Feedback|Functions")
 	int EffectStatus() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Functions")
+	void SetDeviceId(const int NewDeviceId);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback", meta = (ExposeOnSpawn = true))
 	int DeviceId;

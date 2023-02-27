@@ -6,12 +6,11 @@
 #include "IInputDevice.h"
 #include "InputCoreTypes.h"
 #include "Containers/Array.h"
-
-#include "Data/DeviceInfoSDL.h"
 #include "Data/JoystickDeviceData.h"
 #include "Data/JoystickInfo.h"
-#include "Data/Settings/JoystickInputDeviceConfiguration.h"
 #include "GenericPlatform/GenericApplicationMessageHandler.h"
+
+struct FDeviceInfoSDL;
 
 class FJoystickInputDevice final : public IInputDevice
 {
@@ -24,6 +23,7 @@ public:
 	virtual bool Exec(UWorld* InWorld, const TCHAR* Cmd, FOutputDevice& Ar) override;
 	virtual void SetChannelValue(int ControllerId, FForceFeedbackChannelType ChannelType, float Value) override;
 	virtual void SetChannelValues(int ControllerId, const FForceFeedbackValues& Values) override;
+	virtual bool IsGamepadAttached() const override;
 
 	void JoystickPluggedIn(const FDeviceInfoSDL& Device);
 	void JoystickUnplugged(int DeviceId);
@@ -32,13 +32,13 @@ public:
 	void JoystickHat(int DeviceId, int Hat, EJoystickPOVDirection Value);
 	void JoystickBall(int DeviceId, int Ball, FVector2D Value);
 
-	bool GetDeviceData(int DeviceId, FJoystickDeviceData& DeviceData);
-	bool GetDeviceInfo(int DeviceId, FJoystickInfo& DeviceInfo);
-	bool GetKeyDeviceInfo(const FKey& Key, FJoystickInfo& DeviceInfo);
+	FJoystickDeviceData* GetDeviceData(int DeviceId);
+	FJoystickInfo* GetDeviceInfo(int DeviceId);
+	FJoystickInfo* GetKeyDeviceInfo(const FKey& Key);
 	int GetDeviceCount() const;
-	int GetDeviceIdByKey(const FKey& Key);
 	void GetDeviceIds(TArray<int>& DeviceIds) const;
-	int GetDeviceIndexByKey(const FKey& Key);
+	int GetDeviceIndexByKey(const FKey& Key) const;
+	int GetDeviceIdByKey(const FKey& Key) const;
 
 	void SetPlayerOwnership(int DeviceId, int PlayerId);
 

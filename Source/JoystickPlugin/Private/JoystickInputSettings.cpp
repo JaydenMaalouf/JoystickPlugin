@@ -2,9 +2,19 @@
 // Copyright Jayden Maalouf. All Rights Reserved.
 
 #include "JoystickInputSettings.h"
-
 #include "JoystickInputDevice.h"
 #include "JoystickSubsystem.h"
+
+UJoystickInputSettings::UJoystickInputSettings()
+{
+	UseDeviceName = false;
+	IgnoreGameControllers = false;
+#if WITH_EDITOR
+	EnableLogs = true;
+#else
+	EnableLogs = false;
+#endif
+}
 
 void UJoystickInputSettings::DeviceAdded(const FJoystickInputDeviceInformation JoystickInfo)
 {
@@ -40,6 +50,18 @@ const FJoystickInputDeviceConfiguration* UJoystickInputSettings::GetInputDeviceC
 	});
 }
 
+bool UJoystickInputSettings::GetIgnoreGameControllers() const
+{
+	return IgnoreGameControllers;
+}
+
+bool UJoystickInputSettings::SetIgnoreGameControllers(const bool NewIgnoreGameControllers)
+{
+	const bool OldIgnoreGameControllers = IgnoreGameControllers;
+	IgnoreGameControllers = NewIgnoreGameControllers;
+	return OldIgnoreGameControllers != NewIgnoreGameControllers;
+}
+
 int UJoystickInputSettings::GetDeviceIndexByKey(const FKey& Key) const
 {
 	const UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
@@ -48,7 +70,7 @@ int UJoystickInputSettings::GetDeviceIndexByKey(const FKey& Key) const
 		return -1;
 	}
 
-	FJoystickInputDevice* InputDevice = JoystickSubsystem->GetInputDevice();
+	const FJoystickInputDevice* InputDevice = JoystickSubsystem->GetInputDevice();
 	if (InputDevice == nullptr)
 	{
 		return -1;

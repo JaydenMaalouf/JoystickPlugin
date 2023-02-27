@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "ForceFeedbackEffectReplayData.Generated.h"
+#include "ForceFeedbackEffectReplayData.generated.h"
 
 USTRUCT(BlueprintType)
 struct JOYSTICKPLUGIN_API FForceFeedbackEffectReplayData

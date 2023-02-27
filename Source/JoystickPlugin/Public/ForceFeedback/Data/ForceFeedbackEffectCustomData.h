@@ -10,7 +10,7 @@
 
 #include "Containers/Array.h"
 
-#include "ForceFeedbackEffectCustomData.Generated.h"
+#include "ForceFeedbackEffectCustomData.generated.h"
 
 USTRUCT(BlueprintType)
 struct JOYSTICKPLUGIN_API FForceFeedbackEffectCustomData
