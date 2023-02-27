@@ -8,7 +8,7 @@
 #include "ForceFeedback/Data/Base/ForceFeedbackEffectReplayData.h"
 #include "ForceFeedback/Data/Base/ForceFeedbackEffectEnvelopeData.h"
 
-#include "ForceFeedbackEffectRampData.Generated.h"
+#include "ForceFeedbackEffectRampData.generated.h"
 
 USTRUCT(BlueprintType)
 struct JOYSTICKPLUGIN_API FForceFeedbackEffectRampData

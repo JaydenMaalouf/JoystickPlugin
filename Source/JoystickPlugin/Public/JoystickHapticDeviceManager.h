@@ -7,6 +7,10 @@
 
 #include "JoystickHapticDeviceManager.generated.h"
 
+struct FDeviceInfoSDL;
+typedef _SDL_Haptic SDL_Haptic;
+union SDL_HapticEffect;
+
 UCLASS(BlueprintType)
 class JOYSTICKPLUGIN_API UJoystickHapticDeviceManager final : public UObject
 {
@@ -17,28 +21,43 @@ public:
 	static UJoystickHapticDeviceManager* GetJoystickHapticDeviceManager() { return StaticClass()->GetDefaultObject<UJoystickHapticDeviceManager>(); }
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback|Functions")
-	bool SetAutoCenter(int DeviceId, int Center);
+	bool SetAutoCenter(const int DeviceId, const int Center);
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback|Functions")
-	bool SetGain(int DeviceId, int Gain);
+	bool SetGain(const int DeviceId, const int Gain);
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback|Functions")
-	void PauseDevice(int DeviceId) const;
+	void PauseDevice(const int DeviceId) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback|Functions")
-	void UnpauseDevice(int DeviceId) const;
+	void UnpauseDevice(const int DeviceId) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback|Functions")
-	void StopAllEffects(int DeviceId) const;
+	void StopAllEffects(const int DeviceId) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Joystick|Force Feedback|Functions")
-	int GetNumEffects(int DeviceId) const;
+	int GetNumEffects(const int DeviceId) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Joystick|Force Feedback|Functions")
-	int GetNumEffectsPlaying(int DeviceId) const;
+	int GetNumEffectsPlaying(const int DeviceId) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Joystick|Force Feedback|Functions")
-	int GetEffectStatus(int DeviceId, int EffectId);
+	int GetEffectStatus(const int DeviceId, const int EffectId);
+	
+	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback|Functions")
+	void PlayRumble(const int DeviceId, const float LowFrequencyRumble, const float HighFrequencyRumble, UPARAM(DisplayName = "Duration (in seconds)")const float Duration) const;
 
-	SDL_Haptic* GetHapticDevice(int DeviceId) const;
+	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback|Functions")
+	void StopRumble(const int DeviceId);
+
+	int CreateEffect(const int DeviceId, SDL_HapticEffect& Effect) const;
+	bool UpdateEffect(int DeviceId, const int EffectId, SDL_HapticEffect& Effect) const;
+	bool RunEffect(const int DeviceId, const int EffectId, const int Iterations) const;
+	bool StopEffect(const int DeviceId, const int EffectId) const;
+	void DestroyEffect(const int DeviceId, const int EffectId) const;
+
+private:
+	
+	SDL_Haptic* GetHapticDevice(const int DeviceId) const;
+	FDeviceInfoSDL* GetDeviceInfo(const int DeviceId) const;
 };

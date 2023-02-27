@@ -8,7 +8,7 @@
 UENUM(BlueprintType)
 enum class EInputType : uint8
 {
-	INPUTTYPE_UNKNOWN,
-	INPUTTYPE_JOYSTICK,
-	INPUTTYPE_GAMECONTROLLER,
+	InputType_Unknown,
+	InputType_Joystick,
+	InputType_GameController,
 };

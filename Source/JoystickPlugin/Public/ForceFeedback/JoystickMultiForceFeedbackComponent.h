@@ -2,8 +2,10 @@
 // Copyright Jayden Maalouf. All Rights Reserved.
 
 #pragma once
+
 #include "Components/ActorComponent.h"
 #include "Data/ForceFeedbackComponentData.h"
+
 #include "JoystickMultiForceFeedbackComponent.generated.h"
 
 class UForceFeedbackEffectBase;
@@ -14,6 +16,8 @@ class JOYSTICKPLUGIN_API UJoystickMultiForceFeedbackComponent : public UActorCom
 	GENERATED_BODY()
 
 public:
+	UJoystickMultiForceFeedbackComponent(const FObjectInitializer& ObjectInitializer);
+	
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
@@ -36,7 +40,7 @@ public:
 	TArray<UForceFeedbackEffectBase*> GetEffects();
 
 	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Component|Functions")
-	UForceFeedbackEffectBase* GetEffectByType(TSubclassOf<class UForceFeedbackEffectBase> EffectType);
+	UForceFeedbackEffectBase* GetEffectByType(TSubclassOf<UForceFeedbackEffectBase> EffectType);
 
 	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Component|Functions")
 	void StartEffect(UForceFeedbackEffectBase* Effect);
@@ -45,7 +49,10 @@ public:
 	void StopEffect(UForceFeedbackEffectBase* Effect);
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Force Feedback|Component")
-	TMap<TSubclassOf<class UForceFeedbackEffectBase>, FForceFeedbackComponentData> EffectTypes;
+	int DeviceId;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Force Feedback|Component")
+	TMap<TSubclassOf<UForceFeedbackEffectBase>, FForceFeedbackComponentData> EffectTypes;
 
 	UPROPERTY(VisibleAnywhere, Category = "Force Feedback|Component")
 	TArray<UForceFeedbackEffectBase*> Effects;

@@ -5,6 +5,7 @@
 
 #include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
 #include "ForceFeedback/Data/ForceFeedbackEffectConditionData.h"
+
 #include "ForceFeedbackEffectCondition.generated.h"
 
 UCLASS(Blueprintable)
