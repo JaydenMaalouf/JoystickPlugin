@@ -5,6 +5,7 @@
 
 #include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
 #include "ForceFeedback/Data/ForceFeedbackEffectCustomData.h"
+
 #include "ForceFeedbackEffectCustom.generated.h"
 
 UCLASS(Blueprintable)
