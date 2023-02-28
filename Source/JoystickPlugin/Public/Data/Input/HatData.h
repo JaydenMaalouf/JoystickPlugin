@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "Data/JoystickPOVDirection.h"
+#include "Data/JoystickPointOfViewDirection.h"
 
 #include "HatData.generated.h"
 
@@ -13,10 +13,8 @@ struct JOYSTICKPLUGIN_API FHatData
 	GENERATED_BODY()
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
-	EJoystickPOVDirection Direction;
+	EJoystickPointOfViewDirection Direction;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
-	EJoystickPOVDirection PreviousDirection;
-
-	FName KeyName;
+	EJoystickPointOfViewDirection PreviousDirection;
 };

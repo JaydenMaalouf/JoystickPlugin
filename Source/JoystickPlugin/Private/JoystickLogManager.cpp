@@ -19,7 +19,7 @@ FJoystickLogManager* FJoystickLogManager::Get()
 }
 
 template <typename FmtType, typename... Types>
-void FJoystickLogManager::Log(const ELogVerbosity::Type Level, const FmtType& Fmt, Types ... Args)
+void FJoystickLogManager::Log(const ELogVerbosity::Type Level, const FmtType& Fmt, Types... Args)
 {
 	switch (Level)
 	{
@@ -35,8 +35,8 @@ void FJoystickLogManager::Log(const ELogVerbosity::Type Level, const FmtType& Fm
 	}
 }
 
-template <typename FmtType, typename ... Types>
-void FJoystickLogManager::LogWarning(const FmtType& Fmt, Types ... Args)
+template <typename FmtType, typename... Types>
+void FJoystickLogManager::LogWarning(const FmtType& Fmt, Types... Args)
 {
 	if (!CanLog())
 	{
@@ -46,8 +46,8 @@ void FJoystickLogManager::LogWarning(const FmtType& Fmt, Types ... Args)
 	UE_LOG(LogJoystickPlugin, Warning, TEXT("%s"), *FString::Printf(Fmt, Args...));
 }
 
-template <typename FmtType, typename ... Types>
-void FJoystickLogManager::LogError(const FmtType& Fmt, Types ... Args)
+template <typename FmtType, typename... Types>
+void FJoystickLogManager::LogError(const FmtType& Fmt, Types... Args)
 {
 	if (!CanLog())
 	{
@@ -57,8 +57,8 @@ void FJoystickLogManager::LogError(const FmtType& Fmt, Types ... Args)
 	UE_LOG(LogJoystickPlugin, Error, TEXT("%s"), *FString::Printf(Fmt, Args...));
 }
 
-template <typename FmtType, typename ... Types>
-void FJoystickLogManager::LogDebug(const FmtType& Fmt, Types ... Args)
+template <typename FmtType, typename... Types>
+void FJoystickLogManager::LogDebug(const FmtType& Fmt, Types... Args)
 {
 	if (!CanLog())
 	{
@@ -68,8 +68,8 @@ void FJoystickLogManager::LogDebug(const FmtType& Fmt, Types ... Args)
 	UE_LOG(LogJoystickPlugin, Log, TEXT("%s"), *FString::Printf(Fmt, Args...));
 }
 
-template <typename FmtType, typename ... Types>
-void FJoystickLogManager::LogInformation(const FmtType& Fmt, Types ... Args)
+template <typename FmtType, typename... Types>
+void FJoystickLogManager::LogInformation(const FmtType& Fmt, Types... Args)
 {
 	if (!CanLog())
 	{

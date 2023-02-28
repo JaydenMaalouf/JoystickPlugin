@@ -5,6 +5,7 @@
 
 #include "Components/ActorComponent.h"
 #include "Data/ForceFeedbackComponentData.h"
+#include "Data/JoystickInstanceId.h"
 
 #include "JoystickForceFeedbackComponent.generated.h"
 
@@ -17,7 +18,7 @@ class JOYSTICKPLUGIN_API UJoystickForceFeedbackComponent : public UActorComponen
 
 public:
 	UJoystickForceFeedbackComponent(const FObjectInitializer& ObjectInitializer);
-	
+
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
@@ -46,7 +47,7 @@ public:
 	void StopEffect() const;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Force Feedback|Component")
-	int DeviceId;
+	FJoystickInstanceId InstanceId;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Force Feedback|Component")
 	TSubclassOf<UForceFeedbackEffectBase> EffectType;

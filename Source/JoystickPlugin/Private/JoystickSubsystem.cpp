@@ -6,6 +6,7 @@
 #include "JoystickInputDevice.h"
 #include "JoystickInputSettings.h"
 #include "JoystickLogManager.h"
+#include "Data/JoystickInformation.h"
 
 THIRD_PARTY_INCLUDES_START
 
@@ -21,6 +22,8 @@ UJoystickSubsystem::UJoystickSubsystem()
 {
 }
 
+constexpr unsigned SdlRequiredFlags = SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC;
+
 void UJoystickSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
@@ -33,7 +36,7 @@ void UJoystickSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 	FJoystickLogManager::Get()->LogDebug(TEXT("DeviceSDL Starting"));
 
-	if (SDL_WasInit(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC) != 0)
+	if (SDL_WasInit(SdlRequiredFlags) != 0)
 	{
 		FJoystickLogManager::Get()->LogDebug(TEXT("SDL already loaded"));
 		OwnsSDL = false;
@@ -41,7 +44,7 @@ void UJoystickSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	else
 	{
 		FJoystickLogManager::Get()->LogDebug(TEXT("DeviceSDL::InitSDL() SDL init 0"));
-		SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER  | SDL_INIT_HAPTIC);
+		SDL_Init(SdlRequiredFlags);
 		OwnsSDL = true;
 	}
 
@@ -59,9 +62,9 @@ void UJoystickSubsystem::Deinitialize()
 
 	FJoystickLogManager::Get()->LogDebug(TEXT("DeviceSDL Closing"));
 
-	for (const auto& Device : Devices)
+	for (int DeviceIndex = 0; DeviceIndex < GetRawJoystickCount(); DeviceIndex++)
 	{
-		RemoveDevice(Device.Key);
+		RemoveDevice(DeviceIndex);
 	}
 
 	SDL_DelEventWatch(HandleSDLEvent, this);
@@ -74,6 +77,15 @@ void UJoystickSubsystem::Deinitialize()
 	IsInitialised = false;
 }
 
+void UJoystickSubsystem::InitialiseExistingJoysticks()
+{
+	const int JoystickCount = GetRawJoystickCount();
+	for (int i = 0; i < JoystickCount; i++)
+	{
+		AddDevice(i);
+	}
+}
+
 void UJoystickSubsystem::InitialiseInputDevice(const TSharedPtr<FJoystickInputDevice> NewInputDevice)
 {
 	if (NewInputDevice == nullptr || !NewInputDevice.IsValid())
@@ -83,38 +95,44 @@ void UJoystickSubsystem::InitialiseInputDevice(const TSharedPtr<FJoystickInputDe
 
 	InputDevicePtr = NewInputDevice;
 
-	const int Result = SDL_WasInit(SDL_INIT_JOYSTICK);
+	const int Result = SDL_WasInit(SdlRequiredFlags);
 	if (Result == 0)
 	{
 		return;
 	}
 
-	const int JoystickCount = GetJoystickCount();
-	for (int i = 0; i < JoystickCount; i++)
-	{
-		AddDevice(i);
-	}
+	InitialiseExistingJoysticks();
 
 	SDL_AddEventWatch(HandleSDLEvent, this);
 }
 
-int UJoystickSubsystem::GetJoystickCount() const
+int UJoystickSubsystem::GetRawJoystickCount() const
 {
 	return SDL_NumJoysticks();
 }
 
-int UJoystickSubsystem::GetRegisteredDeviceCount() const
+int UJoystickSubsystem::GetJoystickCount() const
 {
-	const FJoystickInputDevice* InputDevice = GetInputDevice();
-	if (InputDevice == nullptr)
-	{
-		return -1;
-	}
-
-	return InputDevice->GetDeviceCount();
+	return Devices.Num();
 }
 
-bool UJoystickSubsystem::GetJoystickData(const int DeviceId, FJoystickDeviceData& JoystickDeviceData) const
+int UJoystickSubsystem::GetConnectedJoystickCount() const
+{
+	int Count = 0;
+	for (const TPair<FJoystickInstanceId, FDeviceInfoSDL>& DeviceInfo : Devices)
+	{
+		if (!DeviceInfo.Value.Connected)
+		{
+			continue;
+		}
+
+		Count++;
+	}
+
+	return Count;
+}
+
+bool UJoystickSubsystem::GetJoystickState(const FJoystickInstanceId InstanceId, FJoystickDeviceState& JoystickDeviceState)
 {
 	FJoystickInputDevice* InputDevice = GetInputDevice();
 	if (InputDevice == nullptr)
@@ -122,42 +140,68 @@ bool UJoystickSubsystem::GetJoystickData(const int DeviceId, FJoystickDeviceData
 		return false;
 	}
 
-
-	if (const FJoystickDeviceData* DeviceData = InputDevice->GetDeviceData(DeviceId))
+	if (const FJoystickDeviceState* DeviceData = InputDevice->GetDeviceData(InstanceId))
 	{
-		JoystickDeviceData = *DeviceData;
+		JoystickDeviceState = *DeviceData;
 		return true;
 	}
-	
+
 	return false;
 }
 
-bool UJoystickSubsystem::GetJoystickInfo(const int DeviceId, FJoystickInfo& JoystickInfo) const
+bool UJoystickSubsystem::GetJoystickInfo(const FJoystickInstanceId InstanceId, FJoystickInformation& JoystickInfo)
 {
-	FJoystickInputDevice* InputDevice = GetInputDevice();
-	if (InputDevice == nullptr)
+	const FDeviceInfoSDL* DeviceInfo = GetDeviceInfo(InstanceId);
+	if (DeviceInfo == nullptr)
 	{
 		return false;
 	}
 
-	if (const FJoystickInfo* Info = InputDevice->GetDeviceInfo(DeviceId))
-	{
-		JoystickInfo = *Info;
-		return true;
-	}
+	JoystickInfo = static_cast<FJoystickInformation>(*DeviceInfo);
 
-	return false;
+	return true;
 }
 
-void UJoystickSubsystem::MapJoystickDeviceToPlayer(const int DeviceId, const int PlayerId)
+EJoystickType UJoystickSubsystem::GetJoystickType(const FJoystickInstanceId InstanceId)
 {
-	FJoystickInputDevice* InputDevice = GetInputDevice();
-	if (InputDevice == nullptr)
+	const FDeviceInfoSDL* DeviceInfo = GetDeviceInfo(InstanceId);
+	if (DeviceInfo == nullptr)
+	{
+		return EJoystickType::Unknown;
+	}
+
+	return DeviceInfo->Type;
+}
+
+EJoystickPowerLevel UJoystickSubsystem::GetJoystickPowerLevel(const FJoystickInstanceId InstanceId)
+{
+	SDL_Joystick* Joystick = SDL_JoystickFromInstanceID(InstanceId);
+	if (Joystick == nullptr)
+	{
+		return EJoystickPowerLevel::Unknown;
+	}
+
+	FDeviceInfoSDL* DeviceInfo = GetDeviceInfo(InstanceId);
+	if (DeviceInfo == nullptr)
+	{
+		return EJoystickPowerLevel::Unknown;
+	}
+
+	const SDL_JoystickPowerLevel PowerLevel = SDL_JoystickCurrentPowerLevel(Joystick);
+	DeviceInfo->PowerLevel = static_cast<EJoystickPowerLevel>(PowerLevel + 1);
+
+	return DeviceInfo->PowerLevel;
+}
+
+void UJoystickSubsystem::MapJoystickDeviceToPlayer(const FJoystickInstanceId InstanceId, const int PlayerId)
+{
+	FDeviceInfoSDL* DeviceInfo = GetDeviceInfo(InstanceId);
+	if (DeviceInfo == nullptr)
 	{
 		return;
 	}
 
-	InputDevice->SetPlayerOwnership(DeviceId, PlayerId);
+	DeviceInfo->PlayerId = PlayerId;
 }
 
 void UJoystickSubsystem::SetIgnoreGameControllers(const bool IgnoreControllers)
@@ -167,40 +211,61 @@ void UJoystickSubsystem::SetIgnoreGameControllers(const bool IgnoreControllers)
 	{
 		return;
 	}
-	
+
+	const int JoystickCount = GetRawJoystickCount();
 	const bool ChangedValue = JoystickInputSettings->SetIgnoreGameControllers(IgnoreControllers);
 	if (ChangedValue && IgnoreControllers)
 	{
-		for (const auto& Device : Devices)
+		for (int DeviceIndex = 0; DeviceIndex < JoystickCount; DeviceIndex++)
 		{
-			if (DeviceMapping.Contains(Device.Value.InstanceId) && SDL_IsGameController(Device.Value.DeviceIndex))
+			if (SDL_IsGameController(DeviceIndex) == SDL_FALSE)
 			{
-				RemoveDevice(Device.Key);
+				continue;
 			}
+
+			RemoveDeviceByIndex(DeviceIndex);
 		}
 	}
 	else if (ChangedValue && !IgnoreControllers)
 	{
-		const int JoystickCount = GetJoystickCount();
-		for (int i = 0; i < JoystickCount; i++)
+		for (int DeviceIndex = 0; DeviceIndex < JoystickCount; DeviceIndex++)
 		{
-			if (SDL_IsGameController(i))
+			if (SDL_IsGameController(DeviceIndex) == SDL_FALSE)
 			{
-				AddDevice(i);
+				continue;
 			}
+
+			AddDevice(DeviceIndex);
 		}
 	}
 }
 
-void UJoystickSubsystem::GetDeviceIds(TArray<int>& DeviceIds) const
+void UJoystickSubsystem::GetInstanceIds(TArray<FJoystickInstanceId>& InstanceIds) const
 {
-	const FJoystickInputDevice* InputDevice = GetInputDevice();
-	if (InputDevice == nullptr)
+	Devices.GenerateKeyArray(InstanceIds);
+}
+
+bool UJoystickSubsystem::HasRumbleDevice() const
+{
+	for (const auto Device : Devices)
 	{
-		return;
+		if (Device.Value.IsGamepad || Device.Value.RumbleSupport)
+		{
+			return true;
+		}
 	}
 
-	InputDevice->GetDeviceIds(DeviceIds);
+	return false;
+}
+
+bool UJoystickSubsystem::IsConnected(const FJoystickInstanceId InstanceId) const
+{
+	if (!Devices.Contains(InstanceId))
+	{
+		return false;
+	}
+
+	return Devices[InstanceId].Connected;
 }
 
 void UJoystickSubsystem::AddHapticDevice(FDeviceInfoSDL& Device) const
@@ -208,21 +273,22 @@ void UJoystickSubsystem::AddHapticDevice(FDeviceInfoSDL& Device) const
 	Device.Haptic = SDL_HapticOpenFromJoystick(Device.Joystick);
 	if (Device.Haptic != nullptr)
 	{
+		Device.HapticSupport = true;
 		FJoystickLogManager::Get()->LogDebug(TEXT("Haptic Device detected"));
-		FJoystickLogManager::Get()->LogDebug(TEXT("Number of Haptic Axis: %i"), SDL_HapticNumAxes(Device.Haptic));
-		FJoystickLogManager::Get()->LogDebug(TEXT("SDL_HAPTIC_CONSTANT support: %s"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_CONSTANT) == 1 ? TEXT("true") : TEXT("false"));
-		FJoystickLogManager::Get()->LogDebug(TEXT("SDL_HAPTIC_SINE support: %s"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_SINE) == 1 ? TEXT("true") : TEXT("false"));
-		FJoystickLogManager::Get()->LogDebug(TEXT("SDL_HAPTIC_TRIANGLE support: %s"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_TRIANGLE) == 1 ? TEXT("true") : TEXT("false"));
-		FJoystickLogManager::Get()->LogDebug(TEXT("SDL_HAPTIC_SAWTOOTHUP support: %s"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_SAWTOOTHUP) == 1 ? TEXT("true") : TEXT("false"));
-		FJoystickLogManager::Get()->LogDebug(TEXT("SDL_HAPTIC_SAWTOOTHDOWN support: %s"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_SAWTOOTHDOWN) == 1 ? TEXT("true") : TEXT("false"));
-		FJoystickLogManager::Get()->LogDebug(TEXT("SDL_HAPTIC_RAMP support: %s"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_RAMP) == 1 ? TEXT("true") : TEXT("false"));
-		FJoystickLogManager::Get()->LogDebug(TEXT("SDL_HAPTIC_SPRING support: %s"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_SPRING) == 1 ? TEXT("true") : TEXT("false"));
-		FJoystickLogManager::Get()->LogDebug(TEXT("SDL_HAPTIC_DAMPER support: %s"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_DAMPER) == 1 ? TEXT("true") : TEXT("false"));
-		FJoystickLogManager::Get()->LogDebug(TEXT("SDL_HAPTIC_INERTIA support: %s"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_INERTIA) == 1 ? TEXT("true") : TEXT("false"));
-		FJoystickLogManager::Get()->LogDebug(TEXT("SDL_HAPTIC_FRICTION support: %s"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_FRICTION) == 1 ? TEXT("true") : TEXT("false"));
-		FJoystickLogManager::Get()->LogDebug(TEXT("SDL_HAPTIC_CUSTOM support: %s"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_CUSTOM) == 1 ? TEXT("true") : TEXT("false"));
-		FJoystickLogManager::Get()->LogDebug(TEXT("SDL_HAPTIC_GAIN support: %s"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_GAIN) == 1 ? TEXT("true") : TEXT("false"));
-		FJoystickLogManager::Get()->LogDebug(TEXT("SDL_HAPTIC_AUTOCENTER support: %s"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_AUTOCENTER) == 1 ? TEXT("true") : TEXT("false"));
+		FJoystickLogManager::Get()->LogDebug(TEXT("\tNumber of Haptic Axis: %i"), SDL_HapticNumAxes(Device.Haptic));
+		FJoystickLogManager::Get()->LogDebug(TEXT("\tSDL_HAPTIC_CONSTANT support: %s"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_CONSTANT) == 1 ? TEXT("true") : TEXT("false"));
+		FJoystickLogManager::Get()->LogDebug(TEXT("\tSDL_HAPTIC_SINE support: %s"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_SINE) == 1 ? TEXT("true") : TEXT("false"));
+		FJoystickLogManager::Get()->LogDebug(TEXT("\tSDL_HAPTIC_TRIANGLE support: %s"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_TRIANGLE) == 1 ? TEXT("true") : TEXT("false"));
+		FJoystickLogManager::Get()->LogDebug(TEXT("\tSDL_HAPTIC_SAWTOOTHUP support: %s"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_SAWTOOTHUP) == 1 ? TEXT("true") : TEXT("false"));
+		FJoystickLogManager::Get()->LogDebug(TEXT("\tSDL_HAPTIC_SAWTOOTHDOWN support: %s"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_SAWTOOTHDOWN) == 1 ? TEXT("true") : TEXT("false"));
+		FJoystickLogManager::Get()->LogDebug(TEXT("\tSDL_HAPTIC_RAMP support: %s"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_RAMP) == 1 ? TEXT("true") : TEXT("false"));
+		FJoystickLogManager::Get()->LogDebug(TEXT("\tSDL_HAPTIC_SPRING support: %s"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_SPRING) == 1 ? TEXT("true") : TEXT("false"));
+		FJoystickLogManager::Get()->LogDebug(TEXT("\tSDL_HAPTIC_DAMPER support: %s"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_DAMPER) == 1 ? TEXT("true") : TEXT("false"));
+		FJoystickLogManager::Get()->LogDebug(TEXT("\tSDL_HAPTIC_INERTIA support: %s"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_INERTIA) == 1 ? TEXT("true") : TEXT("false"));
+		FJoystickLogManager::Get()->LogDebug(TEXT("\tSDL_HAPTIC_FRICTION support: %s"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_FRICTION) == 1 ? TEXT("true") : TEXT("false"));
+		FJoystickLogManager::Get()->LogDebug(TEXT("\tSDL_HAPTIC_CUSTOM support: %s"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_CUSTOM) == 1 ? TEXT("true") : TEXT("false"));
+		FJoystickLogManager::Get()->LogDebug(TEXT("\tSDL_HAPTIC_GAIN support: %s"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_GAIN) == 1 ? TEXT("true") : TEXT("false"));
+		FJoystickLogManager::Get()->LogDebug(TEXT("\tSDL_HAPTIC_AUTOCENTER support: %s"), (SDL_HapticQuery(Device.Haptic) & SDL_HAPTIC_AUTOCENTER) == 1 ? TEXT("true") : TEXT("false"));
 	}
 }
 
@@ -242,67 +308,85 @@ bool UJoystickSubsystem::AddDevice(const int DeviceIndex)
 	}
 
 	FDeviceInfoSDL Device;
-	Device.DeviceIndex = DeviceIndex;
 	Device.IsGamepad = IsGamepad;
+	Device.Connected = true;
+	Device.InstanceId = SDL_JoystickGetDeviceInstanceID(DeviceIndex);
+	Device.VendorId = SDL_JoystickGetDeviceVendor(DeviceIndex);
+	Device.ProductId = SDL_JoystickGetDeviceProduct(DeviceIndex);
+	Device.ProductVersion = SDL_JoystickGetDeviceProductVersion(DeviceIndex);
+
+	const SDL_JoystickGUID SDLGuid = SDL_JoystickGetDeviceGUID(DeviceIndex);
+	memcpy(&Device.ProductGuid, &SDLGuid, sizeof(FGuid));
 
 	Device.Joystick = SDL_JoystickOpen(DeviceIndex);
 	if (Device.Joystick == nullptr)
 	{
+		const FString ErrorMessage = FString(SDL_GetError());
+		FJoystickLogManager::Get()->LogError(TEXT("Joystick Open Error: %s"), *ErrorMessage);
 		return false;
 	}
 
-	Device.InstanceId = SDL_JoystickInstanceID(Device.Joystick);
-	GetDeviceIndexGuid(DeviceIndex, Device.ProductId);
+	const SDL_JoystickType Type = SDL_JoystickGetType(Device.Joystick);
+	Device.Type = static_cast<EJoystickType>(Type);
+	const SDL_JoystickPowerLevel PowerLevel = SDL_JoystickCurrentPowerLevel(Device.Joystick);
+	Device.PowerLevel = static_cast<EJoystickPowerLevel>(PowerLevel + 1);
 
 	// DEBUG
 	Device.DeviceName = FString(ANSI_TO_TCHAR(SDL_JoystickName(Device.Joystick)));
-	FJoystickLogManager::Get()->LogDebug(TEXT("%s:"), *Device.DeviceName);
-	FJoystickLogManager::Get()->LogDebug(TEXT("\tInstance ID: %d"), Device.InstanceId);
-	FJoystickLogManager::Get()->LogDebug(TEXT("\tDevice Index: %d"), Device.DeviceIndex);
-	FJoystickLogManager::Get()->LogDebug(TEXT("\tNumber of Axis %i"), SDL_JoystickNumAxes(Device.Joystick));
-	FJoystickLogManager::Get()->LogDebug(TEXT("\tNumber of Balls %i"), SDL_JoystickNumBalls(Device.Joystick));
-	FJoystickLogManager::Get()->LogDebug(TEXT("\tNumber of Buttons %i"), SDL_JoystickNumButtons(Device.Joystick));
-	FJoystickLogManager::Get()->LogDebug(TEXT("\tNumber of Hats %i"), SDL_JoystickNumHats(Device.Joystick));
+	Device.SafeDeviceName = Device.DeviceName.Replace(TEXT("."), TEXT("")).Replace(TEXT(","), TEXT(""));
+	Device.ProductName = Device.SafeDeviceName.Replace(TEXT(" "), TEXT(""));
 
-#if ENGINE_MAJOR_VERSION >= 5
+#if ENGINE_MAJOR_VERSION == 5
 	const bool HasRumble = SDL_JoystickHasRumble(Device.Joystick) == SDL_TRUE;
 #else
 	const bool HasRumble = SDL_JoystickRumble(Device.Joystick, static_cast<Uint16>(0), static_cast<Uint16>(0), static_cast<Uint32>(1)) == 0;
+	const bool HasRumble = SDL_JoystickRumble(Device.Joystick, static_cast<Uint16>(0), static_cast<Uint16>(0), static_cast<Uint32>(1)) == 0;
 #endif
-	FJoystickLogManager::Get()->LogDebug(TEXT("\tRumble Support: %s"), HasRumble ? TEXT("true") : TEXT("false"));
-	Device.HasRumble = HasRumble;
+	Device.RumbleSupport = HasRumble;
 
 	if (SDL_JoystickIsHaptic(Device.Joystick))
 	{
 		AddHapticDevice(Device);
 	}
 
-	for (auto& ExistingDevice : Devices)
-	{
-		if (ExistingDevice.Value.Joystick == nullptr && ExistingDevice.Value.DeviceName == Device.DeviceName)
-		{
-			Device.DeviceId = ExistingDevice.Key;
-			Devices[Device.DeviceId] = Device;
+	FJoystickLogManager::Get()->LogDebug(TEXT("%s:"), *Device.DeviceName);
+	FJoystickLogManager::Get()->LogDebug(TEXT("\tDevice Index: %d"), DeviceIndex);
+	FJoystickLogManager::Get()->LogDebug(TEXT("\tProduct: %d"), Device.ProductId);
+	FJoystickLogManager::Get()->LogDebug(TEXT("\tProduct Id: %s"), *Device.ProductGuid.ToString());
+	FJoystickLogManager::Get()->LogDebug(TEXT("\tProduct Version: %d"), Device.ProductVersion);
+	FJoystickLogManager::Get()->LogDebug(TEXT("\tVendor Id: %d"), Device.VendorId);
+	FJoystickLogManager::Get()->LogDebug(TEXT("\tIs Gamepad: %s"), Device.IsGamepad ? TEXT("true") : TEXT("false"));
+	FJoystickLogManager::Get()->LogDebug(TEXT("\tRumble Support: %s"), HasRumble ? TEXT("true") : TEXT("false"));
+	FJoystickLogManager::Get()->LogDebug(TEXT("\tHaptic Support: %s"), Device.HapticSupport ? TEXT("true") : TEXT("false"));
+	FJoystickLogManager::Get()->LogDebug(TEXT("\tType: %d"), Device.Type);
+	FJoystickLogManager::Get()->LogDebug(TEXT("\tPower Level: %d"), Device.PowerLevel);
+	FJoystickLogManager::Get()->LogDebug(TEXT("\tNumber of Axis %i"), SDL_JoystickNumAxes(Device.Joystick));
+	FJoystickLogManager::Get()->LogDebug(TEXT("\tNumber of Balls %i"), SDL_JoystickNumBalls(Device.Joystick));
+	FJoystickLogManager::Get()->LogDebug(TEXT("\tNumber of Buttons %i"), SDL_JoystickNumButtons(Device.Joystick));
+	FJoystickLogManager::Get()->LogDebug(TEXT("\tNumber of Hats %i"), SDL_JoystickNumHats(Device.Joystick));
 
-			DeviceMapping.Add(Device.InstanceId, Device.DeviceId);
-			JoystickPluggedIn(Device);
-			return true;
-		}
-	}
+	Devices.Emplace(Device.InstanceId, Device);
 
-	Device.DeviceId = Devices.Num();
-	Devices.Add(Device.DeviceId, Device);
-
-	DeviceMapping.Add(Device.InstanceId, Device.DeviceId);
 	JoystickPluggedIn(Device);
 	return true;
 }
 
-bool UJoystickSubsystem::RemoveDevice(const int DeviceId)
+bool UJoystickSubsystem::RemoveDeviceByIndex(const int DeviceIndex)
 {
-	JoystickUnplugged(DeviceId);
+	const FJoystickInstanceId InstanceId = SDL_JoystickGetDeviceInstanceID(DeviceIndex);
+	if (InstanceId == -1)
+	{
+		return false;
+	}
 
-	FDeviceInfoSDL* DeviceInfo = GetDeviceInfo(DeviceId);
+	return RemoveDevice(InstanceId);
+}
+
+bool UJoystickSubsystem::RemoveDevice(const FJoystickInstanceId InstanceId)
+{
+	JoystickUnplugged(InstanceId);
+
+	FDeviceInfoSDL* DeviceInfo = GetDeviceInfo(InstanceId);
 	if (DeviceInfo == nullptr)
 	{
 		return nullptr;
@@ -310,19 +394,20 @@ bool UJoystickSubsystem::RemoveDevice(const int DeviceId)
 
 	if (DeviceInfo->Haptic != nullptr)
 	{
-		FJoystickLogManager::Get()->LogDebug(TEXT("Closing Haptic Device for %d"), DeviceId);
+		FJoystickLogManager::Get()->LogDebug(TEXT("Closing Haptic Device for %d"), InstanceId);
 		SDL_HapticClose(DeviceInfo->Haptic);
 		DeviceInfo->Haptic = nullptr;
 	}
 	if (DeviceInfo->Joystick != nullptr)
 	{
-		FJoystickLogManager::Get()->LogDebug(TEXT("Closing Joystick Device for %d"), DeviceId);
+		FJoystickLogManager::Get()->LogDebug(TEXT("Closing Joystick Device for %d"), InstanceId);
 		SDL_JoystickClose(DeviceInfo->Joystick);
 		DeviceInfo->Joystick = nullptr;
 	}
 
-	FJoystickLogManager::Get()->LogInformation(TEXT("Device Removed %d"), DeviceId);
-	DeviceMapping.Remove(DeviceInfo->InstanceId);
+	DeviceInfo->Connected = false;
+	FJoystickLogManager::Get()->LogInformation(TEXT("Device Removed %d"), InstanceId);
+
 	return true;
 }
 
@@ -350,68 +435,36 @@ int UJoystickSubsystem::HandleSDLEvent(void* UserData, SDL_Event* Event)
 	switch (Event->type)
 	{
 		case SDL_JOYDEVICEADDED:
-			JoystickSubsystem.AddDevice(Event->cdevice.which);
-			break;
-		/*case SDL_CONTROLLERDEVICEADDED:
-		{
-			if (Self.bIgnoreGameControllers)
 			{
-				// Since JOYSTICK is inited before GAMECONTROLLER (by GAMECONTROLLER), 
-				// a controller can be added as a joystick before we can check that it is a controller.
-				// Remove it again and let UE handle it.
-				FDeviceIndex DeviceIndex = FDeviceIndex(Event->cdevice.which);
-				for (auto &Device : Self.Devices)
-				{
-					if (Device.Value.DeviceIndex == DeviceIndex && Self.DeviceMapping.Contains(Device.Value.InstanceId))
-					{
-						Self.DeviceMapping.Remove(Device.Value.InstanceId);
-						Self.EventInterface->JoystickUnplugged(Device.Value.DeviceId);
-					}
-				}
+				JoystickSubsystem.AddDevice(Event->jdevice.which);
+				break;
 			}
-			break;
-		}*/
 		case SDL_JOYDEVICEREMOVED:
 			{
-				const int InstanceId = Event->cdevice.which;
-				if (JoystickSubsystem.DeviceMapping.Contains(InstanceId))
-				{
-					const int DeviceId = JoystickSubsystem.DeviceMapping[InstanceId];
-					JoystickSubsystem.RemoveDevice(DeviceId);
-				}
+				JoystickSubsystem.RemoveDevice(Event->jdevice.which);
 				break;
 			}
 		case SDL_JOYBUTTONDOWN:
 		case SDL_JOYBUTTONUP:
-			if (JoystickSubsystem.DeviceMapping.Contains(Event->jbutton.which))
 			{
-				const int DeviceId = JoystickSubsystem.DeviceMapping[Event->jbutton.which];
-				InputDevice->JoystickButton(DeviceId, Event->jbutton.button, Event->jbutton.state == SDL_PRESSED);
-
-				FJoystickLogManager::Get()->LogDebug(TEXT("Event JoystickButton Device=%d Button=%d State=%d"), DeviceId, Event->jbutton.button, Event->jbutton.state);
+				InputDevice->JoystickButton(Event->jbutton.which, Event->jbutton.button, Event->jbutton.state == SDL_PRESSED);
+				break;
 			}
-			break;
 		case SDL_JOYAXISMOTION:
-			if (JoystickSubsystem.DeviceMapping.Contains(Event->jaxis.which))
 			{
-				const int DeviceId = JoystickSubsystem.DeviceMapping[Event->jaxis.which];
-				InputDevice->JoystickAxis(DeviceId, Event->jaxis.axis, Event->jaxis.value / (Event->jaxis.value < 0 ? 32768.0f : 32767.0f));
+				InputDevice->JoystickAxis(Event->jaxis.which, Event->jaxis.axis, Event->jaxis.value / (Event->jaxis.value < 0 ? 32768.0f : 32767.0f));
+				break;
 			}
-			break;
 		case SDL_JOYHATMOTION:
-			if (JoystickSubsystem.DeviceMapping.Contains(Event->jhat.which))
 			{
-				const int DeviceId = JoystickSubsystem.DeviceMapping[Event->jhat.which];
-				InputDevice->JoystickHat(DeviceId, Event->jhat.hat, UJoystickFunctionLibrary::HatValueToDirection(Event->jhat.value));
+				InputDevice->JoystickHat(Event->jhat.which, Event->jhat.hat, UJoystickFunctionLibrary::HatValueToDirection(Event->jhat.value));
+				break;
 			}
-			break;
 		case SDL_JOYBALLMOTION:
-			if (JoystickSubsystem.DeviceMapping.Contains(Event->jball.which))
 			{
-				const int DeviceId = JoystickSubsystem.DeviceMapping[Event->jball.which];
-				InputDevice->JoystickBall(DeviceId, Event->jball.ball, FVector2D(Event->jball.xrel, Event->jball.yrel));
+				InputDevice->JoystickBall(Event->jball.which, Event->jball.ball, FVector2D(Event->jball.xrel, Event->jball.yrel));
+				break;
 			}
-			break;
 		default:
 			break;
 	}
@@ -419,15 +472,15 @@ int UJoystickSubsystem::HandleSDLEvent(void* UserData, SDL_Event* Event)
 	return 0;
 }
 
-FJoystickDeviceData UJoystickSubsystem::CreateInitialDeviceState(const int DeviceId)
+FJoystickDeviceState UJoystickSubsystem::CreateInitialDeviceState(const FJoystickInstanceId InstanceId)
 {
-	const FDeviceInfoSDL* DeviceInfo = GetDeviceInfo(DeviceId);
+	const FDeviceInfoSDL* DeviceInfo = GetDeviceInfo(InstanceId);
 	if (DeviceInfo == nullptr || DeviceInfo->Joystick == nullptr)
 	{
-		return FJoystickDeviceData();
+		return FJoystickDeviceState();
 	}
 
-	FJoystickDeviceData DeviceState = FJoystickDeviceData();
+	FJoystickDeviceState DeviceState = FJoystickDeviceState();
 	const int AxesCount = SDL_JoystickNumAxes(DeviceInfo->Joystick);
 	const int ButtonCount = SDL_JoystickNumButtons(DeviceInfo->Joystick);
 	const int HatsCount = SDL_JoystickNumHats(DeviceInfo->Joystick);
@@ -455,36 +508,14 @@ bool UJoystickSubsystem::IsReady() const
 	return IsInitialised;
 }
 
-FString UJoystickSubsystem::GetDeviceIndexGuidString(const int DeviceIndex) const
+FDeviceInfoSDL* UJoystickSubsystem::GetDeviceInfo(const FJoystickInstanceId InstanceId)
 {
-	char Buffer[32];
-	constexpr int8 SizeBuffer = sizeof(Buffer);
-
-	const SDL_JoystickGUID GUID = SDL_JoystickGetDeviceGUID(DeviceIndex);
-	SDL_JoystickGetGUIDString(GUID, Buffer, SizeBuffer);
-	return ANSI_TO_TCHAR(Buffer);
-}
-
-void UJoystickSubsystem::GetDeviceIndexGuid(const int DeviceIndex, FGuid& Guid) const
-{
-	const SDL_JoystickGUID SDLGuid = SDL_JoystickGetDeviceGUID(DeviceIndex);
-	memcpy(&Guid, &SDLGuid, sizeof(FGuid));
-}
-
-FDeviceInfoSDL* UJoystickSubsystem::GetDeviceInfo(const int DeviceId)
-{
-	const FJoystickInputDevice* InputDevice = GetInputDevice();
-	if (InputDevice == nullptr)
+	if (Devices.Num() == 0)
 	{
 		return nullptr;
 	}
 
-	if (Devices.Num() == 0 || !Devices.Contains(DeviceId))
-	{
-		return nullptr;
-	}
-
-	return Devices.Find(DeviceId);
+	return Devices.Find(InstanceId);
 }
 
 void UJoystickSubsystem::JoystickPluggedIn(const FDeviceInfoSDL& Device) const
@@ -498,21 +529,26 @@ void UJoystickSubsystem::JoystickPluggedIn(const FDeviceInfoSDL& Device) const
 	InputDevice->JoystickPluggedIn(Device);
 	if (JoystickPluggedInDelegate.IsBound())
 	{
-		JoystickPluggedInDelegate.Broadcast(Device.DeviceId);
+		JoystickPluggedInDelegate.Broadcast(Device.InstanceId);
 	}
 }
 
-void UJoystickSubsystem::JoystickUnplugged(const int DeviceId) const
+void UJoystickSubsystem::JoystickUnplugged(const FJoystickInstanceId InstanceId) const
 {
-	FJoystickInputDevice* InputDevice = GetInputDevice();
+	const FJoystickInputDevice* InputDevice = GetInputDevice();
 	if (InputDevice == nullptr)
 	{
 		return;
 	}
 
-	InputDevice->JoystickUnplugged(DeviceId);
+	InputDevice->JoystickUnplugged(InstanceId);
 	if (JoystickUnpluggedDelegate.IsBound())
 	{
-		JoystickUnpluggedDelegate.Broadcast(DeviceId);
+		JoystickUnpluggedDelegate.Broadcast(InstanceId);
 	}
+}
+
+const TMap<FJoystickInstanceId, FDeviceInfoSDL>& UJoystickSubsystem::GetDevices()
+{
+	return Devices;
 }

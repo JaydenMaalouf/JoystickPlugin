@@ -6,52 +6,51 @@
 
 THIRD_PARTY_INCLUDES_START
 
-#include "SDL.h"
 #include "SDL_joystick.h"
 
 THIRD_PARTY_INCLUDES_END
 
-FVector2D UJoystickFunctionLibrary::POVAxis(const EJoystickPOVDirection Direction)
+FVector2D UJoystickFunctionLibrary::POVAxis(const EJoystickPointOfViewDirection Direction)
 {
 	switch (Direction)
 	{
-		case EJoystickPOVDirection::Direction_None:
+		case EJoystickPointOfViewDirection::None:
 			return FVector2D(0, 0);
-		case EJoystickPOVDirection::Direction_Up:
+		case EJoystickPointOfViewDirection::Up:
 			return FVector2D(0, 1);
-		case EJoystickPOVDirection::Direction_Up_Right:
+		case EJoystickPointOfViewDirection::Up_Right:
 			return FVector2D(1, 1);
-		case EJoystickPOVDirection::Direction_Right:
+		case EJoystickPointOfViewDirection::Right:
 			return FVector2D(1, 0);
-		case EJoystickPOVDirection::Direction_Down_Right:
+		case EJoystickPointOfViewDirection::Down_Right:
 			return FVector2D(1, -1);
-		case EJoystickPOVDirection::Direction_Down:
+		case EJoystickPointOfViewDirection::Down:
 			return FVector2D(0, -1);
-		case EJoystickPOVDirection::Direction_Down_Left:
+		case EJoystickPointOfViewDirection::Down_Left:
 			return FVector2D(-1, -1);
-		case EJoystickPOVDirection::Direction_Left:
+		case EJoystickPointOfViewDirection::Left:
 			return FVector2D(-1, 0);
-		case EJoystickPOVDirection::Direction_Up_Left:
+		case EJoystickPointOfViewDirection::Up_Left:
 			return FVector2D(-1, 1);
 		default:
 			return FVector2D(0, 0);
 	}
 }
 
-EJoystickPOVDirection UJoystickFunctionLibrary::HatValueToDirection(const int8 Value)
+EJoystickPointOfViewDirection UJoystickFunctionLibrary::HatValueToDirection(const int8 Value)
 {
 	switch (Value)
 	{
-		case SDL_HAT_CENTERED: return EJoystickPOVDirection::Direction_None;
-		case SDL_HAT_UP: return EJoystickPOVDirection::Direction_Up;
-		case SDL_HAT_RIGHTUP: return EJoystickPOVDirection::Direction_Up_Right;
-		case SDL_HAT_RIGHT: return EJoystickPOVDirection::Direction_Right;
-		case SDL_HAT_RIGHTDOWN: return EJoystickPOVDirection::Direction_Down_Right;
-		case SDL_HAT_DOWN: return EJoystickPOVDirection::Direction_Down;
-		case SDL_HAT_LEFTDOWN: return EJoystickPOVDirection::Direction_Down_Left;
-		case SDL_HAT_LEFT: return EJoystickPOVDirection::Direction_Left;
-		case SDL_HAT_LEFTUP: return EJoystickPOVDirection::Direction_Up_Left;
+		case SDL_HAT_CENTERED: return EJoystickPointOfViewDirection::None;
+		case SDL_HAT_UP: return EJoystickPointOfViewDirection::Up;
+		case SDL_HAT_RIGHTUP: return EJoystickPointOfViewDirection::Up_Right;
+		case SDL_HAT_RIGHT: return EJoystickPointOfViewDirection::Right;
+		case SDL_HAT_RIGHTDOWN: return EJoystickPointOfViewDirection::Down_Right;
+		case SDL_HAT_DOWN: return EJoystickPointOfViewDirection::Down;
+		case SDL_HAT_LEFTDOWN: return EJoystickPointOfViewDirection::Down_Left;
+		case SDL_HAT_LEFT: return EJoystickPointOfViewDirection::Left;
+		case SDL_HAT_LEFTUP: return EJoystickPointOfViewDirection::Up_Left;
 		default:
-			return EJoystickPOVDirection::Direction_None;
+			return EJoystickPointOfViewDirection::None;
 	}
 }
