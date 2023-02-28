@@ -8,10 +8,10 @@
 #include "Data/Input/ButtonData.h"
 #include "Data/Input/HatData.h"
 
-#include "JoystickDeviceData.generated.h"
+#include "JoystickDeviceState.generated.h"
 
 USTRUCT(BlueprintType)
-struct JOYSTICKPLUGIN_API FJoystickDeviceData
+struct JOYSTICKPLUGIN_API FJoystickDeviceState
 {
 	GENERATED_BODY()
 

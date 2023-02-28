@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "Data/JoystickPOVDirection.h"
+#include "Data/JoystickPointOfViewDirection.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 
 #include "JoystickFunctionLibrary.generated.h"
@@ -15,7 +15,7 @@ class JOYSTICKPLUGIN_API UJoystickFunctionLibrary final : public UBlueprintFunct
 
 public:
 	UFUNCTION(BlueprintPure, Category = "SDL2 Input|Joystick input")
-	static FVector2D POVAxis(const EJoystickPOVDirection Direction);
+	static FVector2D POVAxis(const EJoystickPointOfViewDirection Direction);
 
-	static EJoystickPOVDirection HatValueToDirection(int8 Value);
+	static EJoystickPointOfViewDirection HatValueToDirection(int8 Value);
 };

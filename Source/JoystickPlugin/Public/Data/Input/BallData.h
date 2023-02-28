@@ -15,6 +15,4 @@ struct JOYSTICKPLUGIN_API FBallData
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
 	FVector2D PreviousDirection;
-
-	FName KeyName;
 };

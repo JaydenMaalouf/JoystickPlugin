@@ -4,6 +4,7 @@
 #pragma once
 
 #include "Tickable.h"
+#include "Data/JoystickInstanceId.h"
 
 THIRD_PARTY_INCLUDES_START
 #include "SDL_haptic.h"
@@ -25,6 +26,7 @@ UCLASS(BlueprintType)
 class JOYSTICKPLUGIN_API UForceFeedbackEffectBase : public UObject, public FTickableGameObject
 {
 	GENERATED_BODY()
+
 public:
 	UForceFeedbackEffectBase(const FObjectInitializer& ObjectInitializer);
 
@@ -75,10 +77,10 @@ public:
 	int EffectStatus() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Functions")
-	void SetDeviceId(const int NewDeviceId);
+	void SetInstanceId(const FJoystickInstanceId NewInstanceId);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback", meta = (ExposeOnSpawn = true))
-	int DeviceId;
+	FJoystickInstanceId InstanceId;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadonly, Category = "Force Feedback")
 	int EffectId;
