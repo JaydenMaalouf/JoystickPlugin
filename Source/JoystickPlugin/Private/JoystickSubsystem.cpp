@@ -267,7 +267,7 @@ bool UJoystickSubsystem::AddDevice(const int DeviceIndex)
 #if ENGINE_MAJOR_VERSION >= 5
 	const bool HasRumble = SDL_JoystickHasRumble(Device.Joystick) == SDL_TRUE;
 #else
-	const bool HasRumble = SDL_JoystickRumble(Device.Joystick, 0, 0, 1) == 0;
+	const bool HasRumble = SDL_JoystickRumble(Device.Joystick, static_cast<Uint16>(0), static_cast<Uint16>(0), static_cast<Uint32>(1)) == 0;
 #endif
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tRumble Support: %s"), HasRumble ? TEXT("true") : TEXT("false"));
 	Device.HasRumble = HasRumble;
