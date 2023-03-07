@@ -6,6 +6,7 @@
 #include "JoystickInputDevice.h"
 #include "JoystickInputSettings.h"
 #include "JoystickLogManager.h"
+#include "Runtime/Launch/Resources/Version.h"
 
 THIRD_PARTY_INCLUDES_START
 
@@ -266,8 +267,10 @@ bool UJoystickSubsystem::AddDevice(const int DeviceIndex)
 
 #if ENGINE_MAJOR_VERSION >= 5
 	const bool HasRumble = SDL_JoystickHasRumble(Device.Joystick) == SDL_TRUE;
-#else
+#else ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 27
 	const bool HasRumble = SDL_JoystickRumble(Device.Joystick, static_cast<Uint16>(0), static_cast<Uint16>(0), static_cast<Uint32>(1)) == 0;
+#else
+	const bool HasRumble = false;
 #endif
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tRumble Support: %s"), HasRumble ? TEXT("true") : TEXT("false"));
 	Device.HasRumble = HasRumble;
