@@ -95,7 +95,7 @@ int UJoystickHapticDeviceManager::GetEffectStatus(const int DeviceId, const int 
 
 void UJoystickHapticDeviceManager::PlayRumble(const int DeviceId, const float LowFrequencyRumble, const float HighFrequencyRumble, const float Duration) const
 {
-#if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 27 || ENGINE_MAJOR_VERSION == 5)
+#if (ENGINE_MAJOR_VERSION == 5)
 	const FDeviceInfoSDL* DeviceInfo = GetDeviceInfo(DeviceId);
 	if (DeviceInfo == nullptr)
 	{
