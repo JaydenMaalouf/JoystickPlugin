@@ -265,10 +265,8 @@ bool UJoystickSubsystem::AddDevice(const int DeviceIndex)
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tNumber of Buttons %i"), SDL_JoystickNumButtons(Device.Joystick));
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tNumber of Hats %i"), SDL_JoystickNumHats(Device.Joystick));
 
-#if ENGINE_MAJOR_VERSION >= 5
+#if ENGINE_MAJOR_VERSION == 5
 	const bool HasRumble = SDL_JoystickHasRumble(Device.Joystick) == SDL_TRUE;
-#elif ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 27
-	const bool HasRumble = SDL_JoystickRumble(Device.Joystick, static_cast<Uint16>(0), static_cast<Uint16>(0), static_cast<Uint32>(1)) == 0;
 #else
 	const bool HasRumble = false;
 #endif
