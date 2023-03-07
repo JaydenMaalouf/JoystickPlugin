@@ -29,6 +29,7 @@ void FJoystickInputDevice::SetChannelValue(int ControllerId, FForceFeedbackChann
 
 void FJoystickInputDevice::SetChannelValues(int ControllerId, const FForceFeedbackValues& Values)
 {
+#if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 27 || ENGINE_MAJOR_VERSION == 5)
 	const UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
 	if (!IsValid(HapticDeviceManager))
 	{
@@ -41,6 +42,7 @@ void FJoystickInputDevice::SetChannelValues(int ControllerId, const FForceFeedba
 	{
 		HapticDeviceManager->PlayRumble(Joystick.Key, SmallValue, LargeValue, -1);
 	}
+#endif
 }
 
 bool FJoystickInputDevice::IsGamepadAttached() const

@@ -4,6 +4,7 @@
 #pragma once
 
 #include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
+#include "Runtime/Launch/Resources/Version.h"
 
 #include "JoystickHapticDeviceManager.generated.h"
 
@@ -43,9 +44,11 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Joystick|Force Feedback|Functions")
 	int GetEffectStatus(const int DeviceId, const int EffectId);
-	
+
+#if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 27 || ENGINE_MAJOR_VERSION == 5)
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback|Functions")
 	void PlayRumble(const int DeviceId, const float LowFrequencyRumble, const float HighFrequencyRumble, UPARAM(DisplayName = "Duration (in seconds)")const float Duration) const;
+#endif
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback|Functions")
 	void StopRumble(const int DeviceId);
