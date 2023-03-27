@@ -75,7 +75,7 @@ int UJoystickInputSettings::GetDeviceIndexByKey(const FKey& Key) const
 	{
 		return -1;
 	}
-	
+
 	return InputDevice->GetDeviceIndexByKey(Key);
 }
 
@@ -86,7 +86,7 @@ const FJoystickInputDeviceConfiguration* UJoystickInputSettings::GetInputDeviceC
 	{
 		return nullptr;
 	}
-	
+
 	FJoystickInfo DeviceInfo;
 	const int DeviceIndex = GetDeviceIndexByKey(Key);
 	const bool Result = JoystickSubsystem->GetJoystickInfo(DeviceIndex, DeviceInfo);
@@ -98,19 +98,19 @@ const FJoystickInputDeviceConfiguration* UJoystickInputSettings::GetInputDeviceC
 }
 
 const FJoystickInputDeviceAxisProperties* UJoystickInputSettings::GetAxisPropertiesByKey(const FKey& AxisKey) const
-{		
+{
 	const FJoystickInputDeviceConfiguration* DeviceConfiguration = GetInputDeviceConfigurationByKey(AxisKey);
 	if (DeviceConfiguration == nullptr)
 	{
 		return nullptr;
 	}
-	
+
 	const int KeyIndex = GetDeviceIndexByKey(AxisKey);
 	if (KeyIndex == -1)
 	{
 		return nullptr;
 	}
-	
+
 	return DeviceConfiguration->AxisProperties.FindByPredicate([&](const FJoystickInputDeviceAxisProperties& AxisProperty)
 	{
 		return AxisProperty.AxisIndex != -1 && AxisProperty.AxisIndex == KeyIndex;
