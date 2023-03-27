@@ -60,7 +60,7 @@ void UJoystickSubsystem::Deinitialize()
 
 	FJoystickLogManager::Get()->LogDebug(TEXT("DeviceSDL Closing"));
 
-	for (const auto& Device : Devices)
+	for (const TTuple<int, FDeviceInfoSDL>& Device : Devices)
 	{
 		RemoveDevice(Device.Key);
 	}
@@ -172,7 +172,7 @@ void UJoystickSubsystem::SetIgnoreGameControllers(const bool IgnoreControllers)
 	const bool ChangedValue = JoystickInputSettings->SetIgnoreGameControllers(IgnoreControllers);
 	if (ChangedValue && IgnoreControllers)
 	{
-		for (const auto& Device : Devices)
+		for (const TTuple<int, FDeviceInfoSDL>&  Device : Devices)
 		{
 			if (DeviceMapping.Contains(Device.Value.InstanceId) && SDL_IsGameController(Device.Value.DeviceIndex))
 			{
