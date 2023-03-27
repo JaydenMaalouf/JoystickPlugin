@@ -8,7 +8,7 @@
 #include "JoystickHapticDeviceManager.generated.h"
 
 struct FDeviceInfoSDL;
-typedef _SDL_Haptic SDL_Haptic;
+using SDL_Haptic = _SDL_Haptic;
 union SDL_HapticEffect;
 
 UCLASS(BlueprintType)
@@ -57,7 +57,6 @@ public:
 	void DestroyEffect(const int DeviceId, const int EffectId) const;
 
 private:
-	
 	SDL_Haptic* GetHapticDevice(const int DeviceId) const;
 	FDeviceInfoSDL* GetDeviceInfo(const int DeviceId) const;
 };

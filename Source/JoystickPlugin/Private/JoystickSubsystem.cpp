@@ -129,7 +129,7 @@ bool UJoystickSubsystem::GetJoystickData(const int DeviceId, FJoystickDeviceData
 		JoystickDeviceData = *DeviceData;
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -168,11 +168,11 @@ void UJoystickSubsystem::SetIgnoreGameControllers(const bool IgnoreControllers)
 	{
 		return;
 	}
-	
+
 	const bool ChangedValue = JoystickInputSettings->SetIgnoreGameControllers(IgnoreControllers);
 	if (ChangedValue && IgnoreControllers)
 	{
-		for (const TTuple<int, FDeviceInfoSDL>&  Device : Devices)
+		for (const TTuple<int, FDeviceInfoSDL>& Device : Devices)
 		{
 			if (DeviceMapping.Contains(Device.Value.InstanceId) && SDL_IsGameController(Device.Value.DeviceIndex))
 			{

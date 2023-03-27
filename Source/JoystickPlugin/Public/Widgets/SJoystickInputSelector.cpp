@@ -119,7 +119,7 @@ FReply SJoystickInputSelector::OnAnalogValueChanged(const FGeometry& MyGeometry,
 
 		const float AxisValue = InAnalogInputEvent.GetAnalogValue();
 		FKeySelectorData& SelectedKeyData = KeyData.FindOrAdd(NewSelectedKey);
-		
+
 		const FJoystickInputDeviceAxisProperties* AxisProperties = JoystickInputSettings->GetAxisPropertiesByKey(AxisKey);
 		if (AxisProperties != nullptr)
 		{
