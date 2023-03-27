@@ -38,7 +38,7 @@ void FJoystickInputDevice::SetChannelValues(int ControllerId, const FForceFeedba
 
 	const float LargeValue = (Values.LeftLarge > Values.RightLarge ? Values.LeftLarge : Values.RightLarge);
 	const float SmallValue = (Values.LeftSmall > Values.RightSmall ? Values.LeftSmall : Values.RightSmall);
-	for (const auto Joystick : JoystickDeviceInfo)
+	for (const TTuple<int, FJoystickInfo>& Joystick : JoystickDeviceInfo)
 	{
 		HapticDeviceManager->PlayRumble(Joystick.Key, SmallValue, LargeValue, -1);
 	}
@@ -47,7 +47,7 @@ void FJoystickInputDevice::SetChannelValues(int ControllerId, const FForceFeedba
 
 bool FJoystickInputDevice::IsGamepadAttached() const
 {
-	for (const auto Joystick : JoystickDeviceInfo)
+	for (const TTuple<int, FJoystickInfo>& Joystick : JoystickDeviceInfo)
 	{
 		if (Joystick.Value.IsGamepad || Joystick.Value.HasRumble)
 		{
