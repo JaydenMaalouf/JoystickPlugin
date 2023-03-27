@@ -24,13 +24,13 @@ void FJoystickLogManager::Log(const ELogVerbosity::Type Level, const FmtType& Fm
 	switch (Level)
 	{
 		case ELogVerbosity::Error:
-			LogError(Fmt, Args);
+			LogError(Fmt, Args...);
 			break;
 		case ELogVerbosity::Log:
-			LogDebug(Fmt, Args);
+			LogDebug(Fmt, Args...);
 			break;
 		default:
-			LogInformation(Fmt, Args);
+			LogInformation(Fmt, Args...);
 			break;
 	}
 }

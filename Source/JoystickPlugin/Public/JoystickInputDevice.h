@@ -9,6 +9,7 @@
 #include "Containers/Array.h"
 #include "Data/JoystickInstanceId.h"
 #include "Data/JoystickDeviceState.h"
+#include "GenericPlatform/IInputInterface.h"
 #include "GenericPlatform/GenericApplicationMessageHandler.h"
 
 struct FDeviceInfoSDL;

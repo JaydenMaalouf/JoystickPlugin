@@ -30,6 +30,7 @@ void FJoystickInputDevice::SetChannelValue(int ControllerId, FForceFeedbackChann
 
 void FJoystickInputDevice::SetChannelValues(int ControllerId, const FForceFeedbackValues& Values)
 {
+#if ENGINE_MAJOR_VERSION == 5
 	const UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
 	if (!IsValid(HapticDeviceManager))
 	{
@@ -42,6 +43,7 @@ void FJoystickInputDevice::SetChannelValues(int ControllerId, const FForceFeedba
 	{
 		HapticDeviceManager->PlayRumble(Joystick.Key, SmallValue, LargeValue, -1);
 	}
+#endif
 }
 
 bool FJoystickInputDevice::IsGamepadAttached() const
@@ -405,7 +407,7 @@ void FJoystickInputDevice::SendControllerEvents()
 
 		FInputDeviceScope InputScope(this, JoystickInputInterfaceName, InstanceId, DeviceInfo.DeviceName);
 
-		//Axis
+		// Axis
 		if (DeviceAxisKeys.Contains(InstanceId))
 		{
 			for (int AxisIndex = 0; AxisIndex < CurrentState.Axes.Num(); AxisIndex++)
@@ -422,7 +424,7 @@ void FJoystickInputDevice::SendControllerEvents()
 			}
 		}
 
-		//Hats
+		// Hats
 		if (DeviceHatKeys[0].Contains(InstanceId) && DeviceHatKeys[1].Contains(InstanceId))
 		{
 			for (int HatIndex = 0; HatIndex < CurrentState.Hats.Num(); HatIndex++)
@@ -443,7 +445,7 @@ void FJoystickInputDevice::SendControllerEvents()
 			}
 		}
 
-		//Balls
+		// Balls
 		if (DeviceBallKeys[0].Contains(InstanceId) && DeviceBallKeys[1].Contains(InstanceId))
 		{
 			for (int BallIndex = 0; BallIndex < CurrentState.Balls.Num(); BallIndex++)
@@ -464,7 +466,7 @@ void FJoystickInputDevice::SendControllerEvents()
 			}
 		}
 
-		//Buttons
+		// Buttons
 		if (DeviceButtonKeys.Contains(InstanceId))
 		{
 			for (int ButtonIndex = 0; ButtonIndex < CurrentState.Buttons.Num(); ButtonIndex++)
