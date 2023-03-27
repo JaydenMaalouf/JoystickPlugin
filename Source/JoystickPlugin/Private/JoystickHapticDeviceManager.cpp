@@ -6,6 +6,7 @@
 #include "Engine/Engine.h"
 #include "JoystickSubsystem.h"
 #include "Data/DeviceInfoSDL.h"
+#include "Runtime/Launch/Resources/Version.h"
 
 THIRD_PARTY_INCLUDES_START
 
@@ -94,6 +95,7 @@ int UJoystickHapticDeviceManager::GetEffectStatus(const FJoystickInstanceId Inst
 
 void UJoystickHapticDeviceManager::PlayRumble(const FJoystickInstanceId InstanceId, const float LowFrequencyRumble, const float HighFrequencyRumble, const float Duration) const
 {
+#if ENGINE_MAJOR_VERSION == 5
 	const FDeviceInfoSDL* DeviceInfo = GetDeviceInfo(InstanceId);
 	if (DeviceInfo == nullptr || DeviceInfo->Joystick == nullptr)
 	{
@@ -104,7 +106,9 @@ void UJoystickHapticDeviceManager::PlayRumble(const FJoystickInstanceId Instance
 	const Uint16 HighFrequency = FMath::Clamp<Uint16>(HighFrequencyRumble * UINT16_MAX, 0, UINT16_MAX);
 	const Uint32 ClampedDuration = Duration == -1 ? SDL_HAPTIC_INFINITY : FMath::Clamp<Uint32>(Duration * 1000.0f, 0, UINT32_MAX);
 	SDL_JoystickRumble(DeviceInfo->Joystick, LowFrequency, HighFrequency, ClampedDuration);
-	//FJoystickLogManager::Get()->LogDebug(TEXT("Playing Rumble Effect\n\tLow Frequency: %f\n\tHighFrequency: %f"), LowFrequencyRumble, HighFrequencyRumble);
+#else
+	FJoystickLogManager::Get()->LogError(TEXT("PlayRumble not supported on this engine version."));
+#endif
 }
 
 void UJoystickHapticDeviceManager::StopRumble(const FJoystickInstanceId InstanceId)

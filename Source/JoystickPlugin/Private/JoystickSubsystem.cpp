@@ -7,6 +7,7 @@
 #include "JoystickInputSettings.h"
 #include "JoystickLogManager.h"
 #include "Data/JoystickInformation.h"
+#include "Runtime/Launch/Resources/Version.h"
 
 THIRD_PARTY_INCLUDES_START
 
@@ -17,8 +18,7 @@ THIRD_PARTY_INCLUDES_START
 THIRD_PARTY_INCLUDES_END
 
 UJoystickSubsystem::UJoystickSubsystem()
-	: OwnsSDL(false)
-	  , IsInitialised(false)
+	: OwnsSDL(false), IsInitialised(false)
 {
 }
 
@@ -339,8 +339,7 @@ bool UJoystickSubsystem::AddDevice(const int DeviceIndex)
 #if ENGINE_MAJOR_VERSION == 5
 	const bool HasRumble = SDL_JoystickHasRumble(Device.Joystick) == SDL_TRUE;
 #else
-	const bool HasRumble = SDL_JoystickRumble(Device.Joystick, static_cast<Uint16>(0), static_cast<Uint16>(0), static_cast<Uint32>(1)) == 0;
-	const bool HasRumble = SDL_JoystickRumble(Device.Joystick, static_cast<Uint16>(0), static_cast<Uint16>(0), static_cast<Uint32>(1)) == 0;
+	const bool HasRumble = false;
 #endif
 	Device.RumbleSupport = HasRumble;
 
@@ -389,7 +388,7 @@ bool UJoystickSubsystem::RemoveDevice(const FJoystickInstanceId InstanceId)
 	FDeviceInfoSDL* DeviceInfo = GetDeviceInfo(InstanceId);
 	if (DeviceInfo == nullptr)
 	{
-		return nullptr;
+		return false;
 	}
 
 	if (DeviceInfo->Haptic != nullptr)

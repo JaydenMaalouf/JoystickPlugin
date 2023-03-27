@@ -5,6 +5,7 @@ inputs:
     type: string
   platform:
     type: string
+    default: Win64
   releaseVersion:
     type: string
   epicGamesDirectory:
@@ -28,14 +29,11 @@ runs:
   - name: Build Plugin - ${{ inputs.engineVersion }} ${{ inputs.platform }}
     run: '"${{ inputs.launcherDirectory }}/UE_${{ inputs.engineVersion }}/Engine/Build/BatchFiles/RunUAT.bat" BuildPlugin -TargetPlatforms=${{ inputs.platform }} -Plugin=${{ github.workspace }}/JoystickPlugin.uplugin -Package=${{ runner.temp }}/build/UE_${{ inputs.engineVersion }} -rocket'
     shell: cmd
-  - name: Archive Plugin - ${{ inputs.engineVersion }} ${{ inputs.platform }}
+  - name: Archive Plugin - ${{ inputs.engineVersion }}
     run: |
       $OutputFolder = "${{ runner.temp }}/output"
       if (-Not(Test-Path $OutputFolder)) {
         New-Item $OutputFolder -ItemType Directory
       }
-      Compress-Archive -Path "${{ runner.temp }}/build/UE_${{ inputs.engineVersion }}/*" -DestinationPath "$OutputFolder/JoystickPlugin-${{ inputs.engineVersion }}-${{ inputs.platform }}.zip"
-    shell: pwsh
-  - name: Archive SDL - ${{ inputs.engineVersion }} ${{ inputs.platform }}
-    run: 'Compress-Archive -Path "${{ inputs.epicGamesDirectory }}/SDL/UE_${{ inputs.engineVersion }}/${{ inputs.platform }}/*" -DestinationPath "${{ runner.temp }}/output/SDL-${{ inputs.engineVersion }}-${{ inputs.platform }}.zip"'
+      Compress-Archive -Path "${{ runner.temp }}/build/UE_${{ inputs.engineVersion }}/*" -DestinationPath "$OutputFolder/JoystickPlugin-${{ inputs.engineVersion }}.zip"
     shell: pwsh
