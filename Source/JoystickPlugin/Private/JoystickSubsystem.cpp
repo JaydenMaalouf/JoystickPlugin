@@ -247,7 +247,7 @@ void UJoystickSubsystem::GetInstanceIds(TArray<FJoystickInstanceId>& InstanceIds
 
 bool UJoystickSubsystem::HasRumbleDevice() const
 {
-	for (const auto Device : Devices)
+	for (const TTuple<FJoystickInstanceId, FDeviceInfoSDL>& Device : Devices)
 	{
 		if (Device.Value.IsGamepad || Device.Value.RumbleSupport)
 		{
