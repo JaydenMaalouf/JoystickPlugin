@@ -42,7 +42,7 @@ void UJoystickSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	else
 	{
 		FJoystickLogManager::Get()->LogDebug(TEXT("DeviceSDL::InitSDL() SDL init 0"));
-		SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER  | SDL_INIT_HAPTIC);
+		SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC);
 		OwnsSDL = true;
 	}
 
@@ -306,7 +306,7 @@ bool UJoystickSubsystem::RemoveDevice(const int DeviceId)
 	FDeviceInfoSDL* DeviceInfo = GetDeviceInfo(DeviceId);
 	if (DeviceInfo == nullptr)
 	{
-		return nullptr;
+		return false;
 	}
 
 	if (DeviceInfo->Haptic != nullptr)
