@@ -22,7 +22,6 @@ jobs:
       - name: Package Plugin - 4.26
         uses: ./.github/actions/package
         with:
-          platform: Win64
           engineVersion: "4.26"
           releaseVersion: ${{ steps.gitversion.outputs.semVer }}
           epicGamesDirectory: ${{ secrets.EPIC_GAMES_DIRECTORY }}
@@ -30,7 +29,6 @@ jobs:
       - name: Package Plugin - 4.27
         uses: ./.github/actions/package
         with:
-          platform: Win64
           engineVersion: "4.27"
           releaseVersion: ${{ steps.gitversion.outputs.semVer }}
           epicGamesDirectory: ${{ secrets.EPIC_GAMES_DIRECTORY }}
@@ -38,7 +36,6 @@ jobs:
       - name: Package Plugin - 5.0
         uses: ./.github/actions/package
         with:
-          platform: Win64
           engineVersion: "5.0"
           releaseVersion: ${{ steps.gitversion.outputs.semVer }}
           epicGamesDirectory: ${{ secrets.EPIC_GAMES_DIRECTORY }}
@@ -46,7 +43,6 @@ jobs:
       - name: Package Plugin - 5.1
         uses: ./.github/actions/package
         with:
-          platform: Win64
           engineVersion: "5.1"
           releaseVersion: ${{ steps.gitversion.outputs.semVer }}
           epicGamesDirectory: ${{ secrets.EPIC_GAMES_DIRECTORY }}
