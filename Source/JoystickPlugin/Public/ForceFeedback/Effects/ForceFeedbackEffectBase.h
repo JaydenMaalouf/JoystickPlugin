@@ -25,6 +25,7 @@ UCLASS(BlueprintType)
 class JOYSTICKPLUGIN_API UForceFeedbackEffectBase : public UObject, public FTickableGameObject
 {
 	GENERATED_BODY()
+
 public:
 	UForceFeedbackEffectBase(const FObjectInitializer& ObjectInitializer);
 

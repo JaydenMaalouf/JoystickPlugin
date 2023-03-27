@@ -21,6 +21,7 @@ UCLASS(BlueprintType)
 class JOYSTICKPLUGIN_API UJoystickSubsystem : public UEngineSubsystem
 {
 	GENERATED_BODY()
+
 public:
 	UJoystickSubsystem();
 
