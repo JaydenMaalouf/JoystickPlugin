@@ -17,7 +17,7 @@ void FJoystickPluginEditorModule::StartupModule()
 
 	FPropertyEditorModule& PropertyModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
 	PropertyModule.RegisterCustomClassLayout(UJoystickInputSettings::StaticClass()->GetFName(), FOnGetDetailCustomizationInstance::CreateStatic(&FJoystickPluginSettingsDetails::MakeInstance));
-	
+
 	IModuleInterface::StartupModule();
 }
 
@@ -31,8 +31,8 @@ void FJoystickPluginEditorModule::RegisterSettings() const
 	if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
 	{
 		SettingsModule->RegisterSettings("Project", "Engine", "Joystick Input",
-			LOCTEXT("JoystickInputSettingsName", "Joystick Input"),
-			LOCTEXT("JoystickInputSettingsDescription", "Configure Joystick Input"), GetMutableDefault<UJoystickInputSettings>());
+		                                 LOCTEXT("JoystickInputSettingsName", "Joystick Input"),
+		                                 LOCTEXT("JoystickInputSettingsDescription", "Configure Joystick Input"), GetMutableDefault<UJoystickInputSettings>());
 	}
 }
 

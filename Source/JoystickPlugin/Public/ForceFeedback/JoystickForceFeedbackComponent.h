@@ -17,7 +17,7 @@ class JOYSTICKPLUGIN_API UJoystickForceFeedbackComponent : public UActorComponen
 
 public:
 	UJoystickForceFeedbackComponent(const FObjectInitializer& ObjectInitializer);
-	
+
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
