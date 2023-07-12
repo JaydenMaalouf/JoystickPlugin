@@ -237,21 +237,21 @@ void FJoystickInputDevice::JoystickPluggedIn(const FDeviceInfoSDL& Device)
 		return;
 	}
 
-	FString BaseKeyName = FString::Printf(TEXT("Joystick_%d"), Device.InstanceId);
-	FString BaseDisplayName = FString::Printf(TEXT("Joystick %d"), Device.InstanceId);
+	FString BaseKeyName = FString::Printf(TEXT("Joystick_%d"), static_cast<int>(Device.InstanceId));
+	FString BaseDisplayName = FString::Printf(TEXT("Joystick %d"), static_cast<int>(Device.InstanceId));
 	if (JoystickInputSettings->UseDeviceName)
 	{
 		const FJoystickInputDeviceConfiguration* DeviceConfig = JoystickInputSettings->GetInputDeviceConfiguration(Device.ProductGuid);
 		if (DeviceConfig != nullptr && DeviceConfig->OverrideDeviceName)
 		{
 			const FString DeviceName = DeviceConfig->DeviceName.Replace(TEXT(" "), TEXT("_"));
-			BaseKeyName = FString::Printf(TEXT("Joystick_%s_%d"), *DeviceName, Device.InstanceId);
-			BaseDisplayName = FString::Printf(TEXT("%s %d"), *DeviceName, Device.InstanceId);
+			BaseKeyName = FString::Printf(TEXT("Joystick_%s_%d"), *DeviceName, static_cast<int>(Device.InstanceId));
+			BaseDisplayName = FString::Printf(TEXT("%s %d"), *DeviceName, static_cast<int>(Device.InstanceId));
 		}
 		else
 		{
-			BaseKeyName = FString::Printf(TEXT("Joystick_%s_%d"), *Device.SafeDeviceName, Device.InstanceId);
-			BaseDisplayName = FString::Printf(TEXT("%s %d"), *Device.ProductName, Device.InstanceId);
+			BaseKeyName = FString::Printf(TEXT("Joystick_%s_%d"), *Device.SafeDeviceName, static_cast<int>(Device.InstanceId));
+			BaseDisplayName = FString::Printf(TEXT("%s %d"), *Device.ProductName, static_cast<int>(Device.InstanceId));
 		}
 	}
 
