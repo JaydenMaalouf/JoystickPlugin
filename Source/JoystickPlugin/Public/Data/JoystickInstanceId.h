@@ -40,5 +40,6 @@ struct FJoystickInstanceId
 		return GetTypeHash(Other.Value);
 	}
 
+	UPROPERTY(VisibleAnywhere, DisplayName="Instance Id")
 	int Value;
 };

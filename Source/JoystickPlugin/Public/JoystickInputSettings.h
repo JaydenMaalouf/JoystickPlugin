@@ -24,7 +24,7 @@ public:
 #endif
 
 	void DeviceAdded(FJoystickInformation JoystickInfo);
-	void DeviceRemoved(const FJoystickInstanceId InstanceId);
+	void DeviceRemoved(const FJoystickInstanceId& InstanceId);
 	void ResetDevices();
 
 	const FJoystickInputDeviceConfiguration* GetInputDeviceConfiguration(const FGuid& ProductId) const;

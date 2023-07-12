@@ -256,7 +256,7 @@ int UForceFeedbackEffectBase::EffectStatus() const
 	return HapticDeviceManager->GetEffectStatus(InstanceId, EffectId);
 }
 
-void UForceFeedbackEffectBase::SetInstanceId(const FJoystickInstanceId NewInstanceId)
+void UForceFeedbackEffectBase::SetInstanceId(const FJoystickInstanceId& NewInstanceId)
 {
 	if (IsInitialised)
 	{
