@@ -132,7 +132,7 @@ int UJoystickSubsystem::GetConnectedJoystickCount() const
 	return Count;
 }
 
-bool UJoystickSubsystem::GetJoystickState(const FJoystickInstanceId InstanceId, FJoystickDeviceState& JoystickDeviceState)
+bool UJoystickSubsystem::GetJoystickState(const FJoystickInstanceId& InstanceId, FJoystickDeviceState& JoystickDeviceState)
 {
 	FJoystickInputDevice* InputDevice = GetInputDevice();
 	if (InputDevice == nullptr)
@@ -149,7 +149,7 @@ bool UJoystickSubsystem::GetJoystickState(const FJoystickInstanceId InstanceId, 
 	return false;
 }
 
-bool UJoystickSubsystem::GetJoystickInfo(const FJoystickInstanceId InstanceId, FJoystickInformation& JoystickInfo)
+bool UJoystickSubsystem::GetJoystickInfo(const FJoystickInstanceId& InstanceId, FJoystickInformation& JoystickInfo)
 {
 	const FDeviceInfoSDL* DeviceInfo = GetDeviceInfo(InstanceId);
 	if (DeviceInfo == nullptr)
@@ -162,7 +162,7 @@ bool UJoystickSubsystem::GetJoystickInfo(const FJoystickInstanceId InstanceId, F
 	return true;
 }
 
-EJoystickType UJoystickSubsystem::GetJoystickType(const FJoystickInstanceId InstanceId)
+EJoystickType UJoystickSubsystem::GetJoystickType(const FJoystickInstanceId& InstanceId)
 {
 	const FDeviceInfoSDL* DeviceInfo = GetDeviceInfo(InstanceId);
 	if (DeviceInfo == nullptr)
@@ -173,7 +173,7 @@ EJoystickType UJoystickSubsystem::GetJoystickType(const FJoystickInstanceId Inst
 	return DeviceInfo->Type;
 }
 
-EJoystickPowerLevel UJoystickSubsystem::GetJoystickPowerLevel(const FJoystickInstanceId InstanceId)
+EJoystickPowerLevel UJoystickSubsystem::GetJoystickPowerLevel(const FJoystickInstanceId& InstanceId)
 {
 	SDL_Joystick* Joystick = SDL_JoystickFromInstanceID(InstanceId);
 	if (Joystick == nullptr)
@@ -193,7 +193,7 @@ EJoystickPowerLevel UJoystickSubsystem::GetJoystickPowerLevel(const FJoystickIns
 	return DeviceInfo->PowerLevel;
 }
 
-void UJoystickSubsystem::MapJoystickDeviceToPlayer(const FJoystickInstanceId InstanceId, const int PlayerId)
+void UJoystickSubsystem::MapJoystickDeviceToPlayer(const FJoystickInstanceId& InstanceId, const int PlayerId)
 {
 	FDeviceInfoSDL* DeviceInfo = GetDeviceInfo(InstanceId);
 	if (DeviceInfo == nullptr)
@@ -258,7 +258,7 @@ bool UJoystickSubsystem::HasRumbleDevice() const
 	return false;
 }
 
-bool UJoystickSubsystem::IsConnected(const FJoystickInstanceId InstanceId) const
+bool UJoystickSubsystem::IsConnected(const FJoystickInstanceId& InstanceId) const
 {
 	if (!Devices.Contains(InstanceId))
 	{
@@ -372,7 +372,7 @@ bool UJoystickSubsystem::AddDevice(const int DeviceIndex)
 
 bool UJoystickSubsystem::RemoveDeviceByIndex(const int DeviceIndex)
 {
-	const FJoystickInstanceId InstanceId = SDL_JoystickGetDeviceInstanceID(DeviceIndex);
+	const FJoystickInstanceId& InstanceId = SDL_JoystickGetDeviceInstanceID(DeviceIndex);
 	if (InstanceId == -1)
 	{
 		return false;
@@ -381,7 +381,7 @@ bool UJoystickSubsystem::RemoveDeviceByIndex(const int DeviceIndex)
 	return RemoveDevice(InstanceId);
 }
 
-bool UJoystickSubsystem::RemoveDevice(const FJoystickInstanceId InstanceId)
+bool UJoystickSubsystem::RemoveDevice(const FJoystickInstanceId& InstanceId)
 {
 	JoystickUnplugged(InstanceId);
 
@@ -471,7 +471,7 @@ int UJoystickSubsystem::HandleSDLEvent(void* UserData, SDL_Event* Event)
 	return 0;
 }
 
-FJoystickDeviceState UJoystickSubsystem::CreateInitialDeviceState(const FJoystickInstanceId InstanceId)
+FJoystickDeviceState UJoystickSubsystem::CreateInitialDeviceState(const FJoystickInstanceId& InstanceId)
 {
 	const FDeviceInfoSDL* DeviceInfo = GetDeviceInfo(InstanceId);
 	if (DeviceInfo == nullptr || DeviceInfo->Joystick == nullptr)
@@ -507,7 +507,7 @@ bool UJoystickSubsystem::IsReady() const
 	return IsInitialised;
 }
 
-FDeviceInfoSDL* UJoystickSubsystem::GetDeviceInfo(const FJoystickInstanceId InstanceId)
+FDeviceInfoSDL* UJoystickSubsystem::GetDeviceInfo(const FJoystickInstanceId& InstanceId)
 {
 	if (Devices.Num() == 0)
 	{
@@ -532,7 +532,7 @@ void UJoystickSubsystem::JoystickPluggedIn(const FDeviceInfoSDL& Device) const
 	}
 }
 
-void UJoystickSubsystem::JoystickUnplugged(const FJoystickInstanceId InstanceId) const
+void UJoystickSubsystem::JoystickUnplugged(const FJoystickInstanceId& InstanceId) const
 {
 	const FJoystickInputDevice* InputDevice = GetInputDevice();
 	if (InputDevice == nullptr)

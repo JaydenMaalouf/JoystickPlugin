@@ -29,7 +29,7 @@ void UJoystickInputSettings::DeviceAdded(const FJoystickInformation JoystickInfo
 	ConnectedDevices.Add(JoystickInfo);
 }
 
-void UJoystickInputSettings::DeviceRemoved(const FJoystickInstanceId InstanceId)
+void UJoystickInputSettings::DeviceRemoved(const FJoystickInstanceId& InstanceId)
 {
 	ConnectedDevices.RemoveAll([&](const FJoystickInformation& Device)
 	{
@@ -77,7 +77,7 @@ const FJoystickInputDeviceConfiguration* UJoystickInputSettings::GetInputDeviceC
 	}
 
 	FJoystickInformation DeviceInfo;
-	const FJoystickInstanceId InstanceId = InputDevice->GetInstanceIdByKey(Key);
+	const FJoystickInstanceId& InstanceId = InputDevice->GetInstanceIdByKey(Key);
 	const bool Result = JoystickSubsystem->GetJoystickInfo(InstanceId, DeviceInfo);
 	if (Result == false)
 	{

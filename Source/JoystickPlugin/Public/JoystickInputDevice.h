@@ -28,13 +28,13 @@ public:
 	virtual bool IsGamepadAttached() const override;
 
 	void JoystickPluggedIn(const FDeviceInfoSDL& Device);
-	void JoystickUnplugged(const FJoystickInstanceId InstanceId) const;
-	void JoystickButton(const FJoystickInstanceId InstanceId, const int Button, const bool Pressed);
-	void JoystickAxis(const FJoystickInstanceId InstanceId, const int Axis, const float Value);
-	void JoystickHat(const FJoystickInstanceId InstanceId, const int Hat, const EJoystickPointOfViewDirection Value);
-	void JoystickBall(const FJoystickInstanceId InstanceId, const int Ball, const FVector2D Value);
+	void JoystickUnplugged(const FJoystickInstanceId& InstanceId) const;
+	void JoystickButton(const FJoystickInstanceId& InstanceId, const int Button, const bool Pressed);
+	void JoystickAxis(const FJoystickInstanceId& InstanceId, const int Axis, const float Value);
+	void JoystickHat(const FJoystickInstanceId& InstanceId, const int Hat, const EJoystickPointOfViewDirection Value);
+	void JoystickBall(const FJoystickInstanceId& InstanceId, const int Ball, const FVector2D Value);
 
-	FJoystickDeviceState* GetDeviceData(const FJoystickInstanceId InstanceId);
+	FJoystickDeviceState* GetDeviceData(const FJoystickInstanceId& InstanceId);
 	FJoystickInstanceId GetInstanceIdByKey(const FKey& Key) const;
 	int GetAxisIndexFromKey(const FKey& Key) const;
 
@@ -42,10 +42,10 @@ public:
 	void UpdateAxisProperties();
 
 private:
-	void InitialiseAxis(const FJoystickInstanceId InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName);
-	void InitialiseButtons(const FJoystickInstanceId InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName);
-	void InitialiseHats(const FJoystickInstanceId InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName);
-	void InitialiseBalls(const FJoystickInstanceId InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName);
+	void InitialiseAxis(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName);
+	void InitialiseButtons(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName);
+	void InitialiseHats(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName);
+	void InitialiseBalls(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName);
 
 	TMap<FJoystickInstanceId, FJoystickDeviceState> JoystickDeviceState;
 

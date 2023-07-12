@@ -77,7 +77,7 @@ public:
 	int EffectStatus() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Functions")
-	void SetInstanceId(const FJoystickInstanceId NewInstanceId);
+	void SetInstanceId(const FJoystickInstanceId& NewInstanceId);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback", meta = (ExposeOnSpawn = true))
 	FJoystickInstanceId InstanceId;

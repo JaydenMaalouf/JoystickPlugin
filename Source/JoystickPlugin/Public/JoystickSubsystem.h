@@ -50,19 +50,19 @@ public:
 	int GetConnectedJoystickCount() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Functions", meta=(ToolTip = "The raw input state of the specified joystick."))
-	bool GetJoystickState(const FJoystickInstanceId InstanceId, FJoystickDeviceState& JoystickDeviceState);
+	bool GetJoystickState(const FJoystickInstanceId& InstanceId, FJoystickDeviceState& JoystickDeviceState);
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Functions")
-	bool GetJoystickInfo(const FJoystickInstanceId InstanceId, FJoystickInformation& JoystickInfo);
+	bool GetJoystickInfo(const FJoystickInstanceId& InstanceId, FJoystickInformation& JoystickInfo);
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Functions")
-	EJoystickType GetJoystickType(const FJoystickInstanceId InstanceId);
+	EJoystickType GetJoystickType(const FJoystickInstanceId& InstanceId);
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Functions")
-	EJoystickPowerLevel GetJoystickPowerLevel(const FJoystickInstanceId InstanceId);
+	EJoystickPowerLevel GetJoystickPowerLevel(const FJoystickInstanceId& InstanceId);
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Functions")
-	void MapJoystickDeviceToPlayer(const FJoystickInstanceId InstanceId, const int PlayerId);
+	void MapJoystickDeviceToPlayer(const FJoystickInstanceId& InstanceId, const int PlayerId);
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Functions")
 	void SetIgnoreGameControllers(const bool IgnoreControllers);
@@ -74,7 +74,7 @@ public:
 	bool HasRumbleDevice() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Functions")
-	bool IsConnected(const FJoystickInstanceId InstanceId) const;
+	bool IsConnected(const FJoystickInstanceId& InstanceId) const;
 
 	UPROPERTY(BlueprintAssignable, Category = "Joystick|Delegates")
 	FOnJoystickEvent JoystickPluggedInDelegate;
@@ -85,8 +85,8 @@ public:
 	void InitialiseInputDevice(const TSharedPtr<FJoystickInputDevice> NewInputDevice);
 	void Update() const;
 
-	FDeviceInfoSDL* GetDeviceInfo(const FJoystickInstanceId InstanceId);
-	FJoystickDeviceState CreateInitialDeviceState(const FJoystickInstanceId InstanceId);
+	FDeviceInfoSDL* GetDeviceInfo(const FJoystickInstanceId& InstanceId);
+	FJoystickDeviceState CreateInitialDeviceState(const FJoystickInstanceId& InstanceId);
 
 	FJoystickInputDevice* GetInputDevice() const;
 
@@ -100,11 +100,11 @@ private:
 
 	bool AddDevice(const int DeviceIndex);
 	void AddHapticDevice(FDeviceInfoSDL& Device) const;
-	bool RemoveDevice(const FJoystickInstanceId InstanceId);
+	bool RemoveDevice(const FJoystickInstanceId& InstanceId);
 	bool RemoveDeviceByIndex(const int DeviceIndex);
 
 	void JoystickPluggedIn(const FDeviceInfoSDL& Device) const;
-	void JoystickUnplugged(const FJoystickInstanceId InstanceId) const;
+	void JoystickUnplugged(const FJoystickInstanceId& InstanceId) const;
 
 	TMap<FJoystickInstanceId, FDeviceInfoSDL> Devices;
 
