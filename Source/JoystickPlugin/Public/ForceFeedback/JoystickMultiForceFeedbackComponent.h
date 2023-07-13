@@ -5,6 +5,7 @@
 
 #include "Components/ActorComponent.h"
 #include "Data/ForceFeedbackComponentData.h"
+#include "Data/JoystickInstanceId.h"
 
 #include "JoystickMultiForceFeedbackComponent.generated.h"
 
@@ -49,7 +50,7 @@ public:
 	void StopEffect(UForceFeedbackEffectBase* Effect);
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Force Feedback|Component")
-	int DeviceId;
+	FJoystickInstanceId InstanceId;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Force Feedback|Component")
 	TMap<TSubclassOf<UForceFeedbackEffectBase>, FForceFeedbackComponentData> EffectTypes;

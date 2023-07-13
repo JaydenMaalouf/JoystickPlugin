@@ -2,6 +2,7 @@
 // Copyright Jayden Maalouf. All Rights Reserved.
 
 #include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
+#include "Data/JoystickInstanceId.h"
 #include "JoystickHapticDeviceManager.h"
 #include "JoystickLogManager.h"
 #include "JoystickSubsystem.h"
@@ -9,7 +10,7 @@
 
 UForceFeedbackEffectBase::UForceFeedbackEffectBase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
-	  , DeviceId(0)
+	  , InstanceId(0)
 	  , EffectId(-1)
 	  , IsInitialised(false)
 	  , AutoStartOnInitialisation(false)
@@ -49,7 +50,7 @@ void UForceFeedbackEffectBase::InitialiseEffect()
 	}
 
 	CreateEffect();
-	EffectId = HapticDeviceManager->CreateEffect(DeviceId, Effect);
+	EffectId = HapticDeviceManager->CreateEffect(InstanceId, Effect);
 	if (EffectId == -1)
 	{
 		return;
@@ -58,13 +59,13 @@ void UForceFeedbackEffectBase::InitialiseEffect()
 	IsInitialised = true;
 
 	//Safety check to ensure we don't try calling BP during destruction
-#if ENGINE_MAJOR_VERSION < 5
-	if (this->IsPendingKillOrUnreachable())
+#if ENGINE_MAJOR_VERSION == 5
+	if (!IsValidChecked(this))
 	{
 		return;
 	}
 #else
-	if (!IsValidChecked(this))
+	if (this->IsPendingKillOrUnreachable())
 	{
 		return;
 	}
@@ -95,19 +96,19 @@ void UForceFeedbackEffectBase::DestroyEffect()
 		return;
 	}
 
-	HapticDeviceManager->DestroyEffect(DeviceId, EffectId);
+	HapticDeviceManager->DestroyEffect(InstanceId, EffectId);
 
 	IsInitialised = false;
 	EffectId = -1;
 
 	//Safety check to ensure we don't try calling BP during destruction
-#if ENGINE_MAJOR_VERSION < 5
-	if (this->IsPendingKillOrUnreachable())
+#if ENGINE_MAJOR_VERSION == 5
+	if (!IsValidChecked(this))
 	{
 		return;
 	}
 #else
-	if (!IsValidChecked(this))
+	if (this->IsPendingKillOrUnreachable())
 	{
 		return;
 	}
@@ -144,20 +145,20 @@ void UForceFeedbackEffectBase::StartEffect()
 		Iterations = SDL_HAPTIC_INFINITY;
 	}
 
-	const bool Result = HapticDeviceManager->RunEffect(DeviceId, EffectId, Iterations);
+	const bool Result = HapticDeviceManager->RunEffect(InstanceId, EffectId, Iterations);
 	if (Result == false)
 	{
 		return;
 	}
 
 	//Safety check to ensure we don't try calling BP during destruction
-#if ENGINE_MAJOR_VERSION < 5
-	if (this->IsPendingKillOrUnreachable())
+#if ENGINE_MAJOR_VERSION == 5
+	if (!IsValidChecked(this))
 	{
 		return;
 	}
 #else
-	if (!IsValidChecked(this))
+	if (this->IsPendingKillOrUnreachable())
 	{
 		return;
 	}
@@ -183,20 +184,20 @@ void UForceFeedbackEffectBase::StopEffect()
 		return;
 	}
 
-	const bool Result = HapticDeviceManager->StopEffect(DeviceId, EffectId);
+	const bool Result = HapticDeviceManager->StopEffect(InstanceId, EffectId);
 	if (Result == false)
 	{
 		return;
 	}
 
 	//Safety check to ensure we don't try calling BP during destruction
-#if ENGINE_MAJOR_VERSION < 5
-	if (this->IsPendingKillOrUnreachable())
+#if ENGINE_MAJOR_VERSION == 5
+	if (!IsValidChecked(this))
 	{
 		return;
 	}
 #else
-	if (!IsValidChecked(this))
+	if (this->IsPendingKillOrUnreachable())
 	{
 		return;
 	}
@@ -218,20 +219,20 @@ void UForceFeedbackEffectBase::UpdateEffect()
 	}
 
 	UpdateEffectData();
-	const bool Result = HapticDeviceManager->UpdateEffect(DeviceId, EffectId, Effect);
+	const bool Result = HapticDeviceManager->UpdateEffect(InstanceId, EffectId, Effect);
 	if (Result == false)
 	{
 		return;
 	}
 
 	//Safety check to ensure we don't try calling BP during destruction
-#if ENGINE_MAJOR_VERSION < 5
-	if (this->IsPendingKillOrUnreachable())
+#if ENGINE_MAJOR_VERSION == 5
+	if (!IsValidChecked(this))
 	{
 		return;
 	}
 #else
-	if (!IsValidChecked(this))
+	if (this->IsPendingKillOrUnreachable())
 	{
 		return;
 	}
@@ -252,18 +253,18 @@ int UForceFeedbackEffectBase::EffectStatus() const
 		return -1;
 	}
 
-	return HapticDeviceManager->GetEffectStatus(DeviceId, EffectId);
+	return HapticDeviceManager->GetEffectStatus(InstanceId, EffectId);
 }
 
-void UForceFeedbackEffectBase::SetDeviceId(const int NewDeviceId)
+void UForceFeedbackEffectBase::SetInstanceId(const FJoystickInstanceId& NewInstanceId)
 {
 	if (IsInitialised)
 	{
-		FJoystickLogManager::Get()->LogWarning(TEXT("Cannot update Effect DeviceId post initialisation."));
+		FJoystickLogManager::Get()->LogWarning(TEXT("Cannot update Effect InstanceId post initialisation."));
 		return;
 	}
 
-	DeviceId = NewDeviceId;
+	InstanceId = NewInstanceId;
 }
 
 void UForceFeedbackEffectBase::CreateEffect()

@@ -10,6 +10,7 @@ public class JoystickPluginEditor : ModuleRules
 				"Core",
 				"CoreUObject",
 				"Engine",
+				"EditorStyle",
 				"SlateCore",
 				"Slate",
 				"JoystickPlugin"

@@ -16,11 +16,11 @@ UJoystickInputSettings::UJoystickInputSettings()
 #endif
 }
 
-void UJoystickInputSettings::DeviceAdded(const FJoystickInputDeviceInformation JoystickInfo)
+void UJoystickInputSettings::DeviceAdded(const FJoystickInformation JoystickInfo)
 {
-	if (ConnectedDevices.ContainsByPredicate([&](const FJoystickInputDeviceInformation& Device)
+	if (ConnectedDevices.ContainsByPredicate([&](const FJoystickInformation& Device)
 	{
-		return Device.ProductId == JoystickInfo.ProductId;
+		return Device.InstanceId == JoystickInfo.InstanceId;
 	}))
 	{
 		return;
@@ -29,11 +29,11 @@ void UJoystickInputSettings::DeviceAdded(const FJoystickInputDeviceInformation J
 	ConnectedDevices.Add(JoystickInfo);
 }
 
-void UJoystickInputSettings::DeviceRemoved(const FGuid JoystickGuid)
+void UJoystickInputSettings::DeviceRemoved(const FJoystickInstanceId& InstanceId)
 {
-	ConnectedDevices.RemoveAll([&](const FJoystickInputDeviceInformation& Device)
+	ConnectedDevices.RemoveAll([&](const FJoystickInformation& Device)
 	{
-		return Device.ProductId == JoystickGuid;
+		return Device.InstanceId == InstanceId;
 	});
 }
 
@@ -42,11 +42,11 @@ void UJoystickInputSettings::ResetDevices()
 	ConnectedDevices.Empty();
 }
 
-const FJoystickInputDeviceConfiguration* UJoystickInputSettings::GetInputDeviceConfiguration(const FJoystickInfo& Device) const
+const FJoystickInputDeviceConfiguration* UJoystickInputSettings::GetInputDeviceConfiguration(const FGuid& ProductId) const
 {
 	return DeviceConfigurations.FindByPredicate([&](const FJoystickInputDeviceConfiguration& PredicateDeviceConfig)
 	{
-		return (!PredicateDeviceConfig.ProductId.IsValid() || Device.ProductId == PredicateDeviceConfig.ProductId);
+		return (!PredicateDeviceConfig.ProductGuid.IsValid() || ProductId == PredicateDeviceConfig.ProductGuid);
 	});
 }
 
@@ -62,24 +62,32 @@ bool UJoystickInputSettings::SetIgnoreGameControllers(const bool NewIgnoreGameCo
 	return OldIgnoreGameControllers != NewIgnoreGameControllers;
 }
 
-int UJoystickInputSettings::GetDeviceIndexByKey(const FKey& Key) const
+const FJoystickInputDeviceConfiguration* UJoystickInputSettings::GetInputDeviceConfigurationByKey(const FKey& Key) const
 {
-	const UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
+	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
 	if (!IsValid(JoystickSubsystem))
 	{
-		return -1;
+		return nullptr;
 	}
 
 	const FJoystickInputDevice* InputDevice = JoystickSubsystem->GetInputDevice();
 	if (InputDevice == nullptr)
 	{
-		return -1;
+		return nullptr;
 	}
 
-	return InputDevice->GetDeviceIndexByKey(Key);
+	FJoystickInformation DeviceInfo;
+	const FJoystickInstanceId& InstanceId = InputDevice->GetInstanceIdByKey(Key);
+	const bool Result = JoystickSubsystem->GetJoystickInfo(InstanceId, DeviceInfo);
+	if (Result == false)
+	{
+		return nullptr;
+	}
+
+	return GetInputDeviceConfiguration(DeviceInfo.ProductGuid);
 }
 
-const FJoystickInputDeviceConfiguration* UJoystickInputSettings::GetInputDeviceConfigurationByKey(const FKey& Key) const
+const FJoystickInputDeviceAxisProperties* UJoystickInputSettings::GetAxisPropertiesByKey(const FKey& AxisKey) const
 {
 	const UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
 	if (!IsValid(JoystickSubsystem))
@@ -87,33 +95,27 @@ const FJoystickInputDeviceConfiguration* UJoystickInputSettings::GetInputDeviceC
 		return nullptr;
 	}
 
-	FJoystickInfo DeviceInfo;
-	const int DeviceIndex = GetDeviceIndexByKey(Key);
-	const bool Result = JoystickSubsystem->GetJoystickInfo(DeviceIndex, DeviceInfo);
-	if (Result == false)
+	const FJoystickInputDevice* InputDevice = JoystickSubsystem->GetInputDevice();
+	if (InputDevice == nullptr)
 	{
 		return nullptr;
 	}
-	return GetInputDeviceConfiguration(DeviceInfo);
-}
 
-const FJoystickInputDeviceAxisProperties* UJoystickInputSettings::GetAxisPropertiesByKey(const FKey& AxisKey) const
-{
+	const int AxisIndex = InputDevice->GetAxisIndexFromKey(AxisKey);
+	if (AxisIndex == -1)
+	{
+		return nullptr;
+	}
+
 	const FJoystickInputDeviceConfiguration* DeviceConfiguration = GetInputDeviceConfigurationByKey(AxisKey);
 	if (DeviceConfiguration == nullptr)
 	{
 		return nullptr;
 	}
 
-	const int KeyIndex = GetDeviceIndexByKey(AxisKey);
-	if (KeyIndex == -1)
-	{
-		return nullptr;
-	}
-
 	return DeviceConfiguration->AxisProperties.FindByPredicate([&](const FJoystickInputDeviceAxisProperties& AxisProperty)
 	{
-		return AxisProperty.AxisIndex != -1 && AxisProperty.AxisIndex == KeyIndex;
+		return AxisProperty.AxisIndex != -1 && AxisProperty.AxisIndex == AxisIndex;
 	});
 }
 

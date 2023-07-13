@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "Data/JoystickInformation.h"
+
 THIRD_PARTY_INCLUDES_START
 
 #include "SDL_haptic.h"
@@ -10,31 +12,23 @@ THIRD_PARTY_INCLUDES_START
 
 THIRD_PARTY_INCLUDES_END
 
-struct FDeviceInfoSDL
+struct FDeviceInfoSDL : FJoystickInformation
 {
 	FDeviceInfoSDL()
-		: DeviceIndex(0)
-		  , DeviceId(0)
-		  , InstanceId(0)
-		  , IsGamepad(false)
-		  , HasRumble(false)
-		  , DeviceName("Unknown Device")
+		: Connected(false)
 		  , Haptic(nullptr)
 		  , Joystick(nullptr)
+		  , PlayerId(0)
+		  , InternalDeviceIndex(-1)
 	{
 	}
 
-	int DeviceIndex;
-
-	int DeviceId;
-	int InstanceId;
-
-	bool IsGamepad;
-	bool HasRumble;
-
-	FString DeviceName;
-	FGuid ProductId;
+	bool Connected;
+	FString SafeDeviceName;
 
 	SDL_Haptic* Haptic;
 	SDL_Joystick* Joystick;
+
+	int PlayerId;
+	int InternalDeviceIndex;
 };

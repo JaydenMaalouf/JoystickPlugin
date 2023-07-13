@@ -6,7 +6,7 @@
 
 UJoystickForceFeedbackComponent::UJoystickForceFeedbackComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
-	  , DeviceId(0)
+	  , InstanceId(0)
 {
 }
 
@@ -25,7 +25,7 @@ void UJoystickForceFeedbackComponent::BeginPlay()
 		return;
 	}
 
-	ForcedFeedbackEffect->SetDeviceId(DeviceId);
+	ForcedFeedbackEffect->SetInstanceId(InstanceId);
 
 	ForcedFeedbackEffect->OnInitialisedEffectDelegate.AddDynamic(this, &UJoystickForceFeedbackComponent::OnInitialisedEffect);
 	ForcedFeedbackEffect->OnStartedEffectDelegate.AddDynamic(this, &UJoystickForceFeedbackComponent::OnStartedEffect);
