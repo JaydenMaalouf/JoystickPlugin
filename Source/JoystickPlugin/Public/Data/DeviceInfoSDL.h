@@ -19,6 +19,7 @@ struct FDeviceInfoSDL : FJoystickInformation
 		  , Haptic(nullptr)
 		  , Joystick(nullptr)
 		  , PlayerId(0)
+		  , InternalDeviceIndex(-1)
 	{
 	}
 
@@ -29,4 +30,5 @@ struct FDeviceInfoSDL : FJoystickInformation
 	SDL_Joystick* Joystick;
 
 	int PlayerId;
+	int InternalDeviceIndex;
 };

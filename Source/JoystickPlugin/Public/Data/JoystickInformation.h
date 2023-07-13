@@ -23,7 +23,8 @@ struct JOYSTICKPLUGIN_API FJoystickInformation
 		  , IsGamepad(false)
 		  , RumbleSupport(false)
 		  , HapticSupport(false)
-		  , PowerLevel(EJoystickPowerLevel::Empty)
+		  , LedSupport(false)
+		  , PowerLevel(EJoystickPowerLevel::Unknown)
 	{
 	}
 
@@ -46,6 +47,9 @@ struct JOYSTICKPLUGIN_API FJoystickInformation
 	FGuid ProductGuid;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
+	FString SerialNumber;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
 	int ProductVersion;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
@@ -59,6 +63,9 @@ struct JOYSTICKPLUGIN_API FJoystickInformation
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
 	bool HapticSupport;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
+	bool LedSupport;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
 	EJoystickPowerLevel PowerLevel;
