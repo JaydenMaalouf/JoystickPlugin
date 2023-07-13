@@ -6,8 +6,9 @@
 #include "CoreMinimal.h"
 #include "Engine/DeveloperSettings.h"
 #include "InputCoreTypes.h"
+#include "Data/JoystickInstanceId.h"
+#include "Data/JoystickInformation.h"
 #include "Data/Settings/JoystickInputDeviceConfiguration.h"
-#include "Data/Settings/JoystickInputDeviceInformation.h"
 
 #include "JoystickInputSettings.generated.h"
 
@@ -22,16 +23,16 @@ public:
 	virtual void PostEditChangeChainProperty(FPropertyChangedChainEvent& PropertyChangedEvent) override;
 #endif
 
-	void DeviceAdded(FJoystickInputDeviceInformation JoystickInfo);
-	void DeviceRemoved(FGuid JoystickGuid);
+	void DeviceAdded(FJoystickInformation JoystickInfo);
+	void DeviceRemoved(const FJoystickInstanceId& InstanceId);
 	void ResetDevices();
 
-	const FJoystickInputDeviceConfiguration* GetInputDeviceConfiguration(const FJoystickInfo& Device) const;
+	const FJoystickInputDeviceConfiguration* GetInputDeviceConfiguration(const FGuid& ProductId) const;
 	const FJoystickInputDeviceConfiguration* GetInputDeviceConfigurationByKey(const FKey& Key) const;
 	const FJoystickInputDeviceAxisProperties* GetAxisPropertiesByKey(const FKey& AxisKey) const;
 
 	UPROPERTY(VisibleAnywhere, Category="Information")
-	TArray<FJoystickInputDeviceInformation> ConnectedDevices;
+	TArray<FJoystickInformation> ConnectedDevices;
 
 	UPROPERTY(config, EditAnywhere, Category="Joystick Input Settings",
 		meta=(ToolTip="When creating the input keys for devices, use the device name in the key. Default will prefix the key with \"Joystick\" instead.", ConfigRestartRequired=true))
@@ -48,7 +49,4 @@ public:
 
 	bool GetIgnoreGameControllers() const;
 	bool SetIgnoreGameControllers(const bool NewIgnoreGameControllers);
-
-private:
-	int GetDeviceIndexByKey(const FKey& Key) const;
 };
