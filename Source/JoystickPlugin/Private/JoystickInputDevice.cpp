@@ -6,13 +6,17 @@
 #include "JoystickHapticDeviceManager.h"
 #include "JoystickInputSettings.h"
 #include "JoystickLogManager.h"
+#include "JoystickPluginModule.h"
 #include "JoystickSubsystem.h"
 #include "GameFramework/InputSettings.h"
 #include "GenericPlatform/IInputInterface.h"
 #include "Runtime/Launch/Resources/Version.h"
 
+const static FName JoystickCategory = "Joystick";
+
 FJoystickInputDevice::FJoystickInputDevice(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler) : MessageHandler(InMessageHandler)
-{
+{	
+	EKeys::AddMenuCategoryDisplayInfo(JoystickCategory, FText::FromString("Joystick"), TEXT("GraphEditor.PadEvent_16x"));
 }
 
 void FJoystickInputDevice::Tick(float DeltaTime)
@@ -83,9 +87,9 @@ void FJoystickInputDevice::InitialiseAxis(const FJoystickInstanceId& InstanceId,
 
 		FKey AxisKey = FKey(FName(*AxisKeyName));
 #if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26 || ENGINE_MAJOR_VERSION == 5)
-		FKeyDetails AxisKeyDetails = FKeyDetails(AxisKey, FText::FromString(AxisDisplayName), FKeyDetails::GamepadKey | FKeyDetails::Axis1D);
+		FKeyDetails AxisKeyDetails = FKeyDetails(AxisKey, FText::FromString(AxisDisplayName), FKeyDetails::GamepadKey | FKeyDetails::Axis1D, JoystickCategory);
 #else
-		FKeyDetails AxisKeyDetails = FKeyDetails(AxisKey, FText::FromString(AxisDisplayName), FKeyDetails::GamepadKey | FKeyDetails::FloatAxis);
+		FKeyDetails AxisKeyDetails = FKeyDetails(AxisKey, FText::FromString(AxisDisplayName), FKeyDetails::GamepadKey | FKeyDetails::FloatAxis, JoystickCategory);
 #endif
 
 		if (!EKeys::GetKeyDetails(AxisKey).IsValid())
@@ -118,7 +122,7 @@ void FJoystickInputDevice::InitialiseButtons(const FJoystickInstanceId& Instance
 		FString ButtonDisplayName = FString::Printf(TEXT("%s Button %d"), *BaseDisplayName, ButtonKeyIndex);
 
 		const FKey ButtonKey = FKey(FName(*ButtonKeyName));
-		FKeyDetails ButtonKeyDetails = FKeyDetails(ButtonKey, FText::FromString(ButtonDisplayName), FKeyDetails::GamepadKey);
+		FKeyDetails ButtonKeyDetails = FKeyDetails(ButtonKey, FText::FromString(ButtonDisplayName), FKeyDetails::GamepadKey, JoystickCategory);
 
 		if (!EKeys::GetKeyDetails(ButtonKey).IsValid())
 		{
@@ -156,9 +160,9 @@ void FJoystickInputDevice::InitialiseHats(const FJoystickInstanceId& InstanceId,
 
 			FKey HatKey = FKey(FName(*HatKeyName));
 #if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26 || ENGINE_MAJOR_VERSION == 5)
-			FKeyDetails HatKeyDetails = FKeyDetails(HatKey, FText::FromString(HatDisplayName), FKeyDetails::GamepadKey | FKeyDetails::Axis1D);
+			FKeyDetails HatKeyDetails = FKeyDetails(HatKey, FText::FromString(HatDisplayName), FKeyDetails::GamepadKey | FKeyDetails::Axis1D, JoystickCategory);
 #else
-			FKeyDetails HatKeyDetails = FKeyDetails(HatKey, FText::FromString(HatDisplayName), FKeyDetails::GamepadKey | FKeyDetails::FloatAxis);
+			FKeyDetails HatKeyDetails = FKeyDetails(HatKey, FText::FromString(HatDisplayName), FKeyDetails::GamepadKey | FKeyDetails::FloatAxis, JoystickCategory);
 #endif
 
 			if (!EKeys::GetKeyDetails(HatKey).IsValid())
@@ -196,9 +200,9 @@ void FJoystickInputDevice::InitialiseBalls(const FJoystickInstanceId& InstanceId
 
 			FKey BallKey = FKey(FName(*BallKeyName));
 #if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26 || ENGINE_MAJOR_VERSION == 5)
-			FKeyDetails BallKeyDetails = FKeyDetails(BallKey, FText::FromString(BallDisplayName), FKeyDetails::GamepadKey | FKeyDetails::Axis1D);
+			FKeyDetails BallKeyDetails = FKeyDetails(BallKey, FText::FromString(BallDisplayName), FKeyDetails::GamepadKey | FKeyDetails::Axis1D, JoystickCategory);
 #else
-			FKeyDetails BallKeyDetails = FKeyDetails(BallKey, FText::FromString(BallDisplayName), FKeyDetails::GamepadKey | FKeyDetails::FloatAxis);
+			FKeyDetails BallKeyDetails = FKeyDetails(BallKey, FText::FromString(BallDisplayName), FKeyDetails::GamepadKey | FKeyDetails::FloatAxis, JoystickCategory);
 #endif
 
 			if (!EKeys::GetKeyDetails(BallKey).IsValid())
@@ -218,15 +222,11 @@ void FJoystickInputDevice::InitialiseBalls(const FJoystickInstanceId& InstanceId
 
 void FJoystickInputDevice::JoystickPluggedIn(const FDeviceInfoSDL& Device)
 {
-	FJoystickLogManager::Get()->LogDebug(TEXT("FJoystickPlugin::JoystickPluggedIn() %i"), Device.InstanceId);
-
 	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
 	if (!IsValid(JoystickSubsystem))
 	{
 		return;
 	}
-
-	FJoystickLogManager::Get()->LogInformation(TEXT("Added Device %s - Instance Id: %i"), *Device.DeviceName, Device.InstanceId);
 
 	const FJoystickDeviceState InitialState = JoystickSubsystem->CreateInitialDeviceState(Device.InstanceId);
 	JoystickDeviceState.Emplace(Device.InstanceId, InitialState);
@@ -237,21 +237,21 @@ void FJoystickInputDevice::JoystickPluggedIn(const FDeviceInfoSDL& Device)
 		return;
 	}
 
-	FString BaseKeyName = FString::Printf(TEXT("Joystick_%d"), static_cast<int>(Device.InstanceId));
-	FString BaseDisplayName = FString::Printf(TEXT("Joystick %d"), static_cast<int>(Device.InstanceId));
+	FString BaseKeyName = FString::Printf(TEXT("Joystick_%d"), Device.InternalDeviceIndex);
+	FString BaseDisplayName = FString::Printf(TEXT("Joystick %d"), Device.InternalDeviceIndex);
 	if (JoystickInputSettings->UseDeviceName)
 	{
 		const FJoystickInputDeviceConfiguration* DeviceConfig = JoystickInputSettings->GetInputDeviceConfiguration(Device.ProductGuid);
 		if (DeviceConfig != nullptr && DeviceConfig->OverrideDeviceName)
 		{
 			const FString DeviceName = DeviceConfig->DeviceName.Replace(TEXT(" "), TEXT("_"));
-			BaseKeyName = FString::Printf(TEXT("Joystick_%s_%d"), *DeviceName, static_cast<int>(Device.InstanceId));
-			BaseDisplayName = FString::Printf(TEXT("%s %d"), *DeviceName, static_cast<int>(Device.InstanceId));
+			BaseKeyName = FString::Printf(TEXT("Joystick_%s_%d"), *DeviceName, Device.InternalDeviceIndex);
+			BaseDisplayName = FString::Printf(TEXT("%s %d"), *DeviceName, Device.InternalDeviceIndex);
 		}
 		else
 		{
-			BaseKeyName = FString::Printf(TEXT("Joystick_%s_%d"), *Device.SafeDeviceName, static_cast<int>(Device.InstanceId));
-			BaseDisplayName = FString::Printf(TEXT("%s %d"), *Device.ProductName, static_cast<int>(Device.InstanceId));
+			BaseKeyName = FString::Printf(TEXT("Joystick_%s_%d"), *Device.SafeDeviceName, Device.InternalDeviceIndex);
+			BaseDisplayName = FString::Printf(TEXT("%s %d"), *Device.ProductName, Device.InternalDeviceIndex);
 		}
 	}
 
@@ -272,6 +272,8 @@ void FJoystickInputDevice::JoystickPluggedIn(const FDeviceInfoSDL& Device)
 	}
 
 	UpdateAxisProperties();
+
+	FJoystickLogManager::Get()->LogInformation(TEXT("Device Ready: %s (%i) - Instance Id: %i"), *Device.DeviceName, Device.InternalDeviceIndex, Device.InstanceId);
 }
 
 void FJoystickInputDevice::JoystickUnplugged(const FJoystickInstanceId& InstanceId) const

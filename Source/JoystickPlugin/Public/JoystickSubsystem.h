@@ -68,6 +68,9 @@ public:
 	void SetIgnoreGameControllers(const bool IgnoreControllers);
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Functions")
+	bool SetJoystickLedColor(const FJoystickInstanceId& InstanceId, const FColor Color);
+
+	UFUNCTION(BlueprintCallable, Category = "Joystick|Functions")
 	void GetInstanceIds(TArray<FJoystickInstanceId>& InstanceIds) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Functions")
@@ -99,6 +102,7 @@ private:
 	static int HandleSDLEvent(void* UserData, SDL_Event* Event);
 
 	bool AddDevice(const int DeviceIndex);
+	bool FindExistingDeviceIndex(const FDeviceInfoSDL& Device, int& ExistingDeviceIndex);
 	void AddHapticDevice(FDeviceInfoSDL& Device) const;
 	bool RemoveDevice(const FJoystickInstanceId& InstanceId);
 	bool RemoveDeviceByIndex(const int DeviceIndex);
@@ -111,5 +115,6 @@ private:
 	TSharedPtr<FJoystickInputDevice> InputDevicePtr;
 
 	bool OwnsSDL;
-	bool IsInitialised;
+	bool IsInitialised;	
+	int PersistentDeviceCount;
 };
