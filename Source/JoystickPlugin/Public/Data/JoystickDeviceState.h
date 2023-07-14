@@ -29,8 +29,5 @@ struct JOYSTICKPLUGIN_API FJoystickDeviceState
 	TArray<FBallData> Balls;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickState)
-	FMotionData Gyro;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickState)
-	FMotionData Accelerometer;
+	FMotionData Motion;
 };
