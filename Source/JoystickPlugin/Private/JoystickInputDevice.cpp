@@ -301,8 +301,7 @@ void FJoystickInputDevice::JoystickButton(const FJoystickInstanceId& InstanceId,
 	}
 
 	FButtonData& State = DeviceData.Buttons[Button];
-	State.PreviousButtonState = State.ButtonState;
-	State.ButtonState = Pressed;
+	State.Update(Pressed);
 
 	FJoystickLogManager::Get()->LogDebug(TEXT("Event JoystickButton Device=%d Button=%d State=%d"), InstanceId, Button, Pressed);
 }
@@ -321,8 +320,7 @@ void FJoystickInputDevice::JoystickAxis(const FJoystickInstanceId& InstanceId, c
 	}
 
 	FAxisData& State = DeviceData.Axes[Axis];
-	State.PreviousValue = State.Value;
-	State.Value = Value;
+	State.Update(Value);
 }
 
 void FJoystickInputDevice::JoystickHat(const FJoystickInstanceId& InstanceId, const int Hat, const EJoystickPointOfViewDirection Value)
@@ -339,8 +337,7 @@ void FJoystickInputDevice::JoystickHat(const FJoystickInstanceId& InstanceId, co
 	}
 
 	FHatData& State = DeviceData.Hats[Hat];
-	State.PreviousDirection = State.Direction;
-	State.Direction = Value;
+	State.Update(Value);
 }
 
 void FJoystickInputDevice::JoystickBall(const FJoystickInstanceId& InstanceId, const int Ball, const FVector2D Value)
@@ -357,8 +354,7 @@ void FJoystickInputDevice::JoystickBall(const FJoystickInstanceId& InstanceId, c
 	}
 
 	FBallData& State = DeviceData.Balls[Ball];
-	State.PreviousDirection = State.Direction;
-	State.Direction = Value;
+	State.Update(Value);
 }
 
 void FJoystickInputDevice::JoystickGyro(const FJoystickInstanceId& InstanceId, const int Timestamp, const FVector& Value)
@@ -369,10 +365,7 @@ void FJoystickInputDevice::JoystickGyro(const FJoystickInstanceId& InstanceId, c
 	}
 
 	FJoystickDeviceState& DeviceData = JoystickDeviceState[InstanceId];
-
-	FMotionData& State = DeviceData.Gyro;
-	State.PreviousValue = State.Value;
-	State.Value = Value;
+	DeviceData.Gyro.Update(Value, Timestamp);
 }
 
 void FJoystickInputDevice::JoystickAccelerometer(const FJoystickInstanceId& InstanceId, const int Timestamp, const FVector& Value)
@@ -383,10 +376,7 @@ void FJoystickInputDevice::JoystickAccelerometer(const FJoystickInstanceId& Inst
 	}
 
 	FJoystickDeviceState& DeviceData = JoystickDeviceState[InstanceId];
-
-	FMotionData& State = DeviceData.Accelerometer;
-	State.PreviousValue = State.Value;
-	State.Value = Value;
+	DeviceData.Accelerometer.Update(Value, Timestamp);
 }
 
 FJoystickDeviceState* FJoystickInputDevice::GetDeviceData(const FJoystickInstanceId& InstanceId)
@@ -463,7 +453,7 @@ void FJoystickInputDevice::SendControllerEvents()
 				const FKey& YHatKey = DeviceHatKeys[1][InstanceId][HatIndex];
 				if (XHatKey.IsValid() && YHatKey.IsValid())
 				{
-					const FVector2D& POVAxis = UJoystickFunctionLibrary::POVAxis(CurrentState.Hats[HatIndex].Direction);
+					const FVector2D& POVAxis = UJoystickFunctionLibrary::POVAxis(CurrentState.Hats[HatIndex].GetValue());
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
 					MessageHandler->OnControllerAnalog(XHatKey.GetFName(), PlatformUser, InputDevice, POVAxis.X);
 					MessageHandler->OnControllerAnalog(YHatKey.GetFName(), PlatformUser, InputDevice, POVAxis.Y);
@@ -484,7 +474,7 @@ void FJoystickInputDevice::SendControllerEvents()
 				const FKey& YBallKey = DeviceBallKeys[1][InstanceId][BallIndex];
 				if (XBallKey.IsValid() && YBallKey.IsValid())
 				{
-					const FVector2D& BallAxis = CurrentState.Balls[BallIndex].Direction;
+					const FVector2D& BallAxis = CurrentState.Balls[BallIndex].GetValue();
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
 					MessageHandler->OnControllerAnalog(XBallKey.GetFName(), PlatformUser, InputDevice, BallAxis.X);
 					MessageHandler->OnControllerAnalog(YBallKey.GetFName(), PlatformUser, InputDevice, BallAxis.Y);
@@ -505,9 +495,9 @@ void FJoystickInputDevice::SendControllerEvents()
 				if (ButtonKey.IsValid())
 				{
 					FButtonData& ButtonData = JoystickDeviceState[InstanceId].Buttons[ButtonIndex];
-					if (ButtonData.ButtonState != ButtonData.PreviousButtonState)
+					if (ButtonData.GetValue() != ButtonData.GetPreviousValue())
 					{
-						if (ButtonData.ButtonState)
+						if (ButtonData.GetValue())
 						{
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
 							MessageHandler->OnControllerButtonPressed(ButtonKey.GetFName(), PlatformUser, InputDevice, false);
