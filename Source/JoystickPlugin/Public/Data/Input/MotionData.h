@@ -11,11 +11,13 @@ struct JOYSTICKPLUGIN_API FMotionData
 	GENERATED_BODY()
 
 	FMotionData()
+		: Timestamp(0)
 	{
 	}
 
-	FMotionData(const FVector& InValue)
+	FMotionData(const FVector& InValue, const int& InTimestamp)
 		: Value(InValue)
+		  , Timestamp(InTimestamp)
 	{
 	}
 
@@ -29,9 +31,19 @@ struct JOYSTICKPLUGIN_API FMotionData
 		return PreviousValue;
 	}
 
+	void Update(const FVector& InValue, const int InTimestamp)
+	{
+		PreviousValue = Value;
+		Value = InValue;
+		Timestamp = InTimestamp;
+	}
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
 	FVector Value;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
 	FVector PreviousValue;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
+	int Timestamp;
 };

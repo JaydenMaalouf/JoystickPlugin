@@ -42,6 +42,20 @@ struct JOYSTICKPLUGIN_API FAxisData
 	{
 	}
 
+	float MapValue(const float Input) const
+	{
+		const float NormalizedValue = (InvertInput ? (Input * -1.0f) : Input);
+		const float OffsetNormalizedValue = NormalizedValue + InputOffset;
+		const float MappedValue = FMath::GetMappedRangeValueClamped(FVector2D(InputRangeMin, InputRangeMax), FVector2D(OutputRangeMin, OutputRangeMax), OffsetNormalizedValue);
+		return InvertOutput ? (MappedValue * -1.0f) : MappedValue;
+	}
+
+	/* Whether the data represents a valid value */
+	bool HasValue() const
+	{
+		return (InputRangeMin != -1.f || InputRangeMax != -1.f);
+	}
+
 	float GetValue() const
 	{
 		if (RemappingEnabled)
@@ -56,18 +70,10 @@ struct JOYSTICKPLUGIN_API FAxisData
 		return MapValue(PreviousValue);
 	}
 
-	float MapValue(const float Input) const
+	void Update(const float& InValue)
 	{
-		const float NormalizedValue = (InvertInput ? (Input * -1.0f) : Input);
-		const float OffsetNormalizedValue = NormalizedValue + InputOffset;
-		const float MappedValue = FMath::GetMappedRangeValueClamped(FVector2D(InputRangeMin, InputRangeMax), FVector2D(OutputRangeMin, OutputRangeMax), OffsetNormalizedValue);
-		return InvertOutput ? (MappedValue * -1.0f) : MappedValue;
-	}
-
-	/* Whether the data represents a valid value */
-	bool HasValue() const
-	{
-		return (InputRangeMin != -1.f || InputRangeMax != -1.f);
+		PreviousValue = Value;
+		Value = InValue;
 	}
 
 	/* Current analog value */

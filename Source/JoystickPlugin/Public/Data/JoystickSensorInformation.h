@@ -11,14 +11,14 @@ struct JOYSTICKPLUGIN_API FJoystickSensorInformation
 	GENERATED_BODY()
 
 	FJoystickSensorInformation()
-		: GyroSupport(false)
-		  , AccelerometerSupport(false)
+		: Enabled(false)
+		  , Supported(false)
 	{
 	}
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config/Supported Features")
-	bool GyroSupport;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Sensor Config")
+	bool Enabled;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config/Supported Features")
-	bool AccelerometerSupport;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Sensor Config")
+	bool Supported;
 };
