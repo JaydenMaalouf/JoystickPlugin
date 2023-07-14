@@ -25,9 +25,9 @@ struct JOYSTICKPLUGIN_API FAxisData
 	{
 	}
 
-	FAxisData(const float InValue,
-	          const float InInputRangeMin, const float InInputRangeMax, const float InOutputRangeMin, const float InOutputRangeMax,
-	          const float InOffset, const bool bInInvertInput, const bool bInInvertOutput, const bool bInGamepadStick)
+	FAxisData(const float& InValue,
+	          const float& InInputRangeMin, const float& InInputRangeMax, const float& InOutputRangeMin, const float& InOutputRangeMax,
+	          const float& InOffset, const bool& bInInvertInput, const bool& bInInvertOutput, const bool& bInGamepadStick)
 		: Value(InValue)
 		  , PreviousValue(0.f)
 		  , RemappingEnabled(false)

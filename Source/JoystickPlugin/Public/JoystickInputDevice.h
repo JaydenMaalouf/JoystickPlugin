@@ -33,6 +33,8 @@ public:
 	void JoystickAxis(const FJoystickInstanceId& InstanceId, const int Axis, const float Value);
 	void JoystickHat(const FJoystickInstanceId& InstanceId, const int Hat, const EJoystickPointOfViewDirection Value);
 	void JoystickBall(const FJoystickInstanceId& InstanceId, const int Ball, const FVector2D Value);
+	void JoystickGyro(const FJoystickInstanceId& InstanceId, const int Timestamp, const FVector& Value);
+	void JoystickAccelerometer(const FJoystickInstanceId& InstanceId, const int Timestamp, const FVector& Value);
 
 	FJoystickDeviceState* GetDeviceData(const FJoystickInstanceId& InstanceId);
 	FJoystickInstanceId GetInstanceIdByKey(const FKey& Key) const;
