@@ -376,7 +376,7 @@ void FJoystickInputDevice::JoystickAccelerometer(const FJoystickInstanceId& Inst
 	}
 
 	FJoystickDeviceState& DeviceData = JoystickDeviceState[InstanceId];
-	DeviceData.Motion.UpdateAccelerometer(Timestamp);
+	DeviceData.Motion.UpdateAccelerometer(Value, Timestamp);
 }
 
 FJoystickDeviceState* FJoystickInputDevice::GetDeviceData(const FJoystickInstanceId& InstanceId)
@@ -522,9 +522,9 @@ void FJoystickInputDevice::SendControllerEvents()
 
 		// Gyro
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
-		MessageHandler->OnMotionDetected(CurrentState.Motion.Tilt, CurrentState.Motion.RotationRate, CurrentState.Motion.Gravity, CurrentState.Motion.Acceleration, PlatformUser, InputDevice);
+		MessageHandler->OnMotionDetected(FVector::ZeroVector, CurrentState.Motion.Gyro, FVector::ZeroVector, CurrentState.Motion.Accelerometer, PlatformUser, InputDevice);
 #else
-		MessageHandler->OnMotionDetected(CurrentState.Motion.Tilt, CurrentState.Motion.RotationRate, CurrentState.Motion.Gravity, CurrentState.Motion.Acceleration, PlayerId);
+		MessageHandler->OnMotionDetected(FVector::ZeroVector, CurrentState.Motion.Gyro, FVector::ZeroVector, CurrentState.Motion.Accelerometer, PlayerId);
 #endif
 	}
 

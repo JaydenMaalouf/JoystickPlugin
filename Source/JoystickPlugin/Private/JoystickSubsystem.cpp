@@ -269,7 +269,7 @@ bool UJoystickSubsystem::SetJoystickSensorEnabled(const FJoystickInstanceId& Ins
 			{
 				if (SDL_GameControllerSetSensorEnabled(DeviceInfo->GameController, SDL_SENSOR_ACCEL, Enabled ? SDL_TRUE : SDL_FALSE) == 0)
 				{
-					DeviceInfo->Gyro.Enabled = Enabled;
+					DeviceInfo->Accelerometer.Enabled = Enabled;
 					return true;
 				}
 				break;
