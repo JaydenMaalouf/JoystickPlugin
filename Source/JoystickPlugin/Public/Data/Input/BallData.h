@@ -10,6 +10,12 @@ struct JOYSTICKPLUGIN_API FBallData
 {
 	GENERATED_BODY()
 
+	FBallData() :
+		Direction(FVector2D::ZeroVector),
+		PreviousDirection(FVector2D::ZeroVector)
+	{
+	}
+
 	FVector2D GetValue() const
 	{
 		return Direction;
