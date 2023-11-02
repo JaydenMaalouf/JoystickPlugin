@@ -4,7 +4,7 @@
 
 #if WITH_EDITOR
 
-#include "PropertyEditor/Public/IPropertyTypeCustomization.h"
+#include "IPropertyTypeCustomization.h"
 
 class IPropertyHandle;
 
