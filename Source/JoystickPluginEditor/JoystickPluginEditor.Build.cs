@@ -13,7 +13,8 @@ public class JoystickPluginEditor : ModuleRules
 				"EditorStyle",
 				"SlateCore",
 				"Slate",
-				"JoystickPlugin"
+				"JoystickPlugin",
+				"PropertyEditor"
 			});
 	}
 }
