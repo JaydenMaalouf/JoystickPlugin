@@ -6,6 +6,7 @@
 #include "JoystickInputDevice.h"
 #include "JoystickSubsystem.h"
 #include "Interfaces/IPluginManager.h"
+#include "Engine/Engine.h"
 
 #define LOCTEXT_NAMESPACE "JoystickPlugin"
 

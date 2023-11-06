@@ -11,6 +11,7 @@
 #include "GameFramework/InputSettings.h"
 #include "GenericPlatform/IInputInterface.h"
 #include "Runtime/Launch/Resources/Version.h"
+#include "Engine/Engine.h"
 
 const static FName JoystickCategory = "Joystick";
 
