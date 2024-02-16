@@ -1,21 +1,21 @@
 name: version
 
 runs:
-  using: "composite"
+  using: 'composite'
   steps:
-  - name: Install GitVersion
-    uses: gittools/actions/gitversion/setup@v0.9.15
-    with:
-      versionSpec: '5.x'
-      includePrerelease: true
-  - name: Determine Version
-    id: gitversion
-    uses: gittools/actions/gitversion/execute@v0.9.15
-    with:
-      useConfigFile: true
-  - name: Inject Version
-    run: |
-      $json = Get-Content 'JoystickPlugin.uplugin' -raw | ConvertFrom-Json
-      $json.VersionName = "${{ steps.gitversion.outputs.semVer }}"
-      $json | ConvertTo-Json -depth 32 | Set-Content 'JoystickPlugin.uplugin'
-    shell: powershell
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v0
+      with:
+        versionSpec: '5.x'
+        includePrerelease: true
+    - name: Determine Version
+      id: gitversion
+      uses: gittools/actions/gitversion/execute@v0
+      with:
+        useConfigFile: true
+    - name: Inject Version
+      run: |
+        $json = Get-Content 'JoystickPlugin.uplugin' -raw | ConvertFrom-Json
+        $json.VersionName = "${{ steps.gitversion.outputs.semVer }}"
+        $json | ConvertTo-Json -depth 32 | Set-Content 'JoystickPlugin.uplugin'
+      shell: powershell
