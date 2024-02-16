@@ -19,6 +19,15 @@ Please ensure you backup your project before upgrading!
 
 This plugin aims to provide a simple plug and play system for Joysticks and Steering Wheels (with Forced Feedback capabilities) for Unreal Engine 4/5.
 
+### Features
+
+* Native Unreal Input Loop :joystick:
+* Event Driven Structure :mailbox_with_mail:
+* Assign Controller to a player :video_game:
+* Haptic/Force Feedback :collision:
+* Sensor Data (Gyro/Accelerometer) :dancer:
+* LED Control :rotating_light:
+
 ### How is this any different to the existing plugins? :thinking:
 
 This plugin has been rebuilt (almost entirely) from it's forked version.  

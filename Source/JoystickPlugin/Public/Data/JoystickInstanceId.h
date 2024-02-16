@@ -1,9 +1,12 @@
-﻿#pragma once
+﻿// JoystickPlugin is licensed under the MIT License.
+// Copyright Jayden Maalouf. All Rights Reserved.
+
+#pragma once
 
 #include "JoystickInstanceId.generated.h"
 
 USTRUCT(BlueprintType)
-struct FJoystickInstanceId
+struct JOYSTICKPLUGIN_API FJoystickInstanceId
 {
 	GENERATED_BODY()
 
@@ -35,7 +38,7 @@ struct FJoystickInstanceId
 		return Value == Other.Value;
 	}
 
-	friend uint32 GetTypeHash(const FJoystickInstanceId& Other)
+	friend int32 GetTypeHash(const FJoystickInstanceId& Other)
 	{
 		return GetTypeHash(Other.Value);
 	}

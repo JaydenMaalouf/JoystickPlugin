@@ -9,12 +9,13 @@
 #include "Containers/Array.h"
 #include "Data/JoystickInstanceId.h"
 #include "Data/JoystickDeviceState.h"
+#include "Data/JoystickPointOfViewDirection.h"
 #include "GenericPlatform/IInputInterface.h"
 #include "GenericPlatform/GenericApplicationMessageHandler.h"
 
 struct FDeviceInfoSDL;
 
-class FJoystickInputDevice final : public IInputDevice
+class JOYSTICKPLUGIN_API FJoystickInputDevice final : public IInputDevice
 {
 public:
 	explicit FJoystickInputDevice(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler);
@@ -32,7 +33,9 @@ public:
 	void JoystickButton(const FJoystickInstanceId& InstanceId, const int Button, const bool Pressed);
 	void JoystickAxis(const FJoystickInstanceId& InstanceId, const int Axis, const float Value);
 	void JoystickHat(const FJoystickInstanceId& InstanceId, const int Hat, const EJoystickPointOfViewDirection Value);
-	void JoystickBall(const FJoystickInstanceId& InstanceId, const int Ball, const FVector2D Value);
+	void JoystickBall(const FJoystickInstanceId& InstanceId, const int Ball, const FVector2D& Value);
+	void JoystickGyro(const FJoystickInstanceId& InstanceId, const int Timestamp, const FVector& Value);
+	void JoystickAccelerometer(const FJoystickInstanceId& InstanceId, const int Timestamp, const FVector& Value);
 
 	FJoystickDeviceState* GetDeviceData(const FJoystickInstanceId& InstanceId);
 	FJoystickInstanceId GetInstanceIdByKey(const FKey& Key) const;

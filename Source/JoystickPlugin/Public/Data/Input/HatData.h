@@ -12,6 +12,28 @@ struct JOYSTICKPLUGIN_API FHatData
 {
 	GENERATED_BODY()
 
+	FHatData() :
+		Direction(EJoystickPointOfViewDirection::None),
+		PreviousDirection(EJoystickPointOfViewDirection::None)
+	{
+	}
+
+	EJoystickPointOfViewDirection GetValue() const
+	{
+		return Direction;
+	}
+
+	EJoystickPointOfViewDirection GetPreviousValue() const
+	{
+		return PreviousDirection;
+	}
+
+	void Update(const EJoystickPointOfViewDirection& InValue)
+	{
+		PreviousDirection = Direction;
+		Direction = InValue;
+	}
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
 	EJoystickPointOfViewDirection Direction;
 
