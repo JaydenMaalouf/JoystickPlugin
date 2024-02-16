@@ -251,7 +251,8 @@ void FJoystickInputDevice::JoystickPluggedIn(const FDeviceInfoSDL& Device)
 		}
 		else
 		{
-			BaseKeyName = FString::Printf(TEXT("Joystick_%s_%d"), *Device.SafeDeviceName, Device.InternalDeviceIndex);
+			const FString DeviceName = Device.SafeDeviceName.Replace(TEXT(" "), TEXT("_"));
+			BaseKeyName = FString::Printf(TEXT("Joystick_%s_%d"), *DeviceName, Device.InternalDeviceIndex);
 			BaseDisplayName = FString::Printf(TEXT("%s %d"), *Device.ProductName, Device.InternalDeviceIndex);
 		}
 	}
