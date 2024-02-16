@@ -16,6 +16,22 @@ struct JOYSTICKPLUGIN_API FButtonData
 	{
 	}
 
+	bool GetValue() const
+	{
+		return ButtonState;
+	}
+
+	bool GetPreviousValue() const
+	{
+		return PreviousButtonState;
+	}
+
+	void Update(const bool& InValue)
+	{
+		PreviousButtonState = ButtonState;
+		ButtonState = InValue;
+	}
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
 	bool ButtonState;
 

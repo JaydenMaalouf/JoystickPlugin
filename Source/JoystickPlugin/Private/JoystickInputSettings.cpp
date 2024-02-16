@@ -4,6 +4,7 @@
 #include "JoystickInputSettings.h"
 #include "JoystickInputDevice.h"
 #include "JoystickSubsystem.h"
+#include "Engine/Engine.h"
 
 UJoystickInputSettings::UJoystickInputSettings()
 {
