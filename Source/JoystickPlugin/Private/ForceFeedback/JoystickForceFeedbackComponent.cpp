@@ -57,6 +57,18 @@ void UJoystickForceFeedbackComponent::EndPlay(const EEndPlayReason::Type EndPlay
 	ForcedFeedbackEffect = nullptr;
 }
 
+void UJoystickForceFeedbackComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	
+	if (!IsValid(ForcedFeedbackEffect))
+	{
+		return;
+	}
+	
+	ForcedFeedbackEffect->Tick(DeltaTime);
+}
+
 void UJoystickForceFeedbackComponent::OnInitialisedEffect_Implementation(const UForceFeedbackEffectBase* Effect)
 {
 }

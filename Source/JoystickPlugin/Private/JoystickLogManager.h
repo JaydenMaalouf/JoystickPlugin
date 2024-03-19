@@ -3,6 +3,12 @@
 
 #pragma once
 
+THIRD_PARTY_INCLUDES_START
+
+#include "SDL_error.h"
+
+THIRD_PARTY_INCLUDES_END
+
 #include "JoystickInputSettings.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogJoystickPlugin, Log, All);
@@ -49,6 +55,17 @@ public:
 		}
 
 		UE_LOG(LogJoystickPlugin, Error, TEXT("%s"), *FString::Printf(Fmt, Args...));
+	}
+
+	void LogSDLError(const FString Message)
+	{
+		if (!CanLog())
+		{
+			return;
+		}
+		
+		const FString ErrorMessage = FString(SDL_GetError());
+		LogError(TEXT("%s: %s"), *Message, *ErrorMessage);
 	}
 
 	template <typename FmtType, typename... Types>
