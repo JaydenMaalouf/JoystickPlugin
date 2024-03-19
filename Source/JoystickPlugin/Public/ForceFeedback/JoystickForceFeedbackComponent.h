@@ -21,6 +21,7 @@ public:
 
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Force Feedback|Component|Events")
 	void OnInitialisedEffect(const UForceFeedbackEffectBase* Effect);

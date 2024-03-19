@@ -33,6 +33,11 @@ void UForceFeedbackEffectBase::BeginDestroy()
 
 void UForceFeedbackEffectBase::Tick(const float DeltaTime)
 {
+	if (!IsInitialised)
+	{
+		return;
+	}
+	
 	ReceiveTick(DeltaTime);
 }
 

@@ -43,6 +43,6 @@ struct JOYSTICKPLUGIN_API FJoystickInstanceId
 		return GetTypeHash(Other.Value);
 	}
 
-	UPROPERTY(VisibleAnywhere, Category="Device Config", DisplayName="Instance Id")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Device Config", DisplayName="Instance Id")
 	int Value;
 };
