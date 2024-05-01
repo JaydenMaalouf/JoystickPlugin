@@ -12,6 +12,7 @@ SJoystickInputSelector::SJoystickInputSelector()
 	  , MinRangeOffset(0.0f)
 	  , MaxRangeOffset(0.0f)
 	  , AxisSelectionTimeout(2.5f)
+	  , DeadZone(0.0f)
 	  , bAllowAxisKeys(true)
 	  , bAllowButtonKeys(true)
 	  , bAllowModifierKeys(true)
@@ -83,6 +84,14 @@ FReply SJoystickInputSelector::OnKeyUp(const FGeometry& MyGeometry, const FKeyEv
 
 FReply SJoystickInputSelector::OnAnalogValueChanged(const FGeometry& MyGeometry, const FAnalogInputEvent& InAnalogInputEvent)
 {
+	/** Don't process events in dead zone */
+	const float AbsAnalogValue = FMath::Abs(InAnalogInputEvent.GetAnalogValue());
+
+	if (AbsAnalogValue <= DeadZone)
+	{
+		return FReply::Handled();
+	}
+	
 	if (!bAllowAxisKeys)
 	{
 		return SCompoundWidget::OnAnalogValueChanged(MyGeometry, InAnalogInputEvent);

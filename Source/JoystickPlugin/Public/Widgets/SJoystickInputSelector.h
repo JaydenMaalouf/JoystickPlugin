@@ -40,6 +40,7 @@ public:
 			  , _SetMinRangeOffset(0.0f)
 			  , _SetMaxRangeOffset(0.0f)
 			  , _SetAxisSelectionTimeout(2.5f)
+			  , _SetDeadZone(0.0f)
 			  , _EscapeCancelsSelection(true)
 			  , _IsFocusable(true)
 		{
@@ -78,6 +79,8 @@ public:
 		SLATE_ARGUMENT(float, SetMinRangeOffset)
 		SLATE_ARGUMENT(float, SetMaxRangeOffset)
 		SLATE_ARGUMENT(float, SetAxisSelectionTimeout)
+
+		SLATE_ARGUMENT(float, SetDeadZone)
 
 		/** When true, pressing escape will cancel the key selection, when false, pressing escape will select the escape key. */
 		SLATE_ARGUMENT(bool, EscapeCancelsSelection)
@@ -125,6 +128,8 @@ public:
 	void SetMinRangeOffset(const float InMinRangeOffset) { MinRangeOffset = InMinRangeOffset; }
 	void SetMaxRangeOffset(const float InMaxRangeOffset) { MaxRangeOffset = InMaxRangeOffset; }
 	void SetAxisSelectionTimeout(const float InAxisSelectionTimeout) { AxisSelectionTimeout = InAxisSelectionTimeout; }
+
+	void SetDeadZone(const float InDeadZone) { DeadZone = InDeadZone; }
 
 	void SetAllowAxisKeys(const bool bInAllowAxisKeys) { bAllowAxisKeys = bInAllowAxisKeys; }
 	void SetAllowButtonKeys(const bool bInAllowButtonKeys) { bAllowButtonKeys = bInAllowButtonKeys; }
@@ -196,6 +201,9 @@ private:
 	float AxisSelectionTimeout;
 	TMap<FInputChord, FKeySelectorData> KeyData;
 
+	/** Define dead zone percentage to avoid unintentional axis mapping */
+	float DeadZone;
+	
 	bool bAllowAxisKeys;
 	bool bAllowButtonKeys;
 
