@@ -19,13 +19,6 @@ jobs:
           fetch-depth: 0
       - name: Setup Versioning
         uses: ./.github/actions/version
-      - name: Package Plugin - 5.1
-        uses: ./.github/actions/package
-        with:
-          engineVersion: '5.1'
-          releaseVersion: ${{ steps.gitversion.outputs.semVer }}
-          epicGamesDirectory: ${{ secrets.EPIC_GAMES_DIRECTORY }}
-          launcherDirectory: ${{ secrets.LAUNCHER_DIRECTORY }}
       - name: Package Plugin - 5.2
         uses: ./.github/actions/package
         with:
@@ -37,6 +30,13 @@ jobs:
         uses: ./.github/actions/package
         with:
           engineVersion: '5.3'
+          releaseVersion: ${{ steps.gitversion.outputs.semVer }}
+          epicGamesDirectory: ${{ secrets.EPIC_GAMES_DIRECTORY }}
+          launcherDirectory: ${{ secrets.LAUNCHER_DIRECTORY }}
+      - name: Package Plugin - 5.4
+        uses: ./.github/actions/package
+        with:
+          engineVersion: '5.4'
           releaseVersion: ${{ steps.gitversion.outputs.semVer }}
           epicGamesDirectory: ${{ secrets.EPIC_GAMES_DIRECTORY }}
           launcherDirectory: ${{ secrets.LAUNCHER_DIRECTORY }}
