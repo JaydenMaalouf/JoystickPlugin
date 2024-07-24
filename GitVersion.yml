@@ -1,14 +1,14 @@
 mode: Mainline
-major-version-bump-message: "^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\\([\\w\\s-]*\\))?(!:|:.*\\n\\n((.+\\n)+\\n)?BREAKING CHANGE:\\s.+)"
-minor-version-bump-message: "^(feat)(\\([\\w\\s-]*\\))?:"
-patch-version-bump-message: "^(build|chore|ci|docs|fix|perf|refactor|revert|style|test)(\\([\\w\\s-]*\\))?:"
 continuous-delivery-fallback-tag: ''
+major-version-bump-message: ^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([\w\s-]*\))?(!:|:.*\n\n((.+\n)+\n)?BREAKING CHANGE:\s.+)
+minor-version-bump-message: '^(feat)(\([\w\s-]*\))?:'
+patch-version-bump-message: '^(build|chore|ci|docs|fix|perf|refactor|revert|style|test)(\([\w\s-]*\))?:'
 branches:
   develop:
     tag: beta
   feature:
-    tag: alpha
     mode: ContinuousDeployment
+    tag: alpha
   hotfix:
     tag: ''
     increment: Patch
@@ -17,3 +17,6 @@ branches:
   main:
     tag: ''
     increment: Minor
+ignore:
+  sha: []
+merge-message-formats: {}
