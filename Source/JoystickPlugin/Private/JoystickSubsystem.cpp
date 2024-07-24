@@ -462,7 +462,7 @@ bool UJoystickSubsystem::AddDevice(const int DeviceIndex)
 	}
 
 	FJoystickLogManager::Get()->LogDebug(TEXT("%s:"), *Device.DeviceName);
-	FJoystickLogManager::Get()->LogDebug(TEXT("\tInstance Id: %d"), Device.InstanceId);
+	FJoystickLogManager::Get()->LogDebug(TEXT("\tInstance Id: %d"), (int)Device.InstanceId);
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tSDL Device Index: %d"), DeviceIndex);
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tProduct: %d"), Device.ProductId);
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tProduct Id: %s"), *Device.ProductGuid.ToString());
@@ -474,7 +474,7 @@ bool UJoystickSubsystem::AddDevice(const int DeviceIndex)
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tRumble Support: %s"), Device.Rumble.Supported ? TEXT("true") : TEXT("false"));
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tLED Support: %s"), Device.LedSupport ? TEXT("true") : TEXT("false"));
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tType: %d"), Device.Type);
-	FJoystickLogManager::Get()->LogDebug(TEXT("\tPower Level: %d"), Device.PowerLevel);
+	FJoystickLogManager::Get()->LogDebug(TEXT("\tPower Level: %d"), (int)Device.PowerLevel);
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tNumber of Axis %d"), SDL_JoystickNumAxes(Device.SDLJoystick));
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tNumber of Balls %d"), SDL_JoystickNumBalls(Device.SDLJoystick));
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tNumber of Buttons %d"), SDL_JoystickNumButtons(Device.SDLJoystick));
