@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "Runtime/Launch/Resources/Version.h"
 #include "ForceFeedback/Types/ForceFeedbackDirectionType.h"
 
 #include "ForceFeedbackEffectDirectionData.generated.h"
