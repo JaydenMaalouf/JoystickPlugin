@@ -3,6 +3,7 @@
 
 #include "ForceFeedback/JoystickForceFeedbackComponent.h"
 
+#include "Engine/Engine.h"
 #include "JoystickSubsystem.h"
 #include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
 
