@@ -140,14 +140,12 @@ void UJoystickForceFeedbackComponent::InternalDestroyEffect(UForceFeedbackEffect
 	ForcedFeedbackEffect->OnUpdatedEffectDelegate.RemoveDynamic(this, &UJoystickForceFeedbackComponent::OnUpdatedEffect);
 	ForcedFeedbackEffect->OnDestroyedEffectDelegate.RemoveDynamic(this, &UJoystickForceFeedbackComponent::OnDestroyedEffect);
 
-	ForcedFeedbackEffect->DestroyEffect();
-
 	if (RemoveEffect == true && Effects.Contains(ForcedFeedbackEffect))
 	{
 		Effects.Remove(ForcedFeedbackEffect);
 	}
 
-	ForcedFeedbackEffect->BeginDestroy();
+	ForcedFeedbackEffect->ConditionalBeginDestroy();
 }
 
 void UJoystickForceFeedbackComponent::DestroyEffect(UForceFeedbackEffectBase* ForcedFeedbackEffect)
