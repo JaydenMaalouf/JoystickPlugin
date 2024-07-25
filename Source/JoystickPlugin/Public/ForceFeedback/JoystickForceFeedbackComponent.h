@@ -39,7 +39,7 @@ public:
 	void OnDestroyedEffect(const UForceFeedbackEffectBase* Effect);
 
 	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Component|Functions")
-	UForceFeedbackEffectBase* GetEffect() const;
+	TArray<UForceFeedbackEffectBase*> GetEffects() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Component|Functions")
 	void StartEffect() const;
@@ -57,5 +57,14 @@ public:
 	FForceFeedbackComponentData ComponentData;
 
 	UPROPERTY(VisibleAnywhere, Category = "Force Feedback|Component")
-	UForceFeedbackEffectBase* ForcedFeedbackEffect;
+	TArray<UForceFeedbackEffectBase*> Effects;
+
+private:
+	UFUNCTION()
+	void OnSubsystemReady();
+
+	void CreateEffects();
+	void CreateInstanceEffect(const FJoystickInstanceId& JoystickInstanceId);
+	void DestroyEffect(UForceFeedbackEffectBase* ForcedFeedbackEffect);
+	void InternalDestroyEffect(UForceFeedbackEffectBase* ForcedFeedbackEffect, bool RemoveEffect);
 };

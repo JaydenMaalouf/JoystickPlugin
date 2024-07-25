@@ -12,7 +12,7 @@ struct JOYSTICKPLUGIN_API FJoystickHapticInformation
 
 	FJoystickHapticInformation()
 		: Supported(false),
-	      AxesCount(0),
+		  AxesCount(0),
 		  Constant(false),
 		  Sine(false),
 		  Triangle(false),
@@ -34,7 +34,7 @@ struct JOYSTICKPLUGIN_API FJoystickHapticInformation
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config")
 	int AxesCount;
-	
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config/Supported Effects")
 	bool Constant;
 

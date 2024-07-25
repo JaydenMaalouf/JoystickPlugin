@@ -46,6 +46,11 @@ void FJoystickInputDevice::SetChannelValues(int ControllerId, const FForceFeedba
 	const float SmallValue = (Values.LeftSmall > Values.RightSmall ? Values.LeftSmall : Values.RightSmall);
 	for (const TTuple<FJoystickInstanceId, FJoystickDeviceState>& Joystick : JoystickDeviceState)
 	{
+		if (SmallValue == 0 && LargeValue == 0)
+		{
+			continue;
+		}
+
 		HapticDeviceManager->PlayRumble(Joystick.Key, SmallValue, LargeValue, -1);
 	}
 #endif

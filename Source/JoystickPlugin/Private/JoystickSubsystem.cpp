@@ -23,7 +23,7 @@ THIRD_PARTY_INCLUDES_END
 
 UJoystickSubsystem::UJoystickSubsystem()
 	: OwnsSDL(false)
-	  , IsInitialised(false)
+	  , bIsInitialised(false)
 	  , PersistentDeviceCount(0)
 {
 }
@@ -54,12 +54,12 @@ void UJoystickSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 		OwnsSDL = true;
 	}
 
-	if (JoystickSubsystemReady.IsBound())
-	{
-		JoystickSubsystemReady.Broadcast();
-	}
+	bIsInitialised = true;
 
-	IsInitialised = true;
+	if (JoystickSubsystemInitialised.IsBound())
+	{
+		JoystickSubsystemInitialised.Broadcast();
+	}
 }
 
 void UJoystickSubsystem::Deinitialize()
@@ -80,7 +80,7 @@ void UJoystickSubsystem::Deinitialize()
 		SDL_Quit();
 	}
 
-	IsInitialised = false;
+	bIsInitialised = false;
 }
 
 void UJoystickSubsystem::InitialiseExistingJoysticks()
@@ -92,7 +92,7 @@ void UJoystickSubsystem::InitialiseExistingJoysticks()
 	}
 }
 
-void UJoystickSubsystem::InitialiseInputDevice(const TSharedPtr<FJoystickInputDevice> NewInputDevice)
+void UJoystickSubsystem::InitialiseInputDevice(const TSharedPtr<FJoystickInputDevice>& NewInputDevice)
 {
 	if (NewInputDevice == nullptr || !NewInputDevice.IsValid())
 	{
@@ -101,8 +101,7 @@ void UJoystickSubsystem::InitialiseInputDevice(const TSharedPtr<FJoystickInputDe
 
 	InputDevicePtr = NewInputDevice;
 
-	const int Result = SDL_WasInit(SdlRequiredFlags);
-	if (Result == 0)
+	if (SDL_WasInit(SdlRequiredFlags) == 0)
 	{
 		return;
 	}
@@ -110,6 +109,11 @@ void UJoystickSubsystem::InitialiseInputDevice(const TSharedPtr<FJoystickInputDe
 	InitialiseExistingJoysticks();
 
 	SDL_AddEventWatch(HandleSDLEvent, this);
+
+	if (JoystickSubsystemReady.IsBound())
+	{
+		JoystickSubsystemReady.Broadcast();
+	}
 }
 
 int UJoystickSubsystem::GetRawJoystickCount() const
@@ -462,7 +466,7 @@ bool UJoystickSubsystem::AddDevice(const int DeviceIndex)
 	}
 
 	FJoystickLogManager::Get()->LogDebug(TEXT("%s:"), *Device.DeviceName);
-	FJoystickLogManager::Get()->LogDebug(TEXT("\tInstance Id: %d"), (int)Device.InstanceId);
+	FJoystickLogManager::Get()->LogDebug(TEXT("\tInstance Id: %d"), static_cast<int>(Device.InstanceId));
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tSDL Device Index: %d"), DeviceIndex);
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tProduct: %d"), Device.ProductId);
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tProduct Id: %s"), *Device.ProductGuid.ToString());
@@ -474,7 +478,7 @@ bool UJoystickSubsystem::AddDevice(const int DeviceIndex)
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tRumble Support: %s"), Device.Rumble.Supported ? TEXT("true") : TEXT("false"));
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tLED Support: %s"), Device.LedSupport ? TEXT("true") : TEXT("false"));
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tType: %d"), Device.Type);
-	FJoystickLogManager::Get()->LogDebug(TEXT("\tPower Level: %d"), (int)Device.PowerLevel);
+	FJoystickLogManager::Get()->LogDebug(TEXT("\tPower Level: %d"), static_cast<int>(Device.PowerLevel));
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tNumber of Axis %d"), SDL_JoystickNumAxes(Device.SDLJoystick));
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tNumber of Balls %d"), SDL_JoystickNumBalls(Device.SDLJoystick));
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tNumber of Buttons %d"), SDL_JoystickNumButtons(Device.SDLJoystick));
@@ -683,7 +687,12 @@ FJoystickInputDevice* UJoystickSubsystem::GetInputDevice() const
 
 bool UJoystickSubsystem::IsReady() const
 {
-	return IsInitialised;
+	return bIsInitialised && InputDevicePtr.IsValid();
+}
+
+bool UJoystickSubsystem::IsInitialised() const
+{
+	return bIsInitialised;
 }
 
 FDeviceInfoSDL* UJoystickSubsystem::GetDeviceInfo(const FJoystickInstanceId& InstanceId)
