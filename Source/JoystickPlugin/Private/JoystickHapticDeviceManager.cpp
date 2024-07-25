@@ -92,6 +92,11 @@ int UJoystickHapticDeviceManager::GetEffectStatus(const FJoystickInstanceId& Ins
 
 bool UJoystickHapticDeviceManager::PlayRumble(const FJoystickInstanceId& InstanceId, const float LowFrequencyRumble, const float HighFrequencyRumble, const float Duration) const
 {
+	if (LowFrequencyRumble == 0 && HighFrequencyRumble == 0)
+	{
+		return false;
+	}
+
 #if ENGINE_MAJOR_VERSION == 5
 	const FDeviceInfoSDL* DeviceInfo = GetDeviceInfo(InstanceId);
 	if (DeviceInfo == nullptr || DeviceInfo->SDLJoystick == nullptr)
@@ -222,7 +227,7 @@ bool UJoystickHapticDeviceManager::PauseDevice(const FJoystickInstanceId& Instan
 	{
 		return false;
 	}
-	
+
 	const int Result = SDL_HapticPause(HapticDevice);
 	if (Result != 0)
 	{

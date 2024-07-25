@@ -2,6 +2,8 @@
 // Copyright Jayden Maalouf. All Rights Reserved.
 
 #include "ForceFeedback/JoystickForceFeedbackComponent.h"
+
+#include "JoystickSubsystem.h"
 #include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
 
 UJoystickForceFeedbackComponent::UJoystickForceFeedbackComponent(const FObjectInitializer& ObjectInitializer)
@@ -14,19 +16,78 @@ void UJoystickForceFeedbackComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
+	if (!IsValid(JoystickSubsystem))
+	{
+		return;
+	}
+
+	if (JoystickSubsystem->IsReady())
+	{
+		CreateEffects();
+	}
+	else
+	{
+		JoystickSubsystem->JoystickSubsystemReady.AddDynamic(this, &UJoystickForceFeedbackComponent::OnSubsystemReady);
+	}
+}
+
+void UJoystickForceFeedbackComponent::OnSubsystemReady()
+{
+	CreateEffects();
+
+	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
+	if (!IsValid(JoystickSubsystem))
+	{
+		return;
+	}
+
+	JoystickSubsystem->JoystickSubsystemReady.RemoveDynamic(this, &UJoystickForceFeedbackComponent::OnSubsystemReady);
+}
+
+void UJoystickForceFeedbackComponent::CreateEffects()
+{
 	if (!IsValid(EffectType))
 	{
 		return;
 	}
 
-	ForcedFeedbackEffect = NewObject<UForceFeedbackEffectBase>(this, EffectType);
+	if (InstanceId != -1)
+	{
+		CreateInstanceEffect(InstanceId);
+	}
+	else
+	{
+		const UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
+		if (!IsValid(JoystickSubsystem))
+		{
+			return;
+		}
+
+		TArray<FJoystickInstanceId> InstanceIds;
+		JoystickSubsystem->GetInstanceIds(InstanceIds);
+
+		if (InstanceIds.Num() == 0)
+		{
+			return;
+		}
+
+		for (const FJoystickInstanceId& JoystickInstanceId : InstanceIds)
+		{
+			CreateInstanceEffect(JoystickInstanceId);
+		}
+	}
+}
+
+void UJoystickForceFeedbackComponent::CreateInstanceEffect(const FJoystickInstanceId& JoystickInstanceId)
+{
+	UForceFeedbackEffectBase* ForcedFeedbackEffect = NewObject<UForceFeedbackEffectBase>(this, EffectType);
 	if (!IsValid(ForcedFeedbackEffect))
 	{
 		return;
 	}
 
-	ForcedFeedbackEffect->SetInstanceId(InstanceId);
-
+	ForcedFeedbackEffect->SetInstanceId(JoystickInstanceId);
 	ForcedFeedbackEffect->OnInitialisedEffectDelegate.AddDynamic(this, &UJoystickForceFeedbackComponent::OnInitialisedEffect);
 	ForcedFeedbackEffect->OnStartedEffectDelegate.AddDynamic(this, &UJoystickForceFeedbackComponent::OnStartedEffect);
 	ForcedFeedbackEffect->OnStoppedEffectDelegate.AddDynamic(this, &UJoystickForceFeedbackComponent::OnStoppedEffect);
@@ -39,9 +100,33 @@ void UJoystickForceFeedbackComponent::BeginPlay()
 	{
 		ForcedFeedbackEffect->InitialiseEffect();
 	}
+
+	Effects.Add(ForcedFeedbackEffect);
 }
 
 void UJoystickForceFeedbackComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (Effects.Num() == 0)
+	{
+		Super::EndPlay(EndPlayReason);
+		return;
+	}
+
+	for (UForceFeedbackEffectBase* ForcedFeedbackEffect : Effects)
+	{
+		if (!IsValid(ForcedFeedbackEffect))
+		{
+			continue;
+		}
+
+		InternalDestroyEffect(ForcedFeedbackEffect, false);
+	}
+	Effects.Empty();
+
+	Super::EndPlay(EndPlayReason);
+}
+
+void UJoystickForceFeedbackComponent::InternalDestroyEffect(UForceFeedbackEffectBase* ForcedFeedbackEffect, const bool RemoveEffect = false)
 {
 	if (!IsValid(ForcedFeedbackEffect))
 	{
@@ -54,19 +139,39 @@ void UJoystickForceFeedbackComponent::EndPlay(const EEndPlayReason::Type EndPlay
 	ForcedFeedbackEffect->OnUpdatedEffectDelegate.RemoveDynamic(this, &UJoystickForceFeedbackComponent::OnUpdatedEffect);
 	ForcedFeedbackEffect->OnDestroyedEffectDelegate.RemoveDynamic(this, &UJoystickForceFeedbackComponent::OnDestroyedEffect);
 
-	ForcedFeedbackEffect = nullptr;
+	ForcedFeedbackEffect->DestroyEffect();
+
+	if (RemoveEffect == true && Effects.Contains(ForcedFeedbackEffect))
+	{
+		Effects.Remove(ForcedFeedbackEffect);
+	}
+
+	ForcedFeedbackEffect->BeginDestroy();
+}
+
+void UJoystickForceFeedbackComponent::DestroyEffect(UForceFeedbackEffectBase* ForcedFeedbackEffect)
+{
+	InternalDestroyEffect(ForcedFeedbackEffect, true);
 }
 
 void UJoystickForceFeedbackComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	
-	if (!IsValid(ForcedFeedbackEffect))
+
+	if (Effects.Num() == 0)
 	{
 		return;
 	}
-	
-	ForcedFeedbackEffect->Tick(DeltaTime);
+
+	for (UForceFeedbackEffectBase* ForcedFeedbackEffect : Effects)
+	{
+		if (!IsValid(ForcedFeedbackEffect))
+		{
+			continue;
+		}
+
+		ForcedFeedbackEffect->Tick(DeltaTime);
+	}
 }
 
 void UJoystickForceFeedbackComponent::OnInitialisedEffect_Implementation(const UForceFeedbackEffectBase* Effect)
@@ -89,27 +194,43 @@ void UJoystickForceFeedbackComponent::OnDestroyedEffect_Implementation(const UFo
 {
 }
 
-UForceFeedbackEffectBase* UJoystickForceFeedbackComponent::GetEffect() const
+TArray<UForceFeedbackEffectBase*> UJoystickForceFeedbackComponent::GetEffects() const
 {
-	return ForcedFeedbackEffect;
+	return Effects;
 }
 
 void UJoystickForceFeedbackComponent::StartEffect() const
 {
-	if (!IsValid(ForcedFeedbackEffect))
+	if (Effects.Num() == 0)
 	{
 		return;
 	}
 
-	ForcedFeedbackEffect->StartEffect();
+	for (UForceFeedbackEffectBase* ForcedFeedbackEffect : Effects)
+	{
+		if (!IsValid(ForcedFeedbackEffect))
+		{
+			continue;
+		}
+
+		ForcedFeedbackEffect->StartEffect();
+	}
 }
 
 void UJoystickForceFeedbackComponent::StopEffect() const
 {
-	if (!IsValid(ForcedFeedbackEffect))
+	if (Effects.Num() == 0)
 	{
 		return;
 	}
 
-	ForcedFeedbackEffect->StopEffect();
+	for (UForceFeedbackEffectBase* ForcedFeedbackEffect : Effects)
+	{
+		if (!IsValid(ForcedFeedbackEffect))
+		{
+			continue;
+		}
+
+		ForcedFeedbackEffect->StopEffect();
+	}
 }

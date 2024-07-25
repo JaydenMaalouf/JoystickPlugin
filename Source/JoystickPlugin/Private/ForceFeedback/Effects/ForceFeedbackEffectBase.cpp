@@ -10,7 +10,7 @@
 
 UForceFeedbackEffectBase::UForceFeedbackEffectBase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
-	  , InstanceId(0)
+	  , InstanceId(-1)
 	  , EffectId(-1)
 	  , IsInitialised(false)
 	  , AutoStartOnInitialisation(false)
@@ -37,7 +37,7 @@ void UForceFeedbackEffectBase::Tick(const float DeltaTime)
 	{
 		return;
 	}
-	
+
 	ReceiveTick(DeltaTime);
 }
 

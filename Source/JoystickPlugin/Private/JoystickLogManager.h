@@ -63,7 +63,7 @@ public:
 		{
 			return;
 		}
-		
+
 		const FString ErrorMessage = FString(SDL_GetError());
 		LogError(TEXT("%s: %s"), *Message, *ErrorMessage);
 	}
