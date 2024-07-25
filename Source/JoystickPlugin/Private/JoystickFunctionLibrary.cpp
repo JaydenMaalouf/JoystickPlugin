@@ -2,7 +2,6 @@
 // Copyright Jayden Maalouf. All Rights Reserved.
 
 #include "JoystickFunctionLibrary.h"
-#include "JoystickInputSettings.h"
 
 THIRD_PARTY_INCLUDES_START
 
