@@ -9,7 +9,7 @@
 
 UJoystickForceFeedbackComponent::UJoystickForceFeedbackComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
-	  , InstanceId(0)
+	  , InstanceId(-1)
 {
 }
 
@@ -22,6 +22,9 @@ void UJoystickForceFeedbackComponent::BeginPlay()
 	{
 		return;
 	}
+	
+	JoystickSubsystem->JoystickPluggedInDelegate.AddDynamic(this, &UJoystickForceFeedbackComponent::JoystickPluggedIn);
+	JoystickSubsystem->JoystickUnpluggedDelegate.AddDynamic(this, &UJoystickForceFeedbackComponent::JoystickUnplugged);
 
 	if (JoystickSubsystem->IsReady())
 	{
@@ -88,6 +91,12 @@ void UJoystickForceFeedbackComponent::CreateInstanceEffect(const FJoystickInstan
 		return;
 	}
 
+	if (Configuration.OverrideEffectTick)
+	{
+		//Disable Effect Tick as this will be driven by the component instead
+		ForcedFeedbackEffect->SetTickable(false);		
+	}
+	
 	ForcedFeedbackEffect->SetInstanceId(JoystickInstanceId);
 	ForcedFeedbackEffect->OnInitialisedEffectDelegate.AddDynamic(this, &UJoystickForceFeedbackComponent::OnInitialisedEffect);
 	ForcedFeedbackEffect->OnStartedEffectDelegate.AddDynamic(this, &UJoystickForceFeedbackComponent::OnStartedEffect);
@@ -95,9 +104,9 @@ void UJoystickForceFeedbackComponent::CreateInstanceEffect(const FJoystickInstan
 	ForcedFeedbackEffect->OnUpdatedEffectDelegate.AddDynamic(this, &UJoystickForceFeedbackComponent::OnUpdatedEffect);
 	ForcedFeedbackEffect->OnDestroyedEffectDelegate.AddDynamic(this, &UJoystickForceFeedbackComponent::OnDestroyedEffect);
 
-	ForcedFeedbackEffect->AutoStartOnInitialisation = ComponentData.AutoStartOnInit;
+	ForcedFeedbackEffect->AutoStartOnInitialisation = Configuration.AutoStartOnInit;
 
-	if (ComponentData.AutoInit)
+	if (Configuration.AutoInit)
 	{
 		ForcedFeedbackEffect->InitialiseEffect();
 	}
@@ -107,27 +116,17 @@ void UJoystickForceFeedbackComponent::CreateInstanceEffect(const FJoystickInstan
 
 void UJoystickForceFeedbackComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	if (Effects.Num() == 0)
+	DoThing( [&](UForceFeedbackEffectBase* Effect)
 	{
-		Super::EndPlay(EndPlayReason);
-		return;
-	}
-
-	for (UForceFeedbackEffectBase* ForcedFeedbackEffect : Effects)
-	{
-		if (!IsValid(ForcedFeedbackEffect))
-		{
-			continue;
-		}
-
-		InternalDestroyEffect(ForcedFeedbackEffect, false);
-	}
+		DestroyEffect(Effect);
+	});
+	
 	Effects.Empty();
 
 	Super::EndPlay(EndPlayReason);
 }
 
-void UJoystickForceFeedbackComponent::InternalDestroyEffect(UForceFeedbackEffectBase* ForcedFeedbackEffect, const bool RemoveEffect = false)
+void UJoystickForceFeedbackComponent::DestroyEffect(UForceFeedbackEffectBase* ForcedFeedbackEffect)
 {
 	if (!IsValid(ForcedFeedbackEffect))
 	{
@@ -140,23 +139,31 @@ void UJoystickForceFeedbackComponent::InternalDestroyEffect(UForceFeedbackEffect
 	ForcedFeedbackEffect->OnUpdatedEffectDelegate.RemoveDynamic(this, &UJoystickForceFeedbackComponent::OnUpdatedEffect);
 	ForcedFeedbackEffect->OnDestroyedEffectDelegate.RemoveDynamic(this, &UJoystickForceFeedbackComponent::OnDestroyedEffect);
 
-	if (RemoveEffect == true && Effects.Contains(ForcedFeedbackEffect))
-	{
-		Effects.Remove(ForcedFeedbackEffect);
-	}
-
 	ForcedFeedbackEffect->ConditionalBeginDestroy();
 }
 
-void UJoystickForceFeedbackComponent::DestroyEffect(UForceFeedbackEffectBase* ForcedFeedbackEffect)
+void UJoystickForceFeedbackComponent::DestroyInstanceEffects(const FJoystickInstanceId& JoystickInstanceId)
 {
-	InternalDestroyEffect(ForcedFeedbackEffect, true);
+	DoThing(InstanceId, [&](UForceFeedbackEffectBase* Effect)
+	{
+		DestroyEffect(Effect);
+	});
+
+	Effects.RemoveAll([&](const UForceFeedbackEffectBase* Effect)
+	{
+		return Effect->GetInstanceId() == JoystickInstanceId;
+	});
 }
 
 void UJoystickForceFeedbackComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if (!Configuration.OverrideEffectTick)
+	{
+		return;
+	}
+	
 	if (Effects.Num() == 0)
 	{
 		return;
@@ -194,42 +201,68 @@ void UJoystickForceFeedbackComponent::OnDestroyedEffect_Implementation(const UFo
 }
 
 TArray<UForceFeedbackEffectBase*> UJoystickForceFeedbackComponent::GetEffects() const
-{
+{	
 	return Effects;
 }
 
-void UJoystickForceFeedbackComponent::StartEffect() const
+void UJoystickForceFeedbackComponent::StartEffect()
+{
+	DoThing([](UForceFeedbackEffectBase* Effect)
+	{
+		Effect->StartEffect();
+	});
+}
+
+void UJoystickForceFeedbackComponent::StopEffect()
+{
+	DoThing([](UForceFeedbackEffectBase* Effect)
+	{
+		Effect->StopEffect();
+	});
+}
+
+void UJoystickForceFeedbackComponent::JoystickPluggedIn(const FJoystickInstanceId& JoystickInstanceId)
+{
+	CreateInstanceEffect(JoystickInstanceId);
+}
+
+void UJoystickForceFeedbackComponent::JoystickUnplugged(const FJoystickInstanceId& JoystickInstanceId)
+{
+	DestroyInstanceEffects(JoystickInstanceId);
+}
+
+void UJoystickForceFeedbackComponent::DoThing(const TFunctionRef<void(UForceFeedbackEffectBase* Thing)>& CustomInitializer)
 {
 	if (Effects.Num() == 0)
 	{
 		return;
 	}
 
-	for (UForceFeedbackEffectBase* ForcedFeedbackEffect : Effects)
+	for (UForceFeedbackEffectBase* Effect : Effects)
 	{
-		if (!IsValid(ForcedFeedbackEffect))
+		if (!IsValid(Effect))
 		{
 			continue;
 		}
-
-		ForcedFeedbackEffect->StartEffect();
+		
+		CustomInitializer(Effect);
 	}
 }
 
-void UJoystickForceFeedbackComponent::StopEffect() const
-{
-	if (Effects.Num() == 0)
+void UJoystickForceFeedbackComponent::DoThing(const FJoystickInstanceId& JoystickInstanceId, const TFunctionRef<void (UForceFeedbackEffectBase* Effect)>& CustomInitializer)
+{		
+	for (UForceFeedbackEffectBase* Effect : Effects)
 	{
-		return;
-	}
-
-	for (UForceFeedbackEffectBase* ForcedFeedbackEffect : Effects)
-	{
-		if (!IsValid(ForcedFeedbackEffect))
+		if (!IsValid(Effect))
 		{
 			continue;
 		}
 
-		ForcedFeedbackEffect->StopEffect();
+		if (Effect->GetInstanceId() != JoystickInstanceId)
+		{
+			continue;
+		}
+
+		CustomInitializer(Effect);
 	}
 }

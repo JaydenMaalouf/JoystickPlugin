@@ -19,7 +19,7 @@ union SDL_Event;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnJoystickSubsystemReady);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnJoystickEvent, FJoystickInstanceId, InstanceId);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnJoystickEvent, const FJoystickInstanceId&, InstanceId);
 
 UCLASS(BlueprintType)
 class JOYSTICKPLUGIN_API UJoystickSubsystem : public UEngineSubsystem

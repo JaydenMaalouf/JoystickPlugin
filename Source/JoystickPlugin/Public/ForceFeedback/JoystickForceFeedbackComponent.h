@@ -42,10 +42,10 @@ public:
 	TArray<UForceFeedbackEffectBase*> GetEffects() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Component|Functions")
-	void StartEffect() const;
+	void StartEffect();
 
 	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Component|Functions")
-	void StopEffect() const;
+	void StopEffect();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Force Feedback|Component")
 	FJoystickInstanceId InstanceId;
@@ -54,17 +54,23 @@ public:
 	TSubclassOf<UForceFeedbackEffectBase> EffectType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Component")
-	FForceFeedbackComponentData ComponentData;
+	FForceFeedbackComponentData Configuration;
 
-	UPROPERTY(VisibleAnywhere, Category = "Force Feedback|Component")
 	TArray<UForceFeedbackEffectBase*> Effects;
 
 private:
 	UFUNCTION()
 	void OnSubsystemReady();
+	UFUNCTION()
+	void JoystickPluggedIn(const FJoystickInstanceId& JoystickInstanceId);
+	UFUNCTION()
+	void JoystickUnplugged(const FJoystickInstanceId& JoystickInstanceId);
 
 	void CreateEffects();
 	void CreateInstanceEffect(const FJoystickInstanceId& JoystickInstanceId);
 	void DestroyEffect(UForceFeedbackEffectBase* ForcedFeedbackEffect);
-	void InternalDestroyEffect(UForceFeedbackEffectBase* ForcedFeedbackEffect, bool RemoveEffect);
+	void DestroyInstanceEffects(const FJoystickInstanceId& JoystickInstanceId);
+
+	void DoThing(const TFunctionRef<void(UForceFeedbackEffectBase* Thing)>& CustomInitializer);
+	void DoThing(const FJoystickInstanceId& JoystickInstanceId, const TFunctionRef<void(UForceFeedbackEffectBase* Thing)>& CustomInitializer);
 };

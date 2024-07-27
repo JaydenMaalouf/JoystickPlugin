@@ -11,14 +11,16 @@ struct JOYSTICKPLUGIN_API FForceFeedbackComponentData
 	GENERATED_BODY()
 
 	FForceFeedbackComponentData()
-		: AutoInit(false)
-		  , AutoStartOnInit(false)
+		: AutoInit(true)
+		  , AutoStartOnInit(true)
+		  , OverrideEffectTick(true)
 	{
 	}
 
-	FForceFeedbackComponentData(const bool bAutoInit, const bool bAutoStartOnInit)
+	FForceFeedbackComponentData(const bool bAutoInit, const bool bAutoStartOnInit, const bool bOverrideEffectTick)
 		: AutoInit(bAutoInit)
 		  , AutoStartOnInit(bAutoStartOnInit)
+		  , OverrideEffectTick(bOverrideEffectTick)
 	{
 	}
 
@@ -27,4 +29,7 @@ struct JOYSTICKPLUGIN_API FForceFeedbackComponentData
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Component|Data")
 	bool AutoStartOnInit;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Force Feedback|Component", meta=(ToolTip="Useful if you want to control the Tick Interval and Tick Group of the effects."))
+	bool OverrideEffectTick;
 };
