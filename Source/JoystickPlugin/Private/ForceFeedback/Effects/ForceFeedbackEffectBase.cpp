@@ -8,6 +8,7 @@
 #include "JoystickSubsystem.h"
 #include "ForceFeedback/JoystickForceFeedbackComponent.h"
 #include "Runtime/Launch/Resources/Version.h"
+#include "GameFramework/Actor.h"
 
 UForceFeedbackEffectBase::UForceFeedbackEffectBase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
