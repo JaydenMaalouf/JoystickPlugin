@@ -1,5 +1,10 @@
 name: version
 
+inputs:
+  prerelease:
+    type: boolean
+    default: false
+
 runs:
   using: 'composite'
   steps:
@@ -17,5 +22,6 @@ runs:
       run: |
         $json = Get-Content 'JoystickPlugin.uplugin' -raw | ConvertFrom-Json
         $json.VersionName = "${{ steps.gitversion.outputs.semVer }}"
+        $json.IsBetaVersion = $${{ inputs.prerelease }}
         $json | ConvertTo-Json -depth 32 | Set-Content 'JoystickPlugin.uplugin'
       shell: powershell
