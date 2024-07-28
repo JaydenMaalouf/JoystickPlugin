@@ -46,7 +46,7 @@ public:
 	int GetEffectStatus(const FJoystickInstanceId& InstanceId, const int EffectId);
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback|Functions")
-	bool PlayRumble(const FJoystickInstanceId& InstanceId, const float LowFrequencyRumble, const float HighFrequencyRumble, UPARAM(DisplayName = "Duration (in seconds)") const float Duration) const;
+	bool PlayRumble(const FJoystickInstanceId& InstanceId, const float LowFrequencyRumble, const float HighFrequencyRumble, UPARAM(DisplayName = "Duration (in seconds)") const float Duration);
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback|Functions")
 	bool StopRumble(const FJoystickInstanceId& InstanceId);
