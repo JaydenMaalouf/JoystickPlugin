@@ -8,25 +8,18 @@ It provides a project friendly Force Feedback Effect library to enable Developer
 
 Visit the [Wiki](https://github.com/JaydenMaalouf/JoystickPlugin/wiki) for a guide on all things Joystick Plugin.
 
-```text
-❗⚠️ BREAKING CHANGES IN 3.0 RELEASE ⚠️ ❗
-With the release of 3.0.0 comes some breaking changes
-This includes some changes to data types (ie. enums and joystick ids)
-Please ensure you backup your project before upgrading!
-```
-
 ### What is the purpose of this plugin? :thought_balloon:
 
 This plugin aims to provide a simple plug and play system for Joysticks and Steering Wheels (with Forced Feedback capabilities) for Unreal Engine 4/5.
 
 ### Features
 
-* Native Unreal Input Loop :joystick:
-* Event Driven Structure :mailbox_with_mail:
-* Assign Controller to a player :video_game:
-* Haptic/Force Feedback :collision:
-* Sensor Data (Gyro/Accelerometer) :dancer:
-* LED Control :rotating_light:
+- Native Unreal Input Loop :joystick:
+- Event Driven Structure :mailbox_with_mail:
+- Assign Controller to a player :video_game:
+- Haptic/Force Feedback :collision:
+- Sensor Data (Gyro/Accelerometer) :dancer:
+- LED Control :rotating_light:
 
 ### How is this any different to the existing plugins? :thinking:
 
@@ -52,4 +45,4 @@ Also special thanks to the following for assisting in finding bugs:
 - [Juris3D](https://github.com/Juris3D)
 - [craytex](https://github.com/craytex)
 
-Icons made by [Adib Sulthon](https://www.flaticon.com/authors/adib-sulthon "Adib Sulthon") from [www.flaticon.com](https://www.flaticon.com/ "Flaticon")
+Icons made by [Adib Sulthon](https://www.flaticon.com/authors/adib-sulthon 'Adib Sulthon') from [www.flaticon.com](https://www.flaticon.com/ 'Flaticon')
