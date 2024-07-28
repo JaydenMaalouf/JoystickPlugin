@@ -5,6 +5,7 @@
 
 #include "Tickable.h"
 #include "Data/JoystickInstanceId.h"
+#include "ForceFeedback/Data/Configuration/ForceFeedbackEffectConfiguration.h"
 
 THIRD_PARTY_INCLUDES_START
 #include "SDL_haptic.h"
@@ -30,6 +31,7 @@ class JOYSTICKPLUGIN_API UForceFeedbackEffectBase : public UObject, public FTick
 public:
 	UForceFeedbackEffectBase(const FObjectInitializer& ObjectInitializer);
 
+	virtual void PostInitProperties() override;
 	virtual void BeginDestroy() override;
 
 	// Begin FTickableGameObject Interface.
@@ -100,17 +102,11 @@ public:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadonly, Category = "Force Feedback")
 	int EffectId;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Force Feedback|Initialisation")
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Force Feedback")
 	bool IsInitialised;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Initialisation", meta = (ExposeOnSpawn = true))
-	bool AutoStartOnInitialisation;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Initialisation", meta = (ExposeOnSpawn = true))
-	bool AutoInitialise;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Initialisation", meta = (ExposeOnSpawn = true))
-	bool AutoUpdatePostTick;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback")
+	FForceFeedbackEffectConfiguration Configuration;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback", meta = (ExposeOnSpawn = true, EditCondition="!InfiniteIterations", UIMin="0", ClampMin="0"))
 	int Iterations;

@@ -16,6 +16,11 @@ THIRD_PARTY_INCLUDES_END
 
 FDeviceInfoSDL* UJoystickHapticDeviceManager::GetDeviceInfo(const FJoystickInstanceId& InstanceId) const
 {
+	if (!IsValid(GEngine))
+	{
+		return nullptr;
+	}
+
 	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
 	if (!IsValid(JoystickSubsystem))
 	{
