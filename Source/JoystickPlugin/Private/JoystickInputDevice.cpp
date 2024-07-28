@@ -58,6 +58,11 @@ void FJoystickInputDevice::SetChannelValues(int ControllerId, const FForceFeedba
 
 bool FJoystickInputDevice::IsGamepadAttached() const
 {
+	if (!IsValid(GEngine))
+	{
+		return false;
+	}
+
 	const UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
 	if (!IsValid(JoystickSubsystem))
 	{
@@ -228,6 +233,11 @@ void FJoystickInputDevice::InitialiseBalls(const FJoystickInstanceId& InstanceId
 
 void FJoystickInputDevice::JoystickPluggedIn(const FDeviceInfoSDL& Device)
 {
+	if (!IsValid(GEngine))
+	{
+		return;
+	}
+
 	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
 	if (!IsValid(JoystickSubsystem))
 	{
@@ -400,6 +410,11 @@ static FName JoystickInputInterfaceName = FName("JoystickPluginInput");
 
 void FJoystickInputDevice::SendControllerEvents()
 {
+	if (!IsValid(GEngine))
+	{
+		return;
+	}
+
 	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
 	if (!IsValid(JoystickSubsystem))
 	{
@@ -565,6 +580,11 @@ void FJoystickInputDevice::UpdateAxisProperties()
 
 	const UJoystickInputSettings* JoystickInputSettings = GetDefault<UJoystickInputSettings>();
 	if (!IsValid(JoystickInputSettings))
+	{
+		return;
+	}
+
+	if (!IsValid(GEngine))
 	{
 		return;
 	}

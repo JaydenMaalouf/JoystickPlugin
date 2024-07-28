@@ -65,6 +65,11 @@ bool UJoystickInputSettings::SetIgnoreGameControllers(const bool NewIgnoreGameCo
 
 const FJoystickInputDeviceConfiguration* UJoystickInputSettings::GetInputDeviceConfigurationByKey(const FKey& Key) const
 {
+	if (!IsValid(GEngine))
+	{
+		return nullptr;
+	}
+
 	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
 	if (!IsValid(JoystickSubsystem))
 	{
@@ -90,6 +95,11 @@ const FJoystickInputDeviceConfiguration* UJoystickInputSettings::GetInputDeviceC
 
 const FJoystickInputDeviceAxisProperties* UJoystickInputSettings::GetAxisPropertiesByKey(const FKey& AxisKey) const
 {
+	if (!IsValid(GEngine))
+	{
+		return nullptr;
+	}
+
 	const UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
 	if (!IsValid(JoystickSubsystem))
 	{
@@ -124,6 +134,11 @@ const FJoystickInputDeviceAxisProperties* UJoystickInputSettings::GetAxisPropert
 void UJoystickInputSettings::PostEditChangeChainProperty(FPropertyChangedChainEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeChainProperty(PropertyChangedEvent);
+
+	if (!IsValid(GEngine))
+	{
+		return;
+	}
 
 	const UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
 	if (!IsValid(JoystickSubsystem))

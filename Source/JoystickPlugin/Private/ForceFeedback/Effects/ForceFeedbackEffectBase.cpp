@@ -15,18 +15,25 @@ UForceFeedbackEffectBase::UForceFeedbackEffectBase(const FObjectInitializer& Obj
 	  , InstanceId(-1)
 	  , EffectId(-1)
 	  , IsInitialised(false)
-	  , AutoStartOnInitialisation(false)
-	  , AutoInitialise(false)
-	  , AutoUpdatePostTick(true)
 	  , Iterations(1)
 	  , InfiniteIterations(false)
 	  , Tickable(true)
 	  , TickableInEditor(true)
 	  , TickableWhenPaused(false)
+	  , Effect()
 {
-	if (AutoInitialise)
+}
+
+void UForceFeedbackEffectBase::PostInitProperties()
+{
+	UObject::PostInitProperties();
+
+	if (GetWorld())
 	{
-		InitialiseEffect();
+		if (Configuration.AutoInitialise)
+		{
+			InitialiseEffect();
+		}
 	}
 }
 
@@ -46,7 +53,7 @@ void UForceFeedbackEffectBase::Tick(const float DeltaTime)
 
 	ReceiveTick(DeltaTime);
 
-	if (AutoUpdatePostTick)
+	if (Configuration.AutoUpdatePostTick)
 	{
 		UpdateEffect();
 	}
@@ -93,7 +100,7 @@ void UForceFeedbackEffectBase::InitialiseEffect()
 		OnInitialisedEffectDelegate.Broadcast(this);
 	}
 
-	if (AutoStartOnInitialisation)
+	if (Configuration.AutoStartOnInitialisation)
 	{
 		StartEffect();
 	}

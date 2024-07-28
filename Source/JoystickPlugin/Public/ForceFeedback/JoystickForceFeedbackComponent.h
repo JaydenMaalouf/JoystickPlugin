@@ -4,8 +4,8 @@
 #pragma once
 
 #include "Components/ActorComponent.h"
-#include "Data/ForceFeedbackComponentData.h"
 #include "Data/JoystickInstanceId.h"
+#include "Data/Configuration/ForceFeedbackComponentConfiguration.h"
 
 #include "JoystickForceFeedbackComponent.generated.h"
 
@@ -54,8 +54,9 @@ public:
 	TSubclassOf<UForceFeedbackEffectBase> EffectType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Component")
-	FForceFeedbackComponentData Configuration;
+	FForceFeedbackComponentConfiguration Configuration;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Force Feedback|Component")
 	TArray<UForceFeedbackEffectBase*> Effects;
 
 private:
@@ -71,6 +72,6 @@ private:
 	void DestroyEffect(UForceFeedbackEffectBase* ForcedFeedbackEffect);
 	void DestroyInstanceEffects(const FJoystickInstanceId& JoystickInstanceId);
 
-	void DoThing(const TFunctionRef<void(UForceFeedbackEffectBase* Thing)>& CustomInitializer);
-	void DoThing(const FJoystickInstanceId& JoystickInstanceId, const TFunctionRef<void(UForceFeedbackEffectBase* Thing)>& CustomInitializer);
+	void ActionOnAllEffects(const TFunctionRef<void(UForceFeedbackEffectBase* Effect)>& CustomInitializer);
+	void ActionOnJoystickEffects(const FJoystickInstanceId& JoystickInstanceId, const TFunctionRef<void(UForceFeedbackEffectBase* Effect)>& CustomInitializer);
 };
