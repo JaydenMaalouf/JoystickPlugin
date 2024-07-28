@@ -95,7 +95,7 @@ int UJoystickHapticDeviceManager::GetEffectStatus(const FJoystickInstanceId& Ins
 	return Result;
 }
 
-bool UJoystickHapticDeviceManager::PlayRumble(const FJoystickInstanceId& InstanceId, const float LowFrequencyRumble, const float HighFrequencyRumble, const float Duration) const
+bool UJoystickHapticDeviceManager::PlayRumble(const FJoystickInstanceId& InstanceId, const float LowFrequencyRumble, const float HighFrequencyRumble, const float Duration)
 {
 	if (LowFrequencyRumble == 0 && HighFrequencyRumble == 0)
 	{
