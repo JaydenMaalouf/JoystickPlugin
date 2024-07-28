@@ -198,6 +198,11 @@ void UJoystickForceFeedbackComponent::TickComponent(float DeltaTime, ELevelTick 
 			continue;
 		}
 
+		if (ForcedFeedbackEffect->Tickable == false)
+		{
+			continue;
+		}
+
 		ForcedFeedbackEffect->Tick(DeltaTime);
 	}
 }
