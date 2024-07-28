@@ -19,6 +19,8 @@ jobs:
           fetch-depth: 0
       - name: Setup Versioning
         uses: ./.github/actions/version
+        with:
+          prerelease: ${{ github.ref != 'refs/heads/master' }}
       - name: Package Plugin - 5.2
         uses: ./.github/actions/package
         with:
