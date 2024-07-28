@@ -103,6 +103,11 @@ void UJoystickForceFeedbackComponent::CreateEffects()
 
 void UJoystickForceFeedbackComponent::CreateInstanceEffect(const FJoystickInstanceId& JoystickInstanceId)
 {
+	if (InstanceId != -1 && InstanceId != JoystickInstanceId)
+	{
+		return;
+	}
+	
 	UForceFeedbackEffectBase* ForcedFeedbackEffect = NewObject<UForceFeedbackEffectBase>(this, EffectType);
 	if (!IsValid(ForcedFeedbackEffect))
 	{
