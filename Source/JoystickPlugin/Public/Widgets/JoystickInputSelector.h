@@ -87,6 +87,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Key Selection")
 	float AxisSelectionTimeout;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Key Selection")
+	float DeadZone;
+
 	/** When true gamepad keys are allowed in the input chord representing the selected key, otherwise they are ignored. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Key Selection")
 	TArray<FKey> EscapeKeys;
@@ -137,6 +140,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Widget")
 	void SetAxisSelectionTimeout(float InAxisSelectionTimeout);
+
+	UFUNCTION(BlueprintCallable, Category = "Widget")
+	void SetDeadZone(float InDeadZone);
 
 	/** Returns true if the widget is currently selecting a key, otherwise returns false. */
 	UFUNCTION(BlueprintCallable, Category = "Widget")

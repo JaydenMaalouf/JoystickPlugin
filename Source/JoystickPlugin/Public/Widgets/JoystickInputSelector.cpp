@@ -47,6 +47,7 @@ UJoystickInputSelector::UJoystickInputSelector(const FObjectInitializer& ObjectI
 	bAllowGamepadKeys = true;
 	MinRangeOffset = 0.0f;
 	MaxRangeOffset = 0.0f;
+	DeadZone = 0.0f;
 	AxisSelectionTimeout = 2.5f;
 
 	EscapeKeys.AddUnique(EKeys::Gamepad_Special_Right);
@@ -177,6 +178,16 @@ void UJoystickInputSelector::SetAxisSelectionTimeout(float InAxisSelectionTimeou
 	AxisSelectionTimeout = InAxisSelectionTimeout;
 }
 
+void UJoystickInputSelector::SetDeadZone(float InDeadZone)
+{
+	if (JoystickInputSelector.IsValid())
+	{
+		JoystickInputSelector->SetDeadZone(InDeadZone);
+	}
+
+	DeadZone = InDeadZone;
+}
+
 bool UJoystickInputSelector::GetIsSelectingKey() const
 {
 	return JoystickInputSelector.IsValid() ? JoystickInputSelector->GetIsSelectingKey() : false;
@@ -223,6 +234,7 @@ void UJoystickInputSelector::SynchronizeProperties()
 	JoystickInputSelector->SetMinRangeOffset(MinRangeOffset);
 	JoystickInputSelector->SetMaxRangeOffset(MaxRangeOffset);
 	JoystickInputSelector->SetAxisSelectionTimeout(AxisSelectionTimeout);
+	JoystickInputSelector->SetDeadZone(DeadZone);
 	JoystickInputSelector->SetEscapeKeys(EscapeKeys);
 }
 
@@ -249,6 +261,7 @@ TSharedRef<SWidget> UJoystickInputSelector::RebuildWidget()
 		.SetMinRangeOffset(MinRangeOffset)
 		.SetMaxRangeOffset(MaxRangeOffset)
 		.SetAxisSelectionTimeout(AxisSelectionTimeout)
+		.SetDeadZone(DeadZone)
 		.EscapeKeys(EscapeKeys)
 		.OnAxisSelected(BIND_UOBJECT_DELEGATE(SJoystickInputSelector::FOnKeySelected, HandleAxisSelected))
 		.OnKeySelected(BIND_UOBJECT_DELEGATE(SJoystickInputSelector::FOnKeySelected, HandleKeySelected))
