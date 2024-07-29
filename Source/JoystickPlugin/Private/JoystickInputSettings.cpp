@@ -17,7 +17,7 @@ UJoystickInputSettings::UJoystickInputSettings()
 #endif
 }
 
-void UJoystickInputSettings::DeviceAdded(const FJoystickInformation JoystickInfo)
+void UJoystickInputSettings::DeviceAdded(const FJoystickInformation& JoystickInfo)
 {
 	if (ConnectedDevices.ContainsByPredicate([&](const FJoystickInformation& Device)
 	{

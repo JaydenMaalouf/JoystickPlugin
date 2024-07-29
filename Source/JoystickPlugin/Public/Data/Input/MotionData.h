@@ -10,9 +10,9 @@ struct JOYSTICKPLUGIN_API FMotionData
 {
 	GENERATED_BODY()
 
-	FMotionData() :
-		Gyro(FVector::ZeroVector),
-		Accelerometer(FVector::ZeroVector)
+	FMotionData()
+		: Gyro(FVector::ZeroVector)
+		  , Accelerometer(FVector::ZeroVector)
 	{
 	}
 

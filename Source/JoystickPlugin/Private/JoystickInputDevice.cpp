@@ -625,6 +625,11 @@ void FJoystickInputDevice::UpdateAxisProperties()
 
 			FAxisData& AxisKeyData = CurrentState.Axes[i];
 			AxisKeyData.RemappingEnabled = AxisProperties->RemappingEnabled;
+			if (AxisKeyData.RemappingEnabled)
+			{				
+				AxisKeyData.Value = AxisProperties->InputRangeMin;
+				AxisKeyData.PreviousValue = AxisKeyData.Value;
+			}
 			AxisKeyData.InputOffset = AxisProperties->InputOffset;
 			AxisKeyData.InvertInput = AxisProperties->InvertInput;
 			AxisKeyData.InputRangeMin = AxisProperties->InputRangeMin;

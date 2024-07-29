@@ -17,7 +17,7 @@ struct JOYSTICKPLUGIN_API FForceFeedbackComponentConfiguration : public FForceFe
 	{
 	}
 
-	FForceFeedbackComponentConfiguration(const FForceFeedbackConfigurationBase BaseConfiguration, const bool bOverrideEffectTick)
+	FForceFeedbackComponentConfiguration(const FForceFeedbackConfigurationBase& BaseConfiguration, const bool bOverrideEffectTick)
 		: Super(BaseConfiguration)
 		  , OverrideEffectTick(bOverrideEffectTick)
 	{

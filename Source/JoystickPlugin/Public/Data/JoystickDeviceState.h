@@ -16,18 +16,18 @@ struct JOYSTICKPLUGIN_API FJoystickDeviceState
 {
 	GENERATED_BODY()
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickState)
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "JoystickState")
 	TArray<FAxisData> Axes;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickState)
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "JoystickState")
 	TArray<FButtonData> Buttons;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickState)
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "JoystickState")
 	TArray<FHatData> Hats;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickState)
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "JoystickState")
 	TArray<FBallData> Balls;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickState)
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "JoystickState")
 	FMotionData Motion;
 };

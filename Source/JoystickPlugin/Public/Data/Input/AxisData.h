@@ -11,34 +11,17 @@ struct JOYSTICKPLUGIN_API FAxisData
 	GENERATED_BODY()
 
 	FAxisData()
-		: Value(0.f)
-		  , PreviousValue(0.f)
+		: Value(0.0f)
+		  , PreviousValue(0.0f)
 		  , RemappingEnabled(false)
-		  , InputOffset(0.f)
+		  , InputOffset(0.0f)
 		  , InvertInput(false)
-		  , InputRangeMin(0.f)
-		  , InputRangeMax(1.f)
-		  , OutputRangeMin(0.f)
-		  , OutputRangeMax(1.f)
+		  , InputRangeMin(0.0f)
+		  , InputRangeMax(1.0f)
+		  , OutputRangeMin(0.0f)
+		  , OutputRangeMax(1.0f)
 		  , InvertOutput(false)
 		  , bGamepadStick(false)
-	{
-	}
-
-	FAxisData(const float& InValue,
-	          const float& InInputRangeMin, const float& InInputRangeMax, const float& InOutputRangeMin, const float& InOutputRangeMax,
-	          const float& InOffset, const bool& bInInvertInput, const bool& bInInvertOutput, const bool& bInGamepadStick)
-		: Value(InValue)
-		  , PreviousValue(0.f)
-		  , RemappingEnabled(false)
-		  , InputOffset(InOffset)
-		  , InvertInput(bInInvertInput)
-		  , InputRangeMin(InInputRangeMin)
-		  , InputRangeMax(InInputRangeMax)
-		  , OutputRangeMin(InOutputRangeMin)
-		  , OutputRangeMax(InOutputRangeMax)
-		  , InvertOutput(bInInvertOutput)
-		  , bGamepadStick(bInGamepadStick)
 	{
 	}
 
@@ -53,7 +36,7 @@ struct JOYSTICKPLUGIN_API FAxisData
 	/* Whether the data represents a valid value */
 	bool HasValue() const
 	{
-		return (InputRangeMin != -1.f || InputRangeMax != -1.f);
+		return (InputRangeMin != -1.0f || InputRangeMax != -1.0f);
 	}
 
 	float GetValue() const
