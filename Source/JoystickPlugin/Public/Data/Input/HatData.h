@@ -12,9 +12,9 @@ struct JOYSTICKPLUGIN_API FHatData
 {
 	GENERATED_BODY()
 
-	FHatData() :
-		Direction(EJoystickPointOfViewDirection::None),
-		PreviousDirection(EJoystickPointOfViewDirection::None)
+	FHatData()
+		: Direction(EJoystickPointOfViewDirection::None)
+		  , PreviousDirection(EJoystickPointOfViewDirection::None)
 	{
 	}
 
@@ -34,9 +34,9 @@ struct JOYSTICKPLUGIN_API FHatData
 		Direction = InValue;
 	}
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "JoystickInfo")
 	EJoystickPointOfViewDirection Direction;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "JoystickInfo")
 	EJoystickPointOfViewDirection PreviousDirection;
 };

@@ -11,21 +11,21 @@ struct JOYSTICKPLUGIN_API FJoystickHapticInformation
 	GENERATED_BODY()
 
 	FJoystickHapticInformation()
-		: Supported(false),
-		  AxesCount(0),
-		  Constant(false),
-		  Sine(false),
-		  Triangle(false),
-		  SawToothUp(false),
-		  SawToothDown(false),
-		  Ramp(false),
-		  Spring(false),
-		  Damper(false),
-		  Inertia(false),
-		  Friction(false),
-		  Custom(false),
-		  Gain(false),
-		  AutoCenter(false)
+		: Supported(false)
+		  , AxesCount(0)
+		  , Constant(false)
+		  , Sine(false)
+		  , Triangle(false)
+		  , SawToothUp(false)
+		  , SawToothDown(false)
+		  , Ramp(false)
+		  , Spring(false)
+		  , Damper(false)
+		  , Inertia(false)
+		  , Friction(false)
+		  , Custom(false)
+		  , Gain(false)
+		  , AutoCenter(false)
 	{
 	}
 

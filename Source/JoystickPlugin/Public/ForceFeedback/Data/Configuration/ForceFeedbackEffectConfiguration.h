@@ -17,7 +17,7 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectConfiguration : public FForceFeedb
 	{
 	}
 
-	FForceFeedbackEffectConfiguration(const FForceFeedbackConfigurationBase BaseConfiguration, const bool bAutoUpdatePostTick)
+	FForceFeedbackEffectConfiguration(const FForceFeedbackConfigurationBase& BaseConfiguration, const bool bAutoUpdatePostTick)
 		: Super(BaseConfiguration)
 		  , AutoUpdatePostTick(bAutoUpdatePostTick)
 	{
