@@ -5,7 +5,7 @@
 
 #include "Components/ActorComponent.h"
 #include "Data/JoystickInstanceId.h"
-#include "Data/Configuration/ForceFeedbackComponentConfiguration.h"
+#include "ForceFeedback/Data/Configuration/ForceFeedbackComponentConfiguration.h"
 
 #include "JoystickForceFeedbackComponent.generated.h"
 
