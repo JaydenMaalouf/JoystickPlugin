@@ -17,7 +17,7 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceConfiguration
 	{
 	}
 
-	FJoystickInputDeviceConfiguration(const FGuid JoystickProductId)
+	FJoystickInputDeviceConfiguration(const FGuid& JoystickProductId)
 		: ProductGuid(JoystickProductId)
 		  , OverrideDeviceName(false)
 	{

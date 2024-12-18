@@ -36,7 +36,7 @@ void FJoystickInputDevice::SetChannelValue(int ControllerId, FForceFeedbackChann
 void FJoystickInputDevice::SetChannelValues(int ControllerId, const FForceFeedbackValues& Values)
 {
 #if ENGINE_MAJOR_VERSION == 5
-	const UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
+	UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
 	if (!IsValid(HapticDeviceManager))
 	{
 		return;
@@ -46,6 +46,11 @@ void FJoystickInputDevice::SetChannelValues(int ControllerId, const FForceFeedba
 	const float SmallValue = (Values.LeftSmall > Values.RightSmall ? Values.LeftSmall : Values.RightSmall);
 	for (const TTuple<FJoystickInstanceId, FJoystickDeviceState>& Joystick : JoystickDeviceState)
 	{
+		if (SmallValue == 0 && LargeValue == 0)
+		{
+			continue;
+		}
+
 		HapticDeviceManager->PlayRumble(Joystick.Key, SmallValue, LargeValue, -1);
 	}
 #endif
@@ -53,6 +58,11 @@ void FJoystickInputDevice::SetChannelValues(int ControllerId, const FForceFeedba
 
 bool FJoystickInputDevice::IsGamepadAttached() const
 {
+	if (!IsValid(GEngine))
+	{
+		return false;
+	}
+
 	const UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
 	if (!IsValid(JoystickSubsystem))
 	{
@@ -84,7 +94,7 @@ void FJoystickInputDevice::InitialiseAxis(const FJoystickInstanceId& InstanceId,
 	for (int AxisKeyIndex = 0; AxisKeyIndex < AxisCount; AxisKeyIndex++)
 	{
 		FString AxisKeyName = FString::Printf(TEXT("%s_Axis%d"), *BaseKeyName, AxisKeyIndex);
-		FString AxisDisplayName = FString::Printf(TEXT("%s Axis %d"), *BaseDisplayName, AxisKeyIndex);
+		FString AxisDisplayName = FString::Printf(TEXT("%s: Axis %d"), *BaseDisplayName, AxisKeyIndex);
 
 		FKey AxisKey = FKey(FName(*AxisKeyName));
 #if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26 || ENGINE_MAJOR_VERSION == 5)
@@ -120,7 +130,7 @@ void FJoystickInputDevice::InitialiseButtons(const FJoystickInstanceId& Instance
 	for (int ButtonKeyIndex = 0; ButtonKeyIndex < ButtonCount; ButtonKeyIndex++)
 	{
 		FString ButtonKeyName = FString::Printf(TEXT("%s_Button%d"), *BaseKeyName, ButtonKeyIndex);
-		FString ButtonDisplayName = FString::Printf(TEXT("%s Button %d"), *BaseDisplayName, ButtonKeyIndex);
+		FString ButtonDisplayName = FString::Printf(TEXT("%s: Button %d"), *BaseDisplayName, ButtonKeyIndex);
 
 		const FKey ButtonKey = FKey(FName(*ButtonKeyName));
 		FKeyDetails ButtonKeyDetails = FKeyDetails(ButtonKey, FText::FromString(ButtonDisplayName), FKeyDetails::GamepadKey, JoystickCategory);
@@ -157,7 +167,7 @@ void FJoystickInputDevice::InitialiseHats(const FJoystickInstanceId& InstanceId,
 		for (int HatKeyIndex = 0; HatKeyIndex < HatCount; HatKeyIndex++)
 		{
 			FString HatKeyName = FString::Printf(TEXT("%s_Hat%d_%s"), *BaseKeyName, HatKeyIndex, *HatAxisName);
-			FString HatDisplayName = FString::Printf(TEXT("%s Hat %d %s"), *BaseDisplayName, HatIndex, *HatAxisName);
+			FString HatDisplayName = FString::Printf(TEXT("%s: Hat %d %s"), *BaseDisplayName, HatIndex, *HatAxisName);
 
 			FKey HatKey = FKey(FName(*HatKeyName));
 #if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26 || ENGINE_MAJOR_VERSION == 5)
@@ -197,7 +207,7 @@ void FJoystickInputDevice::InitialiseBalls(const FJoystickInstanceId& InstanceId
 		for (int BallKeyIndex = 0; BallKeyIndex < BallCount; BallKeyIndex++)
 		{
 			FString BallKeyName = FString::Printf(TEXT("%s_Ball%d_%s"), *BaseKeyName, BallKeyIndex, *BallAxisName);
-			FString BallDisplayName = FString::Printf(TEXT("%s Ball %d %s"), *BaseDisplayName, BallIndex, *BallAxisName);
+			FString BallDisplayName = FString::Printf(TEXT("%s: Ball %d %s"), *BaseDisplayName, BallIndex, *BallAxisName);
 
 			FKey BallKey = FKey(FName(*BallKeyName));
 #if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26 || ENGINE_MAJOR_VERSION == 5)
@@ -223,6 +233,11 @@ void FJoystickInputDevice::InitialiseBalls(const FJoystickInstanceId& InstanceId
 
 void FJoystickInputDevice::JoystickPluggedIn(const FDeviceInfoSDL& Device)
 {
+	if (!IsValid(GEngine))
+	{
+		return;
+	}
+
 	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
 	if (!IsValid(JoystickSubsystem))
 	{
@@ -395,6 +410,11 @@ static FName JoystickInputInterfaceName = FName("JoystickPluginInput");
 
 void FJoystickInputDevice::SendControllerEvents()
 {
+	if (!IsValid(GEngine))
+	{
+		return;
+	}
+
 	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
 	if (!IsValid(JoystickSubsystem))
 	{
@@ -564,6 +584,11 @@ void FJoystickInputDevice::UpdateAxisProperties()
 		return;
 	}
 
+	if (!IsValid(GEngine))
+	{
+		return;
+	}
+
 	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
 	if (!IsValid(JoystickSubsystem))
 	{
@@ -600,6 +625,11 @@ void FJoystickInputDevice::UpdateAxisProperties()
 
 			FAxisData& AxisKeyData = CurrentState.Axes[i];
 			AxisKeyData.RemappingEnabled = AxisProperties->RemappingEnabled;
+			if (AxisKeyData.RemappingEnabled)
+			{				
+				AxisKeyData.Value = AxisProperties->InputRangeMin;
+				AxisKeyData.PreviousValue = AxisKeyData.Value;
+			}
 			AxisKeyData.InputOffset = AxisProperties->InputOffset;
 			AxisKeyData.InvertInput = AxisProperties->InvertInput;
 			AxisKeyData.InputRangeMin = AxisProperties->InputRangeMin;

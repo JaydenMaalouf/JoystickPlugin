@@ -51,6 +51,8 @@ public:
 		UE_LOG(LogJoystickPlugin, Error, TEXT("%s"), *FString::Printf(Fmt, Args...));
 	}
 
+	void LogSDLError(const FString& Message);
+
 	template <typename FmtType, typename... Types>
 	void LogDebug(const FmtType& Fmt, Types... Args)
 	{

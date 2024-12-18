@@ -10,11 +10,13 @@ struct JOYSTICKPLUGIN_API FJoystickInstanceId
 {
 	GENERATED_BODY()
 
-	FJoystickInstanceId(): Value(-1)
+	FJoystickInstanceId()
+		: Value(-1)
 	{
 	}
 
-	FJoystickInstanceId(const int NewValue) : Value(NewValue)
+	FJoystickInstanceId(const int NewValue)
+		: Value(NewValue)
 	{
 	}
 
@@ -43,6 +45,6 @@ struct JOYSTICKPLUGIN_API FJoystickInstanceId
 		return GetTypeHash(Other.Value);
 	}
 
-	UPROPERTY(VisibleAnywhere, Category="Device Config", DisplayName="Instance Id")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Device Config", DisplayName="Instance Id", meta=(ClampMin=-1, UIMin=-1))
 	int Value;
 };

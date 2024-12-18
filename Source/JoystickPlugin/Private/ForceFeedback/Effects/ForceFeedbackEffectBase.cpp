@@ -6,21 +6,34 @@
 #include "JoystickHapticDeviceManager.h"
 #include "JoystickLogManager.h"
 #include "JoystickSubsystem.h"
+#include "ForceFeedback/JoystickForceFeedbackComponent.h"
 #include "Runtime/Launch/Resources/Version.h"
+#include "GameFramework/Actor.h"
 
 UForceFeedbackEffectBase::UForceFeedbackEffectBase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
-	  , InstanceId(0)
+	  , InstanceId(-1)
 	  , EffectId(-1)
 	  , IsInitialised(false)
-	  , AutoStartOnInitialisation(false)
-	  , AutoInitialise(false)
 	  , Iterations(1)
 	  , InfiniteIterations(false)
+	  , Tickable(true)
+	  , TickableInEditor(true)
+	  , TickableWhenPaused(false)
+	  , Effect()
 {
-	if (AutoInitialise)
+}
+
+void UForceFeedbackEffectBase::PostInitProperties()
+{
+	UObject::PostInitProperties();
+
+	if (GetWorld())
 	{
-		InitialiseEffect();
+		if (Configuration.AutoInitialise)
+		{
+			InitialiseEffect();
+		}
 	}
 }
 
@@ -33,7 +46,17 @@ void UForceFeedbackEffectBase::BeginDestroy()
 
 void UForceFeedbackEffectBase::Tick(const float DeltaTime)
 {
+	if (!IsInitialised || this->IsUnreachable())
+	{
+		return;
+	}
+
 	ReceiveTick(DeltaTime);
+
+	if (Configuration.AutoUpdatePostTick)
+	{
+		UpdateEffect();
+	}
 }
 
 void UForceFeedbackEffectBase::InitialiseEffect()
@@ -60,7 +83,7 @@ void UForceFeedbackEffectBase::InitialiseEffect()
 
 	//Safety check to ensure we don't try calling BP during destruction
 #if ENGINE_MAJOR_VERSION == 5
-	if (!IsValidChecked(this))
+	if (IsValidChecked(this) == false || this->IsUnreachable())
 	{
 		return;
 	}
@@ -77,7 +100,7 @@ void UForceFeedbackEffectBase::InitialiseEffect()
 		OnInitialisedEffectDelegate.Broadcast(this);
 	}
 
-	if (AutoStartOnInitialisation)
+	if (Configuration.AutoStartOnInitialisation)
 	{
 		StartEffect();
 	}
@@ -103,7 +126,7 @@ void UForceFeedbackEffectBase::DestroyEffect()
 
 	//Safety check to ensure we don't try calling BP during destruction
 #if ENGINE_MAJOR_VERSION == 5
-	if (!IsValidChecked(this))
+	if (IsValidChecked(this) == false || this->IsUnreachable())
 	{
 		return;
 	}
@@ -153,7 +176,7 @@ void UForceFeedbackEffectBase::StartEffect()
 
 	//Safety check to ensure we don't try calling BP during destruction
 #if ENGINE_MAJOR_VERSION == 5
-	if (!IsValidChecked(this))
+	if (IsValidChecked(this) == false || this->IsUnreachable())
 	{
 		return;
 	}
@@ -192,7 +215,7 @@ void UForceFeedbackEffectBase::StopEffect()
 
 	//Safety check to ensure we don't try calling BP during destruction
 #if ENGINE_MAJOR_VERSION == 5
-	if (!IsValidChecked(this))
+	if (IsValidChecked(this) == false || this->IsUnreachable())
 	{
 		return;
 	}
@@ -227,7 +250,7 @@ void UForceFeedbackEffectBase::UpdateEffect()
 
 	//Safety check to ensure we don't try calling BP during destruction
 #if ENGINE_MAJOR_VERSION == 5
-	if (!IsValidChecked(this))
+	if (IsValidChecked(this) == false || this->IsUnreachable())
 	{
 		return;
 	}
@@ -265,6 +288,43 @@ void UForceFeedbackEffectBase::SetInstanceId(const FJoystickInstanceId& NewInsta
 	}
 
 	InstanceId = NewInstanceId;
+}
+
+const FJoystickInstanceId& UForceFeedbackEffectBase::GetInstanceId() const
+{
+	return InstanceId;
+}
+
+void UForceFeedbackEffectBase::SetTickable(const bool NewTickable)
+{
+	Tickable = NewTickable;
+}
+
+void UForceFeedbackEffectBase::SetTickableInEditor(const bool NewTickableInEditor)
+{
+	TickableInEditor = NewTickableInEditor;
+}
+
+void UForceFeedbackEffectBase::SetTickableWhenPaused(const bool NewTickableWhenPaused)
+{
+	TickableWhenPaused = NewTickableWhenPaused;
+}
+
+AActor* UForceFeedbackEffectBase::GetOwningActor() const
+{
+	const auto Outer = GetOuter();
+	if (!IsValid(Outer))
+	{
+		return nullptr;
+	}
+
+	const UJoystickForceFeedbackComponent* OuterJoystick = Cast<UJoystickForceFeedbackComponent>(Outer);
+	if (IsValid(OuterJoystick))
+	{
+		return OuterJoystick->GetOwner();
+	}
+
+	return Cast<AActor>(Outer);
 }
 
 void UForceFeedbackEffectBase::CreateEffect()
