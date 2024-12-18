@@ -23,7 +23,7 @@ public:
 	virtual void PostEditChangeChainProperty(FPropertyChangedChainEvent& PropertyChangedEvent) override;
 #endif
 
-	void DeviceAdded(FJoystickInformation JoystickInfo);
+	void DeviceAdded(const FJoystickInformation& JoystickInfo);
 	void DeviceRemoved(const FJoystickInstanceId& InstanceId);
 	void ResetDevices();
 

@@ -19,7 +19,7 @@ union SDL_Event;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnJoystickSubsystemReady);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnJoystickEvent, FJoystickInstanceId, InstanceId);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnJoystickEvent, const FJoystickInstanceId&, InstanceId);
 
 UCLASS(BlueprintType)
 class JOYSTICKPLUGIN_API UJoystickSubsystem : public UEngineSubsystem
@@ -35,8 +35,13 @@ public:
 	void InitialiseExistingJoysticks();
 	// End USubsystem
 
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Joystick Subsystem|Functions")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Joystick Subsystem|Functions",
+		meta=(ToolTip="Checks whether the Subsystem and Input Device are ready"))
 	bool IsReady() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Joystick Subsystem|Functions",
+		meta=(ToolTip="Checks whether the Subsystem is ready - this does NOT indicate that the Input Device has been created"))
+	bool IsInitialised() const;
 
 	UFUNCTION(BlueprintPure, Category = "Joystick|Functions",
 		meta=(ToolTip="The number of joysticks captured by SDL2. This does not reflect the joystick count monitored by the plugin - please use GetJoystickCount() or GetConnectedJoystickCount() instead."))
@@ -88,7 +93,7 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Joystick|Delegates")
 	FOnJoystickEvent JoystickUnpluggedDelegate;
 
-	void InitialiseInputDevice(const TSharedPtr<FJoystickInputDevice> NewInputDevice);
+	void InitialiseInputDevice(const TSharedPtr<FJoystickInputDevice>& NewInputDevice);
 	void Update() const;
 
 	FDeviceInfoSDL* GetDeviceInfo(const FJoystickInstanceId& InstanceId);
@@ -100,6 +105,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Joystick Subsystem|Delegates")
 	FOnJoystickSubsystemReady JoystickSubsystemReady;
+
+	UPROPERTY(BlueprintAssignable, Category = "Joystick Subsystem|Delegates")
+	FOnJoystickSubsystemReady JoystickSubsystemInitialised;
 
 private:
 	static int HandleSDLEvent(void* UserData, SDL_Event* Event);
@@ -119,6 +127,6 @@ private:
 	TSharedPtr<FJoystickInputDevice> InputDevicePtr;
 
 	bool OwnsSDL;
-	bool IsInitialised;
+	bool bIsInitialised;
 	int PersistentDeviceCount;
 };

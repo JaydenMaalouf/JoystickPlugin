@@ -12,6 +12,11 @@
 
 TSharedPtr<class IInputDevice> FJoystickPluginModule::CreateInputDevice(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler)
 {
+	if (!IsValid(GEngine))
+	{
+		return nullptr;
+	}
+
 	JoystickInputDevice = MakeShareable(new FJoystickInputDevice(InMessageHandler));
 	if (UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>())
 	{

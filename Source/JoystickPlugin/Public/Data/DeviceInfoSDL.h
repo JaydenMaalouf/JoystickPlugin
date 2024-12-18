@@ -17,9 +17,9 @@ struct JOYSTICKPLUGIN_API FDeviceInfoSDL : FJoystickInformation
 {
 	FDeviceInfoSDL()
 		: Connected(false)
-		  , Haptic(nullptr)
-		  , Joystick(nullptr)
-		  , GameController(nullptr)
+		  , SDLHaptic(nullptr)
+		  , SDLJoystick(nullptr)
+		  , SDLGameController(nullptr)
 		  , PlayerId(0)
 		  , InternalDeviceIndex(-1)
 	{
@@ -28,9 +28,9 @@ struct JOYSTICKPLUGIN_API FDeviceInfoSDL : FJoystickInformation
 	bool Connected;
 	FString SafeDeviceName;
 
-	SDL_Haptic* Haptic;
-	SDL_Joystick* Joystick;
-	SDL_GameController* GameController;
+	SDL_Haptic* SDLHaptic;
+	SDL_Joystick* SDLJoystick;
+	SDL_GameController* SDLGameController;
 
 	int PlayerId;
 	int InternalDeviceIndex;

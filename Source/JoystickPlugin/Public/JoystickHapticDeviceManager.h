@@ -28,13 +28,13 @@ public:
 	bool SetGain(const FJoystickInstanceId& InstanceId, const int Gain);
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback|Functions")
-	void PauseDevice(const FJoystickInstanceId& InstanceId) const;
+	bool PauseDevice(const FJoystickInstanceId& InstanceId) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback|Functions")
-	void UnpauseDevice(const FJoystickInstanceId& InstanceId) const;
+	bool UnpauseDevice(const FJoystickInstanceId& InstanceId) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback|Functions")
-	void StopAllEffects(const FJoystickInstanceId& InstanceId) const;
+	bool StopAllEffects(const FJoystickInstanceId& InstanceId) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Joystick|Force Feedback|Functions")
 	int GetNumEffects(const FJoystickInstanceId& InstanceId) const;
@@ -46,10 +46,10 @@ public:
 	int GetEffectStatus(const FJoystickInstanceId& InstanceId, const int EffectId);
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback|Functions")
-	void PlayRumble(const FJoystickInstanceId& InstanceId, const float LowFrequencyRumble, const float HighFrequencyRumble, UPARAM(DisplayName = "Duration (in seconds)") const float Duration) const;
+	bool PlayRumble(const FJoystickInstanceId& InstanceId, const float LowFrequencyRumble, const float HighFrequencyRumble, UPARAM(DisplayName = "Duration (in seconds)") const float Duration);
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback|Functions")
-	void StopRumble(const FJoystickInstanceId& InstanceId);
+	bool StopRumble(const FJoystickInstanceId& InstanceId);
 
 	int CreateEffect(const FJoystickInstanceId& InstanceId, SDL_HapticEffect& Effect) const;
 	bool UpdateEffect(const FJoystickInstanceId& InstanceId, const int EffectId, SDL_HapticEffect& Effect) const;

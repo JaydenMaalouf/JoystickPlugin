@@ -6,6 +6,8 @@
 #include "Data/JoystickInstanceId.h"
 #include "Data/JoystickType.h"
 #include "Data/JoystickPowerLevel.h"
+#include "Data/JoystickHapticInformation.h"
+#include "Data/JoystickRumbleInformation.h"
 #include "Data/JoystickSensorInformation.h"
 
 #include "JoystickInformation.generated.h"
@@ -22,8 +24,6 @@ struct JOYSTICKPLUGIN_API FJoystickInformation
 		  , ProductVersion(0)
 		  , VendorId(0)
 		  , IsGamepad(false)
-		  , RumbleSupport(false)
-		  , HapticSupport(false)
 		  , LedSupport(false)
 		  , PowerLevel(EJoystickPowerLevel::Unknown)
 	{
@@ -60,16 +60,16 @@ struct JOYSTICKPLUGIN_API FJoystickInformation
 	bool IsGamepad;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config/Supported Features")
-	bool RumbleSupport;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config/Supported Features")
-	bool HapticSupport;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config/Supported Features")
 	bool LedSupport;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
 	EJoystickPowerLevel PowerLevel;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config/Haptic")
+	FJoystickHapticInformation Haptic;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config/Sensors")
+	FJoystickRumbleInformation Rumble;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config/Sensors")
 	FJoystickSensorInformation Gyro;

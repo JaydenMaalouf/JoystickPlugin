@@ -10,9 +10,9 @@ struct JOYSTICKPLUGIN_API FBallData
 {
 	GENERATED_BODY()
 
-	FBallData() :
-		Direction(FVector2D::ZeroVector),
-		PreviousDirection(FVector2D::ZeroVector)
+	FBallData()
+		: Direction(FVector2D::ZeroVector)
+		  , PreviousDirection(FVector2D::ZeroVector)
 	{
 	}
 
@@ -32,9 +32,9 @@ struct JOYSTICKPLUGIN_API FBallData
 		Direction = InValue;
 	}
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "JoystickInfo")
 	FVector2D Direction;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "JoystickInfo")
 	FVector2D PreviousDirection;
 };
