@@ -106,7 +106,7 @@ void FJoystickInputDevice::InitialiseAxis(const FJoystickInstanceId& InstanceId,
 		if (!EKeys::GetKeyDetails(AxisKey).IsValid())
 		{
 			EKeys::AddKey(AxisKeyDetails);
-			FJoystickLogManager::Get()->LogDebug(TEXT("Added Axis %s (%s) %d"), *AxisKeyName, *AxisDisplayName, InstanceId);
+			FJoystickLogManager::Get()->LogDebug(TEXT("Added Axis %s (%s) %d"), *AxisKeyName, *AxisDisplayName, &InstanceId);
 		}
 
 		const FKey& MappedKey = AxisKeyDetails.GetKey();
@@ -138,7 +138,7 @@ void FJoystickInputDevice::InitialiseButtons(const FJoystickInstanceId& Instance
 		if (!EKeys::GetKeyDetails(ButtonKey).IsValid())
 		{
 			EKeys::AddKey(ButtonKeyDetails);
-			FJoystickLogManager::Get()->LogDebug(TEXT("Added Button %s (%s) %d"), *ButtonKeyName, *ButtonDisplayName, InstanceId);
+			FJoystickLogManager::Get()->LogDebug(TEXT("Added Button %s (%s) %d"), *ButtonKeyName, *ButtonDisplayName, &InstanceId);
 		}
 
 		const FKey& MappedKey = ButtonKeyDetails.GetKey();
@@ -179,7 +179,7 @@ void FJoystickInputDevice::InitialiseHats(const FJoystickInstanceId& InstanceId,
 			if (!EKeys::GetKeyDetails(HatKey).IsValid())
 			{
 				EKeys::AddKey(HatKeyDetails);
-				FJoystickLogManager::Get()->LogDebug(TEXT("Added Hat %s (%s) %d"), *HatKeyName, *HatDisplayName, InstanceId);
+				FJoystickLogManager::Get()->LogDebug(TEXT("Added Hat %s (%s) %d"), *HatKeyName, *HatDisplayName, &InstanceId);
 			}
 
 			const FKey& MappedKey = HatKeyDetails.GetKey();
@@ -219,7 +219,7 @@ void FJoystickInputDevice::InitialiseBalls(const FJoystickInstanceId& InstanceId
 			if (!EKeys::GetKeyDetails(BallKey).IsValid())
 			{
 				EKeys::AddKey(BallKeyDetails);
-				FJoystickLogManager::Get()->LogDebug(TEXT("Added Ball %s (%s) %d"), *BallKeyName, *BallDisplayName, InstanceId);
+				FJoystickLogManager::Get()->LogDebug(TEXT("Added Ball %s (%s) %d"), *BallKeyName, *BallDisplayName, &InstanceId);
 			}
 
 			const FKey& MappedKey = BallKeyDetails.GetKey();
@@ -290,7 +290,7 @@ void FJoystickInputDevice::JoystickPluggedIn(const FDeviceInfoSDL& Device)
 
 	UpdateAxisProperties();
 
-	FJoystickLogManager::Get()->LogInformation(TEXT("Device Ready: %s (%d) - Instance Id: %d"), *Device.DeviceName, Device.InternalDeviceIndex, Device.InstanceId);
+	FJoystickLogManager::Get()->LogInformation(TEXT("Device Ready: %s (%d) - Instance Id: %d"), *Device.DeviceName, Device.InternalDeviceIndex, &Device.InstanceId);
 }
 
 void FJoystickInputDevice::JoystickUnplugged(const FJoystickInstanceId& InstanceId) const
@@ -320,7 +320,7 @@ void FJoystickInputDevice::JoystickButton(const FJoystickInstanceId& InstanceId,
 	FButtonData& State = DeviceData.Buttons[Button];
 	State.Update(Pressed);
 
-	FJoystickLogManager::Get()->LogDebug(TEXT("Event JoystickButton Device=%d Button=%d State=%d"), InstanceId, Button, Pressed);
+	FJoystickLogManager::Get()->LogDebug(TEXT("Event JoystickButton Device=%d Button=%d State=%d"), &InstanceId, Button, Pressed);
 }
 
 void FJoystickInputDevice::JoystickAxis(const FJoystickInstanceId& InstanceId, const int Axis, const float Value)
