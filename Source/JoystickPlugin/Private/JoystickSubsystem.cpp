@@ -427,7 +427,7 @@ bool UJoystickSubsystem::AddDevice(const int DeviceIndex)
 	if (Device.SDLJoystick == nullptr)
 	{
 		const FString ErrorMessage = FString(SDL_GetError());
-		FJoystickLogManager::Get()->LogError(TEXT("Joystick %d Open Error: %s"), Device.InstanceId, *ErrorMessage);
+		FJoystickLogManager::Get()->LogError(TEXT("Joystick %d Open Error: %s"), &Device.InstanceId, *ErrorMessage);
 		return false;
 	}
 
@@ -437,7 +437,7 @@ bool UJoystickSubsystem::AddDevice(const int DeviceIndex)
 		if (Device.SDLGameController == nullptr)
 		{
 			const FString ErrorMessage = FString(SDL_GetError());
-			FJoystickLogManager::Get()->LogError(TEXT("Game Controller %d Open Error: %s"), Device.InstanceId, *ErrorMessage);
+			FJoystickLogManager::Get()->LogError(TEXT("Game Controller %d Open Error: %s"), &Device.InstanceId, *ErrorMessage);
 		}
 		else
 		{
@@ -466,7 +466,7 @@ bool UJoystickSubsystem::AddDevice(const int DeviceIndex)
 	}
 
 	FJoystickLogManager::Get()->LogDebug(TEXT("%s:"), *Device.DeviceName);
-	FJoystickLogManager::Get()->LogDebug(TEXT("\tInstance Id: %d"), static_cast<int>(Device.InstanceId));
+	FJoystickLogManager::Get()->LogDebug(TEXT("\tInstance Id: %d"), &Device.InstanceId);
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tSDL Device Index: %d"), DeviceIndex);
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tProduct: %d"), Device.ProductId);
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tProduct Id: %s"), *Device.ProductGuid.ToString());
@@ -552,25 +552,25 @@ bool UJoystickSubsystem::RemoveDevice(const FJoystickInstanceId& InstanceId)
 
 	if (DeviceInfo->SDLHaptic != nullptr)
 	{
-		FJoystickLogManager::Get()->LogDebug(TEXT("Closing Haptic for Device %d"), InstanceId);
+		FJoystickLogManager::Get()->LogDebug(TEXT("Closing Haptic for Device %d"), &InstanceId);
 		SDL_HapticClose(DeviceInfo->SDLHaptic);
 		DeviceInfo->SDLHaptic = nullptr;
 	}
 	if (DeviceInfo->SDLJoystick != nullptr)
 	{
-		FJoystickLogManager::Get()->LogDebug(TEXT("Closing Joystick for Device %d"), InstanceId);
+		FJoystickLogManager::Get()->LogDebug(TEXT("Closing Joystick for Device %d"), &InstanceId);
 		SDL_JoystickClose(DeviceInfo->SDLJoystick);
 		DeviceInfo->SDLJoystick = nullptr;
 	}
 	if (DeviceInfo->SDLGameController != nullptr)
 	{
-		FJoystickLogManager::Get()->LogDebug(TEXT("Closing Game Controller for Device %d"), InstanceId);
+		FJoystickLogManager::Get()->LogDebug(TEXT("Closing Game Controller for Device %d"), &InstanceId);
 		SDL_GameControllerClose(DeviceInfo->SDLGameController);
 		DeviceInfo->SDLGameController = nullptr;
 	}
 
 	DeviceInfo->Connected = false;
-	FJoystickLogManager::Get()->LogInformation(TEXT("Device Removed %d"), InstanceId);
+	FJoystickLogManager::Get()->LogInformation(TEXT("Device Removed %d"), &InstanceId);
 
 	return true;
 }
