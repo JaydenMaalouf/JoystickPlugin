@@ -23,9 +23,11 @@ struct JOYSTICKPLUGIN_API FHatData
 		return Direction;
 	}
 
-	EJoystickPointOfViewDirection GetPreviousValue() const
+	EJoystickPointOfViewDirection GetPreviousValue()
 	{
-		return PreviousDirection;
+		const EJoystickPointOfViewDirection DirectionToReturn = PreviousDirection;
+		PreviousDirection = Direction;
+		return DirectionToReturn;
 	}
 
 	void Update(const EJoystickPointOfViewDirection& InValue)
