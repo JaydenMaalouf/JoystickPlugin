@@ -646,6 +646,8 @@ void FJoystickInputDevice::SendControllerEvents()
 #endif
 						}
 					}
+
+					CurrentHatState.PreviousDirection = CurrentDirection;
 				}
 			}
 		}
