@@ -254,49 +254,49 @@ void FJoystickInputDevice::InitialiseHatsButtons(const FJoystickInstanceId& Inst
 		if (!EKeys::GetKeyDetails(ButtonUpKey).IsValid())
 		{
 			EKeys::AddKey(ButtonUpKeyDetails);
-			FJoystickLogManager::Get()->LogDebug(TEXT("Added Button %s (%s) %d"), *ButtonUpKeyName, *ButtonUpDisplayName, InstanceId);
+			FJoystickLogManager::Get()->LogDebug(TEXT("Added Button %s (%s) %d"), *ButtonUpKeyName, *ButtonUpDisplayName, &InstanceId);
 		}
 
 		if (!EKeys::GetKeyDetails(ButtonUpRightKey).IsValid())
 		{
 			EKeys::AddKey(ButtonUpRightKeyDetails);
-			FJoystickLogManager::Get()->LogDebug(TEXT("Added Button %s (%s) %d"), *ButtonUpRightKeyName, *ButtonUpRightDisplayName, InstanceId);
+			FJoystickLogManager::Get()->LogDebug(TEXT("Added Button %s (%s) %d"), *ButtonUpRightKeyName, *ButtonUpRightDisplayName, &InstanceId);
 		}
 
 		if (!EKeys::GetKeyDetails(ButtonRightKey).IsValid())
 		{
 			EKeys::AddKey(ButtonRightKeyDetails);
-			FJoystickLogManager::Get()->LogDebug(TEXT("Added Button %s (%s) %d"), *ButtonRightKeyName, *ButtonRightDisplayName, InstanceId);
+			FJoystickLogManager::Get()->LogDebug(TEXT("Added Button %s (%s) %d"), *ButtonRightKeyName, *ButtonRightDisplayName, &InstanceId);
 		}
 
 		if (!EKeys::GetKeyDetails(ButtonDownRightKey).IsValid())
 		{
 			EKeys::AddKey(ButtonDownRightKeyDetails);
-			FJoystickLogManager::Get()->LogDebug(TEXT("Added Button %s (%s) %d"), *ButtonDownRightKeyName, *ButtonDownRightDisplayName, InstanceId);
+			FJoystickLogManager::Get()->LogDebug(TEXT("Added Button %s (%s) %d"), *ButtonDownRightKeyName, *ButtonDownRightDisplayName, &InstanceId);
 		}
 
 		if (!EKeys::GetKeyDetails(ButtonDownKey).IsValid())
 		{
 			EKeys::AddKey(ButtonDownKeyDetails);
-			FJoystickLogManager::Get()->LogDebug(TEXT("Added Button %s (%s) %d"), *ButtonDownKeyName, *ButtonDownDisplayName, InstanceId);
+			FJoystickLogManager::Get()->LogDebug(TEXT("Added Button %s (%s) %d"), *ButtonDownKeyName, *ButtonDownDisplayName, &InstanceId);
 		}
 
 		if (!EKeys::GetKeyDetails(ButtonDownLeftKey).IsValid())
 		{
 			EKeys::AddKey(ButtonDownLeftKeyDetails);
-			FJoystickLogManager::Get()->LogDebug(TEXT("Added Button %s (%s) %d"), *ButtonDownLeftKeyName, *ButtonDownLeftDisplayName, InstanceId);
+			FJoystickLogManager::Get()->LogDebug(TEXT("Added Button %s (%s) %d"), *ButtonDownLeftKeyName, *ButtonDownLeftDisplayName, &InstanceId);
 		}
 
 		if (!EKeys::GetKeyDetails(ButtonLeftKey).IsValid())
 		{
 			EKeys::AddKey(ButtonLeftKeyDetails);
-			FJoystickLogManager::Get()->LogDebug(TEXT("Added Button %s (%s) %d"), *ButtonLeftKeyName, *ButtonLeftDisplayName, InstanceId);
+			FJoystickLogManager::Get()->LogDebug(TEXT("Added Button %s (%s) %d"), *ButtonLeftKeyName, *ButtonLeftDisplayName, &InstanceId);
 		}
 		
 		if (!EKeys::GetKeyDetails(ButtonUpLeftKey).IsValid())
 		{
 			EKeys::AddKey(ButtonUpLeftKeyDetails);
-			FJoystickLogManager::Get()->LogDebug(TEXT("Added Button %s (%s) %d"), *ButtonUpLeftKeyName, *ButtonUpLeftDisplayName, InstanceId);
+			FJoystickLogManager::Get()->LogDebug(TEXT("Added Button %s (%s) %d"), *ButtonUpLeftKeyName, *ButtonUpLeftDisplayName, &InstanceId);
 		}
 
 		const FKey& MappedUpKey = ButtonUpKeyDetails.GetKey();
