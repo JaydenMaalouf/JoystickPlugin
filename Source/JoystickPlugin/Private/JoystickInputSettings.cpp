@@ -15,6 +15,7 @@ UJoystickInputSettings::UJoystickInputSettings()
 #else
 	EnableLogs = false;
 #endif
+	MapHatAxisToKeys = static_cast<int32>(EHatDirection::Up | EHatDirection::Down | EHatDirection::Left | EHatDirection::Right);
 }
 
 void UJoystickInputSettings::DeviceAdded(const FJoystickInformation& JoystickInfo)

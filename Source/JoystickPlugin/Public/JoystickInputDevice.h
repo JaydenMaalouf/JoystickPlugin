@@ -9,7 +9,7 @@
 #include "Containers/Array.h"
 #include "Data/JoystickInstanceId.h"
 #include "Data/JoystickDeviceState.h"
-#include "Data/JoystickPointOfViewDirection.h"
+#include "Data/Input/HatDirection.h"
 #include "GenericPlatform/IInputInterface.h"
 #include "GenericPlatform/GenericApplicationMessageHandler.h"
 
@@ -32,7 +32,7 @@ public:
 	void JoystickUnplugged(const FJoystickInstanceId& InstanceId) const;
 	void JoystickButton(const FJoystickInstanceId& InstanceId, const int Button, const bool Pressed);
 	void JoystickAxis(const FJoystickInstanceId& InstanceId, const int Axis, const float Value);
-	void JoystickHat(const FJoystickInstanceId& InstanceId, const int Hat, const EJoystickPointOfViewDirection Value);
+	void JoystickHat(const FJoystickInstanceId& InstanceId, const int Hat, const EHatDirection Value);
 	void JoystickBall(const FJoystickInstanceId& InstanceId, const int Ball, const FVector2D& Value);
 	void JoystickGyro(const FJoystickInstanceId& InstanceId, const int Timestamp, const FVector& Value);
 	void JoystickAccelerometer(const FJoystickInstanceId& InstanceId, const int Timestamp, const FVector& Value);
@@ -47,9 +47,12 @@ public:
 private:
 	void InitialiseAxis(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName);
 	void InitialiseButtons(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName);
-	void InitialiseHatsAxis(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName);
-	void InitialiseHatsButtons(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName);
+	void InitialiseHatAxis(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName);
+	void InitialiseHatButtons(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName);
 	void InitialiseBalls(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName);
+
+	void TrySetCustomDisplayName(FString& ButtonDisplayName, const FKey& ButtonKey);
+	void TryAddWidgetNavigation(const FKey& ButtonKey);
 
 	TMap<FJoystickInstanceId, FJoystickDeviceState> JoystickDeviceState;
 

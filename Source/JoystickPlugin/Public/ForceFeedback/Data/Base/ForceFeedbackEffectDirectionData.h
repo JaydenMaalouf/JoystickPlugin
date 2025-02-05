@@ -25,27 +25,29 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectDirectionData
 	UPROPERTY(BlueprintReadWrite, EditAnywhere,
 		meta = (ToolTip =
 			"A vector describing the direction and magnitude of the effect on each axis. Each individual axis has a range of -1.0 to 1.0 and is independent of the other axes. Specifying a negative value for an axis reverses the input values from the axis."
-			, UIMin="-1", UIMax="1", ClampMin="-1", ClampMax="1"), Category = "Force Feedback|Direction|Data")
-	FVector Direction;
+			, EditCondition = "DirectionType != EForceFeedbackDirectionType::SteeringAxis", EditConditionHides), Category = "Force Feedback|Direction|Data")
+	FIntVector Direction;
 
 	SDL_HapticDirection ToSDLDirection() const
 	{
 		SDL_HapticDirection HapticDirection;
 
-		HapticDirection.dir[0] = FMath::Clamp<Sint32>(Direction.X * INT32_MAX, INT32_MIN, INT32_MAX);
-		HapticDirection.dir[1] = FMath::Clamp<Sint32>(Direction.Y * INT32_MAX, INT32_MIN, INT32_MAX);
-		HapticDirection.dir[2] = FMath::Clamp<Sint32>(Direction.Z * INT32_MAX, INT32_MIN, INT32_MAX);
-
 		switch (DirectionType)
 		{
 			case EForceFeedbackDirectionType::Polar:
 				HapticDirection.type = SDL_HAPTIC_POLAR;
+				HapticDirection.dir[0] = FMath::Clamp<Sint32>(Direction.X, 0, 36000);
 				break;
 			case EForceFeedbackDirectionType::Spherical:
 				HapticDirection.type = SDL_HAPTIC_SPHERICAL;
+				HapticDirection.dir[0] = FMath::Clamp<Sint32>(Direction.X, 0, 36000);
+				HapticDirection.dir[1] = FMath::Clamp<Sint32>(Direction.Y, -9000, 9000);
 				break;
 			case EForceFeedbackDirectionType::Cartesian:
 				HapticDirection.type = SDL_HAPTIC_CARTESIAN;
+				HapticDirection.dir[0] = FMath::Clamp<Sint32>(Direction.X, INT32_MIN, INT32_MAX);
+				HapticDirection.dir[1] = FMath::Clamp<Sint32>(Direction.Y, INT32_MIN, INT32_MAX);
+				HapticDirection.dir[2] = FMath::Clamp<Sint32>(Direction.Z, INT32_MIN, INT32_MAX);
 				break;
 			default:
 			case EForceFeedbackDirectionType::SteeringAxis:

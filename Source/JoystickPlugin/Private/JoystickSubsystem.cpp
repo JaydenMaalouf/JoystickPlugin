@@ -307,7 +307,7 @@ bool UJoystickSubsystem::HasRumbleDevice() const
 {
 	for (const TTuple<FJoystickInstanceId, FDeviceInfoSDL>& Device : Devices)
 	{
-		if (Device.Value.IsGamepad || Device.Value.Rumble.Enabled)
+		if (Device.Value.IsGamepad || Device.Value.RumbleSupport)
 		{
 			return true;
 		}
@@ -340,10 +340,11 @@ void UJoystickSubsystem::AddHapticDevice(FDeviceInfoSDL& Device) const
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tNumber of Haptic Axis: %d"), Device.Haptic.AxesCount);
 
 #if ENGINE_MAJOR_VERSION == 5
-	Device.Rumble.Supported = SDL_HapticRumbleSupported(Device.SDLHaptic) == SDL_TRUE;
-	if (Device.Rumble.Supported)
+	Device.RumbleSupport = SDL_JoystickHasRumble(Device.SDLJoystick) == SDL_TRUE;
+	Device.HapticRumble.Supported = SDL_HapticRumbleSupported(Device.SDLHaptic) == SDL_TRUE;
+	if (Device.HapticRumble.Supported)
 	{
-		Device.Rumble.Enabled = SDL_HapticRumbleInit(Device.SDLHaptic) == 0;
+		Device.HapticRumble.Enabled = SDL_HapticRumbleInit(Device.SDLHaptic) == 0;
 	}
 #endif
 
@@ -475,8 +476,9 @@ bool UJoystickSubsystem::AddDevice(const int DeviceIndex)
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tSerial Number: %s"), *Device.SerialNumber);
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tIs Gamepad: %s"), Device.IsGamepad ? TEXT("true") : TEXT("false"));
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tHaptic Support: %s"), Device.Haptic.Supported ? TEXT("true") : TEXT("false"));
-	FJoystickLogManager::Get()->LogDebug(TEXT("\tRumble Support: %s"), Device.Rumble.Supported ? TEXT("true") : TEXT("false"));
+	FJoystickLogManager::Get()->LogDebug(TEXT("\tHaptic Rumble Support: %s"), Device.HapticRumble.Supported ? TEXT("true") : TEXT("false"));
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tLED Support: %s"), Device.LedSupport ? TEXT("true") : TEXT("false"));
+	FJoystickLogManager::Get()->LogDebug(TEXT("\tRumble Support: %s"), Device.RumbleSupport ? TEXT("true") : TEXT("false"));
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tType: %d"), Device.Type);
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tPower Level: %d"), static_cast<int>(Device.PowerLevel));
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tNumber of Axis %d"), SDL_JoystickNumAxes(Device.SDLJoystick));

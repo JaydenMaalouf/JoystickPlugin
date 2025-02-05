@@ -101,7 +101,6 @@ public:
 
 	void Construct(const FArguments& InArgs);
 
-public:
 	SJoystickInputSelector();
 
 	/** Gets the currently selected key chord. */
@@ -149,7 +148,6 @@ public:
 	/** Sets the visibility of the text block. */
 	void SetTextBlockVisibility(EVisibility InVisibility);
 
-public:
 	virtual FReply OnAnalogValueChanged(const FGeometry& MyGeometry, const FAnalogInputEvent& InAnalogInputEvent) override;
 	virtual FReply OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent) override;
 	virtual FReply OnKeyUp(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent) override;
@@ -180,7 +178,6 @@ private:
 	/** Returns true, if the key has been specified as an escape key, else false. */
 	bool IsEscapeKey(const FKey& InKey) const;
 
-private:
 	/** True when key selection mode is active. */
 	bool bIsSelectingKey;
 
@@ -203,7 +200,7 @@ private:
 
 	/** Define dead zone percentage to avoid unintentional axis mapping */
 	float DeadZone;
-	
+
 	bool bAllowAxisKeys;
 	bool bAllowButtonKeys;
 

@@ -64,7 +64,7 @@ void UJoystickForceFeedbackComponent::OnSubsystemReady()
 
 void UJoystickForceFeedbackComponent::CreateEffects()
 {
-	if (!IsValid(EffectType))
+	if (!EffectType)
 	{
 		return;
 	}
@@ -107,7 +107,12 @@ void UJoystickForceFeedbackComponent::CreateInstanceEffect(const FJoystickInstan
 	{
 		return;
 	}
-	
+
+	if (!EffectType)
+	{
+		return;
+	}
+
 	UForceFeedbackEffectBase* ForcedFeedbackEffect = NewObject<UForceFeedbackEffectBase>(this, EffectType);
 	if (!IsValid(ForcedFeedbackEffect))
 	{
@@ -198,7 +203,8 @@ void UJoystickForceFeedbackComponent::TickComponent(float DeltaTime, ELevelTick 
 			continue;
 		}
 
-		if (ForcedFeedbackEffect->Tickable == false)
+		// If true, the component will handle its own Tick
+		if (ForcedFeedbackEffect->Tickable)
 		{
 			continue;
 		}
@@ -282,7 +288,7 @@ void UJoystickForceFeedbackComponent::ActionOnJoystickEffects(const FJoystickIns
 	{
 		return;
 	}
-	
+
 	for (UForceFeedbackEffectBase* Effect : Effects)
 	{
 		if (!IsValid(Effect))

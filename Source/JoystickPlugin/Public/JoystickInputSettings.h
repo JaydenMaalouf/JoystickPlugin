@@ -9,6 +9,7 @@
 #include "Data/JoystickInstanceId.h"
 #include "Data/JoystickInformation.h"
 #include "Data/Settings/JoystickInputDeviceConfiguration.h"
+#include "Data/Settings/JoystickInputKeyConfiguration.h"
 
 #include "JoystickInputSettings.generated.h"
 
@@ -34,18 +35,23 @@ public:
 	UPROPERTY(VisibleAnywhere, Category="Information")
 	TArray<FJoystickInformation> ConnectedDevices;
 
-	UPROPERTY(config, EditAnywhere, Category="Joystick Input Settings",
-		meta=(ToolTip="When creating the input keys for devices, use the device name in the key. Default will prefix the key with \"Joystick\" instead.", ConfigRestartRequired=true))
+	UPROPERTY(config, EditAnywhere, meta=(ToolTip="When creating the input keys for devices, use the device name in the key. Default will prefix the key with \"Joystick\" instead.", ConfigRestartRequired=true))
 	bool UseDeviceName;
 
-	UPROPERTY(config, EditAnywhere, Category="Joystick Input Settings", meta=(ToolTip="Useful if you want input for controllers (ie. XInput) to be handled by UE directly, instead of via this plugin.", ConfigRestartRequired=true))
+	UPROPERTY(config, EditAnywhere, meta=(ToolTip="Useful if you want input for controllers (ie. XInput) to be handled by UE directly, instead of via this plugin.", ConfigRestartRequired=true))
 	bool IgnoreGameControllers;
 
-	UPROPERTY(config, EditAnywhere, Category="Joystick Input Settings", meta=(ToolTip="Enable/disable debug logging from the plugin."))
+	UPROPERTY(config, EditAnywhere, meta=(ToolTip="Enable debug logging from the plugin."))
 	bool EnableLogs;
 
-	UPROPERTY(config, EditAnywhere, Category="Joystick Input Settings")
+	UPROPERTY(config, EditAnywhere, meta = (Bitmask, BitmaskEnum = "/Script/JoystickPlugin.EHatDirection", ToolTip="Map Hat Axis to Keys. Select which direction keys you would like mapped", ConfigRestartRequired=true))
+	int32 MapHatAxisToKeys;
+
+	UPROPERTY(config, EditAnywhere)
 	TArray<FJoystickInputDeviceConfiguration> DeviceConfigurations;
+
+	UPROPERTY(config, EditAnywhere)
+	TMap<FKey, FJoystickInputKeyConfiguration> KeyConfigurations;
 
 	bool GetIgnoreGameControllers() const;
 	bool SetIgnoreGameControllers(const bool NewIgnoreGameControllers);

@@ -109,8 +109,13 @@ bool UJoystickHapticDeviceManager::PlayRumble(const FJoystickInstanceId& Instanc
 		return false;
 	}
 
-	const Uint16 LowFrequency = FMath::Clamp<Uint16>(LowFrequencyRumble * UINT16_MAX, 0, UINT16_MAX);
-	const Uint16 HighFrequency = FMath::Clamp<Uint16>(HighFrequencyRumble * UINT16_MAX, 0, UINT16_MAX);
+	if (!DeviceInfo->RumbleSupport)
+	{
+		return false;
+	}
+
+	const Uint16 LowFrequency = FMath::Clamp<Uint16>(LowFrequencyRumble * UINT8_MAX, 0, UINT8_MAX);
+	const Uint16 HighFrequency = FMath::Clamp<Uint16>(HighFrequencyRumble * UINT8_MAX, 0, UINT8_MAX);
 	const Uint32 ClampedDuration = Duration == -1 ? SDL_HAPTIC_INFINITY : FMath::Clamp<Uint32>(Duration * 1000.0f, 0, UINT32_MAX);
 	const int Result = SDL_JoystickRumble(DeviceInfo->SDLJoystick, LowFrequency, HighFrequency, ClampedDuration);
 	if (Result == -1)
@@ -125,8 +130,61 @@ bool UJoystickHapticDeviceManager::PlayRumble(const FJoystickInstanceId& Instanc
 #endif
 }
 
+bool UJoystickHapticDeviceManager::PlayHapticRumble(const FJoystickInstanceId& InstanceId, const float Strength, const float Duration)
+{
+#if ENGINE_MAJOR_VERSION == 5
+	const FDeviceInfoSDL* DeviceInfo = GetDeviceInfo(InstanceId);
+	if (DeviceInfo == nullptr || DeviceInfo->SDLJoystick == nullptr)
+	{
+		return false;
+	}
+
+	if (!DeviceInfo->HapticRumble.Enabled)
+	{
+		return false;
+	}
+
+	const float ClampedStrength = FMath::Clamp<float>(Strength, 0, 1);
+	const Uint32 ClampedDuration = Duration == -1 ? SDL_HAPTIC_INFINITY : FMath::Clamp<Uint32>(Duration * 1000.0f, 0, UINT32_MAX);
+	const int Result = SDL_HapticRumblePlay(DeviceInfo->SDLHaptic, ClampedStrength, ClampedDuration);
+	if (Result == -1)
+	{
+		FJoystickLogManager::Get()->LogSDLError("SDL_HapticRumblePlay Error");
+		return false;
+	}
+	return true;
+#else
+	FJoystickLogManager::Get()->LogError(TEXT("PlayHapticRumble is not supported on this engine version."));
+	return false;
+#endif
+}
+
 bool UJoystickHapticDeviceManager::StopRumble(const FJoystickInstanceId& InstanceId)
 {
+#if ENGINE_MAJOR_VERSION == 5
+	const FDeviceInfoSDL* DeviceInfo = GetDeviceInfo(InstanceId);
+	if (DeviceInfo == nullptr || DeviceInfo->SDLJoystick == nullptr)
+	{
+		return false;
+	}
+
+	const int Result = SDL_JoystickRumble(DeviceInfo->SDLJoystick, 0.0f, 0.0f, 0.0f);
+	if (Result == -1)
+	{
+		FJoystickLogManager::Get()->LogSDLError("SDL_JoystickRumble(Stop) Error");
+		return false;
+	}
+
+	return true;
+#else
+	FJoystickLogManager::Get()->LogError(TEXT("StopRumble is not supported on this engine version."));
+	return false;
+#endif
+}
+
+bool UJoystickHapticDeviceManager::StopHapticRumble(const FJoystickInstanceId& InstanceId)
+{
+#if ENGINE_MAJOR_VERSION == 5
 	SDL_Haptic* HapticDevice = GetHapticDevice(InstanceId);
 	if (HapticDevice == nullptr)
 	{
@@ -141,6 +199,10 @@ bool UJoystickHapticDeviceManager::StopRumble(const FJoystickInstanceId& Instanc
 	}
 
 	return true;
+#else
+	FJoystickLogManager::Get()->LogError(TEXT("StopHapticRumble is not supported on this engine version."));
+	return false;
+#endif
 }
 
 int UJoystickHapticDeviceManager::CreateEffect(const FJoystickInstanceId& InstanceId, SDL_HapticEffect& Effect) const

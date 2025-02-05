@@ -91,7 +91,7 @@ FReply SJoystickInputSelector::OnAnalogValueChanged(const FGeometry& MyGeometry,
 	{
 		return FReply::Handled();
 	}
-	
+
 	if (!bAllowAxisKeys)
 	{
 		return SCompoundWidget::OnAnalogValueChanged(MyGeometry, InAnalogInputEvent);
