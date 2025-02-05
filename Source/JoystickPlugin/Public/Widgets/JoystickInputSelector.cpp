@@ -47,7 +47,7 @@ UJoystickInputSelector::UJoystickInputSelector(const FObjectInitializer& ObjectI
 	bAllowGamepadKeys = true;
 	MinRangeOffset = 0.0f;
 	MaxRangeOffset = 0.0f;
-	DeadZone = 0.0f;
+	DeadZone = 0.05f;
 	AxisSelectionTimeout = 2.5f;
 
 	EscapeKeys.AddUnique(EKeys::Gamepad_Special_Right);

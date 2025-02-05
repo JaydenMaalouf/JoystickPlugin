@@ -185,7 +185,6 @@ private:
 	virtual void HandleKeySelected(const FInputChord& InSelectedKey);
 	void HandleIsSelectingChanged();
 
-private:
 	/** The input key selector widget managed by this object. */
 	TSharedPtr<SJoystickInputSelector> JoystickInputSelector;
 };

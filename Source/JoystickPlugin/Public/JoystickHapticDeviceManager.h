@@ -47,9 +47,13 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback|Functions")
 	bool PlayRumble(const FJoystickInstanceId& InstanceId, const float LowFrequencyRumble, const float HighFrequencyRumble, UPARAM(DisplayName = "Duration (in seconds)") const float Duration);
+	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback|Functions")
+	bool PlayHapticRumble(const FJoystickInstanceId& InstanceId, const float Strength, const float Duration);
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback|Functions")
 	bool StopRumble(const FJoystickInstanceId& InstanceId);
+	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback|Functions")
+	bool StopHapticRumble(const FJoystickInstanceId& InstanceId);
 
 	int CreateEffect(const FJoystickInstanceId& InstanceId, SDL_HapticEffect& Effect) const;
 	bool UpdateEffect(const FJoystickInstanceId& InstanceId, const int EffectId, SDL_HapticEffect& Effect) const;

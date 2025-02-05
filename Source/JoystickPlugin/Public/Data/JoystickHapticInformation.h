@@ -35,42 +35,42 @@ struct JOYSTICKPLUGIN_API FJoystickHapticInformation
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config")
 	int AxesCount;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config/Supported Effects")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config|Supported Effects")
 	bool Constant;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config/Supported Effects")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config|Supported Effects")
 	bool Sine;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config/Supported Effects")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config|Supported Effects")
 	bool Triangle;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config/Supported Effects")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config|Supported Effects")
 	bool SawToothUp;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config/Supported Effects")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config|Supported Effects")
 	bool SawToothDown;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config/Supported Effects")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config|Supported Effects")
 	bool Ramp;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config/Supported Effects")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config|Supported Effects")
 	bool Spring;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config/Supported Effects")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config|Supported Effects")
 	bool Damper;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config/Supported Effects")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config|Supported Effects")
 	bool Inertia;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config/Supported Effects")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config|Supported Effects")
 	bool Friction;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config/Supported Effects")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config|Supported Effects")
 	bool Custom;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config/Supported Effects")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config|Supported Effects")
 	bool Gain;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config/Supported Effects")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config|Supported Effects")
 	bool AutoCenter;
 };
