@@ -775,6 +775,11 @@ int FJoystickInputDevice::GetAxisIndexFromKey(const FKey& Key) const
 {
 	for (int i = 0; i < DeviceAxisKeys.Num(); i++)
 	{
+		if (!DeviceAxisKeys.Contains(i))
+		{
+			continue;
+		}
+		
 		const TArray<FKey>& Keys = DeviceAxisKeys[i];
 		if (Keys.Contains(Key))
 		{
