@@ -86,10 +86,10 @@ FReply SJoystickInputSelector::OnAnalogValueChanged(const FGeometry& MyGeometry,
 {
 	/** Don't process events in dead zone */
 	const float AbsAnalogValue = FMath::Abs(InAnalogInputEvent.GetAnalogValue());
-
 	if (AbsAnalogValue <= DeadZone)
 	{
-		return FReply::Handled();
+		//TODO: Reimplement deadzoning that works with min/max mapping
+		//return FReply::Handled();
 	}
 
 	if (!bAllowAxisKeys)
@@ -127,7 +127,7 @@ FReply SJoystickInputSelector::OnAnalogValueChanged(const FGeometry& MyGeometry,
 		}
 
 		const float AxisValue = InAnalogInputEvent.GetAnalogValue();
-		FKeySelectorData& SelectedKeyData = KeyData.FindOrAdd(NewSelectedKey);
+		FKeySelectorData& SelectedKeyData = KeyData.FindOrAdd(NewSelectedKey.Key);
 
 		const FJoystickInputDeviceAxisProperties* AxisProperties = JoystickInputSettings->GetAxisPropertiesByKey(AxisKey);
 		if (AxisProperties != nullptr)
@@ -157,8 +157,13 @@ FReply SJoystickInputSelector::OnAnalogValueChanged(const FGeometry& MyGeometry,
 			}
 		}
 
+		if (SelectedKeyData.MinStartTime.IsZero() || SelectedKeyData.MaxStartTime.IsZero())
+		{
+			return FReply::Handled();
+		}
+
 		const double MinMaxTime = (SelectedKeyData.MinStartTime - SelectedKeyData.MaxStartTime).GetTotalSeconds();
-		if (MinMaxTime > 0 && MinMaxTime < AxisSelectionTimeout)
+		if (MinMaxTime > 0.0l && MinMaxTime < AxisSelectionTimeout)
 		{
 			SetIsSelectingKey(false);
 			SelectAxis(NewSelectedKey);
@@ -166,7 +171,7 @@ FReply SJoystickInputSelector::OnAnalogValueChanged(const FGeometry& MyGeometry,
 		}
 
 		const double MaxMinTime = (SelectedKeyData.MaxStartTime - SelectedKeyData.MinStartTime).GetTotalSeconds();
-		if (MaxMinTime > 0 && MaxMinTime < AxisSelectionTimeout)
+		if (MaxMinTime > 0.0l && MaxMinTime < AxisSelectionTimeout)
 		{
 			SetIsSelectingKey(false);
 			SelectAxis(NewSelectedKey);

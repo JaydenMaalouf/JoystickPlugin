@@ -196,7 +196,7 @@ private:
 	float MinRangeOffset;
 	float MaxRangeOffset;
 	float AxisSelectionTimeout;
-	TMap<FInputChord, FKeySelectorData> KeyData;
+	TMap<FKey, FKeySelectorData> KeyData;
 
 	/** Define dead zone percentage to avoid unintentional axis mapping */
 	float DeadZone;
