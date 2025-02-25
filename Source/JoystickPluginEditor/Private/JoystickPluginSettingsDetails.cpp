@@ -38,17 +38,17 @@ void FJoystickPluginSettingsDetails::CustomizeDetails(IDetailLayoutBuilder& Deta
 			"AddDevices_Tooltip", "Create a Device Configuration for each of the connected devices."))
 		.OnClicked_Lambda([this, Settings]()
 		{
-			for (const TTuple<FJoystickInstanceId, FJoystickInformation>& ConnectedDevice : Settings->ConnectedDevices)
+			for (const FJoystickInformation& ConnectedDevice : Settings->ConnectedDevices)
 			{
-				if (Settings->DeviceConfigurations.FindByPredicate([&](const FJoystickInputDeviceConfiguration& DeviceConfiguration)
+				if (Settings->DeviceConfigurations.FindByPredicate([ConnectedDevice](const FJoystickInputDeviceConfiguration& DeviceConfiguration)
 				{
-					return DeviceConfiguration.ProductGuid == ConnectedDevice.Value.ProductGuid;
+					return DeviceConfiguration.ProductGuid == ConnectedDevice.ProductGuid;
 				}))
 				{
 					continue;
 				}
 
-				Settings->DeviceConfigurations.Add(FJoystickInputDeviceConfiguration(ConnectedDevice.Value.ProductGuid));
+				Settings->DeviceConfigurations.Add(FJoystickInputDeviceConfiguration(ConnectedDevice.ProductGuid));
 			}
 
 			return (FReply::Handled());

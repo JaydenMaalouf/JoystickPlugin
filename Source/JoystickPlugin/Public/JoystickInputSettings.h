@@ -23,7 +23,7 @@ public:
 	virtual void PostEditChangeChainProperty(FPropertyChangedChainEvent& PropertyChangedEvent) override;
 #endif
 
-	void AddDeviceConfiguration(const FJoystickInputDeviceConfiguration& InDeviceConfiguration);
+	void AddProfileConfiguration(const FJoystickInputDeviceConfiguration& InDeviceConfiguration);
 	void DeviceAdded(const FJoystickInformation& JoystickInfo);
 	void DeviceRemoved(const FJoystickInstanceId& InstanceId);
 	void ResetDevices();
@@ -32,8 +32,8 @@ public:
 	const FJoystickInputDeviceConfiguration* GetInputDeviceConfigurationByKey(const FKey& Key) const;
 	const FJoystickInputDeviceAxisProperties* GetAxisPropertiesByKey(const FKey& AxisKey) const;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Information", meta=(ForceInlineRow, ShowOnlyInnerProperties))
-	TMap<FJoystickInstanceId, FJoystickInformation> ConnectedDevices;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Information")
+	TArray<FJoystickInformation> ConnectedDevices;
 
 	UPROPERTY(config, EditAnywhere, Category = JoystickSettings, meta=(ToolTip="When creating the input keys for devices, use the device name in the key. Default will prefix the key with \"Joystick\" instead.", ConfigRestartRequired=true))
 	bool UseDeviceName;
@@ -50,8 +50,11 @@ public:
 	UPROPERTY(config, EditAnywhere, Category = JoystickSettings,
 		meta = (Bitmask, BitmaskEnum = "/Script/JoystickPlugin.EHatDirection", ToolTip="Map Hat Axis to Keys. Select which direction keys you would like mapped", ConfigRestartRequired=true))
 	int32 MapHatAxisToKeys;
+	
+	UPROPERTY(VisibleAnywhere, Category = JoystickSettings, meta=(ToolTip="A container to hold the configurations loaded from the profiles directory"))
+	TArray<FJoystickInputDeviceConfiguration> ProfileConfigurations;
 
-	UPROPERTY(config, EditAnywhere, Category = JoystickSettings)
+	UPROPERTY(config, EditAnywhere, Category = JoystickSettings, meta=(ToolTip="Contains Device specific configurations"))
 	TArray<FJoystickInputDeviceConfiguration> DeviceConfigurations;
 
 	UPROPERTY(config, EditAnywhere, Category = JoystickSettings)

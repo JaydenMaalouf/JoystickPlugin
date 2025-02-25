@@ -22,12 +22,15 @@ UJoystickInputSettings::UJoystickInputSettings() :
 
 void UJoystickInputSettings::DeviceAdded(const FJoystickInformation& JoystickInfo)
 {
-	ConnectedDevices.Add(JoystickInfo.InstanceId, JoystickInfo);
+	ConnectedDevices.Add(JoystickInfo);
 }
 
 void UJoystickInputSettings::DeviceRemoved(const FJoystickInstanceId& InstanceId)
 {
-	ConnectedDevices.Remove(InstanceId);
+	ConnectedDevices.RemoveAll([InstanceId](const FJoystickInformation& Item)
+	{
+		return Item.InstanceId == InstanceId;
+	});
 }
 
 void UJoystickInputSettings::ResetDevices()
@@ -37,7 +40,17 @@ void UJoystickInputSettings::ResetDevices()
 
 const FJoystickInputDeviceConfiguration* UJoystickInputSettings::GetInputDeviceConfiguration(const FGuid& ProductId) const
 {
-	return DeviceConfigurations.FindByPredicate([&](const FJoystickInputDeviceConfiguration& PredicateDeviceConfig)
+	const FJoystickInputDeviceConfiguration* DeviceConfiguration = DeviceConfigurations.FindByPredicate([ProductId](const FJoystickInputDeviceConfiguration& InputDeviceConfiguration)
+	{
+		return (!InputDeviceConfiguration.ProductGuid.IsValid() || ProductId == InputDeviceConfiguration.ProductGuid);
+	});
+	
+	if (DeviceConfiguration)
+	{
+		return DeviceConfiguration;
+	}
+
+	return ProfileConfigurations.FindByPredicate([ProductId](const FJoystickInputDeviceConfiguration& PredicateDeviceConfig)
 	{
 		return (!PredicateDeviceConfig.ProductGuid.IsValid() || ProductId == PredicateDeviceConfig.ProductGuid);
 	});
@@ -116,7 +129,7 @@ const FJoystickInputDeviceAxisProperties* UJoystickInputSettings::GetAxisPropert
 		return nullptr;
 	}
 
-	return DeviceConfiguration->AxisProperties.FindByPredicate([&](const FJoystickInputDeviceAxisProperties& AxisProperty)
+	return DeviceConfiguration->AxisProperties.FindByPredicate([AxisIndex](const FJoystickInputDeviceAxisProperties& AxisProperty)
 	{
 		return AxisProperty.AxisIndex != -1 && AxisProperty.AxisIndex == AxisIndex;
 	});
@@ -148,9 +161,9 @@ void UJoystickInputSettings::PostEditChangeChainProperty(FPropertyChangedChainEv
 }
 #endif
 
-void UJoystickInputSettings::AddDeviceConfiguration(const FJoystickInputDeviceConfiguration& InDeviceConfiguration)
+void UJoystickInputSettings::AddProfileConfiguration(const FJoystickInputDeviceConfiguration& InDeviceConfiguration)
 {
-	const bool ContainsDeviceConfiguration = DeviceConfigurations.ContainsByPredicate([&](const FJoystickInputDeviceConfiguration& DeviceConfiguration)
+	const bool ContainsDeviceConfiguration = ProfileConfigurations.ContainsByPredicate([InDeviceConfiguration](const FJoystickInputDeviceConfiguration& DeviceConfiguration)
 	{
 		return DeviceConfiguration.ProductGuid == InDeviceConfiguration.ProductGuid;
 	});
@@ -160,5 +173,5 @@ void UJoystickInputSettings::AddDeviceConfiguration(const FJoystickInputDeviceCo
 		return;
 	}
 
-	DeviceConfigurations.Add(InDeviceConfiguration);
+	ProfileConfigurations.Add(InDeviceConfiguration);
 }
