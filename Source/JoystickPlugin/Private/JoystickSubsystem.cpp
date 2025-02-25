@@ -853,7 +853,7 @@ void UJoystickSubsystem::LoadJoystickProfiles()
 				}
 			}
 
-			JoystickInputSettings->AddDeviceConfiguration(DeviceConfiguration);
+			JoystickInputSettings->AddProfileConfiguration(DeviceConfiguration);
 			FJoystickLogManager::Get()->LogInformation(TEXT("Added Joystick %s configuration from profile %s"), *DeviceConfiguration.ProductGuid.ToString(), *ProfileName);
 		}
 	}

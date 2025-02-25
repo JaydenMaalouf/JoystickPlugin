@@ -176,7 +176,7 @@ void UJoystickForceFeedbackComponent::DestroyInstanceEffects(const FJoystickInst
 		DestroyEffect(Effect);
 	});
 
-	Effects.RemoveAll([&](const UForceFeedbackEffectBase* Effect)
+	Effects.RemoveAll([JoystickInstanceId](const UForceFeedbackEffectBase* Effect)
 	{
 		return Effect->GetInstanceId() == JoystickInstanceId;
 	});

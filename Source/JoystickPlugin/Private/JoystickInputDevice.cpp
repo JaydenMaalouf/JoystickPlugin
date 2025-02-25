@@ -743,7 +743,7 @@ void FJoystickInputDevice::UpdateAxisProperties()
 		FJoystickDeviceState& CurrentState = JoystickDeviceState[InstanceId];
 		for (int i = 0; i < CurrentState.Axes.Num(); i++)
 		{
-			const FJoystickInputDeviceAxisProperties* AxisProperties = DeviceConfig->AxisProperties.FindByPredicate([&](const FJoystickInputDeviceAxisProperties& AxisProperty)
+			const FJoystickInputDeviceAxisProperties* AxisProperties = DeviceConfig->AxisProperties.FindByPredicate([i](const FJoystickInputDeviceAxisProperties& AxisProperty)
 			{
 				return AxisProperty.AxisIndex != -1 && AxisProperty.AxisIndex == i;
 			});
