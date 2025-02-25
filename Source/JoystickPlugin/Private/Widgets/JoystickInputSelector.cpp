@@ -1,8 +1,8 @@
 // JoystickPlugin is licensed under the MIT License.
 // Copyright Jayden Maalouf. All Rights Reserved.
 
-#include "JoystickInputSelector.h"
-#include "SJoystickInputSelector.h"
+#include "Widgets/JoystickInputSelector.h"
+#include "Widgets/SJoystickInputSelector.h"
 #include "Engine/Font.h"
 #include "UObject/ConstructorHelpers.h"
 #include "UObject/FrameworkObjectVersion.h"
@@ -45,6 +45,8 @@ UJoystickInputSelector::UJoystickInputSelector(const FObjectInitializer& ObjectI
 	bAllowButtonKeys = true;
 	bAllowModifierKeys = true;
 	bAllowGamepadKeys = true;
+	bAllowNonGamepadKeys = true;
+	bAllowJoystickKeys = true;
 	MinRangeOffset = 0.0f;
 	MaxRangeOffset = 0.0f;
 	DeadZone = 0.05f;
@@ -146,6 +148,26 @@ void UJoystickInputSelector::SetAllowGamepadKeys(const bool bInAllowGamepadKeys)
 	}
 
 	bAllowGamepadKeys = bInAllowGamepadKeys;
+}
+
+void UJoystickInputSelector::SetAllowNonGamepadKeys(bool bInAllowNonGamepadKeys)
+{
+	if (JoystickInputSelector.IsValid())
+	{
+		JoystickInputSelector->SetAllowNonGamepadKeys(bInAllowNonGamepadKeys);
+	}
+
+	bAllowNonGamepadKeys = bInAllowNonGamepadKeys;
+}
+
+void UJoystickInputSelector::SetAllowJoystickKeys(bool bInAllowJoystickKeys)
+{
+	if (JoystickInputSelector.IsValid())
+	{
+		JoystickInputSelector->SetAllowJoystickKeys(bInAllowJoystickKeys);
+	}
+
+	bAllowJoystickKeys = bInAllowJoystickKeys;
 }
 
 void UJoystickInputSelector::SetMinRangeOffset(const float InMinRangeOffset)
@@ -256,6 +278,8 @@ TSharedRef<SWidget> UJoystickInputSelector::RebuildWidget()
 		.NoKeySpecifiedText(NoKeySpecifiedText)
 		.AllowModifierKeys(bAllowModifierKeys)
 		.AllowGamepadKeys(bAllowGamepadKeys)
+		.AllowNonGamepadKeys(bAllowNonGamepadKeys)
+		.AllowJoystickKeys(bAllowJoystickKeys)
 		.AllowAxisKeys(bAllowAxisKeys)
 		.AllowButtonKeys(bAllowButtonKeys)
 		.SetMinRangeOffset(MinRangeOffset)
@@ -281,9 +305,12 @@ void UJoystickInputSelector::HandleKeySelected(const FInputChord& InSelectedKey)
 	OnKeySelected.Broadcast(SelectedKey);
 }
 
-void UJoystickInputSelector::HandleIsSelectingChanged()
+void UJoystickInputSelector::HandleIsSelectingChanged() const
 {
-	OnIsSelectingChanged.Broadcast();
+	if (OnIsSelectingChanged.IsBound())
+	{
+		OnIsSelectingChanged.Broadcast();
+	}
 }
 
 void UJoystickInputSelector::SetTextBlockVisibility(const ESlateVisibility InVisibility)

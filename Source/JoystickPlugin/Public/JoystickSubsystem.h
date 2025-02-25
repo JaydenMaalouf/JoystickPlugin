@@ -3,18 +3,16 @@
 
 #pragma once
 
-#include "Data/JoystickInstanceId.h"
 #include "Data/DeviceInfoSDL.h"
-#include "Data/JoystickInformation.h"
-#include "Data/JoystickPowerLevel.h"
-#include "Data/JoystickType.h"
 #include "Subsystems/EngineSubsystem.h"
 
 #include "JoystickSubsystem.generated.h"
 
-struct FJoystickInfo;
-struct FJoystickDeviceState;
 class FJoystickInputDevice;
+struct FJoystickDeviceState;
+struct FJoystickInfo;
+struct FJoystickInformation;
+struct FJoystickInstanceId;
 union SDL_Event;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnJoystickSubsystemReady);
@@ -28,7 +26,6 @@ class JOYSTICKPLUGIN_API UJoystickSubsystem : public UEngineSubsystem
 
 public:
 	UJoystickSubsystem();
-
 	// Begin USubsystem
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
@@ -122,6 +119,8 @@ private:
 	void JoystickPluggedIn(const FDeviceInfoSDL& Device) const;
 	void JoystickUnplugged(const FJoystickInstanceId& InstanceId) const;
 
+	void LoadJoystickProfiles();
+
 	TMap<FJoystickInstanceId, FDeviceInfoSDL> Devices;
 
 	TSharedPtr<FJoystickInputDevice> InputDevicePtr;
@@ -129,4 +128,7 @@ private:
 	bool OwnsSDL;
 	bool bIsInitialised;
 	int PersistentDeviceCount;
+
+	static FString JoystickConfigurationSection;
+	static FString AxisPropertiesSection;
 };

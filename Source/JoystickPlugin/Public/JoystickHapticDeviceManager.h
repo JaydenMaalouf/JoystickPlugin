@@ -3,11 +3,15 @@
 
 #pragma once
 
-#include "Data/JoystickInstanceId.h"
-#include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
+THIRD_PARTY_INCLUDES_START
+
+#include "SDL_haptic.h"
+
+THIRD_PARTY_INCLUDES_END
 
 #include "JoystickHapticDeviceManager.generated.h"
 
+struct FJoystickInstanceId;
 struct FDeviceInfoSDL;
 using SDL_Haptic = _SDL_Haptic;
 union SDL_HapticEffect;

@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "InputCoreTypes.h"
 #include "Data/Input/HatDirection.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 
@@ -19,6 +20,9 @@ public:
 
 	static EHatDirection HatValueToDirection(int8 Value);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "SDL2 Input|Joystick input")
 	static FString HatDirectionAsString(EHatDirection Value);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "SDL2 Input|Joystick input")
+	static bool IsJoystickKey(const FKey& Key);
 };

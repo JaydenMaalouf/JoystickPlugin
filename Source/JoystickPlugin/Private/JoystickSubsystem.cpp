@@ -2,13 +2,17 @@
 // Copyright Jayden Maalouf. All Rights Reserved.
 
 #include "JoystickSubsystem.h"
+
+#include "Data/DeviceInfoSDL.h"
+#include "Data/JoystickSensorType.h"
+#include "Data/Settings/JoystickInputDeviceAxisProperties.h"
+#include "Data/Settings/JoystickInputDeviceConfiguration.h"
+#include "HAL/FileManager.h"
 #include "JoystickFunctionLibrary.h"
 #include "JoystickInputDevice.h"
 #include "JoystickInputSettings.h"
 #include "JoystickLogManager.h"
-#include "Data/JoystickInstanceId.h"
-#include "Data/JoystickInformation.h"
-#include "Data/JoystickSensorType.h"
+#include "JoystickPluginModule.h"
 #include "Runtime/Launch/Resources/Version.h"
 
 THIRD_PARTY_INCLUDES_START
@@ -30,12 +34,16 @@ UJoystickSubsystem::UJoystickSubsystem()
 
 constexpr unsigned SdlRequiredFlags = SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC;
 
+FString UJoystickSubsystem::AxisPropertiesSection("AxisProperties_");
+FString UJoystickSubsystem::JoystickConfigurationSection("Joystick");
+
 void UJoystickSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
-	UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
-	if (IsValid(JoystickInputSettings))
+	LoadJoystickProfiles();
+
+	if (UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>())
 	{
 		JoystickInputSettings->ResetDevices();
 	}
@@ -400,7 +408,7 @@ void UJoystickSubsystem::AddSensorDevice(FDeviceInfoSDL& Device) const
 
 bool UJoystickSubsystem::AddDevice(const int DeviceIndex)
 {
-	const UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
+	const UJoystickInputSettings* JoystickInputSettings = GetDefault<UJoystickInputSettings>();
 	if (!IsValid(JoystickInputSettings))
 	{
 		return false;
@@ -734,6 +742,113 @@ void UJoystickSubsystem::JoystickUnplugged(const FJoystickInstanceId& InstanceId
 	if (JoystickUnpluggedDelegate.IsBound())
 	{
 		JoystickUnpluggedDelegate.Broadcast(InstanceId);
+	}
+}
+
+void UJoystickSubsystem::LoadJoystickProfiles()
+{
+	UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
+	if (!JoystickInputSettings)
+	{
+		return;
+	}
+
+	const FString ProfilesDirectory = FPaths::Combine(FJoystickPluginModule::PluginDirectory, TEXT("Profiles"));
+
+	IFileManager& FileManager = IFileManager::Get();
+	if (FileManager.DirectoryExists(*ProfilesDirectory))
+	{
+		TArray<FString> Files;
+		FileManager.FindFiles(Files, *ProfilesDirectory, TEXT("*.ini"));
+
+		for (const FString& FileName : Files)
+		{
+			const FString FilePath = FPaths::Combine(ProfilesDirectory, FileName);
+			if (!FileManager.FileExists(*FilePath))
+			{
+				continue;
+			}
+
+			FConfigFile ConfigFile;
+			ConfigFile.Read(*FilePath);
+
+			FJoystickInputDeviceConfiguration DeviceConfiguration;
+			for (const TTuple<FString, FConfigSection>& ConfigSection : AsConst(ConfigFile))
+			{
+				if (ConfigSection.Key.Equals(JoystickConfigurationSection, ESearchCase::IgnoreCase))
+				{
+					for (const TTuple<FName, FConfigValue>& Pair : ConfigSection.Value)
+					{
+						const FName Key = Pair.Key;
+						const FConfigValue& Value = Pair.Value;
+						FString ValueString = Value.GetSavedValue().TrimStartAndEnd();
+
+						if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceConfiguration, ProductGuid))
+						{
+							DeviceConfiguration.ProductGuid = FGuid(Value.GetValue());
+						}
+						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceConfiguration, OverrideDeviceName))
+						{
+							DeviceConfiguration.OverrideDeviceName = ValueString.Equals(TEXT("true"), ESearchCase::IgnoreCase) || ValueString.Equals(TEXT("1"), ESearchCase::IgnoreCase);
+						}
+						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceConfiguration, DeviceName))
+						{
+							DeviceConfiguration.DeviceName = ValueString;
+						}
+					}
+				}
+				else if (ConfigSection.Key.StartsWith(AxisPropertiesSection))
+				{
+					FJoystickInputDeviceAxisProperties AxisProperties;
+					const FString& AxisIndexString = ConfigSection.Key.Replace(*AxisPropertiesSection, TEXT(""), ESearchCase::IgnoreCase).TrimStartAndEnd();
+					AxisProperties.AxisIndex = FCString::Atoi(*AxisIndexString);
+
+					for (const TTuple<FName, FConfigValue>& Pair : ConfigSection.Value)
+					{
+						const FName Key = Pair.Key;
+						const FConfigValue& Value = Pair.Value;
+						FString ValueString = Value.GetSavedValue().TrimStartAndEnd();
+
+						if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceAxisProperties, RemappingEnabled))
+						{
+							AxisProperties.RemappingEnabled = ValueString.Equals(TEXT("true"), ESearchCase::IgnoreCase) || ValueString.Equals(TEXT("1"), ESearchCase::IgnoreCase);
+						}
+						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceAxisProperties, InputOffset))
+						{
+							AxisProperties.InputOffset = FCString::Atof(*ValueString);
+						}
+						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceAxisProperties, InvertInput))
+						{
+							AxisProperties.InvertInput = ValueString.Equals(TEXT("true"), ESearchCase::IgnoreCase) || ValueString.Equals(TEXT("1"), ESearchCase::IgnoreCase);
+						}
+						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceAxisProperties, InputRangeMin))
+						{
+							AxisProperties.InputRangeMin = FCString::Atof(*ValueString);
+						}
+						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceAxisProperties, InputRangeMax))
+						{
+							AxisProperties.InputRangeMax = FCString::Atof(*ValueString);
+						}
+						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceAxisProperties, OutputRangeMin))
+						{
+							AxisProperties.OutputRangeMin = FCString::Atof(*ValueString);
+						}
+						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceAxisProperties, OutputRangeMax))
+						{
+							AxisProperties.OutputRangeMax = FCString::Atof(*ValueString);
+						}
+						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceAxisProperties, InvertOutput))
+						{
+							AxisProperties.InvertOutput = ValueString.Equals(TEXT("true"), ESearchCase::IgnoreCase) || ValueString.Equals(TEXT("1"), ESearchCase::IgnoreCase);
+						}
+					}
+
+					DeviceConfiguration.AxisProperties.Add(AxisProperties);
+				}
+			}
+
+			JoystickInputSettings->AddDeviceConfiguration(DeviceConfiguration);
+		}
 	}
 }
 

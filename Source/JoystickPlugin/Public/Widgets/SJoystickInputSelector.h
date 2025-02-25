@@ -35,8 +35,10 @@ public:
 			  , _NoKeySpecifiedText(NSLOCTEXT("InputKeySelector", "DefaultEmptyText", "Empty"))
 			  , _AllowAxisKeys(true)
 			  , _AllowButtonKeys(true)
+			  , _AllowGamepadKeys(true)
+			  , _AllowNonGamepadKeys(true)
+			  , _AllowJoystickKeys(true)
 			  , _AllowModifierKeys(true)
-			  , _AllowGamepadKeys(false)
 			  , _SetMinRangeOffset(0.0f)
 			  , _SetMaxRangeOffset(0.0f)
 			  , _SetAxisSelectionTimeout(2.5f)
@@ -69,12 +71,12 @@ public:
 
 		SLATE_ARGUMENT(bool, AllowAxisKeys)
 		SLATE_ARGUMENT(bool, AllowButtonKeys)
+		SLATE_ARGUMENT(bool, AllowGamepadKeys)
+		SLATE_ARGUMENT(bool, AllowNonGamepadKeys)
+		SLATE_ARGUMENT(bool, AllowJoystickKeys)
 
 		/** When true modifier keys are captured in the selected key chord, otherwise they are ignored. */
 		SLATE_ARGUMENT(bool, AllowModifierKeys)
-
-		/** When true gamepad keys are captured in the selected key chord, otherwise they are ignored. */
-		SLATE_ARGUMENT(bool, AllowGamepadKeys)
 
 		SLATE_ARGUMENT(float, SetMinRangeOffset)
 		SLATE_ARGUMENT(float, SetMaxRangeOffset)
@@ -132,12 +134,12 @@ public:
 
 	void SetAllowAxisKeys(const bool bInAllowAxisKeys) { bAllowAxisKeys = bInAllowAxisKeys; }
 	void SetAllowButtonKeys(const bool bInAllowButtonKeys) { bAllowButtonKeys = bInAllowButtonKeys; }
+	void SetAllowGamepadKeys(const bool bInAllowGamepadKeys) { bAllowGamepadKeys = bInAllowGamepadKeys; }
+	void SetAllowNonGamepadKeys(bool bInAllowNonGamepadKeys) { bAllowNonGamepadKeys = bInAllowNonGamepadKeys; }
+	void SetAllowJoystickKeys(bool bInAllowJoystickKeys) { bAllowJoystickKeys = bInAllowJoystickKeys; }
 
 	/** When true modifier keys are captured in the selected key chord, otherwise they are ignored. */
 	void SetAllowModifierKeys(const bool bInAllowModifierKeys) { bAllowModifierKeys = bInAllowModifierKeys; }
-
-	/** When true gamepad keys are captured in the selected key chord, otherwise they are ignored. */
-	void SetAllowGamepadKeys(const bool bInAllowGamepadKeys) { bAllowGamepadKeys = bInAllowGamepadKeys; }
 
 	/** Sets the escape keys to check against. */
 	void SetEscapeKeys(TArray<FKey> InEscapeKeys) { EscapeKeys = MoveTemp(InEscapeKeys); }
@@ -203,12 +205,12 @@ private:
 
 	bool bAllowAxisKeys;
 	bool bAllowButtonKeys;
+	bool bAllowGamepadKeys;
+	bool bAllowNonGamepadKeys;
+	bool bAllowJoystickKeys;
 
 	/** When true modifier keys are recorded on the selected key chord, otherwise they are ignored. */
 	bool bAllowModifierKeys;
-
-	/** When true gamepad keys are recorded on the selected key chord, otherwise they are ignored. */
-	bool bAllowGamepadKeys;
 
 	/** When true, pressing escape will cancel the key selection, when false, pressing escape will select the escape key. */
 	bool bEscapeCancelsSelection;
