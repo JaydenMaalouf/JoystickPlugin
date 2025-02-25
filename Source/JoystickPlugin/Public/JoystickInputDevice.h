@@ -4,10 +4,11 @@
 #pragma once
 
 #include "IInputDevice.h"
+#include "InputCoreTypes.h"
 #include "Data/JoystickDeviceState.h"
+#include "Data/JoystickInstanceId.h"
 
 enum class EHatDirection : uint8;
-struct FJoystickInstanceId;
 struct FDeviceInfoSDL;
 
 class JOYSTICKPLUGIN_API FJoystickInputDevice final : public IInputDevice

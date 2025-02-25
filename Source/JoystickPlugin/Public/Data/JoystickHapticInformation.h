@@ -6,7 +6,7 @@
 #include "JoystickHapticInformation.generated.h"
 
 USTRUCT(BlueprintType)
-struct JOYSTICKPLUGIN_API FJoystickHapticInformation
+struct FJoystickHapticInformation
 {
 	GENERATED_BODY()
 

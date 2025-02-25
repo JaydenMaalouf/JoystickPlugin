@@ -2,10 +2,11 @@
 // Copyright Jayden Maalouf. All Rights Reserved.
 
 #include "JoystickHapticDeviceManager.h"
-#include "JoystickLogManager.h"
-#include "Engine/Engine.h"
-#include "JoystickSubsystem.h"
+
 #include "Data/DeviceInfoSDL.h"
+#include "Engine/Engine.h"
+#include "JoystickLogManager.h"
+#include "JoystickSubsystem.h"
 #include "Runtime/Launch/Resources/Version.h"
 
 THIRD_PARTY_INCLUDES_START

@@ -14,13 +14,9 @@
 UJoystickInputSettings::UJoystickInputSettings() :
 	UseDeviceName(false),
 	IncludeDeviceIndex(true),
-	IgnoreGameControllers(false)
+	IgnoreGameControllers(false),
+	EnableLogs(true)
 {
-#if WITH_EDITOR
-	EnableLogs = true;
-#else
-	EnableLogs = false;
-#endif
 	MapHatAxisToKeys = static_cast<int32>(EHatDirection::Up | EHatDirection::Down | EHatDirection::Left | EHatDirection::Right);
 }
 

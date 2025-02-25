@@ -13,7 +13,7 @@
 #include "JoystickInformation.generated.h"
 
 USTRUCT(BlueprintType)
-struct JOYSTICKPLUGIN_API FJoystickInformation
+struct FJoystickInformation
 {
 	GENERATED_BODY()
 

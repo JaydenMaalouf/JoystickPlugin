@@ -3,9 +3,14 @@
 
 #pragma once
 
+#include "Misc/Build.h"
 #include "JoystickInputSettings.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogJoystickPlugin, Log, All);
+#if UE_BUILD_SHIPPING
+	DECLARE_LOG_CATEGORY_EXTERN(LogJoystickPlugin, Display, All);
+#else
+	DECLARE_LOG_CATEGORY_EXTERN(LogJoystickPlugin, Log, All);
+#endif
 
 class JOYSTICKPLUGIN_API FJoystickLogManager
 {
