@@ -10,6 +10,9 @@
 
 #define LOCTEXT_NAMESPACE "JoystickPlugin"
 
+FString FJoystickPluginModule::PluginName = "JoystickPlugin";
+FString FJoystickPluginModule::PluginDirectory = "JoystickPlugin";
+
 TSharedPtr<class IInputDevice> FJoystickPluginModule::CreateInputDevice(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler)
 {
 	if (!IsValid(GEngine))
@@ -28,9 +31,9 @@ TSharedPtr<class IInputDevice> FJoystickPluginModule::CreateInputDevice(const TS
 
 void FJoystickPluginModule::StartupModule()
 {
+	PluginDirectory = IPluginManager::Get().FindPlugin(PluginName)->GetBaseDir();
 #if PLATFORM_WINDOWS
-	const FString BaseDir = IPluginManager::Get().FindPlugin("JoystickPlugin")->GetBaseDir();
-	const FString SDLDir = FPaths::Combine(*BaseDir, TEXT("ThirdParty"), TEXT("SDL2"), TEXT("/Win64/"));
+	const FString SDLDir = FPaths::Combine(*PluginDirectory, TEXT("ThirdParty"), TEXT("SDL2"), TEXT("/Win64/"));
 
 	FPlatformProcess::PushDllDirectory(*SDLDir);
 	SdlDllHandle = FPlatformProcess::GetDllHandle(*(SDLDir + "SDL2.dll"));

@@ -17,6 +17,9 @@ public:
 
 	TSharedPtr<FJoystickInputDevice> GetJoystickInputDevice() const { return JoystickInputDevice; }
 
+	static FString PluginName;
+	static FString PluginDirectory;
+
 private:
 	void* SdlDllHandle = nullptr;
 	TSharedPtr<FJoystickInputDevice> JoystickInputDevice;

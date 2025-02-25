@@ -78,7 +78,7 @@ public:
 private:
 	bool CanLog() const
 	{
-		const UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
+		const UJoystickInputSettings* JoystickInputSettings = GetDefault<UJoystickInputSettings>();
 		if (!IsValid(JoystickInputSettings))
 		{
 			return false;

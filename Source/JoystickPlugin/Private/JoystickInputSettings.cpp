@@ -2,14 +2,20 @@
 // Copyright Jayden Maalouf. All Rights Reserved.
 
 #include "JoystickInputSettings.h"
+
+#include "Data/JoystickInformation.h"
+#include "Data/JoystickInstanceId.h"
+#include "Data/Settings/JoystickInputDeviceAxisProperties.h"
+#include "Data/Settings/JoystickInputDeviceConfiguration.h"
+#include "Engine/Engine.h"
 #include "JoystickInputDevice.h"
 #include "JoystickSubsystem.h"
-#include "Engine/Engine.h"
 
-UJoystickInputSettings::UJoystickInputSettings()
+UJoystickInputSettings::UJoystickInputSettings() :
+	UseDeviceName(false),
+	IncludeDeviceIndex(true),
+	IgnoreGameControllers(false)
 {
-	UseDeviceName = false;
-	IgnoreGameControllers = false;
 #if WITH_EDITOR
 	EnableLogs = true;
 #else
@@ -20,23 +26,12 @@ UJoystickInputSettings::UJoystickInputSettings()
 
 void UJoystickInputSettings::DeviceAdded(const FJoystickInformation& JoystickInfo)
 {
-	if (ConnectedDevices.ContainsByPredicate([&](const FJoystickInformation& Device)
-	{
-		return Device.InstanceId == JoystickInfo.InstanceId;
-	}))
-	{
-		return;
-	}
-
-	ConnectedDevices.Add(JoystickInfo);
+	ConnectedDevices.Add(JoystickInfo.InstanceId, JoystickInfo);
 }
 
 void UJoystickInputSettings::DeviceRemoved(const FJoystickInstanceId& InstanceId)
 {
-	ConnectedDevices.RemoveAll([&](const FJoystickInformation& Device)
-	{
-		return Device.InstanceId == InstanceId;
-	});
+	ConnectedDevices.Remove(InstanceId);
 }
 
 void UJoystickInputSettings::ResetDevices()
@@ -156,3 +151,18 @@ void UJoystickInputSettings::PostEditChangeChainProperty(FPropertyChangedChainEv
 	InputDevice->UpdateAxisProperties();
 }
 #endif
+
+void UJoystickInputSettings::AddDeviceConfiguration(const FJoystickInputDeviceConfiguration& InDeviceConfiguration)
+{
+	const bool ContainsDeviceConfiguration = DeviceConfigurations.ContainsByPredicate([&](const FJoystickInputDeviceConfiguration& DeviceConfiguration)
+	{
+		return DeviceConfiguration.ProductGuid == InDeviceConfiguration.ProductGuid;
+	});
+
+	if (ContainsDeviceConfiguration)
+	{
+		return;
+	}
+
+	DeviceConfigurations.Add(InDeviceConfiguration);
+}

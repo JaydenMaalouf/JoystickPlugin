@@ -1,4 +1,3 @@
-using System.IO;
 using UnrealBuildTool;
 
 public class JoystickPlugin : ModuleRules

@@ -20,4 +20,3 @@ enum class EHatDirection : uint8
 };
 
 ENUM_CLASS_FLAGS(EHatDirection);
-ENUM_RANGE_BY_FIRST_AND_LAST(EHatDirection, EHatDirection::Up, EHatDirection::Left_Up);
