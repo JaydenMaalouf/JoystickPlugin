@@ -13,6 +13,8 @@
 #include "JoystickInputSettings.h"
 #include "JoystickLogManager.h"
 #include "JoystickPluginModule.h"
+#include "Misc/ConfigCacheIni.h"
+#include "Misc/Paths.h"
 #include "Runtime/Launch/Resources/Version.h"
 
 THIRD_PARTY_INCLUDES_START
@@ -754,7 +756,8 @@ void UJoystickSubsystem::LoadJoystickProfiles()
 	}
 
 	const FString ProfilesDirectory = FPaths::Combine(FJoystickPluginModule::PluginDirectory, TEXT("Profiles"));
-
+	FJoystickLogManager::Get()->LogDebug(TEXT("Enumerating profiles in %s"), *ProfilesDirectory);
+	
 	IFileManager& FileManager = IFileManager::Get();
 	if (FileManager.DirectoryExists(*ProfilesDirectory))
 	{
@@ -769,6 +772,9 @@ void UJoystickSubsystem::LoadJoystickProfiles()
 				continue;
 			}
 
+			const FString ProfileName = FileName.Replace(TEXT(".ini"), TEXT(""));
+			FJoystickLogManager::Get()->LogDebug(TEXT("Loading Joystick profile %s"), *ProfileName);
+			
 			FConfigFile ConfigFile;
 			ConfigFile.Read(*FilePath);
 
@@ -848,6 +854,7 @@ void UJoystickSubsystem::LoadJoystickProfiles()
 			}
 
 			JoystickInputSettings->AddDeviceConfiguration(DeviceConfiguration);
+			FJoystickLogManager::Get()->LogInformation(TEXT("Added Joystick %s configuration from profile %s"), *DeviceConfiguration.ProductGuid.ToString(), *ProfileName);
 		}
 	}
 }

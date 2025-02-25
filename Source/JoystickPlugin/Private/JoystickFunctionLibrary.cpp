@@ -2,6 +2,8 @@
 // Copyright Jayden Maalouf. All Rights Reserved.
 
 #include "JoystickFunctionLibrary.h"
+
+#include "Engine/Engine.h"
 #include "JoystickInputDevice.h"
 #include "JoystickSubsystem.h"
 

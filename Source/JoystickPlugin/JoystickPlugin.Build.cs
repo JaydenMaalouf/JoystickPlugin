@@ -1,3 +1,4 @@
+using System.IO;
 using UnrealBuildTool;
 
 public class JoystickPlugin : ModuleRules
@@ -19,8 +20,7 @@ public class JoystickPlugin : ModuleRules
 				"Projects"
 			});
 
-		var Sdl2IncludePath =
-			Path.Combine(EngineDirectory, "Source", "ThirdParty", "SDL2", "SDL-gui-backend", "include");
+		var Sdl2IncludePath = Path.Combine(EngineDirectory, "Source", "ThirdParty", "SDL2", "SDL-gui-backend", "include");
 
 		PublicIncludePaths.Add(Sdl2IncludePath);
 
@@ -38,5 +38,8 @@ public class JoystickPlugin : ModuleRules
 		{
 			//SDL should be loaded as part of the engine
 		}
+		
+		var ProfilesDirectory = Path.Combine(PluginDirectory, "Profiles", "*.ini");
+		RuntimeDependencies.Add(ProfilesDirectory);
 	}
 }

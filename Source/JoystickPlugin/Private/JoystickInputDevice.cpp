@@ -8,9 +8,11 @@
 #include "Data/Input/BallData.h"
 #include "Data/Input/HatData.h"
 #include "Data/JoystickDeviceState.h"
+#include "Data/JoystickInstanceId.h"
 #include "Data/Settings/JoystickInputDeviceAxisProperties.h"
 #include "Data/Settings/JoystickInputDeviceConfiguration.h"
 #include "Data/Settings/JoystickInputKeyConfiguration.h"
+#include "Engine/Engine.h"
 #include "Framework/Application/NavigationConfig.h"
 #include "Framework/Application/SlateApplication.h"
 #include "GameFramework/InputSettings.h"
@@ -19,9 +21,7 @@
 #include "JoystickHapticDeviceManager.h"
 #include "JoystickLogManager.h"
 #include "JoystickSubsystem.h"
-#include "Misc/ConfigCacheIni.h"
 #include "Runtime/Launch/Resources/Version.h"
-
 
 const static FName JoystickCategory = "Joystick";
 

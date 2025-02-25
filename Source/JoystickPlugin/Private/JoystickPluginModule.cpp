@@ -2,11 +2,12 @@
 // Copyright Jayden Maalouf. All Rights Reserved.
 
 #include "JoystickPluginModule.h"
-#include "Misc/Paths.h"
+
+#include "Engine/Engine.h"
+#include "Interfaces/IPluginManager.h"
 #include "JoystickInputDevice.h"
 #include "JoystickSubsystem.h"
-#include "Interfaces/IPluginManager.h"
-#include "Engine/Engine.h"
+#include "Misc/Paths.h"
 
 #define LOCTEXT_NAMESPACE "JoystickPlugin"
 
