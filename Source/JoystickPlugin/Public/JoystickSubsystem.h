@@ -29,7 +29,6 @@ public:
 	// Begin USubsystem
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
-	void InitialiseExistingJoysticks();
 	// End USubsystem
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Joystick Subsystem|Functions",
@@ -115,6 +114,7 @@ private:
 	bool RemoveDevice(const FJoystickInstanceId& InstanceId);
 	bool RemoveDeviceByIndex(const int DeviceIndex);
 	bool FindExistingDeviceIndex(const FDeviceInfoSDL& Device, int& ExistingDeviceIndex);
+	void InitialiseExistingJoysticks();
 
 	void JoystickPluggedIn(const FDeviceInfoSDL& Device) const;
 	void JoystickUnplugged(const FJoystickInstanceId& InstanceId) const;

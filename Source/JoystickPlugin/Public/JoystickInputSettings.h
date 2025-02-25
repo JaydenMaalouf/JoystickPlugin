@@ -18,19 +18,6 @@ class JOYSTICKPLUGIN_API UJoystickInputSettings final : public UObject
 	GENERATED_BODY()
 
 public:
-	UJoystickInputSettings();
-#if WITH_EDITOR
-	virtual void PostEditChangeChainProperty(FPropertyChangedChainEvent& PropertyChangedEvent) override;
-#endif
-
-	void AddProfileConfiguration(const FJoystickInputDeviceConfiguration& InDeviceConfiguration);
-	void DeviceAdded(const FJoystickInformation& JoystickInfo);
-	void DeviceRemoved(const FJoystickInstanceId& InstanceId);
-	void ResetDevices();
-
-	const FJoystickInputDeviceConfiguration* GetInputDeviceConfiguration(const FGuid& ProductId) const;
-	const FJoystickInputDeviceConfiguration* GetInputDeviceConfigurationByKey(const FKey& Key) const;
-	const FJoystickInputDeviceAxisProperties* GetAxisPropertiesByKey(const FKey& AxisKey) const;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Information")
 	TArray<FJoystickInformation> ConnectedDevices;
@@ -59,7 +46,26 @@ public:
 
 	UPROPERTY(config, EditAnywhere, Category = JoystickSettings)
 	TMap<FKey, FJoystickInputKeyConfiguration> KeyConfigurations;
+	
+	UJoystickInputSettings();
+
+	void AddDeviceConfiguration(const FJoystickInputDeviceConfiguration& InDeviceConfiguration);
+	void AddProfileConfiguration(const FJoystickInputDeviceConfiguration& InDeviceConfiguration);
+	void DeviceAdded(const FJoystickInformation& JoystickInfo);
+	void DeviceRemoved(const FJoystickInstanceId& InstanceId);
+	void ResetDevices();
 
 	bool GetIgnoreGameControllers() const;
 	bool SetIgnoreGameControllers(const bool NewIgnoreGameControllers);
+
+	const FJoystickInputDeviceConfiguration* GetInputDeviceConfiguration(const FGuid& ProductId) const;
+	const FJoystickInputDeviceConfiguration* GetInputDeviceConfigurationByKey(const FKey& Key) const;
+	const FJoystickInputDeviceAxisProperties* GetAxisPropertiesByKey(const FKey& AxisKey) const;
+	
+#if WITH_EDITOR
+	virtual void PostEditChangeChainProperty(FPropertyChangedChainEvent& PropertyChangedEvent) override;
+#endif
+
+private:
+	bool ContainsConfiguration(const TArray<FJoystickInputDeviceConfiguration>& ConfigurationArray, const FJoystickInputDeviceConfiguration& InDeviceConfiguration) const;
 };

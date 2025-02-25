@@ -40,15 +40,7 @@ void FJoystickPluginSettingsDetails::CustomizeDetails(IDetailLayoutBuilder& Deta
 		{
 			for (const FJoystickInformation& ConnectedDevice : Settings->ConnectedDevices)
 			{
-				if (Settings->DeviceConfigurations.FindByPredicate([ConnectedDevice](const FJoystickInputDeviceConfiguration& DeviceConfiguration)
-				{
-					return DeviceConfiguration.ProductGuid == ConnectedDevice.ProductGuid;
-				}))
-				{
-					continue;
-				}
-
-				Settings->DeviceConfigurations.Add(FJoystickInputDeviceConfiguration(ConnectedDevice.ProductGuid));
+				Settings->AddDeviceConfiguration(FJoystickInputDeviceConfiguration(ConnectedDevice.ProductGuid));
 			}
 
 			return (FReply::Handled());

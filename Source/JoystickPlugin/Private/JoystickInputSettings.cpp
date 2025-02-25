@@ -161,17 +161,30 @@ void UJoystickInputSettings::PostEditChangeChainProperty(FPropertyChangedChainEv
 }
 #endif
 
+void UJoystickInputSettings::AddDeviceConfiguration(const FJoystickInputDeviceConfiguration& InDeviceConfiguration)
+{
+	if (ContainsConfiguration(DeviceConfigurations, InDeviceConfiguration))
+	{
+		return;
+	}
+
+	DeviceConfigurations.Add(InDeviceConfiguration);
+}
+
 void UJoystickInputSettings::AddProfileConfiguration(const FJoystickInputDeviceConfiguration& InDeviceConfiguration)
 {
-	const bool ContainsDeviceConfiguration = ProfileConfigurations.ContainsByPredicate([InDeviceConfiguration](const FJoystickInputDeviceConfiguration& DeviceConfiguration)
-	{
-		return DeviceConfiguration.ProductGuid == InDeviceConfiguration.ProductGuid;
-	});
-
-	if (ContainsDeviceConfiguration)
+	if (ContainsConfiguration(ProfileConfigurations, InDeviceConfiguration))
 	{
 		return;
 	}
 
 	ProfileConfigurations.Add(InDeviceConfiguration);
+}
+
+bool UJoystickInputSettings::ContainsConfiguration(const TArray<FJoystickInputDeviceConfiguration>& ConfigurationArray, const FJoystickInputDeviceConfiguration& InDeviceConfiguration) const
+{
+	return ConfigurationArray.ContainsByPredicate([InDeviceConfiguration](const FJoystickInputDeviceConfiguration& DeviceConfiguration)
+	{
+		return DeviceConfiguration.ProductGuid == InDeviceConfiguration.ProductGuid;
+	});
 }
