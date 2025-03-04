@@ -38,22 +38,14 @@ void UJoystickInputSettings::ResetDevices()
 	ConnectedDevices.Empty();
 }
 
-const FJoystickInputDeviceConfiguration* UJoystickInputSettings::GetInputDeviceConfiguration(const FGuid& ProductId) const
+const FJoystickInputDeviceConfiguration* UJoystickInputSettings::GetInputDeviceConfiguration(const FGuid& ProductGuid) const
 {
-	const FJoystickInputDeviceConfiguration* DeviceConfiguration = DeviceConfigurations.FindByPredicate([ProductId](const FJoystickInputDeviceConfiguration& InputDeviceConfiguration)
-	{
-		return (!InputDeviceConfiguration.ProductGuid.IsValid() || ProductId == InputDeviceConfiguration.ProductGuid);
-	});
-	
-	if (DeviceConfiguration)
+	if (const FJoystickInputDeviceConfiguration* DeviceConfiguration = FindConfiguration(DeviceConfigurations, ProductGuid, true))
 	{
 		return DeviceConfiguration;
 	}
 
-	return ProfileConfigurations.FindByPredicate([ProductId](const FJoystickInputDeviceConfiguration& PredicateDeviceConfig)
-	{
-		return (!PredicateDeviceConfig.ProductGuid.IsValid() || ProductId == PredicateDeviceConfig.ProductGuid);
-	});
+	return FindConfiguration(ProfileConfigurations, ProductGuid, true);
 }
 
 bool UJoystickInputSettings::GetIgnoreGameControllers() const
@@ -163,7 +155,7 @@ void UJoystickInputSettings::PostEditChangeChainProperty(FPropertyChangedChainEv
 
 void UJoystickInputSettings::AddDeviceConfiguration(const FJoystickInputDeviceConfiguration& InDeviceConfiguration)
 {
-	if (ContainsConfiguration(DeviceConfigurations, InDeviceConfiguration))
+	if (FindConfiguration(DeviceConfigurations, InDeviceConfiguration.ProductGuid))
 	{
 		return;
 	}
@@ -173,7 +165,7 @@ void UJoystickInputSettings::AddDeviceConfiguration(const FJoystickInputDeviceCo
 
 void UJoystickInputSettings::AddProfileConfiguration(const FJoystickInputDeviceConfiguration& InDeviceConfiguration)
 {
-	if (ContainsConfiguration(ProfileConfigurations, InDeviceConfiguration))
+	if (FindConfiguration(ProfileConfigurations, InDeviceConfiguration.ProductGuid))
 	{
 		return;
 	}
@@ -181,10 +173,10 @@ void UJoystickInputSettings::AddProfileConfiguration(const FJoystickInputDeviceC
 	ProfileConfigurations.Add(InDeviceConfiguration);
 }
 
-bool UJoystickInputSettings::ContainsConfiguration(const TArray<FJoystickInputDeviceConfiguration>& ConfigurationArray, const FJoystickInputDeviceConfiguration& InDeviceConfiguration) const
+const FJoystickInputDeviceConfiguration* UJoystickInputSettings::FindConfiguration(const TArray<FJoystickInputDeviceConfiguration>& ConfigurationArray, const FGuid& ProductGuid, const bool IncludeEmptyGuids) const
 {
-	return ConfigurationArray.ContainsByPredicate([InDeviceConfiguration](const FJoystickInputDeviceConfiguration& DeviceConfiguration)
+	return ConfigurationArray.FindByPredicate([ProductGuid, IncludeEmptyGuids](const FJoystickInputDeviceConfiguration& PredicateDeviceConfig)
 	{
-		return DeviceConfiguration.ProductGuid == InDeviceConfiguration.ProductGuid;
+		return ((IncludeEmptyGuids && !PredicateDeviceConfig.ProductGuid.IsValid()) || ProductGuid == PredicateDeviceConfig.ProductGuid);
 	});
 }
