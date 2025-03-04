@@ -58,7 +58,7 @@ public:
 	bool GetIgnoreGameControllers() const;
 	bool SetIgnoreGameControllers(const bool NewIgnoreGameControllers);
 
-	const FJoystickInputDeviceConfiguration* GetInputDeviceConfiguration(const FGuid& ProductId) const;
+	const FJoystickInputDeviceConfiguration* GetInputDeviceConfiguration(const FGuid& ProductGuid) const;
 	const FJoystickInputDeviceConfiguration* GetInputDeviceConfigurationByKey(const FKey& Key) const;
 	const FJoystickInputDeviceAxisProperties* GetAxisPropertiesByKey(const FKey& AxisKey) const;
 	
@@ -67,5 +67,5 @@ public:
 #endif
 
 private:
-	bool ContainsConfiguration(const TArray<FJoystickInputDeviceConfiguration>& ConfigurationArray, const FJoystickInputDeviceConfiguration& InDeviceConfiguration) const;
+	const FJoystickInputDeviceConfiguration* FindConfiguration(const TArray<FJoystickInputDeviceConfiguration>& ConfigurationArray, const FGuid& ProductGuid, bool IncludeEmptyGuids = false) const;
 };
