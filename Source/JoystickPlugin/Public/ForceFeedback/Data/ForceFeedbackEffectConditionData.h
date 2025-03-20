@@ -46,8 +46,8 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectConditionData
 	FVector LeftCoefficient;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere,
-		meta = (ShortToolTip = "Max Positive Magnitude", ToolTip = "The maximum magnitude of the force feedback as the input moves away from the center point in the positive direction along the specified axis. Range is from 0 to 1.0.", UIMin="0"
-			, UIMax="1", ClampMin="0", ClampMax="1"),
+		meta = (ShortToolTip = "Max Positive Magnitude", ToolTip = "The maximum magnitude of the force feedback as the input moves away from the center point in the positive direction along the specified axis. Range is from 0 to 1.0.",
+			UIMin="0", UIMax="1", ClampMin="0", ClampMax="1"),
 		Category = "Force Feedback|Condition|Data")
 	FVector LeftSat;
 
@@ -59,8 +59,8 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectConditionData
 	FVector RightCoefficient;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere,
-		meta = (ShortToolTip = "Max Negative Magnitude", ToolTip = "The maximum magnitude of the force feedback as the input moves away from the center point in the negative direction along the specified axis. Range is from 0 to 1.0.", UIMin="0"
-			, UIMax="1", ClampMin="0", ClampMax="1"),
+		meta = (ShortToolTip = "Max Negative Magnitude", ToolTip = "The maximum magnitude of the force feedback as the input moves away from the center point in the negative direction along the specified axis. Range is from 0 to 1.0.",
+			UIMin="0", UIMax="1", ClampMin="0", ClampMax="1"),
 		Category = "Force Feedback|Condition|Data")
 	FVector RightSat;
 

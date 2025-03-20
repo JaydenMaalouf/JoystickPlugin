@@ -38,6 +38,7 @@ Thank you to the following for the working basis:
 Extended thanks to the following for contributing to the plugin:
 
 - [MalikuMane](https://github.com/MalikuMane)
+- [gotleg](https://github.com/gotleg)
 
 Also special thanks to the following for assisting in finding bugs:
 

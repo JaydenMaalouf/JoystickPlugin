@@ -5,6 +5,7 @@
 
 #include "Tickable.h"
 #include "Data/JoystickInstanceId.h"
+#include "ForceFeedback/Data/Configuration/ForceFeedbackEffectConfiguration.h"
 
 THIRD_PARTY_INCLUDES_START
 #include "SDL_haptic.h"
@@ -30,13 +31,14 @@ class JOYSTICKPLUGIN_API UForceFeedbackEffectBase : public UObject, public FTick
 public:
 	UForceFeedbackEffectBase(const FObjectInitializer& ObjectInitializer);
 
+	virtual void PostInitProperties() override;
 	virtual void BeginDestroy() override;
 
 	// Begin FTickableGameObject Interface.
 	virtual void Tick(float DeltaTime) override;
-	virtual bool IsTickable() const override { return IsInitialised; }
-	virtual bool IsTickableInEditor() const override { return false; }
-	virtual bool IsTickableWhenPaused() const override { return false; }
+	virtual bool IsTickable() const override { return Tickable; }
+	virtual bool IsTickableInEditor() const override { return TickableInEditor; }
+	virtual bool IsTickableWhenPaused() const override { return TickableWhenPaused; }
 	virtual TStatId GetStatId() const override { return TStatId(); }
 	// End FTickableGameObject Interface.
 
@@ -79,6 +81,21 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Functions")
 	void SetInstanceId(const FJoystickInstanceId& NewInstanceId);
 
+	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Functions")
+	const FJoystickInstanceId& GetInstanceId() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Functions")
+	void SetTickable(const bool NewTickable);
+
+	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Functions")
+	void SetTickableInEditor(const bool NewTickableInEditor);
+
+	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Functions")
+	void SetTickableWhenPaused(const bool NewTickableWhenPaused);
+
+	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Functions")
+	AActor* GetOwningActor() const;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback", meta = (ExposeOnSpawn = true))
 	FJoystickInstanceId InstanceId;
 
@@ -88,17 +105,23 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Force Feedback")
 	bool IsInitialised;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback", meta = (ExposeOnSpawn = true))
-	bool AutoStartOnInitialisation;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback", meta = (ExposeOnSpawn = true))
-	bool AutoInitialise;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback")
+	FForceFeedbackEffectConfiguration Configuration;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback", meta = (ExposeOnSpawn = true, EditCondition="!InfiniteIterations", UIMin="0", ClampMin="0"))
 	int Iterations;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback", meta = (ExposeOnSpawn = true))
 	bool InfiniteIterations;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Tick")
+	bool Tickable;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Tick")
+	bool TickableInEditor;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Tick")
+	bool TickableWhenPaused;
 
 	UPROPERTY(BlueprintAssignable, meta = (DisplayName = "OnInitialisedEffect"), Category = "Force Feedback|Delegates")
 	FOnInitialisedEffect OnInitialisedEffectDelegate;
