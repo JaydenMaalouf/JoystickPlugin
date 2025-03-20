@@ -34,11 +34,11 @@ public:
 	UJoystickInputSelector(const FObjectInitializer& ObjectInitializer);
 
 	/** The button style used at runtime */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Appearance, meta = (DisplayName = "Style"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance", meta = (DisplayName = "Style"))
 	FButtonStyle WidgetStyle;
 
 	/** The button style used at runtime */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Appearance, meta = (DisplayName = "Text Style"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance", meta = (DisplayName = "Text Style"))
 	FTextBlockStyle TextStyle;
 
 	/** The currently selected key chord. */
@@ -49,18 +49,18 @@ public:
 	FSlateFontInfo Font_DEPRECATED;
 
 	/** The amount of blank space around the text used to display the currently selected key. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Appearance)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Appearance")
 	FMargin Margin;
 
 	UPROPERTY()
 	FLinearColor ColorAndOpacity_DEPRECATED;
 
 	/** Sets the text which is displayed while selecting keys. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Appearance)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Appearance")
 	FText KeySelectionText;
 
 	/** Sets the text to display when no key text is available or not selecting a key. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Appearance)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Appearance")
 	FText NoKeySpecifiedText;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Key Selection")
@@ -86,6 +86,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Key Selection")
 	float AxisSelectionTimeout;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Key Selection")
+	float DeadZone;
 
 	/** When true gamepad keys are allowed in the input chord representing the selected key, otherwise they are ignored. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Key Selection")
@@ -137,6 +140,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Widget")
 	void SetAxisSelectionTimeout(float InAxisSelectionTimeout);
+
+	UFUNCTION(BlueprintCallable, Category = "Widget")
+	void SetDeadZone(float InDeadZone);
 
 	/** Returns true if the widget is currently selecting a key, otherwise returns false. */
 	UFUNCTION(BlueprintCallable, Category = "Widget")

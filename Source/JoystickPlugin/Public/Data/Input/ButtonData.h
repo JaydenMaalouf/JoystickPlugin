@@ -32,9 +32,9 @@ struct JOYSTICKPLUGIN_API FButtonData
 		ButtonState = InValue;
 	}
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "JoystickInfo")
 	bool ButtonState;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = JoystickInfo)
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "JoystickInfo")
 	bool PreviousButtonState;
 };

@@ -3,6 +3,12 @@
 
 #include "JoystickLogManager.h"
 
+THIRD_PARTY_INCLUDES_START
+
+#include "SDL_error.h"
+
+THIRD_PARTY_INCLUDES_END
+
 DEFINE_LOG_CATEGORY(LogJoystickPlugin);
 
 static TSharedPtr<FJoystickLogManager> LogManager;
@@ -15,4 +21,15 @@ FJoystickLogManager* FJoystickLogManager::Get()
 	}
 
 	return LogManager.Get();
+}
+
+void FJoystickLogManager::LogSDLError(const FString& Message)
+{
+	if (!CanLog())
+	{
+		return;
+	}
+
+	const FString ErrorMessage = FString(SDL_GetError());
+	LogError(TEXT("%s: %s"), *Message, *ErrorMessage);
 }

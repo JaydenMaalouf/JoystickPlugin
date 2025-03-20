@@ -8,7 +8,8 @@
 UENUM(BlueprintType)
 enum class EForceFeedbackDirectionType : uint8
 {
-	Polar,
+	Polar = 0,
 	Cartesian,
-	Spherical
+	Spherical,
+	SteeringAxis
 };

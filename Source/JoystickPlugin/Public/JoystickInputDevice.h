@@ -47,14 +47,16 @@ public:
 private:
 	void InitialiseAxis(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName);
 	void InitialiseButtons(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName);
-	void InitialiseHats(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName);
+	void InitialiseHatsAxis(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName);
+	void InitialiseHatsButtons(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName);
 	void InitialiseBalls(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName);
 
 	TMap<FJoystickInstanceId, FJoystickDeviceState> JoystickDeviceState;
 
 	TMap<FJoystickInstanceId, TArray<FKey>> DeviceButtonKeys;
 	TMap<FJoystickInstanceId, TArray<FKey>> DeviceAxisKeys;
-	TMap<FJoystickInstanceId, TArray<FKey>> DeviceHatKeys[2];
+	TMap<FJoystickInstanceId, TArray<FKey>> DeviceHatAxisKeys[2];
+	TMap<FJoystickInstanceId, TArray<FKey>> DeviceHatButtonKeys;
 	TMap<FJoystickInstanceId, TArray<FKey>> DeviceBallKeys[2];
 	TMap<FJoystickInstanceId, TArray<FKey>> DeviceKeys;
 

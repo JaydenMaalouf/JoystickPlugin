@@ -13,12 +13,12 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceAxisProperties
 	FJoystickInputDeviceAxisProperties()
 		: AxisIndex(-1)
 		  , RemappingEnabled(true)
-		  , InputOffset(0.f)
+		  , InputOffset(0.0f)
 		  , InvertInput(false)
-		  , InputRangeMin(0.f)
-		  , InputRangeMax(1.f)
-		  , OutputRangeMin(0.f)
-		  , OutputRangeMax(1.f)
+		  , InputRangeMin(0.0f)
+		  , InputRangeMax(1.0f)
+		  , OutputRangeMin(0.0f)
+		  , OutputRangeMax(1.0f)
 		  , InvertOutput(false)
 	{
 	}
