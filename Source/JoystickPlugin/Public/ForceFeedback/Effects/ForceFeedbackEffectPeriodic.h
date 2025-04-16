@@ -19,4 +19,5 @@ public:
 
 protected:
 	virtual void UpdateEffectData() override;
+	virtual float GetEffectDuration() override;
 };

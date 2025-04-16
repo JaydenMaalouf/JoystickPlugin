@@ -39,5 +39,8 @@ public class JoystickPlugin : ModuleRules
 		{
 			//SDL should be loaded as part of the engine
 		}
+
+		var ProfilesDirectory = Path.Combine(PluginDirectory, "Profiles", "*.ini");
+		RuntimeDependencies.Add(ProfilesDirectory);
 	}
 }

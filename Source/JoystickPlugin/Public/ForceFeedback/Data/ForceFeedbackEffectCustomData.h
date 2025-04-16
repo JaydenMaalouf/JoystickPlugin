@@ -24,27 +24,27 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectCustomData
 	{
 	}
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Custom|Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Data")
 	FForceFeedbackEffectDirectionData DirectionData;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Custom|Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Data")
 	FForceFeedbackEffectDurationData DurationData;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Custom|Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Data")
 	FForceFeedbackEffectReplayData ReplayData;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Custom|Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Data")
 	FForceFeedbackEffectEnvelopeData EnvelopeData;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Custom|Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Data")
 	uint8 Channels;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (UIMin="0", UIMax="1", ClampMin="0", ClampMax="1"), Category = "Force Feedback|Custom|Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Data", meta = (UIMin="0", UIMax="1", ClampMin="0", ClampMax="1"))
 	float Period;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ClampMin = "0", ClampMax = "65535"), Category = "Force Feedback|Custom|Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Data", meta = (ClampMin = "0", ClampMax = "65535"))
 	int Samples;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ClampMin = "0", ClampMax = "65535"), Category = "Force Feedback|Custom|Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Data", meta = (ClampMin = "0", ClampMax = "65535"))
 	TArray<int> Data;
 };

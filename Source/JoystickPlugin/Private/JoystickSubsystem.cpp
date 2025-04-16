@@ -260,24 +260,24 @@ bool UJoystickSubsystem::SetJoystickSensorEnabled(const FJoystickInstanceId& Ins
 
 	switch (SensorType)
 	{
-		case EJoystickSensorType::Gyro:
+	case EJoystickSensorType::Gyro:
+		{
+			if (SDL_GameControllerSetSensorEnabled(DeviceInfo->SDLGameController, SDL_SENSOR_GYRO, Enabled ? SDL_TRUE : SDL_FALSE) == 0)
 			{
-				if (SDL_GameControllerSetSensorEnabled(DeviceInfo->SDLGameController, SDL_SENSOR_GYRO, Enabled ? SDL_TRUE : SDL_FALSE) == 0)
-				{
-					DeviceInfo->Gyro.Enabled = Enabled;
-					return true;
-				}
-				break;
+				DeviceInfo->Gyro.Enabled = Enabled;
+				return true;
 			}
-		case EJoystickSensorType::Accelerometer:
+			break;
+		}
+	case EJoystickSensorType::Accelerometer:
+		{
+			if (SDL_GameControllerSetSensorEnabled(DeviceInfo->SDLGameController, SDL_SENSOR_ACCEL, Enabled ? SDL_TRUE : SDL_FALSE) == 0)
 			{
-				if (SDL_GameControllerSetSensorEnabled(DeviceInfo->SDLGameController, SDL_SENSOR_ACCEL, Enabled ? SDL_TRUE : SDL_FALSE) == 0)
-				{
-					DeviceInfo->Accelerometer.Enabled = Enabled;
-					return true;
-				}
-				break;
+				DeviceInfo->Accelerometer.Enabled = Enabled;
+				return true;
 			}
+			break;
+		}
 	}
 
 	return false;
@@ -362,6 +362,7 @@ void UJoystickSubsystem::AddHapticDevice(FDeviceInfoSDL& Device) const
 	Device.Haptic.Custom = (QueryResult & SDL_HAPTIC_CUSTOM) != 0;
 	Device.Haptic.Gain = (QueryResult & SDL_HAPTIC_GAIN) != 0;
 	Device.Haptic.AutoCenter = (QueryResult & SDL_HAPTIC_AUTOCENTER) != 0;
+	Device.Haptic.Status = (QueryResult & SDL_HAPTIC_STATUS) != 0;
 
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tSDL_HAPTIC_CONSTANT support: %s"), Device.Haptic.Constant ? TEXT("true") : TEXT("false"));
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tSDL_HAPTIC_SINE support: %s"), Device.Haptic.Sine ? TEXT("true") : TEXT("false"));
@@ -376,6 +377,7 @@ void UJoystickSubsystem::AddHapticDevice(FDeviceInfoSDL& Device) const
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tSDL_HAPTIC_CUSTOM support: %s"), Device.Haptic.Custom ? TEXT("true") : TEXT("false"));
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tSDL_HAPTIC_GAIN support: %s"), Device.Haptic.Gain ? TEXT("true") : TEXT("false"));
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tSDL_HAPTIC_AUTOCENTER support: %s"), Device.Haptic.AutoCenter ? TEXT("true") : TEXT("false"));
+	FJoystickLogManager::Get()->LogDebug(TEXT("\tSDL_HAPTIC_STATUS support: %s"), Device.Haptic.Status ? TEXT("true") : TEXT("false"));
 }
 
 void UJoystickSubsystem::AddSensorDevice(FDeviceInfoSDL& Device) const
@@ -600,57 +602,58 @@ int UJoystickSubsystem::HandleSDLEvent(void* UserData, SDL_Event* Event)
 
 	switch (Event->type)
 	{
-		case SDL_JOYDEVICEADDED:
-			{
-				JoystickSubsystem.AddDevice(Event->jdevice.which);
-				break;
-			}
-		case SDL_JOYDEVICEREMOVED:
-			{
-				JoystickSubsystem.RemoveDevice(Event->jdevice.which);
-				break;
-			}
-		case SDL_JOYBUTTONDOWN:
-		case SDL_JOYBUTTONUP:
-			{
-				InputDevice->JoystickButton(Event->jbutton.which, Event->jbutton.button, Event->jbutton.state == SDL_PRESSED);
-				break;
-			}
-		case SDL_JOYAXISMOTION:
-			{
-				InputDevice->JoystickAxis(Event->jaxis.which, Event->jaxis.axis, Event->jaxis.value / (Event->jaxis.value < 0 ? 32768.0f : 32767.0f));
-				break;
-			}
-		case SDL_JOYHATMOTION:
-			{
-				InputDevice->JoystickHat(Event->jhat.which, Event->jhat.hat, UJoystickFunctionLibrary::HatValueToDirection(Event->jhat.value));
-				break;
-			}
-		case SDL_JOYBALLMOTION:
-			{
-				InputDevice->JoystickBall(Event->jball.which, Event->jball.ball, FVector2D(Event->jball.xrel, Event->jball.yrel));
-				break;
-			}
-		case SDL_CONTROLLERSENSORUPDATE:
-			{
-				switch (Event->csensor.sensor)
-				{
-					case SDL_SENSOR_GYRO:
-						{
-							InputDevice->JoystickGyro(Event->csensor.which, Event->csensor.timestamp, FVector(Event->csensor.data[0], Event->csensor.data[1], Event->csensor.data[2]));
-							break;
-						}
-					case SDL_SENSOR_ACCEL:
-						{
-							InputDevice->JoystickAccelerometer(Event->csensor.which, Event->csensor.timestamp, FVector(Event->csensor.data[0], Event->csensor.data[1], Event->csensor.data[2]));
-							break;
-						}
-					default: break;
-				}
-				break;
-			}
-		default:
+	case SDL_JOYDEVICEADDED:
+		{
+			JoystickSubsystem.AddDevice(Event->jdevice.which);
 			break;
+		}
+	case SDL_JOYDEVICEREMOVED:
+		{
+			JoystickSubsystem.RemoveDevice(Event->jdevice.which);
+			break;
+		}
+	case SDL_JOYBUTTONDOWN:
+	case SDL_JOYBUTTONUP:
+		{
+			InputDevice->JoystickButton(Event->jbutton.which, Event->jbutton.button, Event->jbutton.state == SDL_PRESSED);
+			break;
+		}
+	case SDL_JOYAXISMOTION:
+		{
+			InputDevice->JoystickAxis(Event->jaxis.which, Event->jaxis.axis, Event->jaxis.value / (Event->jaxis.value < 0 ? 32768.0f : 32767.0f));
+			break;
+		}
+	case SDL_JOYHATMOTION:
+		{
+			InputDevice->JoystickHat(Event->jhat.which, Event->jhat.hat, UJoystickFunctionLibrary::HatValueToDirection(Event->jhat.value));
+			break;
+		}
+	case SDL_JOYBALLMOTION:
+		{
+			InputDevice->JoystickBall(Event->jball.which, Event->jball.ball, FVector2D(Event->jball.xrel, Event->jball.yrel));
+			break;
+		}
+	case SDL_CONTROLLERSENSORUPDATE:
+		{
+			switch (Event->csensor.sensor)
+			{
+			case SDL_SENSOR_GYRO:
+				{
+					InputDevice->JoystickGyro(Event->csensor.which, Event->csensor.timestamp, FVector(Event->csensor.data[0], Event->csensor.data[1], Event->csensor.data[2]));
+					break;
+				}
+			case SDL_SENSOR_ACCEL:
+				{
+					InputDevice->JoystickAccelerometer(Event->csensor.which, Event->csensor.timestamp, FVector(Event->csensor.data[0], Event->csensor.data[1], Event->csensor.data[2]));
+					break;
+				}
+			default:
+				break;
+			}
+			break;
+		}
+	default:
+		break;
 	}
 
 	return 0;
@@ -734,6 +737,118 @@ void UJoystickSubsystem::JoystickUnplugged(const FJoystickInstanceId& InstanceId
 	if (JoystickUnpluggedDelegate.IsBound())
 	{
 		JoystickUnpluggedDelegate.Broadcast(InstanceId);
+	}
+}
+
+void UJoystickSubsystem::LoadJoystickProfiles()
+{
+	UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
+	if (!JoystickInputSettings)
+	{
+		return;
+	}
+
+	const FString ProfilesDirectory = FPaths::Combine(FJoystickPluginModule::PluginDirectory, TEXT("Profiles"));
+	FJoystickLogManager::Get()->LogDebug(TEXT("Enumerating profiles in %s"), *ProfilesDirectory);
+
+	IFileManager& FileManager = IFileManager::Get();
+	if (FileManager.DirectoryExists(*ProfilesDirectory))
+	{
+		TArray<FString> Files;
+		FileManager.FindFiles(Files, *ProfilesDirectory, TEXT("*.ini"));
+
+		for (const FString& FileName : Files)
+		{
+			const FString FilePath = FPaths::Combine(ProfilesDirectory, FileName);
+			if (!FileManager.FileExists(*FilePath))
+			{
+				continue;
+			}
+
+			const FString ProfileName = FileName.Replace(TEXT(".ini"), TEXT(""));
+			FJoystickLogManager::Get()->LogDebug(TEXT("Loading Joystick profile %s"), *ProfileName);
+
+			FConfigFile ConfigFile;
+			ConfigFile.Read(*FilePath);
+
+			FJoystickInputDeviceConfiguration DeviceConfiguration;
+			for (const TTuple<FString, FConfigSection>& ConfigSection : AsConst(ConfigFile))
+			{
+				if (ConfigSection.Key.Equals(JoystickConfigurationSection, ESearchCase::IgnoreCase))
+				{
+					for (const TTuple<FName, FConfigValue>& Pair : ConfigSection.Value)
+					{
+						const FName Key = Pair.Key;
+						const FConfigValue& Value = Pair.Value;
+						FString ValueString = Value.GetSavedValue().TrimStartAndEnd();
+
+						if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceConfiguration, ProductGuid))
+						{
+							DeviceConfiguration.ProductGuid = FGuid(Value.GetValue());
+						}
+						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceConfiguration, OverrideDeviceName))
+						{
+							DeviceConfiguration.OverrideDeviceName = ValueString.Equals(TEXT("true"), ESearchCase::IgnoreCase) || ValueString.Equals(TEXT("1"), ESearchCase::IgnoreCase);
+						}
+						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceConfiguration, DeviceName))
+						{
+							DeviceConfiguration.DeviceName = ValueString;
+						}
+					}
+				}
+				else if (ConfigSection.Key.StartsWith(AxisPropertiesSection))
+				{
+					FJoystickInputDeviceAxisProperties AxisProperties;
+					const FString& AxisIndexString = ConfigSection.Key.Replace(*AxisPropertiesSection, TEXT(""), ESearchCase::IgnoreCase).TrimStartAndEnd();
+					AxisProperties.AxisIndex = FCString::Atoi(*AxisIndexString);
+
+					for (const TTuple<FName, FConfigValue>& Pair : ConfigSection.Value)
+					{
+						const FName Key = Pair.Key;
+						const FConfigValue& Value = Pair.Value;
+						FString ValueString = Value.GetSavedValue().TrimStartAndEnd();
+
+						if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceAxisProperties, RemappingEnabled))
+						{
+							AxisProperties.RemappingEnabled = ValueString.Equals(TEXT("true"), ESearchCase::IgnoreCase) || ValueString.Equals(TEXT("1"), ESearchCase::IgnoreCase);
+						}
+						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceAxisProperties, InputOffset))
+						{
+							AxisProperties.InputOffset = FCString::Atof(*ValueString);
+						}
+						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceAxisProperties, InvertInput))
+						{
+							AxisProperties.InvertInput = ValueString.Equals(TEXT("true"), ESearchCase::IgnoreCase) || ValueString.Equals(TEXT("1"), ESearchCase::IgnoreCase);
+						}
+						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceAxisProperties, InputRangeMin))
+						{
+							AxisProperties.InputRangeMin = FCString::Atof(*ValueString);
+						}
+						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceAxisProperties, InputRangeMax))
+						{
+							AxisProperties.InputRangeMax = FCString::Atof(*ValueString);
+						}
+						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceAxisProperties, OutputRangeMin))
+						{
+							AxisProperties.OutputRangeMin = FCString::Atof(*ValueString);
+						}
+						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceAxisProperties, OutputRangeMax))
+						{
+							AxisProperties.OutputRangeMax = FCString::Atof(*ValueString);
+						}
+						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceAxisProperties, InvertOutput))
+						{
+							AxisProperties.InvertOutput = ValueString.Equals(TEXT("true"), ESearchCase::IgnoreCase) || ValueString.Equals(TEXT("1"), ESearchCase::IgnoreCase);
+						}
+					}
+
+					DeviceConfiguration.AxisProperties.Add(AxisProperties);
+				}
+			}
+
+			JoystickInputSettings->AddProfileConfiguration(DeviceConfiguration);
+			FJoystickLogManager::Get()->LogInformation(TEXT("Added Joystick %s configuration from profile %s"), *DeviceConfiguration.ProductGuid.ToString(), *ProfileName);
+		}
 	}
 }
 

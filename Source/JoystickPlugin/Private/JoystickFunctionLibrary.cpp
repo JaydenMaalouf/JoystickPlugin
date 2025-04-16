@@ -13,26 +13,26 @@ FVector2D UJoystickFunctionLibrary::HatDirectionToFVector2D(const EHatDirection 
 {
 	switch (Direction)
 	{
-		case EHatDirection::None:
-			return FVector2D(0, 0);
-		case EHatDirection::Up:
-			return FVector2D(0, 1);
-		case EHatDirection::Right_Up:
-			return FVector2D(1, 1);
-		case EHatDirection::Right:
-			return FVector2D(1, 0);
-		case EHatDirection::Right_Down:
-			return FVector2D(1, -1);
-		case EHatDirection::Down:
-			return FVector2D(0, -1);
-		case EHatDirection::Left_Down:
-			return FVector2D(-1, -1);
-		case EHatDirection::Left:
-			return FVector2D(-1, 0);
-		case EHatDirection::Left_Up:
-			return FVector2D(-1, 1);
-		default:
-			return FVector2D(0, 0);
+	case EHatDirection::None:
+		return FVector2D(0, 0);
+	case EHatDirection::Up:
+		return FVector2D(0, 1);
+	case EHatDirection::Right_Up:
+		return FVector2D(1, 1);
+	case EHatDirection::Right:
+		return FVector2D(1, 0);
+	case EHatDirection::Right_Down:
+		return FVector2D(1, -1);
+	case EHatDirection::Down:
+		return FVector2D(0, -1);
+	case EHatDirection::Left_Down:
+		return FVector2D(-1, -1);
+	case EHatDirection::Left:
+		return FVector2D(-1, 0);
+	case EHatDirection::Left_Up:
+		return FVector2D(-1, 1);
+	default:
+		return FVector2D(0, 0);
 	}
 }
 
@@ -40,17 +40,17 @@ EHatDirection UJoystickFunctionLibrary::HatValueToDirection(const int8 Value)
 {
 	switch (Value)
 	{
-		case SDL_HAT_CENTERED: return EHatDirection::None;
-		case SDL_HAT_UP: return EHatDirection::Up;
-		case SDL_HAT_RIGHTUP: return EHatDirection::Right_Up;
-		case SDL_HAT_RIGHT: return EHatDirection::Right;
-		case SDL_HAT_RIGHTDOWN: return EHatDirection::Right_Down;
-		case SDL_HAT_DOWN: return EHatDirection::Down;
-		case SDL_HAT_LEFTDOWN: return EHatDirection::Left_Down;
-		case SDL_HAT_LEFT: return EHatDirection::Left;
-		case SDL_HAT_LEFTUP: return EHatDirection::Left_Up;
-		default:
-			return EHatDirection::None;
+	case SDL_HAT_CENTERED: return EHatDirection::None;
+	case SDL_HAT_UP: return EHatDirection::Up;
+	case SDL_HAT_RIGHTUP: return EHatDirection::Right_Up;
+	case SDL_HAT_RIGHT: return EHatDirection::Right;
+	case SDL_HAT_RIGHTDOWN: return EHatDirection::Right_Down;
+	case SDL_HAT_DOWN: return EHatDirection::Down;
+	case SDL_HAT_LEFTDOWN: return EHatDirection::Left_Down;
+	case SDL_HAT_LEFT: return EHatDirection::Left;
+	case SDL_HAT_LEFTUP: return EHatDirection::Left_Up;
+	default:
+		return EHatDirection::None;
 	}
 }
 

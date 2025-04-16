@@ -17,15 +17,15 @@ public:
 	{
 		switch (Level)
 		{
-			case ELogVerbosity::Error:
-				LogError(Fmt, Args...);
-				break;
-			case ELogVerbosity::Log:
-				LogDebug(Fmt, Args...);
-				break;
-			default:
-				LogInformation(Fmt, Args...);
-				break;
+		case ELogVerbosity::Error:
+			LogError(Fmt, Args...);
+			break;
+		case ELogVerbosity::Log:
+			LogDebug(Fmt, Args...);
+			break;
+		default:
+			LogInformation(Fmt, Args...);
+			break;
 		}
 	}
 

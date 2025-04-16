@@ -203,8 +203,8 @@ void UJoystickForceFeedbackComponent::TickComponent(float DeltaTime, ELevelTick 
 			continue;
 		}
 
-		// If true, the component will handle its own Tick
-		if (ForcedFeedbackEffect->Tickable)
+		// If true, the effect will handle its own Tick
+		if (ForcedFeedbackEffect->IsTickable())
 		{
 			continue;
 		}
