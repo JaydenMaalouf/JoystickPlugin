@@ -1,8 +1,9 @@
 // JoystickPlugin is licensed under the MIT License.
 // Copyright Jayden Maalouf. All Rights Reserved.
 
-#include "SJoystickInputSelector.h"
+#include "Widgets/SJoystickInputSelector.h"
 
+#include "JoystickFunctionLibrary.h"
 #include "JoystickInputSettings.h"
 #include "Widgets/Text/STextBlock.h"
 #include "Widgets/Input/SButton.h"
@@ -15,8 +16,10 @@ SJoystickInputSelector::SJoystickInputSelector()
 	  , DeadZone(0.0f)
 	  , bAllowAxisKeys(true)
 	  , bAllowButtonKeys(true)
-	  , bAllowModifierKeys(true)
 	  , bAllowGamepadKeys(true)
+	  , bAllowNonGamepadKeys(true)
+	  , bAllowJoystickKeys(true)
+	  , bAllowModifierKeys(true)
 	  , bEscapeCancelsSelection(true)
 	  , bIsFocusable(false)
 {
@@ -55,7 +58,11 @@ FReply SJoystickInputSelector::OnKeyUp(const FGeometry& MyGeometry, const FKeyEv
 
 
 	// Don't allow chords consisting of just modifier keys.
-	if (bIsSelectingKey && (bAllowGamepadKeys || KeyUp.IsGamepadKey() == false) && (KeyUp.IsModifierKey() == false || ModifierKey == EModifierKey::None))
+	if (bIsSelectingKey &&
+		(bAllowGamepadKeys || KeyUp.IsGamepadKey() == false) &&
+		(bAllowNonGamepadKeys || KeyUp.IsGamepadKey() == true) &&
+		(bAllowJoystickKeys || UJoystickFunctionLibrary::IsJoystickKey(KeyUp) == false) &&
+		(KeyUp.IsModifierKey() == false || ModifierKey == EModifierKey::None))
 	{
 		SetIsSelectingKey(false);
 
@@ -86,10 +93,10 @@ FReply SJoystickInputSelector::OnAnalogValueChanged(const FGeometry& MyGeometry,
 {
 	/** Don't process events in dead zone */
 	const float AbsAnalogValue = FMath::Abs(InAnalogInputEvent.GetAnalogValue());
-
 	if (AbsAnalogValue <= DeadZone)
 	{
-		return FReply::Handled();
+		//TODO: Reimplement deadzoning that works with min/max mapping
+		//return FReply::Handled();
 	}
 
 	if (!bAllowAxisKeys)
@@ -105,7 +112,11 @@ FReply SJoystickInputSelector::OnAnalogValueChanged(const FGeometry& MyGeometry,
 		InAnalogInputEvent.IsCommandDown() && AxisKey != EKeys::LeftCommand && AxisKey != EKeys::RightCommand);
 
 	// Don't allow chords consisting of just modifier keys.
-	if (bIsSelectingKey && (bAllowGamepadKeys || AxisKey.IsGamepadKey() == false) && (AxisKey.IsModifierKey() == false || ModifierKey == EModifierKey::None))
+	if (bIsSelectingKey &&
+		(bAllowGamepadKeys || AxisKey.IsGamepadKey() == false) &&
+		(bAllowNonGamepadKeys || AxisKey.IsGamepadKey() == true) &&
+		(bAllowJoystickKeys || UJoystickFunctionLibrary::IsJoystickKey(AxisKey) == false) &&
+		(AxisKey.IsModifierKey() == false || ModifierKey == EModifierKey::None))
 	{
 		if (bEscapeCancelsSelection && (AxisKey == EKeys::Escape || IsEscapeKey(AxisKey)))
 		{
@@ -120,14 +131,14 @@ FReply SJoystickInputSelector::OnAnalogValueChanged(const FGeometry& MyGeometry,
 			                                   : FInputChord(AxisKey);
 
 
-		const UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
+		const UJoystickInputSettings* JoystickInputSettings = GetDefault<UJoystickInputSettings>();
 		if (!IsValid(JoystickInputSettings))
 		{
 			return FReply::Handled();
 		}
 
 		const float AxisValue = InAnalogInputEvent.GetAnalogValue();
-		FKeySelectorData& SelectedKeyData = KeyData.FindOrAdd(NewSelectedKey);
+		FKeySelectorData& SelectedKeyData = KeyData.FindOrAdd(NewSelectedKey.Key);
 
 		const FJoystickInputDeviceAxisProperties* AxisProperties = JoystickInputSettings->GetAxisPropertiesByKey(AxisKey);
 		if (AxisProperties != nullptr)
@@ -157,8 +168,13 @@ FReply SJoystickInputSelector::OnAnalogValueChanged(const FGeometry& MyGeometry,
 			}
 		}
 
+		if (SelectedKeyData.MinStartTime.IsZero() || SelectedKeyData.MaxStartTime.IsZero())
+		{
+			return FReply::Handled();
+		}
+
 		const double MinMaxTime = (SelectedKeyData.MinStartTime - SelectedKeyData.MaxStartTime).GetTotalSeconds();
-		if (MinMaxTime > 0 && MinMaxTime < AxisSelectionTimeout)
+		if (MinMaxTime > 0.0l && MinMaxTime < AxisSelectionTimeout)
 		{
 			SetIsSelectingKey(false);
 			SelectAxis(NewSelectedKey);
@@ -166,7 +182,7 @@ FReply SJoystickInputSelector::OnAnalogValueChanged(const FGeometry& MyGeometry,
 		}
 
 		const double MaxMinTime = (SelectedKeyData.MaxStartTime - SelectedKeyData.MinStartTime).GetTotalSeconds();
-		if (MaxMinTime > 0 && MaxMinTime < AxisSelectionTimeout)
+		if (MaxMinTime > 0.0l && MaxMinTime < AxisSelectionTimeout)
 		{
 			SetIsSelectingKey(false);
 			SelectAxis(NewSelectedKey);
@@ -193,6 +209,8 @@ void SJoystickInputSelector::Construct(const FArguments& InArgs)
 	bAllowButtonKeys = InArgs._AllowButtonKeys;
 	bAllowModifierKeys = InArgs._AllowModifierKeys;
 	bAllowGamepadKeys = InArgs._AllowGamepadKeys;
+	bAllowNonGamepadKeys = InArgs._AllowNonGamepadKeys;
+	bAllowJoystickKeys = InArgs._AllowJoystickKeys;
 	bEscapeCancelsSelection = InArgs._EscapeCancelsSelection;
 	EscapeKeys = InArgs._EscapeKeys;
 	bIsFocusable = InArgs._IsFocusable;
@@ -324,7 +342,7 @@ bool SJoystickInputSelector::IsEscapeKey(const FKey& InKey) const
 
 FReply SJoystickInputSelector::OnPreviewKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent)
 {
-	if (bIsSelectingKey && (bAllowGamepadKeys || InKeyEvent.GetKey().IsGamepadKey() == false))
+	if (bIsSelectingKey && (bAllowGamepadKeys || InKeyEvent.GetKey().IsGamepadKey() == false) && (bAllowNonGamepadKeys || InKeyEvent.GetKey().IsGamepadKey() == true))
 	{
 		// While selecting keys handle all key downs to prevent contained controls from
 		// interfering with key selection.

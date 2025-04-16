@@ -2,17 +2,26 @@
 // Copyright Jayden Maalouf. All Rights Reserved.
 
 #include "JoystickInputDevice.h"
-#include "JoystickFunctionLibrary.h"
-#include "JoystickHapticDeviceManager.h"
-#include "JoystickInputSettings.h"
-#include "JoystickLogManager.h"
-#include "JoystickPluginModule.h"
-#include "JoystickSubsystem.h"
-#include "GameFramework/InputSettings.h"
-#include "GenericPlatform/IInputInterface.h"
-#include "Runtime/Launch/Resources/Version.h"
+
+#include "Data/DeviceInfoSDL.h"
+#include "Data/Input/AxisData.h"
+#include "Data/Input/BallData.h"
+#include "Data/Input/HatData.h"
+#include "Data/JoystickDeviceState.h"
+#include "Data/JoystickInstanceId.h"
+#include "Data/Settings/JoystickInputDeviceAxisProperties.h"
+#include "Data/Settings/JoystickInputDeviceConfiguration.h"
+#include "Data/Settings/JoystickInputKeyConfiguration.h"
 #include "Engine/Engine.h"
 #include "Framework/Application/NavigationConfig.h"
+#include "Framework/Application/SlateApplication.h"
+#include "GameFramework/InputSettings.h"
+#include "GenericPlatform/IInputInterface.h"
+#include "JoystickFunctionLibrary.h"
+#include "JoystickHapticDeviceManager.h"
+#include "JoystickLogManager.h"
+#include "JoystickSubsystem.h"
+#include "Runtime/Launch/Resources/Version.h"
 
 const static FName JoystickCategory = "Joystick";
 
@@ -321,23 +330,29 @@ void FJoystickInputDevice::JoystickPluggedIn(const FDeviceInfoSDL& Device)
 		return;
 	}
 
-	FString BaseKeyName = FString::Printf(TEXT("Joystick_%d"), Device.InternalDeviceIndex);
-	FString BaseDisplayName = FString::Printf(TEXT("Joystick %d"), Device.InternalDeviceIndex);
+	FString BaseKeyName("Joystick");
+	FString BaseDisplayName("Joystick");
 	if (JoystickInputSettings->UseDeviceName)
 	{
 		const FJoystickInputDeviceConfiguration* DeviceConfig = JoystickInputSettings->GetInputDeviceConfiguration(Device.ProductGuid);
 		if (DeviceConfig != nullptr && DeviceConfig->OverrideDeviceName)
 		{
 			const FString DeviceName = DeviceConfig->DeviceName.Replace(TEXT(" "), TEXT("_"));
-			BaseKeyName = FString::Printf(TEXT("Joystick_%s_%d"), *DeviceName, Device.InternalDeviceIndex);
-			BaseDisplayName = FString::Printf(TEXT("%s %d"), *DeviceName, Device.InternalDeviceIndex);
+			BaseKeyName = FString::Printf(TEXT("Joystick_%s"), *DeviceName);
+			BaseDisplayName = DeviceName;
 		}
 		else
 		{
 			const FString DeviceName = Device.SafeDeviceName.Replace(TEXT(" "), TEXT("_"));
-			BaseKeyName = FString::Printf(TEXT("Joystick_%s_%d"), *DeviceName, Device.InternalDeviceIndex);
-			BaseDisplayName = FString::Printf(TEXT("%s %d"), *Device.ProductName, Device.InternalDeviceIndex);
+			BaseKeyName = FString::Printf(TEXT("Joystick_%s"), *DeviceName);
+			BaseDisplayName = Device.ProductName;
 		}
+	}
+
+	if (JoystickInputSettings->IncludeDeviceIndex)
+	{
+		BaseKeyName = FString::Printf(TEXT("%s_%d"), *BaseKeyName, Device.InternalDeviceIndex);
+		BaseDisplayName = FString::Printf(TEXT("%s %d"), *BaseDisplayName, Device.InternalDeviceIndex);
 	}
 
 	DeviceKeys.Emplace(Device.InstanceId);
@@ -728,7 +743,7 @@ void FJoystickInputDevice::UpdateAxisProperties()
 		FJoystickDeviceState& CurrentState = JoystickDeviceState[InstanceId];
 		for (int i = 0; i < CurrentState.Axes.Num(); i++)
 		{
-			const FJoystickInputDeviceAxisProperties* AxisProperties = DeviceConfig->AxisProperties.FindByPredicate([&](const FJoystickInputDeviceAxisProperties& AxisProperty)
+			const FJoystickInputDeviceAxisProperties* AxisProperties = DeviceConfig->AxisProperties.FindByPredicate([i](const FJoystickInputDeviceAxisProperties& AxisProperty)
 			{
 				return AxisProperty.AxisIndex != -1 && AxisProperty.AxisIndex == i;
 			});
@@ -781,9 +796,12 @@ int FJoystickInputDevice::GetAxisIndexFromKey(const FKey& Key) const
 		}
 
 		const TArray<FKey>& Keys = DeviceAxisKeys[i];
-		if (Keys.Contains(Key))
+		for (int AxisIndex = 0; AxisIndex < Keys.Num(); AxisIndex++)
 		{
-			return i;
+			if (Keys[AxisIndex] == Key)
+			{
+				return AxisIndex;
+			}
 		}
 	}
 
@@ -792,7 +810,7 @@ int FJoystickInputDevice::GetAxisIndexFromKey(const FKey& Key) const
 
 void FJoystickInputDevice::TrySetCustomDisplayName(FString& ButtonDisplayName, const FKey& ButtonKey)
 {
-	UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
+	const UJoystickInputSettings* JoystickInputSettings = GetDefault<UJoystickInputSettings>();
 	if (!IsValid(JoystickInputSettings))
 	{
 		return;
@@ -807,7 +825,7 @@ void FJoystickInputDevice::TrySetCustomDisplayName(FString& ButtonDisplayName, c
 
 void FJoystickInputDevice::TryAddWidgetNavigation(const FKey& ButtonKey)
 {
-	UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
+	const UJoystickInputSettings* JoystickInputSettings = GetDefault<UJoystickInputSettings>();
 	if (!IsValid(JoystickInputSettings))
 	{
 		return;
@@ -832,10 +850,12 @@ void FJoystickInputDevice::TryAddWidgetNavigation(const FKey& ButtonKey)
 		NavigationConfig->KeyEventRules.Add(ButtonKey, KeyConfiguration->Direction);
 	}
 
+#if ENGINE_MAJOR_VERSION >= 5 && ENGINE_MINOR_VERSION >= 4
 	// Key Action (Accept, Back, etc)
 	if (KeyConfiguration->Action != EUINavigationAction::Invalid)
 	{
 		FJoystickLogManager::Get()->LogDebug(TEXT("Added FKey (%s) to Slate Navigation Actions with action: %s"), *ButtonKey.GetDisplayName().ToString(), *UEnum::GetValueAsString(KeyConfiguration->Action));
 		NavigationConfig->KeyActionRules.Add(ButtonKey, KeyConfiguration->Action);
 	}
+#endif
 }

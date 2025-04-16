@@ -2,40 +2,34 @@
 // Copyright Jayden Maalouf. All Rights Reserved.
 
 #include "JoystickInputSettings.h"
+
+#include "Data/JoystickInformation.h"
+#include "Data/JoystickInstanceId.h"
+#include "Data/Settings/JoystickInputDeviceAxisProperties.h"
+#include "Data/Settings/JoystickInputDeviceConfiguration.h"
+#include "Engine/Engine.h"
 #include "JoystickInputDevice.h"
 #include "JoystickSubsystem.h"
-#include "Engine/Engine.h"
 
-UJoystickInputSettings::UJoystickInputSettings()
+UJoystickInputSettings::UJoystickInputSettings() :
+	UseDeviceName(false),
+	IncludeDeviceIndex(true),
+	IgnoreGameControllers(false),
+	EnableLogs(true)
 {
-	UseDeviceName = false;
-	IgnoreGameControllers = false;
-#if WITH_EDITOR
-	EnableLogs = true;
-#else
-	EnableLogs = false;
-#endif
 	MapHatAxisToKeys = static_cast<int32>(EHatDirection::Up | EHatDirection::Down | EHatDirection::Left | EHatDirection::Right);
 }
 
 void UJoystickInputSettings::DeviceAdded(const FJoystickInformation& JoystickInfo)
 {
-	if (ConnectedDevices.ContainsByPredicate([&](const FJoystickInformation& Device)
-	{
-		return Device.InstanceId == JoystickInfo.InstanceId;
-	}))
-	{
-		return;
-	}
-
 	ConnectedDevices.Add(JoystickInfo);
 }
 
 void UJoystickInputSettings::DeviceRemoved(const FJoystickInstanceId& InstanceId)
 {
-	ConnectedDevices.RemoveAll([&](const FJoystickInformation& Device)
+	ConnectedDevices.RemoveAll([InstanceId](const FJoystickInformation& Item)
 	{
-		return Device.InstanceId == InstanceId;
+		return Item.InstanceId == InstanceId;
 	});
 }
 
@@ -44,12 +38,14 @@ void UJoystickInputSettings::ResetDevices()
 	ConnectedDevices.Empty();
 }
 
-const FJoystickInputDeviceConfiguration* UJoystickInputSettings::GetInputDeviceConfiguration(const FGuid& ProductId) const
+const FJoystickInputDeviceConfiguration* UJoystickInputSettings::GetInputDeviceConfiguration(const FGuid& ProductGuid) const
 {
-	return DeviceConfigurations.FindByPredicate([&](const FJoystickInputDeviceConfiguration& PredicateDeviceConfig)
+	if (const FJoystickInputDeviceConfiguration* DeviceConfiguration = FindConfiguration(DeviceConfigurations, ProductGuid, true))
 	{
-		return (!PredicateDeviceConfig.ProductGuid.IsValid() || ProductId == PredicateDeviceConfig.ProductGuid);
-	});
+		return DeviceConfiguration;
+	}
+
+	return FindConfiguration(ProfileConfigurations, ProductGuid, true);
 }
 
 bool UJoystickInputSettings::GetIgnoreGameControllers() const
@@ -125,7 +121,7 @@ const FJoystickInputDeviceAxisProperties* UJoystickInputSettings::GetAxisPropert
 		return nullptr;
 	}
 
-	return DeviceConfiguration->AxisProperties.FindByPredicate([&](const FJoystickInputDeviceAxisProperties& AxisProperty)
+	return DeviceConfiguration->AxisProperties.FindByPredicate([AxisIndex](const FJoystickInputDeviceAxisProperties& AxisProperty)
 	{
 		return AxisProperty.AxisIndex != -1 && AxisProperty.AxisIndex == AxisIndex;
 	});
@@ -156,3 +152,31 @@ void UJoystickInputSettings::PostEditChangeChainProperty(FPropertyChangedChainEv
 	InputDevice->UpdateAxisProperties();
 }
 #endif
+
+void UJoystickInputSettings::AddDeviceConfiguration(const FJoystickInputDeviceConfiguration& InDeviceConfiguration)
+{
+	if (FindConfiguration(DeviceConfigurations, InDeviceConfiguration.ProductGuid))
+	{
+		return;
+	}
+
+	DeviceConfigurations.Add(InDeviceConfiguration);
+}
+
+void UJoystickInputSettings::AddProfileConfiguration(const FJoystickInputDeviceConfiguration& InDeviceConfiguration)
+{
+	if (FindConfiguration(ProfileConfigurations, InDeviceConfiguration.ProductGuid))
+	{
+		return;
+	}
+
+	ProfileConfigurations.Add(InDeviceConfiguration);
+}
+
+const FJoystickInputDeviceConfiguration* UJoystickInputSettings::FindConfiguration(const TArray<FJoystickInputDeviceConfiguration>& ConfigurationArray, const FGuid& ProductGuid, const bool IncludeEmptyGuids) const
+{
+	return ConfigurationArray.FindByPredicate([ProductGuid, IncludeEmptyGuids](const FJoystickInputDeviceConfiguration& PredicateDeviceConfig)
+	{
+		return ((IncludeEmptyGuids && !PredicateDeviceConfig.ProductGuid.IsValid()) || ProductGuid == PredicateDeviceConfig.ProductGuid);
+	});
+}

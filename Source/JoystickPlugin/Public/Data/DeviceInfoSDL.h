@@ -13,7 +13,7 @@ THIRD_PARTY_INCLUDES_START
 
 THIRD_PARTY_INCLUDES_END
 
-struct JOYSTICKPLUGIN_API FDeviceInfoSDL : FJoystickInformation
+struct FDeviceInfoSDL : FJoystickInformation
 {
 	FDeviceInfoSDL()
 		: Connected(false)

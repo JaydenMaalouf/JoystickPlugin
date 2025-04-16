@@ -2,8 +2,10 @@
 // Copyright Jayden Maalouf. All Rights Reserved.
 
 #include "JoystickPluginSettingsDetails.h"
-#include "DetailLayoutBuilder.h"
+
+#include "Data/Settings/JoystickInputDeviceConfiguration.h"
 #include "DetailCategoryBuilder.h"
+#include "DetailLayoutBuilder.h"
 #include "DetailWidgetRow.h"
 #include "JoystickInputSettings.h"
 #include "Widgets/Input/SButton.h"
@@ -38,15 +40,7 @@ void FJoystickPluginSettingsDetails::CustomizeDetails(IDetailLayoutBuilder& Deta
 		{
 			for (const FJoystickInformation& ConnectedDevice : Settings->ConnectedDevices)
 			{
-				if (Settings->DeviceConfigurations.FindByPredicate([&](const FJoystickInputDeviceConfiguration& DeviceConfiguration)
-				{
-					return DeviceConfiguration.ProductGuid == ConnectedDevice.ProductGuid;
-				}))
-				{
-					continue;
-				}
-
-				Settings->DeviceConfigurations.Add(FJoystickInputDeviceConfiguration(ConnectedDevice.ProductGuid));
+				Settings->AddDeviceConfiguration(FJoystickInputDeviceConfiguration(ConnectedDevice.ProductGuid));
 			}
 
 			return (FReply::Handled());

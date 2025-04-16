@@ -12,7 +12,7 @@
 #include "JoystickDeviceState.generated.h"
 
 USTRUCT(BlueprintType)
-struct JOYSTICKPLUGIN_API FJoystickDeviceState
+struct FJoystickDeviceState
 {
 	GENERATED_BODY()
 

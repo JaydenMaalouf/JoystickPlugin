@@ -3,6 +3,10 @@
 
 #include "JoystickFunctionLibrary.h"
 
+#include "Engine/Engine.h"
+#include "JoystickInputDevice.h"
+#include "JoystickSubsystem.h"
+
 THIRD_PARTY_INCLUDES_START
 
 #include "SDL_joystick.h"
@@ -63,4 +67,26 @@ FString UJoystickFunctionLibrary::HatDirectionAsString(EHatDirection Value)
 	}
 
 	return EnumPtr->GetNameStringByValue(static_cast<int64>(Value));
+}
+
+bool UJoystickFunctionLibrary::IsJoystickKey(IN const FKey& Key)
+{
+	if (!GEngine)
+	{
+		return false;
+	}
+
+	const UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
+	if (!JoystickSubsystem)
+	{
+		return false;
+	}
+
+	const FJoystickInputDevice* InputDevice = JoystickSubsystem->GetInputDevice();
+	if (!InputDevice)
+	{
+		return false;
+	}
+
+	return InputDevice->GetInstanceIdByKey(Key) != -1;
 }
