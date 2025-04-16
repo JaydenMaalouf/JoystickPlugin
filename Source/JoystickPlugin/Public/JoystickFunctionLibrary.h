@@ -15,14 +15,14 @@ class JOYSTICKPLUGIN_API UJoystickFunctionLibrary final : public UBlueprintFunct
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintPure, Category = "SDL2 Input|Joystick input")
+	UFUNCTION(BlueprintPure, Category = "Joystick|Hat")
 	static FVector2D HatDirectionToFVector2D(const EHatDirection Direction);
 
 	static EHatDirection HatValueToDirection(int8 Value);
 
-	UFUNCTION(BlueprintCallable, Category = "SDL2 Input|Joystick input")
+	UFUNCTION(BlueprintCallable, Category = "Joystick|Hat")
 	static FString HatDirectionAsString(EHatDirection Value);
 
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "SDL2 Input|Joystick input")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Joystick|Key")
 	static bool IsJoystickKey(const FKey& Key);
 };
