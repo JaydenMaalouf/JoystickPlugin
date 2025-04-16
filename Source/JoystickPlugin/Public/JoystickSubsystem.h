@@ -99,10 +99,10 @@ public:
 
 	const TMap<FJoystickInstanceId, FDeviceInfoSDL>& GetDevices();
 
-	UPROPERTY(BlueprintAssignable, Category = "Joystick Subsystem|Delegates")
+	UPROPERTY(BlueprintAssignable, Category = "Joystick|Subsystem|Delegates")
 	FOnJoystickSubsystemReady JoystickSubsystemReady;
 
-	UPROPERTY(BlueprintAssignable, Category = "Joystick Subsystem|Delegates")
+	UPROPERTY(BlueprintAssignable, Category = "Joystick|Subsystem|Delegates")
 	FOnJoystickSubsystemReady JoystickSubsystemInitialised;
 
 private:
