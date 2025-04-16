@@ -20,8 +20,7 @@ public class JoystickPlugin : ModuleRules
 				"Projects"
 			});
 
-		var Sdl2IncludePath =
-			Path.Combine(EngineDirectory, "Source", "ThirdParty", "SDL2", "SDL-gui-backend", "include");
+		var Sdl2IncludePath = Path.Combine(EngineDirectory, "Source", "ThirdParty", "SDL2", "SDL-gui-backend", "include");
 
 		PublicIncludePaths.Add(Sdl2IncludePath);
 

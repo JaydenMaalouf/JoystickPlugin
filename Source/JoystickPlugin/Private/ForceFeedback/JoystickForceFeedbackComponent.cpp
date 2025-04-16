@@ -4,8 +4,8 @@
 #include "ForceFeedback/JoystickForceFeedbackComponent.h"
 
 #include "Engine/Engine.h"
-#include "JoystickSubsystem.h"
 #include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
+#include "JoystickSubsystem.h"
 
 UJoystickForceFeedbackComponent::UJoystickForceFeedbackComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -176,7 +176,7 @@ void UJoystickForceFeedbackComponent::DestroyInstanceEffects(const FJoystickInst
 		DestroyEffect(Effect);
 	});
 
-	Effects.RemoveAll([&](const UForceFeedbackEffectBase* Effect)
+	Effects.RemoveAll([JoystickInstanceId](const UForceFeedbackEffectBase* Effect)
 	{
 		return Effect->GetInstanceId() == JoystickInstanceId;
 	});

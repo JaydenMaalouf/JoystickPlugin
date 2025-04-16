@@ -2,13 +2,19 @@
 // Copyright Jayden Maalouf. All Rights Reserved.
 
 #include "JoystickSubsystem.h"
+
+#include "Data/DeviceInfoSDL.h"
+#include "Data/JoystickSensorType.h"
+#include "Data/Settings/JoystickInputDeviceAxisProperties.h"
+#include "Data/Settings/JoystickInputDeviceConfiguration.h"
+#include "HAL/FileManager.h"
 #include "JoystickFunctionLibrary.h"
 #include "JoystickInputDevice.h"
 #include "JoystickInputSettings.h"
 #include "JoystickLogManager.h"
-#include "Data/JoystickInstanceId.h"
-#include "Data/JoystickInformation.h"
-#include "Data/JoystickSensorType.h"
+#include "JoystickPluginModule.h"
+#include "Misc/ConfigCacheIni.h"
+#include "Misc/Paths.h"
 #include "Runtime/Launch/Resources/Version.h"
 
 THIRD_PARTY_INCLUDES_START
@@ -22,20 +28,22 @@ THIRD_PARTY_INCLUDES_START
 THIRD_PARTY_INCLUDES_END
 
 UJoystickSubsystem::UJoystickSubsystem()
-	: OwnsSDL(false)
-	  , bIsInitialised(false)
-	  , PersistentDeviceCount(0)
+	: OwnsSDL(false), bIsInitialised(false), PersistentDeviceCount(0)
 {
 }
 
 constexpr unsigned SdlRequiredFlags = SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC;
 
+FString UJoystickSubsystem::AxisPropertiesSection("AxisProperties_");
+FString UJoystickSubsystem::JoystickConfigurationSection("Joystick");
+
 void UJoystickSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
-	UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
-	if (IsValid(JoystickInputSettings))
+	LoadJoystickProfiles();
+
+	if (UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>())
 	{
 		JoystickInputSettings->ResetDevices();
 	}
@@ -402,7 +410,7 @@ void UJoystickSubsystem::AddSensorDevice(FDeviceInfoSDL& Device) const
 
 bool UJoystickSubsystem::AddDevice(const int DeviceIndex)
 {
-	const UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
+	const UJoystickInputSettings* JoystickInputSettings = GetDefault<UJoystickInputSettings>();
 	if (!IsValid(JoystickInputSettings))
 	{
 		return false;

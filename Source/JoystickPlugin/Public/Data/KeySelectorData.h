@@ -11,8 +11,8 @@ struct JOYSTICKPLUGIN_API FKeySelectorData
 	GENERATED_BODY()
 
 	FKeySelectorData()
-		: MinStartTime(FTimespan::MinValue())
-		  , MaxStartTime(FTimespan::MaxValue())
+		: MinStartTime(FTimespan::Zero())
+		  , MaxStartTime(FTimespan::Zero())
 	{
 	}
 

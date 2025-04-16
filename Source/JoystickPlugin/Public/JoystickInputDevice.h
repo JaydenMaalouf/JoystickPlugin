@@ -5,14 +5,10 @@
 
 #include "IInputDevice.h"
 #include "InputCoreTypes.h"
-#include "JoystickSubsystem.h"
-#include "Containers/Array.h"
-#include "Data/JoystickInstanceId.h"
 #include "Data/JoystickDeviceState.h"
-#include "Data/Input/HatDirection.h"
-#include "GenericPlatform/IInputInterface.h"
-#include "GenericPlatform/GenericApplicationMessageHandler.h"
+#include "Data/JoystickInstanceId.h"
 
+enum class EHatDirection : uint8;
 struct FDeviceInfoSDL;
 
 class JOYSTICKPLUGIN_API FJoystickInputDevice final : public IInputDevice
