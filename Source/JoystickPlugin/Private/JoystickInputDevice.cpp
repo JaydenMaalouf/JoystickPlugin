@@ -825,14 +825,14 @@ void FJoystickInputDevice::TryAddWidgetNavigation(const FKey& ButtonKey)
 		return;
 	}
 
-	//Key Event (Up, Down, Left, Right, etc)
+	// Key Event (Up, Down, Left, Right, etc)
 	if (KeyConfiguration->Direction != EUINavigation::Invalid)
 	{
 		FJoystickLogManager::Get()->LogDebug(TEXT("Added FKey (%s) to Slate Navigation Events with direction: %s"), *ButtonKey.GetDisplayName().ToString(), *UEnum::GetValueAsString(KeyConfiguration->Direction));
 		NavigationConfig->KeyEventRules.Add(ButtonKey, KeyConfiguration->Direction);
 	}
 
-	//Key Action (Accept, Back, etc)
+	// Key Action (Accept, Back, etc)
 	if (KeyConfiguration->Action != EUINavigationAction::Invalid)
 	{
 		FJoystickLogManager::Get()->LogDebug(TEXT("Added FKey (%s) to Slate Navigation Actions with action: %s"), *ButtonKey.GetDisplayName().ToString(), *UEnum::GetValueAsString(KeyConfiguration->Action));
