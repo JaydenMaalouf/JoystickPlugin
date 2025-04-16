@@ -44,7 +44,7 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectConditionData
 			ClampMin="-1", ClampMax="1"))
 	FVector LeftCoefficient;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere,
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Data",
 		meta = (ShortToolTip = "Max Positive Magnitude", ToolTip = "The maximum magnitude of the force feedback as the input moves away from the center point in the positive direction along the specified axis. Range is from 0 to 1.0.",
 			UIMin="0", UIMax="1", ClampMin="0", ClampMax="1"))
 	FVector LeftSat;
