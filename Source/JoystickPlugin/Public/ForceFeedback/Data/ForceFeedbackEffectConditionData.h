@@ -26,51 +26,46 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectConditionData
 	{
 	}
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Condition|Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Data")
 	FForceFeedbackEffectDirectionData DirectionData;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Condition|Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Data")
 	FForceFeedbackEffectDurationData DurationData;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Condition|Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Data")
 	FForceFeedbackEffectReplayData ReplayData;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Condition|Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Data")
 	EForceFeedbackConditionEffectType EffectType;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere,
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Data",
 		meta = (ShortToolTip = "Positive Coefficient", ToolTip =
 			"The slope of the line describing how rapidly the force increases as the input moves away from the center point in the positive direction along the specified axis. Range is from -infinity to +infinity.", UIMin="-1", UIMax="1",
-			ClampMin="-1", ClampMax="1"),
-		Category = "Force Feedback|Condition|Data")
+			ClampMin="-1", ClampMax="1"))
 	FVector LeftCoefficient;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere,
 		meta = (ShortToolTip = "Max Positive Magnitude", ToolTip = "The maximum magnitude of the force feedback as the input moves away from the center point in the positive direction along the specified axis. Range is from 0 to 1.0.",
-			UIMin="0", UIMax="1", ClampMin="0", ClampMax="1"),
-		Category = "Force Feedback|Condition|Data")
+			UIMin="0", UIMax="1", ClampMin="0", ClampMax="1"))
 	FVector LeftSat;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere,
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Data",
 		meta = (ShortToolTip = "Negative Coefficient", ToolTip =
 			"The slope of the line describing how rapidly the force increases as the input moves away from the center point in the negative direction along the specified axis. Range is from -infinity to +infinity.", UIMin="-1", UIMax="1",
-			ClampMin="-1", ClampMax="1"),
-		Category = "Force Feedback|Condition|Data")
+			ClampMin="-1", ClampMax="1"))
 	FVector RightCoefficient;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere,
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Data",
 		meta = (ShortToolTip = "Max Negative Magnitude", ToolTip = "The maximum magnitude of the force feedback as the input moves away from the center point in the negative direction along the specified axis. Range is from 0 to 1.0.",
-			UIMin="0", UIMax="1", ClampMin="0", ClampMax="1"),
-		Category = "Force Feedback|Condition|Data")
+			UIMin="0", UIMax="1", ClampMin="0", ClampMax="1"))
 	FVector RightSat;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere,
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Data",
 		meta = (ShortToolTip = "Dead Zone", ToolTip = "Specifies the value below which the force feedback is not applied. Range is from 0.0 to 1.0 and is applied asymmetrically around the center point.", UIMin="0", UIMax="1", ClampMin="0",
-			ClampMax="1"),
-		Category = "Force Feedback|Condition|Data")
+			ClampMax="1"))
 	FVector DeadZone;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ShortToolTip = "Bias", ToolTip = "The offset to the center point in effect calculations. Range is from -1.0 to 1.0.", UIMin="-1", UIMax="1", ClampMin="-1", ClampMax="1"),
-		Category = "Force Feedback|Condition|Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Data",
+		meta = (ShortToolTip = "Bias", ToolTip = "The offset to the center point in effect calculations. Range is from -1.0 to 1.0.", UIMin="-1", UIMax="1", ClampMin="-1", ClampMax="1"))
 	FVector Center;
 };

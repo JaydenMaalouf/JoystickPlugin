@@ -13,7 +13,7 @@
 
 #include "JoystickInputSettings.generated.h"
 
-UCLASS(config=Input, DefaultConfig)
+UCLASS(config = Input, DefaultConfig)
 class JOYSTICKPLUGIN_API UJoystickInputSettings final : public UObject
 {
 	GENERATED_BODY()
@@ -32,19 +32,19 @@ public:
 	const FJoystickInputDeviceConfiguration* GetInputDeviceConfigurationByKey(const FKey& Key) const;
 	const FJoystickInputDeviceAxisProperties* GetAxisPropertiesByKey(const FKey& AxisKey) const;
 
-	UPROPERTY(VisibleAnywhere, Category="Information")
+	UPROPERTY(VisibleAnywhere, Category = "Information")
 	TArray<FJoystickInformation> ConnectedDevices;
 
-	UPROPERTY(config, EditAnywhere, meta=(ToolTip="When creating the input keys for devices, use the device name in the key. Default will prefix the key with \"Joystick\" instead.", ConfigRestartRequired=true))
+	UPROPERTY(config, EditAnywhere, meta = (ToolTip = "When creating the input keys for devices, use the device name in the key. Default will prefix the key with \"Joystick\" instead.", ConfigRestartRequired = true))
 	bool UseDeviceName;
 
-	UPROPERTY(config, EditAnywhere, meta=(ToolTip="Useful if you want input for controllers (ie. XInput) to be handled by UE directly, instead of via this plugin.", ConfigRestartRequired=true))
+	UPROPERTY(config, EditAnywhere, meta = (ToolTip = "Useful if you want input for controllers (ie. XInput) to be handled by UE directly, instead of via this plugin.", ConfigRestartRequired = true))
 	bool IgnoreGameControllers;
 
-	UPROPERTY(config, EditAnywhere, meta=(ToolTip="Enable debug logging from the plugin."))
+	UPROPERTY(config, EditAnywhere, meta = (ToolTip = "Enable debug logging from the plugin."))
 	bool EnableLogs;
 
-	UPROPERTY(config, EditAnywhere, meta = (Bitmask, BitmaskEnum = "/Script/JoystickPlugin.EHatDirection", ToolTip="Map Hat Axis to Keys. Select which direction keys you would like mapped", ConfigRestartRequired=true))
+	UPROPERTY(config, EditAnywhere, meta = (Bitmask, BitmaskEnum = "/Script/JoystickPlugin.EHatDirection", ToolTip = "Map Hat Axis to Keys. Select which direction keys you would like mapped", ConfigRestartRequired = true))
 	int32 MapHatAxisToKeys;
 
 	UPROPERTY(config, EditAnywhere)

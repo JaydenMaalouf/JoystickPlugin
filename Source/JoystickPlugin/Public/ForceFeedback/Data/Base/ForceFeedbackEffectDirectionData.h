@@ -34,29 +34,35 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectDirectionData
 
 		switch (DirectionType)
 		{
-			case EForceFeedbackDirectionType::Polar:
-				HapticDirection.type = SDL_HAPTIC_POLAR;
-				HapticDirection.dir[0] = FMath::Clamp<Sint32>(Direction.X, 0, 36000);
-				break;
-			case EForceFeedbackDirectionType::Spherical:
-				HapticDirection.type = SDL_HAPTIC_SPHERICAL;
-				HapticDirection.dir[0] = FMath::Clamp<Sint32>(Direction.X, 0, 36000);
-				HapticDirection.dir[1] = FMath::Clamp<Sint32>(Direction.Y, -9000, 9000);
-				break;
-			case EForceFeedbackDirectionType::Cartesian:
-				HapticDirection.type = SDL_HAPTIC_CARTESIAN;
-				HapticDirection.dir[0] = FMath::Clamp<Sint32>(Direction.X, INT32_MIN, INT32_MAX);
-				HapticDirection.dir[1] = FMath::Clamp<Sint32>(Direction.Y, INT32_MIN, INT32_MAX);
-				HapticDirection.dir[2] = FMath::Clamp<Sint32>(Direction.Z, INT32_MIN, INT32_MAX);
-				break;
-			default:
-			case EForceFeedbackDirectionType::SteeringAxis:
+		case EForceFeedbackDirectionType::Polar:
+			HapticDirection.type = SDL_HAPTIC_POLAR;
+			HapticDirection.dir[0] = FMath::Clamp<Sint32>(Direction.X, 0, 36000);
+			HapticDirection.dir[1] = 0;
+			HapticDirection.dir[2] = 0;
+			break;
+		case EForceFeedbackDirectionType::Spherical:
+			HapticDirection.type = SDL_HAPTIC_SPHERICAL;
+			HapticDirection.dir[0] = FMath::Clamp<Sint32>(Direction.X, 0, 36000);
+			HapticDirection.dir[1] = FMath::Clamp<Sint32>(Direction.Y, -9000, 9000);
+			HapticDirection.dir[2] = 0;
+			break;
+		case EForceFeedbackDirectionType::Cartesian:
+			HapticDirection.type = SDL_HAPTIC_CARTESIAN;
+			HapticDirection.dir[0] = FMath::Clamp<Sint32>(Direction.X, INT32_MIN, INT32_MAX);
+			HapticDirection.dir[1] = FMath::Clamp<Sint32>(Direction.Y, INT32_MIN, INT32_MAX);
+			HapticDirection.dir[2] = FMath::Clamp<Sint32>(Direction.Z, INT32_MIN, INT32_MAX);
+			break;
+		default:
+		case EForceFeedbackDirectionType::SteeringAxis:
 #if ENGINE_MAJOR_VERSION == 5
-				HapticDirection.type = SDL_HAPTIC_STEERING_AXIS;
+			HapticDirection.type = SDL_HAPTIC_STEERING_AXIS;
 #else
 				HapticDirection.type = SDL_HAPTIC_FIRST_AXIS;
 #endif
-				break;
+			HapticDirection.dir[0] = 0;
+			HapticDirection.dir[1] = 0;
+			HapticDirection.dir[2] = 0;
+			break;
 		}
 
 		return HapticDirection;

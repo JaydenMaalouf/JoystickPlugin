@@ -25,30 +25,30 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectPeriodicData
 	{
 	}
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Periodic|Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Data")
 	FForceFeedbackEffectDirectionData DirectionData;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Periodic|Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Data")
 	FForceFeedbackEffectDurationData DurationData;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Periodic|Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Data")
 	FForceFeedbackEffectReplayData ReplayData;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Periodic|Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Data")
 	FForceFeedbackEffectEnvelopeData EnvelopeData;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Periodic|Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Data")
 	EForceFeedbackPeriodicEffectType EffectType;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Periodic|Data", meta=(UIMin="0", ClampMin="0"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Data", meta=(UIMin="0", ClampMin="0"))
 	float Period;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Periodic|Data", meta=(UIMin="-1", UIMax="1", ClampMin="-1", ClampMax="1"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Data", meta=(UIMin="-1", UIMax="1", ClampMin="-1", ClampMax="1"))
 	float Magnitude;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Periodic|Data", meta=(UIMin="-1", UIMax="1", ClampMin="-1", ClampMax="1"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Data", meta=(UIMin="-1", UIMax="1", ClampMin="-1", ClampMax="1"))
 	float Offset;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Periodic|Data", meta=(UIMin="0", ClampMin="0"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Data", meta=(UIMin="0", ClampMin="0"))
 	float Phase;
 };

@@ -10,35 +10,35 @@ void UForceFeedbackEffectCondition::UpdateEffectData()
 
 	switch (EffectData.EffectType)
 	{
-		default:
-		case(EForceFeedbackConditionEffectType::Spring):
-			{
-				Effect.type = SDL_HAPTIC_SPRING;
-				//effect.condition.type = SDL_HAPTIC_SPRING;
-				break;
-			}
-		case(EForceFeedbackConditionEffectType::Damper):
-			{
-				Effect.type = SDL_HAPTIC_DAMPER;
-				//effect.condition.type = SDL_HAPTIC_DAMPER;
-				break;
-			}
-		case(EForceFeedbackConditionEffectType::Friction):
-			{
-				Effect.type = SDL_HAPTIC_FRICTION;
-				//effect.condition.type = SDL_HAPTIC_FRICTION;
-				break;
-			}
-		case(EForceFeedbackConditionEffectType::Inertia):
-			{
-				Effect.type = SDL_HAPTIC_INERTIA;
-				//effect.condition.type = SDL_HAPTIC_INERTIA;
-				break;
-			}
+	default:
+	case(EForceFeedbackConditionEffectType::Spring):
+		{
+			Effect.type = SDL_HAPTIC_SPRING;
+			//effect.condition.type = SDL_HAPTIC_SPRING;
+			break;
+		}
+	case(EForceFeedbackConditionEffectType::Damper):
+		{
+			Effect.type = SDL_HAPTIC_DAMPER;
+			//effect.condition.type = SDL_HAPTIC_DAMPER;
+			break;
+		}
+	case(EForceFeedbackConditionEffectType::Friction):
+		{
+			Effect.type = SDL_HAPTIC_FRICTION;
+			//effect.condition.type = SDL_HAPTIC_FRICTION;
+			break;
+		}
+	case(EForceFeedbackConditionEffectType::Inertia):
+		{
+			Effect.type = SDL_HAPTIC_INERTIA;
+			//effect.condition.type = SDL_HAPTIC_INERTIA;
+			break;
+		}
 	}
 
 	Effect.condition.direction = EffectData.DirectionData.ToSDLDirection();
-	Effect.condition.length = EffectData.DurationData.InfiniteDuration ? SDL_HAPTIC_INFINITY : FMath::Clamp<Uint32>(EffectData.DurationData.Duration * 1000.0f, 0, UINT32_MAX);
+	Effect.condition.length = GetEffectDuration();
 	Effect.condition.delay = FMath::Clamp<Uint16>(EffectData.ReplayData.Delay * 1000.0f, 0, UINT16_MAX);
 	Effect.condition.interval = FMath::Clamp<Uint16>(EffectData.ReplayData.RetriggerDelay * 1000.0f, 0, UINT16_MAX);
 
@@ -60,4 +60,9 @@ void UForceFeedbackEffectCondition::UpdateEffectData()
 	Effect.condition.center[0] = FMath::Clamp<Sint16>(EffectData.Center.X * INT16_MAX, INT16_MIN, INT16_MAX);
 	Effect.condition.center[1] = FMath::Clamp<Sint16>(EffectData.Center.Y * INT16_MAX, INT16_MIN, INT16_MAX);
 	Effect.condition.center[2] = FMath::Clamp<Sint16>(EffectData.Center.Z * INT16_MAX, INT16_MIN, INT16_MAX);
+}
+
+float UForceFeedbackEffectCondition::GetEffectDuration()
+{
+	return EffectData.DurationData.GetEffectDuration();
 }

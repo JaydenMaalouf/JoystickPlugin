@@ -79,7 +79,19 @@ bool UJoystickHapticDeviceManager::SetGain(const FJoystickInstanceId& InstanceId
 
 int UJoystickHapticDeviceManager::GetEffectStatus(const FJoystickInstanceId& InstanceId, const int EffectId)
 {
-	SDL_Haptic* HapticDevice = GetHapticDevice(InstanceId);
+	const FDeviceInfoSDL* DeviceInfo = GetDeviceInfo(InstanceId);
+	if (DeviceInfo == nullptr)
+	{
+		return -1;
+	}
+
+	if (DeviceInfo->Haptic.Status == false)
+	{
+		FJoystickLogManager::Get()->LogError("Can't check effect status because this device does not support effect status queries.");
+		return -1;
+	}
+
+	SDL_Haptic* HapticDevice = DeviceInfo->SDLHaptic;
 	if (HapticDevice == nullptr)
 	{
 		return -1;

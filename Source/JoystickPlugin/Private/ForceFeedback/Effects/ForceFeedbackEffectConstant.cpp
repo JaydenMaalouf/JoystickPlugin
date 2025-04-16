@@ -11,7 +11,7 @@ void UForceFeedbackEffectConstant::UpdateEffectData()
 	//effect.constant.type = SDL_HAPTIC_CONSTANT;
 
 	Effect.constant.direction = EffectData.DirectionData.ToSDLDirection();
-	Effect.constant.length = EffectData.DurationData.InfiniteDuration ? SDL_HAPTIC_INFINITY : FMath::Clamp<Uint32>(EffectData.DurationData.Duration * 1000.0f, 0, UINT32_MAX);
+	Effect.constant.length = GetEffectDuration();
 	Effect.constant.delay = FMath::Clamp<Uint16>(EffectData.ReplayData.Delay * 1000.0f, 0, UINT16_MAX);
 	Effect.constant.interval = FMath::Clamp<Uint16>(EffectData.ReplayData.RetriggerDelay * 1000.0f, 0, UINT16_MAX);
 
@@ -20,4 +20,9 @@ void UForceFeedbackEffectConstant::UpdateEffectData()
 	Effect.constant.attack_level = FMath::Clamp<Uint16>(EffectData.EnvelopeData.AttackLevel * UINT16_MAX, 0, UINT16_MAX);
 	Effect.constant.fade_length = FMath::Clamp<Uint16>(EffectData.EnvelopeData.FadeDuration * 1000.0f, 0, UINT16_MAX);
 	Effect.constant.fade_level = FMath::Clamp<Uint16>(EffectData.EnvelopeData.FadeLevel * UINT16_MAX, 0, UINT16_MAX);
+}
+
+float UForceFeedbackEffectConstant::GetEffectDuration()
+{
+	return EffectData.DurationData.GetEffectDuration();
 }

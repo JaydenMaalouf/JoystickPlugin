@@ -26,6 +26,7 @@ struct JOYSTICKPLUGIN_API FJoystickHapticInformation
 		  , Custom(false)
 		  , Gain(false)
 		  , AutoCenter(false)
+		  , Status(false)
 	{
 	}
 
@@ -73,4 +74,7 @@ struct JOYSTICKPLUGIN_API FJoystickHapticInformation
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config|Supported Effects")
 	bool AutoCenter;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config|Supported Effects")
+	bool Status;
 };
