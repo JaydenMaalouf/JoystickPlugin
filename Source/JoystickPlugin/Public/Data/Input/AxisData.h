@@ -60,45 +60,45 @@ struct JOYSTICKPLUGIN_API FAxisData
 	}
 
 	/* Current analog value */
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Axis")
 	float Value;
 
 	/* Last analog value */
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Axis")
 	float PreviousValue;
 
 	/* Should remap ranges */
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Axis")
 	bool RemappingEnabled;
 
 	/* Offset to apply to normalized axis value */
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Axis")
 	float InputOffset;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Axis")
 	bool InvertInput;
 
 	/* Min Analog value */
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Axis")
 	float InputRangeMin;
 
 	/* Max analog value */
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Axis")
 	float InputRangeMax;
 
 	/* Min Analog value */
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Axis")
 	float OutputRangeMin;
 
 	/* Max analog value */
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Axis")
 	float OutputRangeMax;
 
 	/* Is this axis inverted */
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Axis")
 	bool InvertOutput;
 
 	/* Is this axis centered on 0 instead of 0.5 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Axis")
 	bool bGamepadStick;
 };

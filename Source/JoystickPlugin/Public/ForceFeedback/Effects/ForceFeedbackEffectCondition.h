@@ -14,7 +14,7 @@ class JOYSTICKPLUGIN_API UForceFeedbackEffectCondition : public UForceFeedbackEf
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Joystick|Force Feedback")
 	FForceFeedbackEffectConditionData EffectData;
 
 protected:

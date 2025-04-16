@@ -42,58 +42,58 @@ public:
 	virtual TStatId GetStatId() const override { RETURN_QUICK_DECLARE_CYCLE_STAT(UForceFeedbackEffectBase, STATGROUP_Tickables); }
 	// End FTickableGameObject Interface.
 
-	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Functions")
+	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback")
 	void InitialiseEffect();
 
-	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Functions")
+	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback")
 	void StartEffect();
 
-	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Functions")
+	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback")
 	void StopEffect();
 
-	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Functions")
+	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback")
 	void DestroyEffect();
 
-	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Functions")
+	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback")
 	void UpdateEffect();
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Force Feedback|Events")
+	UFUNCTION(BlueprintImplementableEvent, Category = "Joystick|Force Feedback|Events")
 	void OnInitialisedEffect();
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Force Feedback|Events")
+	UFUNCTION(BlueprintImplementableEvent, Category = "Joystick|Force Feedback|Events")
 	void OnStartedEffect();
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Force Feedback|Events")
+	UFUNCTION(BlueprintImplementableEvent, Category = "Joystick|Force Feedback|Events")
 	void OnStoppedEffect();
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Force Feedback|Events")
+	UFUNCTION(BlueprintImplementableEvent, Category = "Joystick|Force Feedback|Events")
 	void OnUpdatedEffect();
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Force Feedback|Events")
+	UFUNCTION(BlueprintImplementableEvent, Category = "Joystick|Force Feedback|Events")
 	void OnDestroyedEffect();
 
 	UFUNCTION(BlueprintNativeEvent, meta=(DisplayName = "Tick"))
 	void ReceiveTick(const float DeltaTime);
 
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Force Feedback|Functions")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Joystick|Force Feedback")
 	int EffectStatus() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Functions")
+	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback")
 	void SetInstanceId(const FJoystickInstanceId& NewInstanceId);
 
-	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Functions")
+	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback")
 	const FJoystickInstanceId& GetInstanceId() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Functions")
+	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback")
 	void SetTickable(const bool NewTickable);
 
-	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Functions")
+	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback")
 	void SetTickableInEditor(const bool NewTickableInEditor);
 
-	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Functions")
+	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback")
 	void SetTickableWhenPaused(const bool NewTickableWhenPaused);
 
-	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Functions")
+	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback")
 	AActor* GetOwningActor() const;
 
 	template <class T>
@@ -113,49 +113,49 @@ public:
 		return Cast<T>(Outer);
 	}
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback", meta = (ExposeOnSpawn = true))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Joystick|Force Feedback", meta = (ExposeOnSpawn = true))
 	FJoystickInstanceId InstanceId;
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadonly, Category = "Force Feedback")
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadonly, Category = "Joystick|Force Feedback")
 	int EffectId;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Force Feedback")
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Force Feedback")
 	bool IsInitialised;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Joystick|Force Feedback")
 	FForceFeedbackEffectConfiguration Configuration;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback", meta = (ExposeOnSpawn = true, EditCondition="!InfiniteIterations", UIMin="0", ClampMin="0"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Joystick|Force Feedback", meta = (ExposeOnSpawn = true, EditCondition="!InfiniteIterations", UIMin="0", ClampMin="0"))
 	int Iterations;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback", meta = (ExposeOnSpawn = true))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Joystick|Force Feedback", meta = (ExposeOnSpawn = true))
 	bool InfiniteIterations;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Tick")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Joystick|Force Feedback|Tick")
 	bool Tickable;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Tick")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Joystick|Force Feedback|Tick")
 	bool TickableInEditor;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Tick")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Joystick|Force Feedback|Tick")
 	bool TickableWhenPaused;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Advanced", AdvancedDisplay)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Joystick|Force Feedback|Advanced", AdvancedDisplay, meta = (EditCondition = "Tickable"))
 	bool ForceStopAfterDurationLapsed;
 
-	UPROPERTY(BlueprintAssignable, meta = (DisplayName = "OnInitialisedEffect"), Category = "Force Feedback|Delegates")
+	UPROPERTY(BlueprintAssignable, Category = "Joystick|Force Feedback|Delegates", meta = (DisplayName = "OnInitialisedEffect"))
 	FOnInitialisedEffect OnInitialisedEffectDelegate;
 
-	UPROPERTY(BlueprintAssignable, meta = (DisplayName = "OnStartedEffect"), Category = "Force Feedback|Delegates")
+	UPROPERTY(BlueprintAssignable, Category = "Joystick|Force Feedback|Delegates", meta = (DisplayName = "OnStartedEffect"))
 	FOnStartedEffect OnStartedEffectDelegate;
 
-	UPROPERTY(BlueprintAssignable, meta = (DisplayName = "OnStoppedEffect"), Category = "Force Feedback|Delegates")
+	UPROPERTY(BlueprintAssignable, Category = "Joystick|Force Feedback|Delegates", meta = (DisplayName = "OnStoppedEffect"))
 	FOnStoppedEffect OnStoppedEffectDelegate;
 
-	UPROPERTY(BlueprintAssignable, meta = (DisplayName = "OnUpdatedEffect"), Category = "Force Feedback|Delegates")
+	UPROPERTY(BlueprintAssignable, Category = "Joystick|Force Feedback|Delegates", meta = (DisplayName = "OnUpdatedEffect"))
 	FOnUpdatedEffect OnUpdatedEffectDelegate;
 
-	UPROPERTY(BlueprintAssignable, meta = (DisplayName = "OnDestroyedEffect"), Category = "Force Feedback|Delegates")
+	UPROPERTY(BlueprintAssignable, Category = "Joystick|Force Feedback|Delegates", meta = (DisplayName = "OnDestroyedEffect"))
 	FOnDestroyedEffect OnDestroyedEffectDelegate;
 
 protected:

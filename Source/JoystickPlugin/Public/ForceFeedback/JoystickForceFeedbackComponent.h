@@ -23,40 +23,40 @@ public:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	UFUNCTION(BlueprintNativeEvent, Category = "Force Feedback|Component|Events")
+	UFUNCTION(BlueprintNativeEvent, Category = "Joystick|Force Feedback Component|Events")
 	void OnInitialisedEffect(const UForceFeedbackEffectBase* Effect);
 
-	UFUNCTION(BlueprintNativeEvent, Category = "Force Feedback|Component|Events")
+	UFUNCTION(BlueprintNativeEvent, Category = "Joystick|Force Feedback Component|Events")
 	void OnStartedEffect(const UForceFeedbackEffectBase* Effect);
 
-	UFUNCTION(BlueprintNativeEvent, Category = "Force Feedback|Component|Events")
+	UFUNCTION(BlueprintNativeEvent, Category = "Joystick|Force Feedback Component|Events")
 	void OnStoppedEffect(const UForceFeedbackEffectBase* Effect);
 
-	UFUNCTION(BlueprintNativeEvent, Category = "Force Feedback|Component|Events")
+	UFUNCTION(BlueprintNativeEvent, Category = "Joystick|Force Feedback Component|Events")
 	void OnUpdatedEffect(const UForceFeedbackEffectBase* Effect);
 
-	UFUNCTION(BlueprintNativeEvent, Category = "Force Feedback|Component|Events")
+	UFUNCTION(BlueprintNativeEvent, Category = "Joystick|Force Feedback Component|Events")
 	void OnDestroyedEffect(const UForceFeedbackEffectBase* Effect);
 
-	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Component|Functions")
+	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback Component")
 	TArray<UForceFeedbackEffectBase*> GetEffects() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Component|Functions")
+	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback Component")
 	void StartEffect();
 
-	UFUNCTION(BlueprintCallable, Category = "Force Feedback|Component|Functions")
+	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback Component")
 	void StopEffect();
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Force Feedback|Component")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Joystick|Force Feedback Component")
 	FJoystickInstanceId InstanceId;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Force Feedback|Component")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Joystick|Force Feedback Component")
 	TSubclassOf<UForceFeedbackEffectBase> EffectType;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback|Component")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Joystick|Force Feedback Component")
 	FForceFeedbackComponentConfiguration Configuration;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Force Feedback|Component")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Joystick|Force Feedback Component")
 	TArray<UForceFeedbackEffectBase*> Effects;
 
 private:
