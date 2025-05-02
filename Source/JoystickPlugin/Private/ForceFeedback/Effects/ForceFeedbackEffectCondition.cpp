@@ -62,7 +62,7 @@ void UForceFeedbackEffectCondition::UpdateEffectData()
 	Effect.condition.center[2] = FMath::Clamp<Sint16>(EffectData.Center.Z * INT16_MAX, INT16_MIN, INT16_MAX);
 }
 
-float UForceFeedbackEffectCondition::GetEffectDuration()
+uint32 UForceFeedbackEffectCondition::GetEffectDuration()
 {
 	return EffectData.DurationData.GetEffectDuration();
 }

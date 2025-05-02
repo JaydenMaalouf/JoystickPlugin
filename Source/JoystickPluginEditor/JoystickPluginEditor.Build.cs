@@ -13,6 +13,8 @@ public class JoystickPluginEditor : ModuleRules
 				"EditorStyle",
 				"SlateCore",
 				"Slate",
+				"InputCore",
+				"UnrealEd",
 				"JoystickPlugin",
 				"PropertyEditor"
 			});

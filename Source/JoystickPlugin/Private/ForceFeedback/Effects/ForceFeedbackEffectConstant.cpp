@@ -22,7 +22,7 @@ void UForceFeedbackEffectConstant::UpdateEffectData()
 	Effect.constant.fade_level = FMath::Clamp<Uint16>(EffectData.EnvelopeData.FadeLevel * UINT16_MAX, 0, UINT16_MAX);
 }
 
-float UForceFeedbackEffectConstant::GetEffectDuration()
+uint32 UForceFeedbackEffectConstant::GetEffectDuration()
 {
 	return EffectData.DurationData.GetEffectDuration();
 }

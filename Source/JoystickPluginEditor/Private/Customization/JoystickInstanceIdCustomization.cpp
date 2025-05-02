@@ -1,5 +1,7 @@
-﻿#include "Customization/JoystickInstanceIdCustomization.h"
+﻿// JoystickPlugin is licensed under the MIT License.
+// Copyright Jayden Maalouf. All Rights Reserved.
 
+#include "Customization/JoystickInstanceIdCustomization.h"
 
 #if WITH_EDITOR
 

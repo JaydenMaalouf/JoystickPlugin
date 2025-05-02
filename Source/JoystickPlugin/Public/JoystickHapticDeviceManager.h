@@ -67,6 +67,6 @@ public:
 	void DestroyEffect(const FJoystickInstanceId& InstanceId, const int EffectId) const;
 
 private:
-	SDL_Haptic* GetHapticDevice(const FJoystickInstanceId& InstanceId) const;
-	FDeviceInfoSDL* GetDeviceInfo(const FJoystickInstanceId& InstanceId) const;
+	TTuple<SDL_Haptic*, FResultMessage> GetHapticDevice(const FJoystickInstanceId& InstanceId) const;
+	TTuple<FDeviceInfoSDL*, FResultMessage> GetDeviceInfo(const FJoystickInstanceId& InstanceId) const;
 };

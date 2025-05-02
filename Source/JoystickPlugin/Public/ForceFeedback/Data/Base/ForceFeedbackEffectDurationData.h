@@ -23,7 +23,7 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectDurationData
 	{
 	}
 
-	float GetEffectDuration() const
+	uint32 GetEffectDuration() const
 	{
 		return InfiniteDuration ? SDL_HAPTIC_INFINITY : FMath::Clamp<Uint32>(Duration * 1000.0f, 0, UINT32_MAX);
 	}

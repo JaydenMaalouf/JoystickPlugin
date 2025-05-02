@@ -7,6 +7,8 @@
 #include "Data/Settings/JoystickInputDeviceAxisProperties.h"
 #include "Data/Settings/JoystickInputKeyConfiguration.h"
 #include "InputCoreTypes.h"
+#include "Data/DeviceInfoSDL.h"
+#include "Data/JoystickIdentifierType.h"
 
 #include "JoystickInputSettings.generated.h"
 
@@ -36,6 +38,9 @@ public:
 	UPROPERTY(config, EditAnywhere, Category = "Joystick Settings", meta = (ToolTip = "Enable debug logging from the plugin."))
 	bool EnableLogs;
 
+	UPROPERTY(config, EditAnywhere, Category = "Joystick Settings", meta = (ToolTip = "Instead of a separate key for X and Y axis keys, a FVector2D key will be created alongside the existing keys."))
+	bool EnablePairedKeys;
+
 	UPROPERTY(config, EditAnywhere, Category = "Joystick Settings",
 		meta = (Bitmask, BitmaskEnum = "/Script/JoystickPlugin.EHatDirection", ToolTip = "Map Hat Axis to Keys. Select which direction keys you would like mapped", ConfigRestartRequired = true))
 	int32 MapHatAxisToKeys;
@@ -60,7 +65,7 @@ public:
 	bool GetIgnoreGameControllers() const;
 	bool SetIgnoreGameControllers(const bool NewIgnoreGameControllers);
 
-	const FJoystickInputDeviceConfiguration* GetInputDeviceConfiguration(const FGuid& ProductGuid) const;
+	const FJoystickInputDeviceConfiguration* GetInputDeviceConfiguration(const FJoystickInformation& Device) const;
 	const FJoystickInputDeviceConfiguration* GetInputDeviceConfigurationByKey(const FKey& Key) const;
 	const FJoystickInputDeviceAxisProperties* GetAxisPropertiesByKey(const FKey& AxisKey) const;
 
@@ -69,5 +74,6 @@ public:
 #endif
 
 private:
-	const FJoystickInputDeviceConfiguration* FindConfiguration(const TArray<FJoystickInputDeviceConfiguration>& ConfigurationArray, const FGuid& ProductGuid, bool IncludeEmptyGuids = false) const;
+	const FJoystickInputDeviceConfiguration* FindConfiguration(const TArray<FJoystickInputDeviceConfiguration>& ConfigurationArray, const FJoystickInformation& Device, bool IncludeEmptyGuids = false) const;
+	const FJoystickInputDeviceConfiguration* FindConfiguration(const TArray<FJoystickInputDeviceConfiguration>& ConfigurationArray, const FJoystickInputDeviceConfiguration& Device, const bool IncludeEmptyGuids = false) const;
 };

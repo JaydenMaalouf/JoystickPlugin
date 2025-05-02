@@ -45,6 +45,20 @@ void FJoystickPluginSettingsDetails::CustomizeDetails(IDetailLayoutBuilder& Deta
 
 			return (FReply::Handled());
 		})
+	]
+	+ SHorizontalBox::Slot()
+	.Padding(5)
+	.AutoWidth()
+	[
+		SNew(SButton)
+		.Text(LOCTEXT("OpenVisualizer", "Open Joystick Viewer"))
+		.ToolTipText(LOCTEXT(
+			"OpenVisualizer_Tooltip", "Opens the Joystick Viewer debugging window."))
+		.OnClicked_Lambda([this, Settings]()
+		{
+			FGlobalTabmanager::Get()->TryInvokeTab(FName("JoystickInputViewer"));
+			return (FReply::Handled());
+		})
 	]];
 }
 

@@ -14,10 +14,10 @@ class JOYSTICKPLUGIN_API UForceFeedbackEffectLeftRight : public UForceFeedbackEf
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Joystick|Force Feedback")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback")
 	FForceFeedbackEffectLeftRightData EffectData;
 
 protected:
 	virtual void UpdateEffectData() override;
-	virtual float GetEffectDuration() override;
+	virtual uint32 GetEffectDuration() override;
 };

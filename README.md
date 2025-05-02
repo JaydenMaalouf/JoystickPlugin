@@ -1,49 +1,77 @@
 [![](https://img.shields.io/github/actions/workflow/status/JaydenMaalouf/JoystickPlugin/release.yml?branch=master)](https://github.com/JaydenMaalouf/JoystickPlugin/actions/workflows/release.yml)
 [![](https://img.shields.io/github/v/release/JaydenMaalouf/JoystickPlugin)](https://github.com/JaydenMaalouf/JoystickPlugin/releases/latest)
 
-# JoystickPlugin :joystick:
+# :video_game: JoystickPlugin for Unreal Engine
 
-This plugin uses SDL2 functions to pass input to the Unreal Engine Gameplay Input Loop.  
-It provides a project friendly Force Feedback Effect library to enable Developers to create dynamic effects that are affected by gameplay.
+**Plug in. Power up. Feel everything.**
 
-Visit the [Wiki](https://github.com/JaydenMaalouf/JoystickPlugin/wiki) for a guide on all things Joystick Plugin.
+`JoystickPlugin` brings SDL2-powered joystick and steering wheel support — including force feedback — to Unreal Engine 4 & 5. With a deep integration into Unreal’s Input System, this plugin is designed to help developers **create immersive, responsive, and reactive input experiences** with minimal setup.
 
-### What is the purpose of this plugin? :thought_balloon:
+## :blue_book: Documentation
 
-This plugin aims to provide a simple plug and play system for Joysticks and Steering Wheels (with Forced Feedback capabilities) for Unreal Engine 4/5.
+Head to the [Wiki](https://github.com/JaydenMaalouf/JoystickPlugin/wiki) for installation steps, feature breakdowns, and usage guides.
 
-### Features
+---
 
-- Native Unreal Input Loop :joystick:
-- Event Driven Structure :mailbox_with_mail:
-- Assign Controller to a player :video_game:
-- Haptic/Force Feedback :collision:
-- Sensor Data (Gyro/Accelerometer) :dancer:
-- LED Control :rotating_light:
+## :bulb: Why use JoystickPlugin?
 
-### How is this any different to the existing plugins? :thinking:
+Unlike generic C++ wrappers, this plugin is **built for Unreal from the ground up**, taking full advantage of:
 
-This plugin has been rebuilt (almost entirely) from it's forked version.  
-It was designed with Unreal in mind, rather than a generic C++ plugin - making use of Subsystems, Project Settings and more!
-The plugin is also multi-platform, supporting Linux and Windows distributions.
+- :electric_plug: Subsystems
+- :gear: Project Settings
+- :jigsaw: Plugin Architecture
 
-### Credits :trophy:
+It's also **multi-platform**, with support for **Windows** and **Linux**!
 
-Thank you to the following for the working basis:
+---
+
+## :sparkles: Key Features
+
+- :video_game: **Native Unreal Input Loop** – Fully hooks into Unreal’s enhanced input system
+- :mailbox_with_mail: **Event-Driven Architecture** – React to device input with clean, modular callbacks
+- :bust_in_silhouette: **Player Controller Assignment** – Easily map devices to players
+- :boom: **Force Feedback / Haptics** – Use gameplay events to trigger realistic FFB effects
+- :satellite: **Sensor Data Support** – Read gyro and accelerometer values (where supported)
+- :bulb: **LED Control** – Change device LEDs dynamically
+- :card_index_dividers: **Device Profiles** – Define and load config presets for devices
+
+---
+
+## :thinking: How does it compare to other solutions?
+
+JoystickPlugin isn't just a port — it's a full Unreal-native rework.  
+Originally forked, this version was refactored with Unreal-first principles:
+
+- :brick: Uses UE Subsystems instead of ad-hoc architecture
+- :hammer_and_wrench: Exposes plugin features in Project Settings for easy customization
+- :earth_americas: Cross-platform (Windows/Linux) with minimal config
+
+---
+
+## :trophy: Contributors & Credits
+
+Big thanks to the original and extended contributors who made this plugin possible:
+
+### Original Foundations
 
 - [tsky1971](https://github.com/tsky1971)
 - [Ikarus76](https://github.com/Ikarus76)
 - [SamPersson](https://github.com/SamPersson)
 
-Extended thanks to the following for contributing to the plugin:
+### Plugin Contributors
 
 - [MalikuMane](https://github.com/MalikuMane)
 - [gotleg](https://github.com/gotleg)
 
-Also special thanks to the following for assisting in finding bugs:
+### QA & Bug Bounty Heroes
 
 - [brifsttar](https://github.com/brifsttar)
 - [Juris3D](https://github.com/Juris3D)
 - [craytex](https://github.com/craytex)
 
-Icons made by [Adib Sulthon](https://www.flaticon.com/authors/adib-sulthon 'Adib Sulthon') from [www.flaticon.com](https://www.flaticon.com/ 'Flaticon')
+---
+
+## :art: Aesthetic Attribution
+
+Controller icons by [Adib Sulthon](https://www.flaticon.com/authors/adib-sulthon)  
+From [Flaticon.com](https://www.flaticon.com)

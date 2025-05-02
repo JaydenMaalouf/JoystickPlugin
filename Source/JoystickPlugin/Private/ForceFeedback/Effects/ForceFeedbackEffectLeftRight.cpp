@@ -16,7 +16,7 @@ void UForceFeedbackEffectLeftRight::UpdateEffectData()
 	Effect.leftright.small_magnitude = FMath::Clamp<Uint16>(EffectData.SmallMagnitude * UINT16_MAX, 0, UINT16_MAX);
 }
 
-float UForceFeedbackEffectLeftRight::GetEffectDuration()
+uint32 UForceFeedbackEffectLeftRight::GetEffectDuration()
 {
 	return EffectData.DurationData.GetEffectDuration();
 }
