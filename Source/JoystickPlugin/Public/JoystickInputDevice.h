@@ -8,6 +8,7 @@
 #include "Data/JoystickDeviceState.h"
 #include "Data/JoystickInstanceId.h"
 
+struct FKeyPair;
 enum class EHatDirection : uint8;
 struct FDeviceInfoSDL;
 
@@ -33,7 +34,11 @@ public:
 	void JoystickGyro(const FJoystickInstanceId& InstanceId, const int Timestamp, const FVector& Value);
 	void JoystickAccelerometer(const FJoystickInstanceId& InstanceId, const int Timestamp, const FVector& Value);
 
-	FJoystickDeviceState* GetDeviceData(const FJoystickInstanceId& InstanceId);
+	TTuple<FJoystickDeviceState*, FResultMessage> GetDeviceState(const FJoystickInstanceId& InstanceId);
+	void GetDeviceKeys(const FJoystickInstanceId& InstanceId, TArray<FKey>& Keys);
+	const FKey& GetDeviceAxisKey(const FJoystickInstanceId& InstanceId, const int AxisIndex);
+	const FKey& GetDeviceButtonKey(const FJoystickInstanceId& InstanceId, const int ButtonIndex);
+	const FKeyPair& GetDeviceHatKey(const FJoystickInstanceId& InstanceId, int HatKeyIndex);
 	FJoystickInstanceId GetInstanceIdByKey(const FKey& Key) const;
 	int GetAxisIndexFromKey(const FKey& Key) const;
 
@@ -43,9 +48,9 @@ public:
 private:
 	void InitialiseAxis(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName);
 	void InitialiseButtons(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName);
-	void InitialiseHatAxis(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName);
+	void InitialiseHatAxis(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName, bool PairedKey);
 	void InitialiseHatButtons(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName);
-	void InitialiseBalls(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName);
+	void InitialiseBalls(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName, bool PairedKey);
 
 	void TrySetCustomDisplayName(FString& ButtonDisplayName, const FKey& ButtonKey);
 	void TryAddWidgetNavigation(const FKey& ButtonKey);
@@ -54,9 +59,11 @@ private:
 
 	TMap<FJoystickInstanceId, TArray<FKey>> DeviceButtonKeys;
 	TMap<FJoystickInstanceId, TArray<FKey>> DeviceAxisKeys;
-	TMap<FJoystickInstanceId, TArray<FKey>> DeviceHatAxisKeys[2];
+	TMap<FJoystickInstanceId, TArray<FKeyPair>> DeviceHatAxisKeys;
+	TMap<FJoystickInstanceId, TArray<FKey>> DeviceHatAxisPairedKeys;
 	TMap<FJoystickInstanceId, TArray<FKey>> DeviceHatButtonKeys;
-	TMap<FJoystickInstanceId, TArray<FKey>> DeviceBallKeys[2];
+	TMap<FJoystickInstanceId, TArray<FKeyPair>> DeviceBallKeys;
+	TMap<FJoystickInstanceId, TArray<FKey>> DeviceBallPairedKeys;
 	TMap<FJoystickInstanceId, TArray<FKey>> DeviceKeys;
 
 	TSharedRef<FGenericApplicationMessageHandler> MessageHandler;

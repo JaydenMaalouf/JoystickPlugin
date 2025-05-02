@@ -46,6 +46,9 @@ struct FJoystickInformation
 	int ProductId;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
+	FString DeviceHash;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
 	FGuid ProductGuid;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")

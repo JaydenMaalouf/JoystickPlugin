@@ -4,6 +4,7 @@
 #pragma once
 
 #include "JoystickInputDeviceAxisProperties.h"
+#include "Data/JoystickIdentifierType.h"
 
 #include "JoystickInputDeviceConfiguration.generated.h"
 
@@ -13,17 +14,33 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceConfiguration
 	GENERATED_BODY()
 
 	FJoystickInputDeviceConfiguration()
-		: OverrideDeviceName(false)
-	{
-	}
-
-	FJoystickInputDeviceConfiguration(const FGuid& JoystickProductId)
-		: ProductGuid(JoystickProductId)
+		: DeviceIdentifyMethod(EJoystickIdentifierType::Hashed)
 		  , OverrideDeviceName(false)
 	{
 	}
 
-	UPROPERTY(EditAnywhere, Category="Device Config", meta=(ToolTip="Used to determine the device to apply the configuration to."))
+	FJoystickInputDeviceConfiguration(const FGuid& JoystickProductId)
+		: DeviceIdentifyMethod(EJoystickIdentifierType::Hashed)
+		  , ProductGuid(JoystickProductId)
+		  , OverrideDeviceName(false)
+	{
+	}
+
+	FJoystickInputDeviceConfiguration(const FString& JoystickHash)
+		: DeviceIdentifyMethod(EJoystickIdentifierType::Hashed)
+		  , DeviceHash(JoystickHash)
+		  , OverrideDeviceName(false)
+	{
+	}
+
+	UPROPERTY(EditAnywhere, Category = "Joystick Settings",
+		meta = (ToolTip = "TODO", ConfigRestartRequired = true))
+	EJoystickIdentifierType DeviceIdentifyMethod;
+
+	UPROPERTY(EditAnywhere, Category="Device Config", meta=(ToolTip="Used to determine the device to apply the configuration to.", EditCondition="DeviceIdentifyMethod==EJoystickIdentifierType::Hashed", EditConditionHides))
+	FString DeviceHash;
+
+	UPROPERTY(EditAnywhere, Category="Device Config", meta=(ToolTip="Used to determine the device to apply the configuration to.", EditCondition="DeviceIdentifyMethod==EJoystickIdentifierType::Legacy", EditConditionHides))
 	FGuid ProductGuid;
 
 	UPROPERTY(EditAnywhere, Category="Device Config",

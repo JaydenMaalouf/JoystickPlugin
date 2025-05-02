@@ -14,10 +14,10 @@ class JOYSTICKPLUGIN_API UForceFeedbackEffectPeriodic : public UForceFeedbackEff
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Joystick|Force Feedback")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback")
 	FForceFeedbackEffectPeriodicData EffectData;
 
 protected:
 	virtual void UpdateEffectData() override;
-	virtual float GetEffectDuration() override;
+	virtual uint32 GetEffectDuration() override;
 };

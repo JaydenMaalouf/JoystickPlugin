@@ -9,7 +9,7 @@
 #if UE_BUILD_SHIPPING
 	DECLARE_LOG_CATEGORY_EXTERN(LogJoystickPlugin, Display, All);
 #else
-	DECLARE_LOG_CATEGORY_EXTERN(LogJoystickPlugin, Log, All);
+  DECLARE_LOG_CATEGORY_EXTERN(LogJoystickPlugin, Log, All);
 #endif
 
 class JOYSTICKPLUGIN_API FJoystickLogManager
@@ -34,6 +34,11 @@ public:
 		}
 	}
 
+	void Log(const ELogVerbosity::Type Level, const FResultMessage& Message)
+	{
+		Log(Level, TEXT("%s"), *Message.ErrorMessage);
+	}
+
 	template <typename FmtType, typename... Types>
 	void LogWarning(const FmtType& Fmt, Types... Args)
 	{
@@ -43,6 +48,11 @@ public:
 		}
 
 		UE_LOG(LogJoystickPlugin, Warning, TEXT("%s"), *FString::Printf(Fmt, Args...));
+	}
+
+	void LogWarning(const FResultMessage& Message)
+	{
+		LogWarning(TEXT("%s"), *Message.ErrorMessage);
 	}
 
 	template <typename FmtType, typename... Types>
@@ -56,7 +66,10 @@ public:
 		UE_LOG(LogJoystickPlugin, Error, TEXT("%s"), *FString::Printf(Fmt, Args...));
 	}
 
-	void LogSDLError(const FString& Message);
+	void LogError(const FResultMessage& Message)
+	{
+		LogError(TEXT("%s"), *Message.ErrorMessage);
+	}
 
 	template <typename FmtType, typename... Types>
 	void LogDebug(const FmtType& Fmt, Types... Args)
@@ -69,6 +82,11 @@ public:
 		UE_LOG(LogJoystickPlugin, Log, TEXT("%s"), *FString::Printf(Fmt, Args...));
 	}
 
+	void LogDebug(const FResultMessage& Message)
+	{
+		LogDebug(TEXT("%s"), *Message.ErrorMessage);
+	}
+
 	template <typename FmtType, typename... Types>
 	void LogInformation(const FmtType& Fmt, Types... Args)
 	{
@@ -79,6 +97,13 @@ public:
 
 		UE_LOG(LogJoystickPlugin, Display, TEXT("%s"), *FString::Printf(Fmt, Args...));
 	}
+
+	void LogInformation(const FResultMessage& Message)
+	{
+		LogInformation(TEXT("%s"), *Message.ErrorMessage);
+	}
+
+	void LogSDLError(const FString& Message);
 
 private:
 	bool CanLog() const

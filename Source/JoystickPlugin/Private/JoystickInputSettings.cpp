@@ -11,11 +11,10 @@
 #include "JoystickInputDevice.h"
 #include "JoystickSubsystem.h"
 
-UJoystickInputSettings::UJoystickInputSettings() :
-	UseDeviceName(false),
-	IncludeDeviceIndex(true),
-	IgnoreGameControllers(false),
-	EnableLogs(true)
+UJoystickInputSettings::UJoystickInputSettings() : UseDeviceName(false),
+                                                   IncludeDeviceIndex(true),
+                                                   IgnoreGameControllers(false),
+                                                   EnableLogs(true)
 {
 	MapHatAxisToKeys = static_cast<int32>(EHatDirection::Up | EHatDirection::Down | EHatDirection::Left | EHatDirection::Right);
 }
@@ -38,14 +37,14 @@ void UJoystickInputSettings::ResetDevices()
 	ConnectedDevices.Empty();
 }
 
-const FJoystickInputDeviceConfiguration* UJoystickInputSettings::GetInputDeviceConfiguration(const FGuid& ProductGuid) const
+const FJoystickInputDeviceConfiguration* UJoystickInputSettings::GetInputDeviceConfiguration(const FJoystickInformation& Device) const
 {
-	if (const FJoystickInputDeviceConfiguration* DeviceConfiguration = FindConfiguration(DeviceConfigurations, ProductGuid, true))
+	if (const FJoystickInputDeviceConfiguration* DeviceConfiguration = FindConfiguration(DeviceConfigurations, Device, true))
 	{
 		return DeviceConfiguration;
 	}
 
-	return FindConfiguration(ProfileConfigurations, ProductGuid, true);
+	return FindConfiguration(ProfileConfigurations, Device, true);
 }
 
 bool UJoystickInputSettings::GetIgnoreGameControllers() const
@@ -87,7 +86,7 @@ const FJoystickInputDeviceConfiguration* UJoystickInputSettings::GetInputDeviceC
 		return nullptr;
 	}
 
-	return GetInputDeviceConfiguration(DeviceInfo.ProductGuid);
+	return GetInputDeviceConfiguration(DeviceInfo);
 }
 
 const FJoystickInputDeviceAxisProperties* UJoystickInputSettings::GetAxisPropertiesByKey(const FKey& AxisKey) const
@@ -155,7 +154,7 @@ void UJoystickInputSettings::PostEditChangeChainProperty(FPropertyChangedChainEv
 
 void UJoystickInputSettings::AddDeviceConfiguration(const FJoystickInputDeviceConfiguration& InDeviceConfiguration)
 {
-	if (FindConfiguration(DeviceConfigurations, InDeviceConfiguration.ProductGuid))
+	if (FindConfiguration(DeviceConfigurations, InDeviceConfiguration))
 	{
 		return;
 	}
@@ -165,7 +164,7 @@ void UJoystickInputSettings::AddDeviceConfiguration(const FJoystickInputDeviceCo
 
 void UJoystickInputSettings::AddProfileConfiguration(const FJoystickInputDeviceConfiguration& InDeviceConfiguration)
 {
-	if (FindConfiguration(ProfileConfigurations, InDeviceConfiguration.ProductGuid))
+	if (FindConfiguration(ProfileConfigurations, InDeviceConfiguration))
 	{
 		return;
 	}
@@ -173,10 +172,23 @@ void UJoystickInputSettings::AddProfileConfiguration(const FJoystickInputDeviceC
 	ProfileConfigurations.Add(InDeviceConfiguration);
 }
 
-const FJoystickInputDeviceConfiguration* UJoystickInputSettings::FindConfiguration(const TArray<FJoystickInputDeviceConfiguration>& ConfigurationArray, const FGuid& ProductGuid, const bool IncludeEmptyGuids) const
+const FJoystickInputDeviceConfiguration* UJoystickInputSettings::FindConfiguration(const TArray<FJoystickInputDeviceConfiguration>& ConfigurationArray, const FJoystickInformation& Device, const bool IncludeEmptyGuids) const
 {
-	return ConfigurationArray.FindByPredicate([ProductGuid, IncludeEmptyGuids](const FJoystickInputDeviceConfiguration& PredicateDeviceConfig)
+	return ConfigurationArray.FindByPredicate([Device, IncludeEmptyGuids](const FJoystickInputDeviceConfiguration& PredicateDeviceConfig)
 	{
-		return ((IncludeEmptyGuids && !PredicateDeviceConfig.ProductGuid.IsValid()) || ProductGuid == PredicateDeviceConfig.ProductGuid);
+		if (PredicateDeviceConfig.DeviceIdentifyMethod == EJoystickIdentifierType::Legacy)
+		{
+			return ((IncludeEmptyGuids && !PredicateDeviceConfig.ProductGuid.IsValid()) || Device.ProductGuid == PredicateDeviceConfig.ProductGuid);
+		}
+
+		return ((IncludeEmptyGuids && !PredicateDeviceConfig.DeviceHash.IsEmpty()) || Device.DeviceHash == PredicateDeviceConfig.DeviceHash);
 	});
+}
+
+const FJoystickInputDeviceConfiguration* UJoystickInputSettings::FindConfiguration(const TArray<FJoystickInputDeviceConfiguration>& ConfigurationArray, const FJoystickInputDeviceConfiguration& Device, const bool IncludeEmptyGuids) const
+{
+	FJoystickInformation DummyJoystickInformation;
+	DummyJoystickInformation.ProductGuid = Device.ProductGuid;
+	DummyJoystickInformation.DeviceHash = Device.DeviceHash;
+	return FindConfiguration(ConfigurationArray, DummyJoystickInformation, IncludeEmptyGuids);
 }

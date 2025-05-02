@@ -28,6 +28,7 @@ UForceFeedbackEffectBase::UForceFeedbackEffectBase(const FObjectInitializer& Obj
 	  , ForceStopAfterDurationLapsed(false)
 	  , Effect()
 	  , StartTime(-1)
+	  , EffectRunning(false)
 {
 }
 
@@ -59,20 +60,16 @@ void UForceFeedbackEffectBase::Tick(const float DeltaTime)
 		UpdateEffect();
 	}
 
-	const float Duration = GetEffectDuration();
-	const uint64 CurrentTime = SDL_GetTicks();
-	if (StartTime != -1 && InfiniteIterations == false && Duration != -1)
+	const uint32 Duration = GetEffectDuration();
+	if (EffectRunning && InfiniteIterations == false && StartTime != -1 && Duration != -1)
 	{
+		const uint64 CurrentTime = SDL_GetTicks();
 		if (CurrentTime - StartTime >= Duration)
 		{
-			UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
-			if (IsValid(HapticDeviceManager))
+			// Effect should be finished but sometimes SDL2 doesn't handle the status correctly.
+			if (GetEffectStatus() == 0 || ForceStopAfterDurationLapsed)
 			{
-				// Effect should be finished but sometimes SDL2 doesn't handle the status correctly.
-				if (HapticDeviceManager->GetEffectStatus(InstanceId, EffectId) == 0 || ForceStopAfterDurationLapsed)
-				{
-					StopEffect();
-				}
+				StopEffect();
 			}
 		}
 	}
@@ -95,6 +92,7 @@ void UForceFeedbackEffectBase::InitialiseEffect()
 	const UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
 	if (!IsValid(HapticDeviceManager))
 	{
+		FJoystickLogManager::Get()->LogError(TEXT("UForceFeedbackEffectBase::InitialiseEffect: HapticDeviceManager is invalid."));
 		return;
 	}
 
@@ -149,6 +147,8 @@ void UForceFeedbackEffectBase::DestroyEffect()
 
 	IsInitialised = false;
 	EffectId = -1;
+	StartTime = -1;
+	EffectRunning = false;
 
 	//Safety check to ensure we don't try calling BP during destruction
 #if ENGINE_MAJOR_VERSION == 5
@@ -177,9 +177,10 @@ void UForceFeedbackEffectBase::StartEffect()
 		return;
 	}
 
-	const int Status = EffectStatus();
+	const int Status = GetEffectStatus();
 	if (Status == 1)
 	{
+		EffectRunning = true;
 		return;
 	}
 
@@ -200,6 +201,7 @@ void UForceFeedbackEffectBase::StartEffect()
 		return;
 	}
 	StartTime = SDL_GetTicks64();
+	EffectRunning = true;
 
 	//Safety check to ensure we don't try calling BP during destruction
 #if ENGINE_MAJOR_VERSION == 5
@@ -239,6 +241,8 @@ void UForceFeedbackEffectBase::StopEffect()
 	{
 		return;
 	}
+	StartTime = -1;
+	EffectRunning = false;
 
 	//Safety check to ensure we don't try calling BP during destruction
 #if ENGINE_MAJOR_VERSION == 5
@@ -299,7 +303,7 @@ void UForceFeedbackEffectBase::ReceiveTick_Implementation(const float DeltaTime)
 {
 }
 
-int UForceFeedbackEffectBase::EffectStatus() const
+int UForceFeedbackEffectBase::GetEffectStatus() const
 {
 	UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
 	if (!IsValid(HapticDeviceManager))
@@ -356,7 +360,7 @@ void UForceFeedbackEffectBase::UpdateEffectData()
 {
 }
 
-float UForceFeedbackEffectBase::GetEffectDuration()
+uint32 UForceFeedbackEffectBase::GetEffectDuration()
 {
-	return -1.0f;
+	return -1;
 }

@@ -4,6 +4,7 @@
 #pragma once
 
 #include "Data/DeviceInfoSDL.h"
+#include "Data/JoystickSensorType.h"
 #include "Subsystems/EngineSubsystem.h"
 
 #include "JoystickSubsystem.generated.h"
@@ -75,7 +76,7 @@ public:
 	bool SetJoystickLedColor(const FJoystickInstanceId& InstanceId, const FColor Color);
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick")
-	void GetInstanceIds(TArray<FJoystickInstanceId>& InstanceIds) const;
+	void GetInstanceIds(TArray<FJoystickInstanceId>& InstanceIds, const bool IncludeDisconnected = false) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick")
 	bool HasRumbleDevice() const;
@@ -92,7 +93,7 @@ public:
 	void InitialiseInputDevice(const TSharedPtr<FJoystickInputDevice>& NewInputDevice);
 	void Update() const;
 
-	FDeviceInfoSDL* GetDeviceInfo(const FJoystickInstanceId& InstanceId);
+	TTuple<FDeviceInfoSDL*, FResultMessage> GetDeviceInfo(const FJoystickInstanceId& InstanceId);
 	FJoystickDeviceState CreateInitialDeviceState(const FJoystickInstanceId& InstanceId);
 
 	FJoystickInputDevice* GetInputDevice() const;
@@ -120,6 +121,8 @@ private:
 	void JoystickUnplugged(const FJoystickInstanceId& InstanceId) const;
 
 	void LoadJoystickProfiles();
+
+	FString GenerateDeviceHash(const FDeviceInfoSDL& Device) const;
 
 	TMap<FJoystickInstanceId, FDeviceInfoSDL> Devices;
 

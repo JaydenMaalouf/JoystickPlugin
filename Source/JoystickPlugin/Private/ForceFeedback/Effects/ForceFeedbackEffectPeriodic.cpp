@@ -59,7 +59,7 @@ void UForceFeedbackEffectPeriodic::UpdateEffectData()
 	Effect.periodic.fade_level = FMath::Clamp<Uint16>(EffectData.EnvelopeData.FadeLevel * UINT16_MAX, 0, UINT16_MAX);
 }
 
-float UForceFeedbackEffectPeriodic::GetEffectDuration()
+uint32 UForceFeedbackEffectPeriodic::GetEffectDuration()
 {
 	return EffectData.DurationData.GetEffectDuration();
 }
