@@ -4,6 +4,7 @@
 #pragma once
 
 #include "Misc/Build.h"
+#include "Editor/UnrealEdTypes.h"
 #include "JoystickInputSettings.h"
 
 #if UE_BUILD_SHIPPING

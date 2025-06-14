@@ -5,6 +5,7 @@
 
 #include "Data/DeviceInfoSDL.h"
 #include "Data/JoystickSensorType.h"
+#include "Editor/UnrealEdTypes.h"
 #include "Subsystems/EngineSubsystem.h"
 
 #include "JoystickSubsystem.generated.h"
