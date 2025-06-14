@@ -541,14 +541,14 @@ void FJoystickInputDevice::JoystickAccelerometer(const FJoystickInstanceId& Inst
 	DeviceState->Motion.UpdateAccelerometer(Value, Timestamp);
 }
 
-TTuple<FJoystickDeviceState*, FResultMessage> FJoystickInputDevice::GetDeviceState(const FJoystickInstanceId& InstanceId)
+TTuple<FJoystickDeviceState*, FInternalResultMessage> FJoystickInputDevice::GetDeviceState(const FJoystickInstanceId& InstanceId)
 {
 	if (!JoystickDeviceState.Contains(InstanceId))
 	{
-		return {nullptr, FResultMessage(false, TEXT("Device is not a valid Joystick device"))};
+		return {nullptr, FInternalResultMessage(false, TEXT("Device is not a valid Joystick device"))};
 	}
 
-	return {&JoystickDeviceState[InstanceId], FResultMessage(true)};
+	return {&JoystickDeviceState[InstanceId], FInternalResultMessage(true)};
 }
 
 void FJoystickInputDevice::GetDeviceKeys(const FJoystickInstanceId& InstanceId, TArray<FKey>& Keys)

@@ -34,7 +34,7 @@ public:
 	void JoystickGyro(const FJoystickInstanceId& InstanceId, const int Timestamp, const FVector& Value);
 	void JoystickAccelerometer(const FJoystickInstanceId& InstanceId, const int Timestamp, const FVector& Value);
 
-	TTuple<FJoystickDeviceState*, FResultMessage> GetDeviceState(const FJoystickInstanceId& InstanceId);
+	TTuple<FJoystickDeviceState*, FInternalResultMessage> GetDeviceState(const FJoystickInstanceId& InstanceId);
 	void GetDeviceKeys(const FJoystickInstanceId& InstanceId, TArray<FKey>& Keys);
 	const FKey& GetDeviceAxisKey(const FJoystickInstanceId& InstanceId, const int AxisIndex);
 	const FKey& GetDeviceButtonKey(const FJoystickInstanceId& InstanceId, const int ButtonIndex);

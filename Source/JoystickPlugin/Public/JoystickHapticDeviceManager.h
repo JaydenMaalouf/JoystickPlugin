@@ -4,7 +4,7 @@
 #pragma once
 
 #include "Data/JoystickInstanceId.h"
-#include "Editor/UnrealEdTypes.h"
+#include "Data/ResultMessage.h"
 
 THIRD_PARTY_INCLUDES_START
 
@@ -68,6 +68,6 @@ public:
 	void DestroyEffect(const FJoystickInstanceId& InstanceId, const int EffectId) const;
 
 private:
-	TTuple<SDL_Haptic*, FResultMessage> GetHapticDevice(const FJoystickInstanceId& InstanceId) const;
-	TTuple<FDeviceInfoSDL*, FResultMessage> GetDeviceInfo(const FJoystickInstanceId& InstanceId) const;
+	TTuple<SDL_Haptic*, FInternalResultMessage> GetHapticDevice(const FJoystickInstanceId& InstanceId) const;
+	TTuple<FDeviceInfoSDL*, FInternalResultMessage> GetDeviceInfo(const FJoystickInstanceId& InstanceId) const;
 };

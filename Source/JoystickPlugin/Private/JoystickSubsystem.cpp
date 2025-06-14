@@ -737,20 +737,20 @@ bool UJoystickSubsystem::IsInitialised() const
 	return bIsInitialised;
 }
 
-TTuple<FDeviceInfoSDL*, FResultMessage> UJoystickSubsystem::GetDeviceInfo(const FJoystickInstanceId& InstanceId)
+TTuple<FDeviceInfoSDL*, FInternalResultMessage> UJoystickSubsystem::GetDeviceInfo(const FJoystickInstanceId& InstanceId)
 {
 	if (Devices.Num() == 0)
 	{
-		return {nullptr, FResultMessage(false, TEXT("Device list is empty."))};
+		return {nullptr, FInternalResultMessage(false, TEXT("Device list is empty."))};
 	}
 
 	FDeviceInfoSDL* Device = Devices.Find(InstanceId);
 	if (Device == nullptr)
 	{
-		return {nullptr, FResultMessage(false, TEXT("Device not found."))};
+		return {nullptr, FInternalResultMessage(false, TEXT("Device not found."))};
 	}
 
-	return {Device, FResultMessage(true)};
+	return {Device, FInternalResultMessage(true)};
 }
 
 void UJoystickSubsystem::JoystickPluggedIn(const FDeviceInfoSDL& Device) const

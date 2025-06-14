@@ -5,7 +5,7 @@
 
 #include "Data/DeviceInfoSDL.h"
 #include "Data/JoystickSensorType.h"
-#include "Editor/UnrealEdTypes.h"
+#include "Data/ResultMessage.h"
 #include "Subsystems/EngineSubsystem.h"
 
 #include "JoystickSubsystem.generated.h"
@@ -94,7 +94,7 @@ public:
 	void InitialiseInputDevice(const TSharedPtr<FJoystickInputDevice>& NewInputDevice);
 	void Update() const;
 
-	TTuple<FDeviceInfoSDL*, FResultMessage> GetDeviceInfo(const FJoystickInstanceId& InstanceId);
+	TTuple<FDeviceInfoSDL*, FInternalResultMessage> GetDeviceInfo(const FJoystickInstanceId& InstanceId);
 	FJoystickDeviceState CreateInitialDeviceState(const FJoystickInstanceId& InstanceId);
 
 	FJoystickInputDevice* GetInputDevice() const;
