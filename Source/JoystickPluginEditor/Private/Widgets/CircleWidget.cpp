@@ -37,7 +37,7 @@ int32 SCircleWidget::OnPaint(
 void SCircleWidget::DrawCircle(FSlateWindowElementList& OutDrawElements, const FGeometry& InGeometry, const int32 InLayerId, const FVector2D InCenter, const float InRadius, const int32 InNumSegments, const FLinearColor InColor,
                                const bool InFilled, const float InLineThickness) const
 {
-	const FSlateRenderTransform& RenderTransform = InGeometry.GetAccumulatedRenderTransform();
+	const FSlateRenderTransform& AccumulatedRenderTransform = InGeometry.GetAccumulatedRenderTransform();
 	const FVector2D LocalCenter = InCenter;
 
 	if (InFilled)
@@ -47,13 +47,13 @@ void SCircleWidget::DrawCircle(FSlateWindowElementList& OutDrawElements, const F
 
 		// Center vertex
 		const int32 CenterIndex = Vertices.Num();
-		Vertices.Add(FSlateVertex::Make<ESlateVertexRounding::Disabled>(RenderTransform, FVector2f(LocalCenter), FVector2f(0.5f, 0.5f), InColor.ToFColor(true)));
+		Vertices.Add(FSlateVertex::Make<ESlateVertexRounding::Disabled>(AccumulatedRenderTransform, FVector2f(LocalCenter), FVector2f(0.5f, 0.5f), InColor.ToFColor(true)));
 
 		for (int32 i = 0; i <= InNumSegments; ++i)
 		{
 			const float Angle = 2 * PI * i / InNumSegments;
 			const FVector2D Point = LocalCenter + FVector2D(FMath::Cos(Angle), FMath::Sin(Angle)) * InRadius;
-			Vertices.Add(FSlateVertex::Make<ESlateVertexRounding::Disabled>(RenderTransform, FVector2f(Point), FVector2f(0.5f, 0.5f), InColor.ToFColor(true)));
+			Vertices.Add(FSlateVertex::Make<ESlateVertexRounding::Disabled>(AccumulatedRenderTransform, FVector2f(Point), FVector2f(0.5f, 0.5f), InColor.ToFColor(true)));
 
 			if (i > 0)
 			{
