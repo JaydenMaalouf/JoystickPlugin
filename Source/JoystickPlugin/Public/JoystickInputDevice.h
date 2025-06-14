@@ -7,8 +7,8 @@
 #include "InputCoreTypes.h"
 #include "Data/JoystickDeviceState.h"
 #include "Data/JoystickInstanceId.h"
+#include "Data/Input/KeyPair.h"
 
-struct FKeyPair;
 enum class EHatDirection : uint8;
 struct FDeviceInfoSDL;
 
