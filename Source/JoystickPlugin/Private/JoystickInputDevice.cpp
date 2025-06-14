@@ -3,10 +3,12 @@
 
 #include "JoystickInputDevice.h"
 
+#include "Async/Async.h"
 #include "Data/DeviceInfoSDL.h"
 #include "Data/Input/AxisData.h"
 #include "Data/Input/BallData.h"
 #include "Data/Input/HatData.h"
+#include "Data/Input/KeyPair.h"
 #include "Data/JoystickDeviceState.h"
 #include "Data/JoystickInstanceId.h"
 #include "Data/Settings/JoystickInputDeviceAxisProperties.h"
@@ -21,7 +23,6 @@
 #include "JoystickHapticDeviceManager.h"
 #include "JoystickLogManager.h"
 #include "JoystickSubsystem.h"
-#include "Data/Input/KeyPair.h"
 #include "Runtime/Launch/Resources/Version.h"
 
 const static FName JoystickCategory = "Joystick";
