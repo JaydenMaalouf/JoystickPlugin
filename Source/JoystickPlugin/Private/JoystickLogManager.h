@@ -4,7 +4,7 @@
 #pragma once
 
 #include "Misc/Build.h"
-#include "Editor/UnrealEdTypes.h"
+#include "Data/ResultMessage.h"
 #include "JoystickInputSettings.h"
 
 #if UE_BUILD_SHIPPING
@@ -35,7 +35,7 @@ public:
 		}
 	}
 
-	void Log(const ELogVerbosity::Type Level, const FResultMessage& Message)
+	void Log(const ELogVerbosity::Type Level, const FInternalResultMessage& Message)
 	{
 		Log(Level, TEXT("%s"), *Message.ErrorMessage);
 	}
@@ -51,7 +51,7 @@ public:
 		UE_LOG(LogJoystickPlugin, Warning, TEXT("%s"), *FString::Printf(Fmt, Args...));
 	}
 
-	void LogWarning(const FResultMessage& Message)
+	void LogWarning(const FInternalResultMessage& Message)
 	{
 		LogWarning(TEXT("%s"), *Message.ErrorMessage);
 	}
@@ -67,7 +67,7 @@ public:
 		UE_LOG(LogJoystickPlugin, Error, TEXT("%s"), *FString::Printf(Fmt, Args...));
 	}
 
-	void LogError(const FResultMessage& Message)
+	void LogError(const FInternalResultMessage& Message)
 	{
 		LogError(TEXT("%s"), *Message.ErrorMessage);
 	}
@@ -83,7 +83,7 @@ public:
 		UE_LOG(LogJoystickPlugin, Log, TEXT("%s"), *FString::Printf(Fmt, Args...));
 	}
 
-	void LogDebug(const FResultMessage& Message)
+	void LogDebug(const FInternalResultMessage& Message)
 	{
 		LogDebug(TEXT("%s"), *Message.ErrorMessage);
 	}
@@ -99,7 +99,7 @@ public:
 		UE_LOG(LogJoystickPlugin, Display, TEXT("%s"), *FString::Printf(Fmt, Args...));
 	}
 
-	void LogInformation(const FResultMessage& Message)
+	void LogInformation(const FInternalResultMessage& Message)
 	{
 		LogInformation(TEXT("%s"), *Message.ErrorMessage);
 	}

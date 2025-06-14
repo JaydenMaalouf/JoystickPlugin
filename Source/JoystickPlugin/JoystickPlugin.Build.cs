@@ -17,7 +17,6 @@ public class JoystickPlugin : ModuleRules
 				"InputCore",
 				"InputDevice",
 				"UMG",
-				"UnrealEd",
 				"Projects"
 			});
 
