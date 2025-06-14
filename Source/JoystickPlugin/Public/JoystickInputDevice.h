@@ -7,6 +7,7 @@
 #include "InputCoreTypes.h"
 #include "Data/JoystickDeviceState.h"
 #include "Data/JoystickInstanceId.h"
+#include "Data/ResultMessage.h"
 #include "Data/Input/KeyPair.h"
 
 enum class EHatDirection : uint8;
