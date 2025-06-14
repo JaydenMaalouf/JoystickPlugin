@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "InputCoreTypes.h"
 #include "KeyPair.generated.h"
 
 USTRUCT()
