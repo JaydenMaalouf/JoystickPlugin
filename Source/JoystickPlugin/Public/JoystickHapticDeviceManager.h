@@ -4,6 +4,7 @@
 #pragma once
 
 #include "Data/JoystickInstanceId.h"
+#include "Editor/UnrealEdTypes.h"
 
 THIRD_PARTY_INCLUDES_START
 
