@@ -112,7 +112,9 @@ void SJoystickInputViewer::Construct(const FArguments& InArgs, const TSharedRef<
 			[
 				SNew(SVerticalBox)
 				+ SVerticalBox::Slot()
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 5
 				.MinHeight(500)
+#endif
 				.Padding(10) // Row 1, Column 0 – Change this to position it wherever you want
 				[
 					SAssignNew(AxisContainer, SHorizontalBox)
