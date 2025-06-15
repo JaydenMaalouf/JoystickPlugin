@@ -9,7 +9,6 @@
 #include "Runtime/Launch/Resources/Version.h"
 
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6
-	#include "Templates/CheckedFormatString.h"
 	#define FUNC_TEMPLATE_PARAMS typename... Types
 	#define FUNC_PARAMS UE::Core::TCheckedFormatString<FString::FmtCharType, Types...> Fmt, Types... Args
 #else
@@ -28,7 +27,7 @@ class JOYSTICKPLUGIN_API FJoystickLogManager
 public:
 	static FJoystickLogManager* Get();
 
-	template<FUNC_TEMPLATE_PARAMS>
+	template <FUNC_TEMPLATE_PARAMS>
 	void Log(const ELogVerbosity::Type Level, FUNC_PARAMS)
 	{
 		if (!CanLog())
@@ -45,7 +44,7 @@ public:
 		LogInternal(Level, *Message.ErrorMessage);
 	}
 
-	template<FUNC_TEMPLATE_PARAMS>
+	template <FUNC_TEMPLATE_PARAMS>
 	void LogWarning(FUNC_PARAMS)
 	{
 		Log(ELogVerbosity::Warning, Fmt, Forward<Types>(Args)...);
@@ -56,7 +55,7 @@ public:
 		Log(ELogVerbosity::Warning, Message);
 	}
 
-	template<FUNC_TEMPLATE_PARAMS>
+	template <FUNC_TEMPLATE_PARAMS>
 	void LogError(FUNC_PARAMS)
 	{
 		Log(ELogVerbosity::Error, Fmt, Forward<Types>(Args)...);
@@ -67,7 +66,7 @@ public:
 		Log(ELogVerbosity::Error, Message);
 	}
 
-	template<FUNC_TEMPLATE_PARAMS>
+	template <FUNC_TEMPLATE_PARAMS>
 	void LogDebug(FUNC_PARAMS)
 	{
 		Log(ELogVerbosity::Log, Fmt, Forward<Types>(Args)...);
@@ -78,7 +77,7 @@ public:
 		Log(ELogVerbosity::Log, Message);
 	}
 
-	template<FUNC_TEMPLATE_PARAMS>
+	template <FUNC_TEMPLATE_PARAMS>
 	void LogInformation(FUNC_PARAMS)
 	{
 		Log(ELogVerbosity::Display, Fmt, Forward<Types>(Args)...);
