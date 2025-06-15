@@ -7,6 +7,15 @@
 #include "Data/ResultMessage.h"
 #include "JoystickInputSettings.h"
 
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6
+	#include "Templates/CheckedFormatString.h"
+	#define FUNC_TEMPLATE_PARAMS typename... Types
+	#define FUNC_PARAMS UE::Core::TCheckedFormatString<FString::FmtCharType, Types...> Fmt, Types... Args
+#else
+	#define FUNC_TEMPLATE_PARAMS typename FmtType, typename... Types
+	#define FUNC_PARAMS const FmtType& Fmt, Types... Args
+#endif
+
 #if UE_BUILD_SHIPPING
 	DECLARE_LOG_CATEGORY_EXTERN(LogJoystickPlugin, Display, All);
 #else
@@ -18,8 +27,8 @@ class JOYSTICKPLUGIN_API FJoystickLogManager
 public:
 	static FJoystickLogManager* Get();
 
-	template <int N, typename... Types>
-	void Log(const ELogVerbosity::Type Level, const TCHAR (&Fmt)[N], Types&&... Args)
+	template<FUNC_TEMPLATE_PARAMS>
+	void Log(const ELogVerbosity::Type Level, FUNC_PARAMS)
 	{
 		if (!CanLog())
 		{
@@ -32,11 +41,11 @@ public:
 
 	void Log(const ELogVerbosity::Type Level, const FInternalResultMessage& Message)
 	{
-		Log(Level, TEXT("%s"), *Message.ErrorMessage);
+		LogInternal(Level, *Message.ErrorMessage);
 	}
 
-	template <typename FmtType, typename... Types>
-	void LogWarning(const FmtType& Fmt, Types&&... Args)
+	template<FUNC_TEMPLATE_PARAMS>
+	void LogWarning(FUNC_PARAMS)
 	{
 		Log(ELogVerbosity::Warning, Fmt, Forward<Types>(Args)...);
 	}
@@ -46,8 +55,8 @@ public:
 		Log(ELogVerbosity::Warning, Message);
 	}
 
-	template <typename FmtType, typename... Types>
-	void LogError(const FmtType& Fmt, Types&&... Args)
+	template<FUNC_TEMPLATE_PARAMS>
+	void LogError(FUNC_PARAMS)
 	{
 		Log(ELogVerbosity::Error, Fmt, Forward<Types>(Args)...);
 	}
@@ -57,8 +66,8 @@ public:
 		Log(ELogVerbosity::Error, Message);
 	}
 
-	template <typename FmtType, typename... Types>
-	void LogDebug(const FmtType& Fmt, Types&&... Args)
+	template<FUNC_TEMPLATE_PARAMS>
+	void LogDebug(FUNC_PARAMS)
 	{
 		Log(ELogVerbosity::Log, Fmt, Forward<Types>(Args)...);
 	}
@@ -68,8 +77,8 @@ public:
 		Log(ELogVerbosity::Log, Message);
 	}
 
-	template <typename FmtType, typename... Types>
-	void LogInformation(const FmtType& Fmt, Types&&... Args)
+	template<FUNC_TEMPLATE_PARAMS>
+	void LogInformation(FUNC_PARAMS)
 	{
 		Log(ELogVerbosity::Display, Fmt, Forward<Types>(Args)...);
 	}
