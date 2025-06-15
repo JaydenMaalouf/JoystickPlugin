@@ -3,9 +3,10 @@
 
 #pragma once
 
-#include "Misc/Build.h"
 #include "Data/ResultMessage.h"
 #include "JoystickInputSettings.h"
+#include "Misc/Build.h"
+#include "Runtime/Launch/Resources/Version.h"
 
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6
 	#include "Templates/CheckedFormatString.h"
