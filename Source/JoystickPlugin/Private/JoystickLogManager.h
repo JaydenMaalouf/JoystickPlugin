@@ -18,8 +18,8 @@ class JOYSTICKPLUGIN_API FJoystickLogManager
 public:
 	static FJoystickLogManager* Get();
 
-	template <typename FmtType, typename... Types>
-	void Log(const ELogVerbosity::Type Level, const FmtType& Fmt, Types... Args)
+	template <int N, typename... Types>
+	void Log(const ELogVerbosity::Type Level, const TCHAR (&Fmt)[N], Types... Args)
 	{
 		if (!CanLog())
 		{
