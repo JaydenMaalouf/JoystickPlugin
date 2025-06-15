@@ -95,6 +95,6 @@ private:
 			return;
 		}
 
-		FMsg::Logf(__FILE__, __LINE__, LogJoystickPlugin.GetCategoryName(), Level, Fmt, Args...);
+		FMsg::Logf(__FILE__, __LINE__, LogJoystickPlugin, Level, Fmt, Args...);
 	}
 };
