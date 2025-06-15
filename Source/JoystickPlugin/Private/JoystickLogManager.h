@@ -10,7 +10,7 @@
 #if UE_BUILD_SHIPPING
 	DECLARE_LOG_CATEGORY_EXTERN(LogJoystickPlugin, Display, All);
 #else
-  DECLARE_LOG_CATEGORY_EXTERN(LogJoystickPlugin, Log, All);
+	DECLARE_LOG_CATEGORY_EXTERN(LogJoystickPlugin, Log, All);
 #endif
 
 class JOYSTICKPLUGIN_API FJoystickLogManager
@@ -21,34 +21,18 @@ public:
 	template <typename FmtType, typename... Types>
 	void Log(const ELogVerbosity::Type Level, const FmtType& Fmt, Types... Args)
 	{
-		switch (Level)
-		{
-		case ELogVerbosity::Error:
-			LogError(Fmt, Args...);
-			break;
-		case ELogVerbosity::Log:
-			LogDebug(Fmt, Args...);
-			break;
-		default:
-			LogInformation(Fmt, Args...);
-			break;
-		}
+		InternalLog(Level, Fmt, Args...);
 	}
 
 	void Log(const ELogVerbosity::Type Level, const FInternalResultMessage& Message)
 	{
-		Log(Level, TEXT("%s"), *Message.ErrorMessage);
+		InternalLog(Level, TEXT("%s"), *Message.ErrorMessage);
 	}
 
 	template <typename FmtType, typename... Types>
 	void LogWarning(const FmtType& Fmt, Types... Args)
 	{
-		if (!CanLog())
-		{
-			return;
-		}
-
-		UE_LOG(LogJoystickPlugin, Warning, TEXT("%s"), *FString::Printf(Fmt, Args...));
+		InternalLog(ELogVerbosity::Warning, Fmt, Args...);
 	}
 
 	void LogWarning(const FInternalResultMessage& Message)
@@ -59,12 +43,7 @@ public:
 	template <typename FmtType, typename... Types>
 	void LogError(const FmtType& Fmt, Types... Args)
 	{
-		if (!CanLog())
-		{
-			return;
-		}
-
-		UE_LOG(LogJoystickPlugin, Error, TEXT("%s"), *FString::Printf(Fmt, Args...));
+		InternalLog(ELogVerbosity::Error, Fmt, Args...);
 	}
 
 	void LogError(const FInternalResultMessage& Message)
@@ -75,12 +54,7 @@ public:
 	template <typename FmtType, typename... Types>
 	void LogDebug(const FmtType& Fmt, Types... Args)
 	{
-		if (!CanLog())
-		{
-			return;
-		}
-
-		UE_LOG(LogJoystickPlugin, Log, TEXT("%s"), *FString::Printf(Fmt, Args...));
+		InternalLog(ELogVerbosity::Log, Fmt, Args...);
 	}
 
 	void LogDebug(const FInternalResultMessage& Message)
@@ -91,12 +65,7 @@ public:
 	template <typename FmtType, typename... Types>
 	void LogInformation(const FmtType& Fmt, Types... Args)
 	{
-		if (!CanLog())
-		{
-			return;
-		}
-
-		UE_LOG(LogJoystickPlugin, Display, TEXT("%s"), *FString::Printf(Fmt, Args...));
+		InternalLog(ELogVerbosity::Display, Fmt, Args...);
 	}
 
 	void LogInformation(const FInternalResultMessage& Message)
@@ -116,5 +85,16 @@ private:
 		}
 
 		return JoystickInputSettings->EnableLogs;
+	}
+
+	template <typename FmtType, typename... Types>
+	void InternalLog(const ELogVerbosity::Type Level, const FmtType& Fmt, Types... Args)
+	{
+		if (!CanLog())
+		{
+			return;
+		}
+
+		FMsg::Logf(__FILE__, __LINE__, LogJoystickPlugin.GetCategoryName(), Level, Fmt, Args...);
 	}
 };
