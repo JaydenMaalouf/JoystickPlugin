@@ -18,10 +18,16 @@ class JOYSTICKPLUGIN_API FJoystickLogManager
 public:
 	static FJoystickLogManager* Get();
 
-	template <typename FmtType, typename... Types>
-	void Log(const ELogVerbosity::Type Level, const FmtType& Fmt, Types&&... Args)
+	template <int N, typename... Types>
+	void Log(const ELogVerbosity::Type Level, const TCHAR (&Fmt)[N], Types&&... Args)
 	{
-		LogInternal(Level, Fmt, Forward<Types>(Args)...);
+		if (!CanLog())
+		{
+			return;
+		}
+
+		const FString Message = FString::Printf(Fmt, Forward<Types>(Args)...);
+		LogInternal(Level, *Message);
 	}
 
 	void Log(const ELogVerbosity::Type Level, const FInternalResultMessage& Message)
@@ -87,29 +93,21 @@ private:
 		return JoystickInputSettings->EnableLogs;
 	}
 
-	template <int N, typename... Types>
-	static void LogInternal(const ELogVerbosity::Type Level, const TCHAR (&Fmt)[N], Types... Args)
+	static void LogInternal(const ELogVerbosity::Type Level, const TCHAR* Message)
 	{
-		if (!CanLog())
-		{
-			return;
-		}
-
-		const FString Message = FString::Printf(Fmt, Forward<Types>(Args)...);
-		
 		switch (Level)
 		{
-		case ELogVerbosity::Error: UE_LOG(LogJoystickPlugin, Error, TEXT("%s"), *Message);
+		case ELogVerbosity::Error: UE_LOG(LogJoystickPlugin, Error, TEXT("%s"), Message);
 			break;
-		case ELogVerbosity::Warning: UE_LOG(LogJoystickPlugin, Warning, TEXT("%s"), *Message);
+		case ELogVerbosity::Warning: UE_LOG(LogJoystickPlugin, Warning, TEXT("%s"), Message);
 			break;
-		case ELogVerbosity::Display: UE_LOG(LogJoystickPlugin, Display, TEXT("%s"), *Message);
+		case ELogVerbosity::Display: UE_LOG(LogJoystickPlugin, Display, TEXT("%s"), Message);
 			break;
-		case ELogVerbosity::Verbose: UE_LOG(LogJoystickPlugin, Verbose, TEXT("%s"), *Message);
+		case ELogVerbosity::Verbose: UE_LOG(LogJoystickPlugin, Verbose, TEXT("%s"), Message);
 			break;
-		case ELogVerbosity::VeryVerbose: UE_LOG(LogJoystickPlugin, VeryVerbose, TEXT("%s"), *Message);
+		case ELogVerbosity::VeryVerbose: UE_LOG(LogJoystickPlugin, VeryVerbose, TEXT("%s"), Message);
 			break;
-		default: UE_LOG(LogJoystickPlugin, Log, TEXT("%s"), *Message);
+		default: UE_LOG(LogJoystickPlugin, Log, TEXT("%s"), Message);
 			break;
 		}
 	}
