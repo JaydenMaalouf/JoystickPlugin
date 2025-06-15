@@ -95,6 +95,28 @@ private:
 			return;
 		}
 
-		FMsg::Logf(__FILE__, __LINE__, LogJoystickPlugin, Level, Fmt, Args...);
+		const FString Message = FString::Printf(Fmt, Forward<Types>(Args)...);
+		
+		switch (Level)
+		{
+		case ELogVerbosity::Error:
+			UE_LOG(LogJoystickPlugin, Error, TEXT("%s"), *Message);
+			break;
+		case ELogVerbosity::Warning:
+			UE_LOG(LogJoystickPlugin, Warning, TEXT("%s"), *Message);
+			break;
+		case ELogVerbosity::Display:
+			UE_LOG(LogJoystickPlugin, Display, TEXT("%s"), *Message);
+			break;
+		case ELogVerbosity::Verbose:
+			UE_LOG(LogJoystickPlugin, Verbose, TEXT("%s"), *Message);
+			break;
+		case ELogVerbosity::VeryVerbose:
+			UE_LOG(LogJoystickPlugin, VeryVerbose, TEXT("%s"), *Message);
+			break;
+		default:
+			UE_LOG(LogJoystickPlugin, Log, TEXT("%s"), *Message);
+			break;
+		}
 	}
 };
