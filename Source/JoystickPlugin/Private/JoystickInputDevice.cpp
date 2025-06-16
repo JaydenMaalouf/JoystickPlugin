@@ -431,6 +431,11 @@ void FJoystickInputDevice::JoystickPluggedIn(const FDeviceInfoSDL& Device)
 	UpdateAxisProperties();
 
 	FJoystickLogManager::Get()->LogInformation(TEXT("Device Ready: %s (%d) - Instance Id: %d"), *Device.DeviceName, Device.InternalDeviceIndex, Device.InstanceId.Value);
+
+	IPlatformInputDeviceMapper& DeviceMapper = IPlatformInputDeviceMapper::Get();
+	const FPlatformUserId PlatformUser = FGenericPlatformMisc::GetPlatformUserForUserIndex(Device.PlayerId);
+	const FInputDeviceId InputDeviceId = FInputDeviceId::CreateFromInternalId(Device.InstanceId);
+	DeviceMapper.Internal_MapInputDeviceToUser(InputDeviceId, PlatformUser, EInputDeviceConnectionState::Connected);
 }
 
 void FJoystickInputDevice::JoystickUnplugged(const FJoystickInstanceId& InstanceId) const
@@ -442,6 +447,11 @@ void FJoystickInputDevice::JoystickUnplugged(const FJoystickInstanceId& Instance
 	}
 
 	JoystickInputSettings->DeviceRemoved(InstanceId);
+
+	IPlatformInputDeviceMapper& DeviceMapper = IPlatformInputDeviceMapper::Get();
+	const FPlatformUserId NewUserToAssign = DeviceMapper.GetUserForUnpairedInputDevices();
+	const FInputDeviceId InputDeviceId = FInputDeviceId::CreateFromInternalId(InstanceId);
+	DeviceMapper.Internal_MapInputDeviceToUser(InputDeviceId, NewUserToAssign, EInputDeviceConnectionState::Disconnected);
 }
 
 void FJoystickInputDevice::JoystickButton(const FJoystickInstanceId& InstanceId, const int Button, const bool Pressed)
@@ -613,7 +623,6 @@ void FJoystickInputDevice::SendControllerEvents()
 		const int PlayerId = DeviceInfo.PlayerId;
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
 		IPlatformInputDeviceMapper& DeviceMapper = IPlatformInputDeviceMapper::Get();
-		DeviceMapper.AllocateNewInputDeviceId();
 		FPlatformUserId PlatformUser = FGenericPlatformMisc::GetPlatformUserForUserIndex(PlayerId);
 		FInputDeviceId InputDeviceId = FInputDeviceId::CreateFromInternalId(InstanceId);
 		DeviceMapper.RemapControllerIdToPlatformUserAndDevice(PlayerId, OUT PlatformUser, OUT InputDeviceId);
