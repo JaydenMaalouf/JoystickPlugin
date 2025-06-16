@@ -37,10 +37,10 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceConfiguration
 		meta = (ToolTip = "TODO", ConfigRestartRequired = true))
 	EJoystickIdentifierType DeviceIdentifyMethod;
 
-	UPROPERTY(EditAnywhere, Category="Device Config", meta=(ToolTip="Used to determine the device to apply the configuration to.", EditCondition="DeviceIdentifyMethod==EJoystickIdentifierType::Hashed", EditConditionHides))
+	UPROPERTY(EditAnywhere, Category="Device Config", meta=(ToolTip="Used to determine the device to apply the configuration to.", EditCondition="DeviceIdentifyMethod == EJoystickIdentifierType::Hashed", EditConditionHides))
 	FString DeviceHash;
 
-	UPROPERTY(EditAnywhere, Category="Device Config", meta=(ToolTip="Used to determine the device to apply the configuration to.", EditCondition="DeviceIdentifyMethod==EJoystickIdentifierType::Legacy", EditConditionHides))
+	UPROPERTY(EditAnywhere, Category="Device Config", meta=(ToolTip="Used to determine the device to apply the configuration to.", EditCondition="DeviceIdentifyMethod == EJoystickIdentifierType::Legacy", EditConditionHides))
 	FGuid ProductGuid;
 
 	UPROPERTY(EditAnywhere, Category="Device Config",

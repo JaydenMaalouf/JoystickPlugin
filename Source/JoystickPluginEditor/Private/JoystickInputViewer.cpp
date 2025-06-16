@@ -15,32 +15,6 @@
 #include "Widgets/Text/STextBlock.h"
 #include "Widgets/Views/SListView.h"
 
-void SJoystickInputViewer::JoystickPluggedIn(const FJoystickInstanceId& InstanceId)
-{
-	UpdateJoystickList();
-}
-
-void SJoystickInputViewer::UpdateJoystickList()
-{
-	TArray<FJoystickInstanceId> InstanceIds;
-	if (UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>())
-	{
-		JoystickSubsystem->GetInstanceIds(InstanceIds);
-		//JoystickSubsystem->JoystickPluggedInDelegate.Add(this, &SJoystickInputViewer::JoystickPluggedIn);
-	}
-
-	if (InstanceIds.Num() == 0)
-	{
-		return;
-	}
-
-	Joysticks.Empty();
-	for (const FJoystickInstanceId& Instance : InstanceIds)
-	{
-		Joysticks.Add(MakeShared<FJoystickInstanceId>(Instance));
-	}
-}
-
 void SJoystickInputViewer::Construct(const FArguments& InArgs, const TSharedRef<SDockTab>& ConstructUnderMajorTab, const TSharedPtr<SWindow>& ConstructUnderWindow)
 {
 	if (!GEngine)
@@ -48,13 +22,13 @@ void SJoystickInputViewer::Construct(const FArguments& InArgs, const TSharedRef<
 		return;
 	}
 
-	UpdateJoystickList();
-	if (Joysticks.Num() == 0)
+	if (UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>())
 	{
-		return;
+		JoystickSubsystem->Internal_JoystickPluggedInDelegate.AddRaw(this, &SJoystickInputViewer::JoystickPluggedIn);
+		JoystickSubsystem->Internal_JoystickUnpluggedDelegate.AddRaw(this, &SJoystickInputViewer::JoystickUnplugged);
 	}
 
-	SelectedJoystick = Joysticks[0];
+	UpdateJoystickList();
 
 	ChildSlot
 	[
@@ -91,6 +65,11 @@ void SJoystickInputViewer::Construct(const FArguments& InArgs, const TSharedRef<
 					SNew(STextBlock)
 					.Text_Lambda([this]() -> FText
 					{
+						if (!SelectedJoystick.IsValid())
+						{
+							return FText::FromString("None");
+						}
+
 						UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
 						if (!JoystickSubsystem)
 						{
@@ -177,6 +156,15 @@ void SJoystickInputViewer::Construct(const FArguments& InArgs, const TSharedRef<
 	CreateWidgets();
 }
 
+SJoystickInputViewer::~SJoystickInputViewer()
+{
+	if (UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>())
+	{
+		JoystickSubsystem->Internal_JoystickPluggedInDelegate.RemoveAll(this);
+		JoystickSubsystem->Internal_JoystickUnpluggedDelegate.RemoveAll(this);
+	}
+}
+
 void SJoystickInputViewer::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
@@ -200,7 +188,7 @@ void SJoystickInputViewer::Tick(const FGeometry& AllottedGeometry, const double 
 	FJoystickDeviceState JoystickState;
 	JoystickSubsystem->GetJoystickState(*SelectedJoystick, JoystickState);
 
-	// Update bar visuals
+	// Update visuals
 	for (int i = 0; i < JoystickState.Axes.Num(); ++i)
 	{
 		if (JoystickState.Axes.IsValidIndex(i) && AxisBars.IsValidIndex(i))
@@ -224,6 +212,95 @@ void SJoystickInputViewer::Tick(const FGeometry& AllottedGeometry, const double 
 			HatSwitches[i]->SetValue(JoystickState.Hats[i].GetValue());
 		}
 	}
+
+	for (int i = 0; i < JoystickState.Hats.Num(); ++i)
+	{
+		if (JoystickState.Balls.IsValidIndex(i) && BallSwitches.IsValidIndex(i))
+		{
+			BallSwitches[i]->SetValue(JoystickState.Balls[i].GetValue());
+		}
+	}
+}
+
+void SJoystickInputViewer::SelectFirstJoystick()
+{
+	if (SelectedJoystick)
+	{
+		return;
+	}
+
+	if (Joysticks.Num() == 0)
+	{
+		return;
+	}
+
+	SelectedJoystick = Joysticks[0];
+	if (SelectedJoystick && DeviceComboBox)
+	{
+		DeviceComboBox->SetSelectedItem(SelectedJoystick);
+	}
+}
+
+void SJoystickInputViewer::AddJoystick(const FJoystickInstanceId& InstanceId, const bool ForceRefreshOptions)
+{
+	Joysticks.Add(MakeShared<FJoystickInstanceId>(InstanceId));
+
+	if (ForceRefreshOptions)
+	{
+		RefreshOptions();
+	}
+}
+
+void SJoystickInputViewer::RefreshOptions() const
+{
+	if (DeviceComboBox)
+	{
+		DeviceComboBox->RefreshOptions();
+	}
+}
+
+void SJoystickInputViewer::JoystickPluggedIn(const FJoystickInstanceId& InstanceId)
+{
+	AddJoystick(InstanceId, true);
+}
+
+void SJoystickInputViewer::JoystickUnplugged(const FJoystickInstanceId& InstanceId)
+{
+	if (SelectedJoystick.IsValid() && SelectedJoystick == InstanceId)
+	{
+		SelectedJoystick = nullptr;
+		SelectFirstJoystick();
+	}
+
+	Joysticks.RemoveAll([InstanceId](const TSharedPtr<FJoystickInstanceId>& JoystickInstanceId)
+	{
+		return JoystickInstanceId == InstanceId;
+	});
+
+	RefreshOptions();
+}
+
+void SJoystickInputViewer::UpdateJoystickList()
+{
+	TArray<FJoystickInstanceId> InstanceIds;
+	if (const UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>())
+	{
+		JoystickSubsystem->GetInstanceIds(InstanceIds);
+	}
+
+	if (InstanceIds.Num() == 0)
+	{
+		return;
+	}
+
+	Joysticks.Empty();
+	for (const FJoystickInstanceId& Instance : InstanceIds)
+	{
+		AddJoystick(Instance, false);
+	}
+
+	SelectFirstJoystick();
+	RefreshOptions();
 }
 
 void SJoystickInputViewer::CreateWidgets()
@@ -255,6 +332,11 @@ void SJoystickInputViewer::CreateWidgets()
 
 void SJoystickInputViewer::CreateAxisBars(const UJoystickSubsystem* JoystickSubsystem, const FJoystickDeviceState& JoystickState)
 {
+	if (!JoystickSubsystem)
+	{
+		return;
+	}
+
 	if (!AxisContainer)
 	{
 		return;
