@@ -14,7 +14,7 @@ class SHatSwitch;
 class SButtonBox;
 class SAxisBar;
 
-class JOYSTICKPLUGINEDITOR_API SJoystickInputViewer : public SCompoundWidget
+class JOYSTICKPLUGINEDITOR_API SJoystickInputViewer final : public SCompoundWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SJoystickInputViewer)
@@ -23,11 +23,8 @@ public:
 
 	SLATE_END_ARGS()
 
-	void JoystickPluggedIn(const FJoystickInstanceId& InstanceId);
-
-	void UpdateJoystickList();
-
 	void Construct(const FArguments& InArgs, const TSharedRef<SDockTab>& ConstructUnderMajorTab, const TSharedPtr<SWindow>& ConstructUnderWindow);
+	virtual ~SJoystickInputViewer() override;
 
 	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
 
@@ -53,9 +50,18 @@ private:
 
 	FOnClicked OnJoystickUpdated;
 
+	void UpdateJoystickList();
+
 	void CreateWidgets();
 	void CreateAxisBars(const UJoystickSubsystem* JoystickSubsystem, const FJoystickDeviceState& JoystickState);
 	void CreateButtonBoxes(const UJoystickSubsystem* JoystickSubsystem, const FJoystickDeviceState& JoystickState);
 	void CreateHatSwitches(const UJoystickSubsystem* JoystickSubsystem, const FJoystickDeviceState& JoystickState);
 	void CreateBallSwitches(const UJoystickSubsystem* JoystickSubsystem, const FJoystickDeviceState& JoystickState);
+
+	void JoystickPluggedIn(const FJoystickInstanceId& InstanceId);
+	void JoystickUnplugged(const FJoystickInstanceId& InstanceId);
+
+	void AddJoystick(const FJoystickInstanceId& InstanceId, const bool ForceRefreshOptions);
+	void RefreshOptions() const;
+	void SelectFirstJoystick();
 };

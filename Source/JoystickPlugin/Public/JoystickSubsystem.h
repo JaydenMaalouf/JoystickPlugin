@@ -18,8 +18,8 @@ struct FJoystickInstanceId;
 union SDL_Event;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnJoystickSubsystemReady);
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnJoystickEvent, const FJoystickInstanceId&, InstanceId);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FJoystickEvent, const FJoystickInstanceId&, InstanceId);
+DECLARE_MULTICAST_DELEGATE_OneParam(FInternalJoystickEvent, const FJoystickInstanceId&);
 
 UCLASS(BlueprintType)
 class JOYSTICKPLUGIN_API UJoystickSubsystem : public UEngineSubsystem
@@ -86,10 +86,12 @@ public:
 	bool IsConnected(const FJoystickInstanceId& InstanceId) const;
 
 	UPROPERTY(BlueprintAssignable, Category = "Joystick|Delegates")
-	FOnJoystickEvent JoystickPluggedInDelegate;
+	FJoystickEvent JoystickPluggedInDelegate;
+	FInternalJoystickEvent Internal_JoystickPluggedInDelegate;
 
 	UPROPERTY(BlueprintAssignable, Category = "Joystick|Delegates")
-	FOnJoystickEvent JoystickUnpluggedDelegate;
+	FJoystickEvent JoystickUnpluggedDelegate;
+	FInternalJoystickEvent Internal_JoystickUnpluggedDelegate;
 
 	void InitialiseInputDevice(const TSharedPtr<FJoystickInputDevice>& NewInputDevice);
 	void Update() const;
