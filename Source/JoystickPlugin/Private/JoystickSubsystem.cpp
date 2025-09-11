@@ -922,7 +922,7 @@ void UJoystickSubsystem::LoadJoystickProfiles()
 						const FName Key = Pair.Key;
 						const FConfigValue& Value = Pair.Value;
 						FString ValueString = Value.GetSavedValue().TrimStartAndEnd();
-						
+
 						if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceButtonProperties, DisplayName))
 						{
 							ButtonProperties.OverrideDisplayName = true;

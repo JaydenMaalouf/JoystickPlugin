@@ -113,7 +113,7 @@ void FJoystickInputDevice::InitialiseAxis(const FJoystickInstanceId& InstanceId,
 		{
 			AxisDisplayName = AxisProperties->DisplayName;
 		}
-		
+
 		FKey AxisKey = FKey(FName(*AxisKeyName));
 
 #if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26 || ENGINE_MAJOR_VERSION == 5)

@@ -12,7 +12,7 @@ struct JOYSTICKPLUGIN_API FJoystickInputKeyConfiguration
 {
 	GENERATED_BODY()
 
-	FJoystickInputKeyConfiguration():
+	FJoystickInputKeyConfiguration() :
 		Direction(EUINavigation::Invalid),
 		Action(EUINavigationAction::Invalid)
 	{

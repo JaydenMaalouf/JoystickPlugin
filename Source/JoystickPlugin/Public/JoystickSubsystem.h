@@ -18,7 +18,9 @@ struct FJoystickInstanceId;
 union SDL_Event;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnJoystickSubsystemReady);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FJoystickEvent, const FJoystickInstanceId&, InstanceId);
+
 DECLARE_MULTICAST_DELEGATE_OneParam(FInternalJoystickEvent, const FJoystickInstanceId&);
 
 UCLASS(BlueprintType)
