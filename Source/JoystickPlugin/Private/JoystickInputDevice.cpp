@@ -91,7 +91,7 @@ void FJoystickInputDevice::SetMessageHandler(const TSharedRef<FGenericApplicatio
 
 #define LOCTEXT_NAMESPACE "JoystickNamespace"
 
-void FJoystickInputDevice::InitialiseAxis(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName)
+void FJoystickInputDevice::InitialiseAxis(const FJoystickInstanceId& InstanceId, const FJoystickInputDeviceConfiguration* DeviceConfiguration, const FString& BaseKeyName, const FString& BaseDisplayName)
 {
 	const FJoystickDeviceState* JoystickState = JoystickDeviceState.Find(InstanceId);
 	if (JoystickState == nullptr)
@@ -108,8 +108,13 @@ void FJoystickInputDevice::InitialiseAxis(const FJoystickInstanceId& InstanceId,
 		FString AxisKeyName = FString::Printf(TEXT("%s_Axis_%d"), *BaseKeyName, AxisKeyIndex);
 		FString AxisDisplayName = FString::Printf(TEXT("%s: Axis %d"), *BaseDisplayName, AxisKeyIndex);
 
+		const FJoystickInputDeviceAxisProperties* AxisProperties = DeviceConfiguration->GetAxisProperties(AxisKeyIndex);
+		if (AxisProperties && AxisProperties->OverrideDisplayName)
+		{
+			AxisDisplayName = AxisProperties->DisplayName;
+		}
+		
 		FKey AxisKey = FKey(FName(*AxisKeyName));
-		TrySetCustomDisplayName(AxisDisplayName, AxisKey);
 
 #if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26 || ENGINE_MAJOR_VERSION == 5)
 		FKeyDetails AxisKeyDetails = FKeyDetails(AxisKey, FText::FromString(AxisDisplayName), FKeyDetails::GamepadKey | FKeyDetails::Axis1D, JoystickCategory);
@@ -129,7 +134,7 @@ void FJoystickInputDevice::InitialiseAxis(const FJoystickInstanceId& InstanceId,
 	}
 }
 
-void FJoystickInputDevice::InitialiseButtons(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName)
+void FJoystickInputDevice::InitialiseButtons(const FJoystickInstanceId& InstanceId, const FJoystickInputDeviceConfiguration* DeviceConfiguration, const FString& BaseKeyName, const FString& BaseDisplayName)
 {
 	const FJoystickDeviceState* JoystickState = JoystickDeviceState.Find(InstanceId);
 	if (JoystickState == nullptr)
@@ -146,8 +151,13 @@ void FJoystickInputDevice::InitialiseButtons(const FJoystickInstanceId& Instance
 		FString ButtonKeyName = FString::Printf(TEXT("%s_Button_%d"), *BaseKeyName, ButtonKeyIndex);
 		FString ButtonDisplayName = FString::Printf(TEXT("%s: Button %d"), *BaseDisplayName, ButtonKeyIndex);
 
+		const FJoystickInputDeviceButtonProperties* ButtonProperties = DeviceConfiguration->GetButtonProperties(ButtonKeyIndex);
+		if (ButtonProperties && ButtonProperties->OverrideDisplayName)
+		{
+			ButtonDisplayName = ButtonProperties->DisplayName;
+		}
+
 		const FKey ButtonKey = FKey(FName(*ButtonKeyName));
-		TrySetCustomDisplayName(ButtonDisplayName, ButtonKey);
 
 		FKeyDetails ButtonKeyDetails = FKeyDetails(ButtonKey, FText::FromString(ButtonDisplayName), FKeyDetails::GamepadKey, JoystickCategory);
 
@@ -191,7 +201,6 @@ void FJoystickInputDevice::InitialiseHatAxis(const FJoystickInstanceId& Instance
 			FString HatDisplayName = FString::Printf(TEXT("%s: Hat %d %s"), *BaseDisplayName, HatKeyIndex, *HatAxisName);
 
 			FKey HatKey = FKey(FName(*HatKeyName));
-			TrySetCustomDisplayName(HatDisplayName, HatKey);
 
 #if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26 || ENGINE_MAJOR_VERSION == 5)
 			FKeyDetails HatKeyDetails = FKeyDetails(HatKey, FText::FromString(HatDisplayName), FKeyDetails::GamepadKey | FKeyDetails::Axis1D, JoystickCategory);
@@ -218,7 +227,6 @@ void FJoystickInputDevice::InitialiseHatAxis(const FJoystickInstanceId& Instance
 			FString HatAxisDisplayName = FString::Printf(TEXT("%s: Hat %d 2D"), *BaseDisplayName, HatKeyIndex);
 
 			FKey HatAxisKey = FKey(FName(*HatAxisKeyName));
-			TrySetCustomDisplayName(HatAxisDisplayName, HatAxisKey);
 
 			FKeyDetails HatAxisKeyDetails = FKeyDetails(HatAxisKey, FText::FromString(HatAxisDisplayName), FKeyDetails::GamepadKey | FKeyDetails::Axis2D, JoystickCategory);
 
@@ -273,7 +281,6 @@ void FJoystickInputDevice::InitialiseHatButtons(const FJoystickInstanceId& Insta
 			FString ButtonDisplayName = FString::Printf(TEXT("%s: Hat %d Button %s"), *BaseDisplayName, HatKeyIndex, *DirectionDisplayName);
 
 			const FKey ButtonKey = FKey(FName(ButtonKeyName));
-			TrySetCustomDisplayName(ButtonDisplayName, ButtonKey);
 
 			FKeyDetails ButtonKeyDetails = FKeyDetails(ButtonKey, FText::FromString(ButtonDisplayName), FKeyDetails::GamepadKey, JoystickCategory);
 
@@ -317,7 +324,6 @@ void FJoystickInputDevice::InitialiseBalls(const FJoystickInstanceId& InstanceId
 			FString BallDisplayName = FString::Printf(TEXT("%s: Ball %d %s"), *BaseDisplayName, BallKeyIndex, *BallAxisName);
 
 			FKey BallKey = FKey(FName(*BallKeyName));
-			TrySetCustomDisplayName(BallDisplayName, BallKey);
 
 #if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26 || ENGINE_MAJOR_VERSION == 5)
 			FKeyDetails BallKeyDetails = FKeyDetails(BallKey, FText::FromString(BallDisplayName), FKeyDetails::GamepadKey | FKeyDetails::Axis1D, JoystickCategory);
@@ -344,7 +350,6 @@ void FJoystickInputDevice::InitialiseBalls(const FJoystickInstanceId& InstanceId
 			FString BallDisplayName = FString::Printf(TEXT("%s: Ball %d 2D"), *BaseDisplayName, BallKeyIndex);
 
 			FKey BallKey = FKey(FName(*BallKeyName));
-			TrySetCustomDisplayName(BallDisplayName, BallKey);
 
 			FKeyDetails BallKeyDetails = FKeyDetails(BallKey, FText::FromString(BallDisplayName), FKeyDetails::GamepadKey | FKeyDetails::Axis2D, JoystickCategory);
 
@@ -386,11 +391,12 @@ void FJoystickInputDevice::JoystickPluggedIn(const FDeviceInfoSDL& Device)
 		return;
 	}
 
+	const FJoystickInputDeviceConfiguration* DeviceConfig = JoystickInputSettings->GetInputDeviceConfiguration(Device);
+
 	FString BaseKeyName("Joystick");
 	FString BaseDisplayName("Joystick");
 	if (JoystickInputSettings->UseDeviceName)
 	{
-		const FJoystickInputDeviceConfiguration* DeviceConfig = JoystickInputSettings->GetInputDeviceConfiguration(Device);
 		if (DeviceConfig != nullptr && DeviceConfig->OverrideDeviceName)
 		{
 			const FString DeviceName = DeviceConfig->DeviceName.Replace(TEXT(" "), TEXT("_"));
@@ -415,8 +421,8 @@ void FJoystickInputDevice::JoystickPluggedIn(const FDeviceInfoSDL& Device)
 
 	// create FKeyDetails for inputs
 	const bool EnablePairedKeys = JoystickInputSettings->EnablePairedKeys;
-	InitialiseAxis(Device.InstanceId, BaseKeyName, BaseDisplayName);
-	InitialiseButtons(Device.InstanceId, BaseKeyName, BaseDisplayName);
+	InitialiseAxis(Device.InstanceId, DeviceConfig, BaseKeyName, BaseDisplayName);
+	InitialiseButtons(Device.InstanceId, DeviceConfig, BaseKeyName, BaseDisplayName);
 	InitialiseHatAxis(Device.InstanceId, BaseKeyName, BaseDisplayName, EnablePairedKeys);
 	InitialiseHatButtons(Device.InstanceId, BaseKeyName, BaseDisplayName);
 	InitialiseBalls(Device.InstanceId, BaseKeyName, BaseDisplayName, EnablePairedKeys);
@@ -839,10 +845,7 @@ void FJoystickInputDevice::UpdateAxisProperties()
 		FJoystickDeviceState& CurrentState = JoystickDeviceState[InstanceId];
 		for (int i = 0; i < CurrentState.Axes.Num(); i++)
 		{
-			const FJoystickInputDeviceAxisProperties* AxisProperties = DeviceConfig->AxisProperties.FindByPredicate([i](const FJoystickInputDeviceAxisProperties& AxisProperty)
-			{
-				return AxisProperty.AxisIndex != -1 && AxisProperty.AxisIndex == i;
-			});
+			const FJoystickInputDeviceAxisProperties* AxisProperties = DeviceConfig->GetAxisProperties(i);
 			if (AxisProperties == nullptr)
 			{
 				continue;
@@ -902,21 +905,6 @@ int FJoystickInputDevice::GetAxisIndexFromKey(const FKey& Key) const
 	}
 
 	return -1;
-}
-
-void FJoystickInputDevice::TrySetCustomDisplayName(FString& ButtonDisplayName, const FKey& ButtonKey)
-{
-	const UJoystickInputSettings* JoystickInputSettings = GetDefault<UJoystickInputSettings>();
-	if (!IsValid(JoystickInputSettings))
-	{
-		return;
-	}
-
-	const FJoystickInputKeyConfiguration* KeyConfiguration = JoystickInputSettings->KeyConfigurations.Find(ButtonKey);
-	if (KeyConfiguration && KeyConfiguration->OverrideDisplayName && !KeyConfiguration->DisplayName.IsEmpty())
-	{
-		ButtonDisplayName = KeyConfiguration->DisplayName;
-	}
 }
 
 void FJoystickInputDevice::TryAddWidgetNavigation(const FKey& ButtonKey)

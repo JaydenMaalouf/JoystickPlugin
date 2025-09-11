@@ -124,6 +124,9 @@ private:
 	void JoystickUnplugged(const FJoystickInstanceId& InstanceId) const;
 
 	void LoadJoystickProfiles();
+	static bool AsBoolean(const FString& Input);
+	static float AsFloat(const FString& Input);
+	static int32 AsInteger(const FString& Input);
 
 	FString GenerateDeviceHash(const FDeviceInfoSDL& Device) const;
 
@@ -137,4 +140,5 @@ private:
 
 	static FString JoystickConfigurationSection;
 	static FString AxisPropertiesSection;
+	static FString ButtonPropertiesSection;
 };

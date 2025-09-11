@@ -9,6 +9,7 @@
 #include "Data/JoystickInstanceId.h"
 #include "Data/ResultMessage.h"
 #include "Data/Input/KeyPair.h"
+#include "Data/Settings/JoystickInputDeviceConfiguration.h"
 
 enum class EHatDirection : uint8;
 struct FDeviceInfoSDL;
@@ -47,13 +48,12 @@ public:
 	void UpdateAxisProperties();
 
 private:
-	void InitialiseAxis(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName);
-	void InitialiseButtons(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName);
+	void InitialiseAxis(const FJoystickInstanceId& InstanceId, const FJoystickInputDeviceConfiguration* DeviceConfiguration, const FString& BaseKeyName, const FString& BaseDisplayName);
+	void InitialiseButtons(const FJoystickInstanceId& InstanceId, const FJoystickInputDeviceConfiguration* DeviceConfiguration, const FString& BaseKeyName, const FString& BaseDisplayName);
 	void InitialiseHatAxis(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName, bool PairedKey);
 	void InitialiseHatButtons(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName);
 	void InitialiseBalls(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName, bool PairedKey);
 
-	void TrySetCustomDisplayName(FString& ButtonDisplayName, const FKey& ButtonKey);
 	void TryAddWidgetNavigation(const FKey& ButtonKey);
 
 	TMap<FJoystickInstanceId, FJoystickDeviceState> JoystickDeviceState;

@@ -12,50 +12,56 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceAxisProperties
 
 	FJoystickInputDeviceAxisProperties()
 		: AxisIndex(-1)
+		  , OverrideDisplayName(false)
 		  , RemappingEnabled(true)
 		  , InputOffset(0.0f)
 		  , InvertInput(false)
+		  , RerangeInput(false)
 		  , InputRangeMin(0.0f)
 		  , InputRangeMax(1.0f)
+		  , RerangeOutput(false)
 		  , OutputRangeMin(0.0f)
 		  , OutputRangeMax(1.0f)
 		  , InvertOutput(false)
 	{
 	}
 
-	/** The index of the Axis to apply remapping to. */
 	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(UIMin="0", ClampMin="0"))
 	int AxisIndex;
 
-	/** Whether the axis remapping is enabled. */
+	UPROPERTY(EditAnywhere, Category="Axis Properties")
+	bool OverrideDisplayName;
+
+	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="OverrideDisplayName", EditConditionHides))
+	FString DisplayName;
+
 	UPROPERTY(EditAnywhere, Category="Axis Properties")
 	bool RemappingEnabled;
 
-	/** The amount to offset the axis value by to get the desired range (note that this offset is applied after the value has been inverted). */
-	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled"))
+	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled", EditConditionHides))
 	float InputOffset;
 
-	/** Whether the value of the axis as supplied from the driver should be inverted. */
-	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled"))
+	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled", EditConditionHides))
 	bool InvertInput;
 
-	/** The amount to offset the axis value by to get the desired range (note that this offset is applied after the value has been inverted). */
-	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled"))
+	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled", EditConditionHides))
+	bool RerangeInput;
+
+	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled && RerangeInput", EditConditionHides))
 	float InputRangeMin;
 
-	/** The amount to offset the axis value by to get the desired range (note that this offset is applied after the value has been inverted). */
-	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled"))
+	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled && RerangeInput", EditConditionHides))
 	float InputRangeMax;
 
-	/** The amount to offset the axis value by to get the desired range (note that this offset is applied after the value has been inverted). */
-	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled"))
+	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled", EditConditionHides))
+	bool RerangeOutput;
+
+	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled && RerangeOutput", EditConditionHides))
 	float OutputRangeMin;
 
-	/** The amount to offset the axis value by to get the desired range (note that this offset is applied after the value has been inverted). */
-	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled"))
+	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled && RerangeOutput", EditConditionHides))
 	float OutputRangeMax;
 
-	/** Whether the value of the axis as supplied from the driver should be inverted. */
-	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled"))
+	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled", EditConditionHides))
 	bool InvertOutput;
 };

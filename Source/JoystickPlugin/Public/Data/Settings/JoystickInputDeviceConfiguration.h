@@ -4,6 +4,8 @@
 #pragma once
 
 #include "JoystickInputDeviceAxisProperties.h"
+#include "JoystickInputDeviceButtonProperties.h"
+
 #include "Data/JoystickIdentifierType.h"
 
 #include "JoystickInputDeviceConfiguration.generated.h"
@@ -52,4 +54,23 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceConfiguration
 
 	UPROPERTY(EditAnywhere, Category="Device Config", meta=(TitleProperty="AxisIndex"))
 	TArray<FJoystickInputDeviceAxisProperties> AxisProperties;
+
+	UPROPERTY(EditAnywhere, Category="Device Config", meta=(TitleProperty="ButtonIndex"))
+	TArray<FJoystickInputDeviceButtonProperties> ButtonProperties;
+
+	const FJoystickInputDeviceAxisProperties* GetAxisProperties(int AxisIndex) const
+	{
+		return AxisProperties.FindByPredicate([AxisIndex](const FJoystickInputDeviceAxisProperties& AxisProperty)
+		{
+			return AxisProperty.AxisIndex != -1 && AxisProperty.AxisIndex == AxisIndex;
+		});
+	}
+
+	const FJoystickInputDeviceButtonProperties* GetButtonProperties(int ButtonIndex) const
+	{
+		return ButtonProperties.FindByPredicate([ButtonIndex](const FJoystickInputDeviceButtonProperties& ButtonProperty)
+		{
+			return ButtonProperty.ButtonIndex != -1 && ButtonProperty.ButtonIndex == ButtonIndex;
+		});
+	}
 };

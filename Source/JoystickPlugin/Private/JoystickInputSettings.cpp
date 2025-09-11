@@ -120,10 +120,7 @@ const FJoystickInputDeviceAxisProperties* UJoystickInputSettings::GetAxisPropert
 		return nullptr;
 	}
 
-	return DeviceConfiguration->AxisProperties.FindByPredicate([AxisIndex](const FJoystickInputDeviceAxisProperties& AxisProperty)
-	{
-		return AxisProperty.AxisIndex != -1 && AxisProperty.AxisIndex == AxisIndex;
-	});
+	return DeviceConfiguration->GetAxisProperties(AxisIndex);
 }
 
 #if WITH_EDITOR

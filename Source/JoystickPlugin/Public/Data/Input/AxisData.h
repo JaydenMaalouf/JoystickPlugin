@@ -21,7 +21,6 @@ struct JOYSTICKPLUGIN_API FAxisData
 		  , OutputRangeMin(0.0f)
 		  , OutputRangeMax(1.0f)
 		  , InvertOutput(false)
-		  , bGamepadStick(false)
 	{
 	}
 
@@ -97,8 +96,4 @@ struct JOYSTICKPLUGIN_API FAxisData
 	/* Is this axis inverted */
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Axis")
 	bool InvertOutput;
-
-	/* Is this axis centered on 0 instead of 0.5 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Axis")
-	bool bGamepadStick;
 };
