@@ -23,6 +23,6 @@ runs:
         $json = Get-Content 'JoystickPlugin.uplugin' -raw | ConvertFrom-Json
         $json.VersionName = "${{ steps.gitversion.outputs.semVer }}"
         $json.IsBetaVersion = $${{ inputs.prerelease }}
-        $json.Installed = True
+        $json.Installed = $True
         $json | ConvertTo-Json -depth 32 | Set-Content 'JoystickPlugin.uplugin'
       shell: powershell
