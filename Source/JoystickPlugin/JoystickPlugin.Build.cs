@@ -41,5 +41,8 @@ public class JoystickPlugin : ModuleRules
 
 		var ProfilesDirectory = Path.Combine(PluginDirectory, "Profiles", "*.ini");
 		RuntimeDependencies.Add(ProfilesDirectory);
+
+		var GameControllerDbFile = Path.Combine(PluginDirectory, "ThirdParty", "gamecontrollerdb.txt");
+		RuntimeDependencies.Add(GameControllerDbFile);
 	}
 }
