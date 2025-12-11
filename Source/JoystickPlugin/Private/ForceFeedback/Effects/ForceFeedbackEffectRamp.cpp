@@ -8,7 +8,6 @@ void UForceFeedbackEffectRamp::UpdateEffectData()
 	Super::UpdateEffectData();
 
 	Effect.type = SDL_HAPTIC_RAMP;
-	//effect.ramp.type = SDL_HAPTIC_RAMP;
 
 	Effect.ramp.direction = EffectData.DirectionData.ToSDLDirection();
 	Effect.ramp.length = GetEffectDuration();

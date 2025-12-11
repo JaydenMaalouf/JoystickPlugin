@@ -1,9 +1,10 @@
 name: version
+description: 'Sets the version information.'
 
 inputs:
   prerelease:
-    type: boolean
-    default: false
+    default: '$False'
+    description: 'Indicates if this is a prerelease version.'
 
 runs:
   using: 'composite'

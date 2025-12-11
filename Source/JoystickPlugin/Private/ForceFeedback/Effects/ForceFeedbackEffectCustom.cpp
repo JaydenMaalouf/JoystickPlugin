@@ -8,7 +8,6 @@ void UForceFeedbackEffectCustom::UpdateEffectData()
 	Super::UpdateEffectData();
 
 	Effect.type = SDL_HAPTIC_CUSTOM;
-	//effect.custom.type = SDL_HAPTIC_CUSTOM;
 
 	Effect.custom.direction = EffectData.DirectionData.ToSDLDirection();
 	Effect.custom.length = GetEffectDuration();

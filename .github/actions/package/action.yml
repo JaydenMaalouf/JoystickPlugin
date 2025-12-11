@@ -1,39 +1,93 @@
 name: package
+description: 'Packages the Joystick Plugin for Unreal Engine.'
 
 inputs:
   engineVersion:
-    type: string
+    description: 'The Unreal Engine version to build against (e.g., 5.3).'
+    required: true
   platform:
-    type: string
+    description: 'The target platform to build the plugin for (e.g., Win64).'
     default: Win64
   releaseVersion:
-    type: string
+    description: 'The plugin release version used for packaging or tagging.'
+    required: true
   epicGamesDirectory:
-    type: string
+    description: 'The root Epic Games installation directory containing SDL binaries.'
+    required: true
   launcherDirectory:
-    type: string
+    description: 'The directory where the Epic Games Launcher installs the Unreal Engine version.'
+    required: true
+  controllerDbUrl:
+    description: 'URL to the SDL gamecontrollerdb.txt source file.'
+    required: true
 
 runs:
-  using: "composite"
+  using: composite
   steps:
-  - name: Copy dll and lib to Plugin - ${{ inputs.engineVersion }} ${{ inputs.platform }}
-    run: |
-      $InputFolder = "${{ inputs.epicGamesDirectory }}/SDL/UE_${{ inputs.engineVersion }}/${{ inputs.platform }}"
-      $OutputFolder = "${{ github.workspace }}/ThirdParty/SDL2/${{ inputs.platform }}"
-      if (-Not(Test-Path $OutputFolder)) {
-        New-Item $OutputFolder -ItemType Directory
-      }
-      Copy-Item "$InputFolder/SDL2.dll" -Destination "$OutputFolder"
-      Copy-Item "$InputFolder/SDL2.lib" -Destination "$OutputFolder"
-    shell: pwsh
-  - name: Build Plugin - ${{ inputs.engineVersion }} ${{ inputs.platform }}
-    run: '"${{ inputs.launcherDirectory }}/UE_${{ inputs.engineVersion }}/Engine/Build/BatchFiles/RunUAT.bat" BuildPlugin -TargetPlatforms=${{ inputs.platform }} -Plugin=${{ github.workspace }}/JoystickPlugin.uplugin -Package=${{ runner.temp }}/build/UE_${{ inputs.engineVersion }} -rocket'
-    shell: cmd
-  - name: Archive Plugin - ${{ inputs.engineVersion }}
-    run: |
-      $OutputFolder = "${{ runner.temp }}/output"
-      if (-Not(Test-Path $OutputFolder)) {
-        New-Item $OutputFolder -ItemType Directory
-      }
-      Compress-Archive -Path "${{ runner.temp }}/build/UE_${{ inputs.engineVersion }}/*" -DestinationPath "$OutputFolder/JoystickPlugin-${{ inputs.engineVersion }}.zip"
-    shell: pwsh
+    - name: Download gamecontrollerdb.txt
+      shell: pwsh
+      run: |
+        $workspace      = '${{ github.workspace }}'
+        $thirdPartyDir  = Join-Path $workspace 'ThirdParty'
+        $targetFile     = Join-Path $thirdPartyDir 'gamecontrollerdb.txt'
+        $sourceUrl      = '${{ inputs.controllerDbUrl }}'
+
+        if (-not (Test-Path $thirdPartyDir)) {
+          New-Item -Path $thirdPartyDir -ItemType Directory -Force | Out-Null
+        }
+
+        Invoke-WebRequest -Uri $sourceUrl -OutFile $targetFile
+
+    - name: Copy SDL2 dll and lib to Plugin - ${{ inputs.engineVersion }} ${{ inputs.platform }}
+      shell: pwsh
+      run: |
+        $engineVersion  = '${{ inputs.engineVersion }}'
+        $platform       = '${{ inputs.platform }}'
+        $epicDir        = '${{ inputs.epicGamesDirectory }}'
+        $workspace      = '${{ github.workspace }}'
+
+        $inputFolder  = Join-Path $epicDir ("SDL/UE_{0}/{1}" -f $engineVersion, $platform)
+        $outputFolder = Join-Path $workspace ("ThirdParty/SDL2/{0}" -f $platform)
+
+        if (-not (Test-Path $outputFolder)) {
+          New-Item -Path $outputFolder -ItemType Directory -Force | Out-Null
+        }
+
+        Copy-Item (Join-Path $inputFolder 'SDL2.dll') -Destination $outputFolder -Force
+        Copy-Item (Join-Path $inputFolder 'SDL2.lib') -Destination $outputFolder -Force
+
+    - name: Build Plugin - ${{ inputs.engineVersion }} ${{ inputs.platform }}
+      shell: pwsh
+      run: |
+        $engineVersion   = '${{ inputs.engineVersion }}'
+        $platform        = '${{ inputs.platform }}'
+        $launcherDir     = '${{ inputs.launcherDirectory }}'
+        $workspace       = '${{ github.workspace }}'
+        $runnerTemp      = $env:RUNNER_TEMP
+
+        $uatPath   = Join-Path $launcherDir ("UE_{0}\Engine\Build\BatchFiles\RunUAT.bat" -f $engineVersion)
+        $plugin    = Join-Path $workspace 'JoystickPlugin.uplugin'
+        $buildDir  = Join-Path $runnerTemp ("build\UE_{0}" -f $engineVersion)
+
+        & $uatPath `
+          'BuildPlugin' `
+          ("-TargetPlatforms={0}" -f $platform) `
+          ("-Plugin={0}" -f $plugin) `
+          ("-Package={0}" -f $buildDir) `
+          '-rocket'
+
+    - name: Archive Plugin - ${{ inputs.engineVersion }}
+      shell: pwsh
+      run: |
+        $engineVersion = '${{ inputs.engineVersion }}'
+        $runnerTemp    = $env:RUNNER_TEMP
+
+        $buildDir    = Join-Path $runnerTemp ("build\UE_{0}" -f $engineVersion)
+        $outputDir   = Join-Path $runnerTemp 'output'
+        $zipFilePath = Join-Path $outputDir ("JoystickPlugin-{0}.zip" -f $engineVersion)
+
+        if (-not (Test-Path $outputDir)) {
+          New-Item -Path $outputDir -ItemType Directory -Force | Out-Null
+        }
+
+        Compress-Archive -Path (Join-Path $buildDir '*') -DestinationPath $zipFilePath -Force

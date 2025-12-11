@@ -9,17 +9,17 @@
 #include "Runtime/Launch/Resources/Version.h"
 
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6
-	#define FUNC_TEMPLATE_PARAMS typename... Types
-	#define FUNC_PARAMS UE::Core::TCheckedFormatString<FString::FmtCharType, Types...> Fmt, Types... Args
+#define FUNC_TEMPLATE_PARAMS typename... Types
+#define FUNC_PARAMS UE::Core::TCheckedFormatString<FString::FmtCharType, Types...> Fmt, Types... Args
 #else
-	#define FUNC_TEMPLATE_PARAMS typename FmtType, typename... Types
-	#define FUNC_PARAMS const FmtType& Fmt, Types... Args
+#define FUNC_TEMPLATE_PARAMS typename FmtType, typename... Types
+#define FUNC_PARAMS const FmtType& Fmt, Types... Args
 #endif
 
 #if UE_BUILD_SHIPPING
-	DECLARE_LOG_CATEGORY_EXTERN(LogJoystickPlugin, Display, All);
+DECLARE_LOG_CATEGORY_EXTERN(LogJoystickPlugin, Display, All);
 #else
-	DECLARE_LOG_CATEGORY_EXTERN(LogJoystickPlugin, Log, All);
+DECLARE_LOG_CATEGORY_EXTERN(LogJoystickPlugin, Log, All);
 #endif
 
 class JOYSTICKPLUGIN_API FJoystickLogManager

@@ -8,7 +8,6 @@ void UForceFeedbackEffectConstant::UpdateEffectData()
 	Super::UpdateEffectData();
 
 	Effect.type = SDL_HAPTIC_CONSTANT;
-	//effect.constant.type = SDL_HAPTIC_CONSTANT;
 
 	Effect.constant.direction = EffectData.DirectionData.ToSDLDirection();
 	Effect.constant.length = GetEffectDuration();

@@ -14,25 +14,21 @@ void UForceFeedbackEffectCondition::UpdateEffectData()
 	case(EForceFeedbackConditionEffectType::Spring):
 		{
 			Effect.type = SDL_HAPTIC_SPRING;
-			//effect.condition.type = SDL_HAPTIC_SPRING;
 			break;
 		}
 	case(EForceFeedbackConditionEffectType::Damper):
 		{
 			Effect.type = SDL_HAPTIC_DAMPER;
-			//effect.condition.type = SDL_HAPTIC_DAMPER;
 			break;
 		}
 	case(EForceFeedbackConditionEffectType::Friction):
 		{
 			Effect.type = SDL_HAPTIC_FRICTION;
-			//effect.condition.type = SDL_HAPTIC_FRICTION;
 			break;
 		}
 	case(EForceFeedbackConditionEffectType::Inertia):
 		{
 			Effect.type = SDL_HAPTIC_INERTIA;
-			//effect.condition.type = SDL_HAPTIC_INERTIA;
 			break;
 		}
 	}

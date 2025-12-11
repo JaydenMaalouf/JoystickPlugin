@@ -13,32 +13,27 @@ void UForceFeedbackEffectPeriodic::UpdateEffectData()
 	case(EForceFeedbackPeriodicEffectType::Sine):
 		{
 			Effect.type = SDL_HAPTIC_SINE;
-			//effect.periodic.type = SDL_HAPTIC_SINE;
 			break;
 		}
 	case(EForceFeedbackPeriodicEffectType::Triangle):
 		{
 			Effect.type = SDL_HAPTIC_TRIANGLE;
-			//effect.periodic.type = SDL_HAPTIC_TRIANGLE;
 			break;
 		}
 	case(EForceFeedbackPeriodicEffectType::SawtoothUp):
 		{
 			Effect.type = SDL_HAPTIC_SAWTOOTHUP;
-			//effect.periodic.type = SDL_HAPTIC_SAWTOOTHUP;
 			break;
 		}
 	case(EForceFeedbackPeriodicEffectType::SawtoothDown):
 		{
 			Effect.type = SDL_HAPTIC_SAWTOOTHDOWN;
-			//effect.periodic.type = SDL_HAPTIC_SAWTOOTHDOWN;
 			break;
 		}
 	default:
 	case(EForceFeedbackPeriodicEffectType::LeftRight):
 		{
 			Effect.type = SDL_HAPTIC_LEFTRIGHT;
-			//effect.periodic.type = SDL_HAPTIC_LEFTRIGHT;
 			break;
 		}
 	}

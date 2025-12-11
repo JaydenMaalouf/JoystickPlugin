@@ -8,7 +8,6 @@ void UForceFeedbackEffectLeftRight::UpdateEffectData()
 	Super::UpdateEffectData();
 
 	Effect.type = SDL_HAPTIC_LEFTRIGHT;
-	//effect.leftright.type = SDL_HAPTIC_LEFTRIGHT;
 
 	Effect.leftright.length = GetEffectDuration();
 

@@ -18,7 +18,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Joystick|Hat")
 	static FVector2D HatDirectionToFVector2D(const EHatDirection Direction);
 
-	static EHatDirection HatValueToDirection(int8 Value);
+	static float NormalizeAxisRaw(const int16 Value);
+
+	static EHatDirection HatValueToDirection(const int8 Value);
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|Hat")
 	static FString HatDirectionAsString(EHatDirection Value);

@@ -40,6 +40,13 @@ FVector2D UJoystickFunctionLibrary::HatDirectionToFVector2D(const EHatDirection 
 	}
 }
 
+float UJoystickFunctionLibrary::NormalizeAxisRaw(const int16 Value)
+{
+	return Value < 0
+		       ? static_cast<float>(Value) / 32768.0f
+		       : static_cast<float>(Value) / 32767.0f;
+}
+
 EHatDirection UJoystickFunctionLibrary::HatValueToDirection(const int8 Value)
 {
 	switch (Value)

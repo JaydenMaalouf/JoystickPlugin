@@ -34,6 +34,7 @@ UJoystickSubsystem::UJoystickSubsystem()
 
 constexpr unsigned SdlRequiredFlags = SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC;
 
+FString UJoystickSubsystem::GameControllerMappingFile("gamecontrollerdb.txt");
 FString UJoystickSubsystem::AxisPropertiesSection("AxisProperties_");
 FString UJoystickSubsystem::ButtonPropertiesSection("ButtonProperties_");
 FString UJoystickSubsystem::JoystickConfigurationSection("Joystick");
@@ -101,6 +102,20 @@ void UJoystickSubsystem::InitialiseExistingJoysticks()
 	}
 }
 
+void UJoystickSubsystem::LoadGameControllerMappings()
+{
+	const FString GameControllerDbPath = FPaths::Combine(*FJoystickPluginModule::PluginDirectory, TEXT("ThirdParty"), GameControllerMappingFile);
+	if (FPaths::FileExists(GameControllerDbPath))
+	{
+		const int MappingsAdded = SDL_GameControllerAddMappingsFromFile(TCHAR_TO_UTF8(*GameControllerDbPath));
+		FJoystickLogManager::Get()->LogDebug(TEXT("SDL_GameControllerAddMappingsFromFile added mappings: %d"), MappingsAdded);
+	}
+	else
+	{
+		FJoystickLogManager::Get()->LogDebug(TEXT("The file %s was not found, skipping loading external mappings."), *GameControllerMappingFile);
+	}
+}
+
 void UJoystickSubsystem::InitialiseInputDevice(const TSharedPtr<FJoystickInputDevice>& NewInputDevice)
 {
 	if (NewInputDevice == nullptr || !NewInputDevice.IsValid())
@@ -114,6 +129,8 @@ void UJoystickSubsystem::InitialiseInputDevice(const TSharedPtr<FJoystickInputDe
 	{
 		return;
 	}
+
+	LoadGameControllerMappings();
 
 	InitialiseExistingJoysticks();
 
@@ -657,7 +674,7 @@ int UJoystickSubsystem::HandleSDLEvent(void* UserData, SDL_Event* Event)
 		}
 	case SDL_JOYAXISMOTION:
 		{
-			InputDevice->JoystickAxis(Event->jaxis.which, Event->jaxis.axis, Event->jaxis.value / (Event->jaxis.value < 0 ? 32768.0f : 32767.0f));
+			InputDevice->JoystickAxis(Event->jaxis.which, Event->jaxis.axis, UJoystickFunctionLibrary::NormalizeAxisRaw(Event->jaxis.value));
 			break;
 		}
 	case SDL_JOYHATMOTION:

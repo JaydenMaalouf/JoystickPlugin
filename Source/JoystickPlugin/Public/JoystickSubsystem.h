@@ -125,7 +125,9 @@ private:
 	void JoystickPluggedIn(const FDeviceInfoSDL& Device) const;
 	void JoystickUnplugged(const FJoystickInstanceId& InstanceId) const;
 
+	void LoadGameControllerMappings();
 	void LoadJoystickProfiles();
+
 	static bool AsBoolean(const FString& Input);
 	static float AsFloat(const FString& Input);
 	static int32 AsInteger(const FString& Input);
@@ -140,7 +142,8 @@ private:
 	bool bIsInitialised;
 	int PersistentDeviceCount;
 
-	static FString JoystickConfigurationSection;
+	static FString GameControllerMappingFile;
 	static FString AxisPropertiesSection;
 	static FString ButtonPropertiesSection;
+	static FString JoystickConfigurationSection;
 };
