@@ -42,7 +42,7 @@ It's also **multi-platform**, with support for **Windows** and **Linux**!
 JoystickPlugin isn't just a port — it's a full Unreal-native rework.  
 Originally forked, this version was refactored with Unreal-first principles:
 
-- :brick: Uses UE Subsystems instead of ad-hoc architecture
+- :bricks: Uses UE Subsystems instead of ad-hoc architecture
 - :hammer_and_wrench: Exposes plugin features in Project Settings for easy customization
 - :earth_americas: Cross-platform (Windows/Linux) with minimal config
 
