@@ -3,7 +3,6 @@
 
 #pragma once
 
-
 THIRD_PARTY_INCLUDES_START
 
 #include "SDL_haptic.h"

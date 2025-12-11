@@ -6,6 +6,12 @@
 #include "Runtime/Launch/Resources/Version.h"
 #include "ForceFeedback/Types/ForceFeedbackDirectionType.h"
 
+THIRD_PARTY_INCLUDES_START
+
+#include "SDL_haptic.h"
+
+THIRD_PARTY_INCLUDES_END
+
 #include "ForceFeedbackEffectDirectionData.generated.h"
 
 USTRUCT(BlueprintType)
