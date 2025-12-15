@@ -125,14 +125,16 @@ private:
 	void JoystickPluggedIn(const FDeviceInfoSDL& Device) const;
 	void JoystickUnplugged(const FJoystickInstanceId& InstanceId) const;
 
-	void LoadGameControllerMappings();
-	void LoadJoystickProfiles();
+	void LoadGameControllerMappings() const;
+	void LoadJoystickProfiles() const;
 
 	static bool AsBoolean(const FString& Input);
 	static float AsFloat(const FString& Input);
 	static int32 AsInteger(const FString& Input);
 
+	void ConvertSDLGuid(FGuid& Out, const SDL_JoystickGUID& SDLGuid) const;
 	FString GenerateDeviceHash(const FDeviceInfoSDL& Device) const;
+	FString SafelyStringify(const char* Input) const;
 
 	TMap<FJoystickInstanceId, FDeviceInfoSDL> Devices;
 

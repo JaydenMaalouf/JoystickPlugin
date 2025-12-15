@@ -55,6 +55,9 @@ struct FJoystickInformation
 	FString SerialNumber;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
+	FString Path;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
 	int ProductVersion;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")

@@ -15,6 +15,7 @@ struct FJoystickHapticInformation
 		  , AxesCount(0)
 		  , Constant(false)
 		  , Sine(false)
+		  , LeftRight(false)
 		  , Triangle(false)
 		  , SawToothUp(false)
 		  , SawToothDown(false)
@@ -27,6 +28,7 @@ struct FJoystickHapticInformation
 		  , Gain(false)
 		  , AutoCenter(false)
 		  , Status(false)
+		  , Pause(false)
 	{
 	}
 
@@ -41,6 +43,9 @@ struct FJoystickHapticInformation
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config|Supported Effects")
 	bool Sine;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config|Supported Effects")
+	bool LeftRight;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config|Supported Effects")
 	bool Triangle;
@@ -77,4 +82,7 @@ struct FJoystickHapticInformation
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config|Supported Effects")
 	bool Status;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Haptic Config|Supported Effects")
+	bool Pause;
 };

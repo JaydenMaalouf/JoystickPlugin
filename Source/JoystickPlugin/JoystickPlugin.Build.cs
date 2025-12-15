@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 using UnrealBuildTool;
 
 public class JoystickPlugin : ModuleRules
@@ -39,10 +40,17 @@ public class JoystickPlugin : ModuleRules
 			//SDL should be loaded as part of the engine
 		}
 
-		var ProfilesDirectory = Path.Combine(PluginDirectory, "Profiles", "*.ini");
-		RuntimeDependencies.Add(ProfilesDirectory);
+		var ProfilesDirectory = Path.Combine(PluginDirectory, "Profiles");
+		if (Directory.Exists(ProfilesDirectory) && Directory.EnumerateFiles(ProfilesDirectory).Any())
+		{
+			var ProfileFiles = Path.Combine(ProfilesDirectory, "*.ini");
+			RuntimeDependencies.Add(ProfileFiles);
+		}
 
 		var GameControllerDbFile = Path.Combine(PluginDirectory, "ThirdParty", "gamecontrollerdb.txt");
-		RuntimeDependencies.Add(GameControllerDbFile);
+		if (File.Exists(GameControllerDbFile))
+		{
+			RuntimeDependencies.Add(GameControllerDbFile);
+		}
 	}
 }
