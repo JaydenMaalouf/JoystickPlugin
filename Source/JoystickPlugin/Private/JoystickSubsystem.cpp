@@ -229,7 +229,7 @@ EJoystickPowerLevel UJoystickSubsystem::GetJoystickPowerLevel(const FJoystickIns
 
 void UJoystickSubsystem::MapJoystickDeviceToPlayer(const FJoystickInstanceId& InstanceId, const int PlayerId)
 {
-	FJoystickLogManager::Get()->LogDebug(TEXT("Remapping joystick %d to player id %d"), InstanceId, PlayerId);
+	FJoystickLogManager::Get()->LogDebug(TEXT("Remapping joystick %d to player id %d"), InstanceId.Value, PlayerId);
 	auto [DeviceInfo, Result] = GetDeviceInfo(InstanceId);
 	if (DeviceInfo == nullptr || Result.bSuccess == false)
 	{
