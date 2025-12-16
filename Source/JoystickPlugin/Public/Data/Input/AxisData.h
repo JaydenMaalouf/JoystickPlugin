@@ -26,10 +26,10 @@ struct JOYSTICKPLUGIN_API FAxisData
 
 	float MapValue(const float Input) const
 	{
-		const float NormalizedValue = (InvertInput ? (Input * -1.0f) : Input);
-		const float OffsetNormalizedValue = NormalizedValue + InputOffset;
+		const float InvertedInput = InvertInput ? -Input : Input;
+		const float OffsetNormalizedValue = InvertedInput + InputOffset;
 		const float MappedValue = FMath::GetMappedRangeValueClamped(FVector2D(InputRangeMin, InputRangeMax), FVector2D(OutputRangeMin, OutputRangeMax), OffsetNormalizedValue);
-		return InvertOutput ? (MappedValue * -1.0f) : MappedValue;
+		return InvertOutput ? -MappedValue : MappedValue;
 	}
 
 	/* Whether the data represents a valid value */

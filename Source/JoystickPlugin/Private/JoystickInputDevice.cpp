@@ -577,7 +577,6 @@ void FJoystickInputDevice::JoystickAccelerometer(const FJoystickInstanceId& Inst
 		return;
 	}
 
-	FJoystickDeviceState& DeviceData = JoystickDeviceState[InstanceId];
 	DeviceState->Motion.UpdateAccelerometer(Value, Timestamp);
 }
 
@@ -651,7 +650,7 @@ void FJoystickInputDevice::SendControllerEvents()
 
 		const int PlayerId = DeviceInfo.PlayerId;
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
-		FPlatformUserId PlatformUser = FGenericPlatformMisc::GetPlatformUserForUserIndex(PlayerId);
+		const FPlatformUserId PlatformUser = FGenericPlatformMisc::GetPlatformUserForUserIndex(PlayerId);
 #endif
 
 		FInputDeviceScope InputScope(this, JoystickInputInterfaceName, InstanceId, DeviceInfo.DeviceName);
@@ -927,7 +926,7 @@ int FJoystickInputDevice::GetAxisIndexFromKey(const FKey& Key) const
 	return -1;
 }
 
-void FJoystickInputDevice::TryAddWidgetNavigation(const FKey& ButtonKey)
+void FJoystickInputDevice::TryAddWidgetNavigation(const FKey& ButtonKey) const
 {
 	const UJoystickInputSettings* JoystickInputSettings = GetDefault<UJoystickInputSettings>();
 	if (!IsValid(JoystickInputSettings))
@@ -950,7 +949,7 @@ void FJoystickInputDevice::TryAddWidgetNavigation(const FKey& ButtonKey)
 			return;
 		}
 
-		// Key Event (Up, Down, Left, Right, etc)
+		// Key Event (Up, Down, Left, Right, etc.)
 		if (KeyConfiguration->Direction != EUINavigation::Invalid)
 		{
 			FJoystickLogManager::Get()->LogDebug(TEXT("Added FKey (%s) to Slate Navigation Events with direction: %s"), *ButtonKey.GetDisplayName().ToString(), *UEnum::GetValueAsString(KeyConfiguration->Direction));
@@ -958,7 +957,7 @@ void FJoystickInputDevice::TryAddWidgetNavigation(const FKey& ButtonKey)
 		}
 
 #if ENGINE_MAJOR_VERSION >= 5 && ENGINE_MINOR_VERSION >= 4
-		// Key Action (Accept, Back, etc)
+		// Key Action (Accept, Back, etc.)
 		if (KeyConfiguration->Action != EUINavigationAction::Invalid)
 		{
 			FJoystickLogManager::Get()->LogDebug(TEXT("Added FKey (%s) to Slate Navigation Actions with action: %s"), *ButtonKey.GetDisplayName().ToString(), *UEnum::GetValueAsString(KeyConfiguration->Action));

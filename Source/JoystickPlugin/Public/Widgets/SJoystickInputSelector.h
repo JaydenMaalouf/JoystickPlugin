@@ -39,10 +39,13 @@ public:
 			  , _AllowNonGamepadKeys(true)
 			  , _AllowJoystickKeys(true)
 			  , _AllowModifierKeys(true)
+			  , _SetUseAxisProperties(true)
+			  , _SetMinRange(0.0f)
+			  , _SetMaxRange(1.0f)
 			  , _SetMinRangeOffset(0.0f)
 			  , _SetMaxRangeOffset(0.0f)
 			  , _SetAxisSelectionTimeout(2.5f)
-			  , _SetDeadZone(0.0f)
+			  , _SetDeadZone(0.05f)
 			  , _EscapeCancelsSelection(true)
 			  , _IsFocusable(true)
 		{
@@ -77,6 +80,10 @@ public:
 
 		/** When true modifier keys are captured in the selected key chord, otherwise they are ignored. */
 		SLATE_ARGUMENT(bool, AllowModifierKeys)
+
+		SLATE_ARGUMENT(bool, SetUseAxisProperties)
+		SLATE_ARGUMENT(float, SetMinRange)
+		SLATE_ARGUMENT(float, SetMaxRange)
 
 		SLATE_ARGUMENT(float, SetMinRangeOffset)
 		SLATE_ARGUMENT(float, SetMaxRangeOffset)
@@ -125,6 +132,10 @@ public:
 
 	/** Sets the text to display when no key text is available or not selecting a key. */
 	void SetNoKeySpecifiedText(FText InNoKeySpecifiedText) { NoKeySpecifiedText = MoveTemp(InNoKeySpecifiedText); }
+
+	void SetUseAxisProperties(const bool bInUseAxisProperties) { UseAxisProperties = bInUseAxisProperties; }
+	void SetMinRange(const float InMinRange) { MinRange = InMinRange; }
+	void SetMaxRange(const float InMaxRange) { MaxRange = InMaxRange; }
 
 	void SetMinRangeOffset(const float InMinRangeOffset) { MinRangeOffset = InMinRangeOffset; }
 	void SetMaxRangeOffset(const float InMaxRangeOffset) { MaxRangeOffset = InMaxRangeOffset; }
@@ -194,6 +205,10 @@ private:
 
 	/**  The text to display while no key text is available or not selecting a key. */
 	FText NoKeySpecifiedText;
+
+	bool UseAxisProperties;
+	float MinRange;
+	float MaxRange;
 
 	float MinRangeOffset;
 	float MaxRangeOffset;

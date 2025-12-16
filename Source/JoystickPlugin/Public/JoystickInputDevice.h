@@ -56,7 +56,7 @@ private:
 	void InitialiseBalls(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName, bool PairedKey);
 	void NotifyDeviceState(const FInputDeviceId& InputDeviceId, const FPlatformUserId& PlatformUserId, const EInputDeviceConnectionState State) const;
 
-	void TryAddWidgetNavigation(const FKey& ButtonKey);
+	void TryAddWidgetNavigation(const FKey& ButtonKey) const;
 
 	TMap<FJoystickInstanceId, FJoystickDeviceState> JoystickDeviceState;
 

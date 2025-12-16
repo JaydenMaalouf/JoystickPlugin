@@ -43,6 +43,7 @@ public class JoystickPlugin : ModuleRules
 		var ProfilesDirectory = Path.Combine(PluginDirectory, "Profiles");
 		if (Directory.Exists(ProfilesDirectory) && Directory.EnumerateFiles(ProfilesDirectory).Any())
 		{
+			// Add all profiles to runtime deps
 			var ProfileFiles = Path.Combine(ProfilesDirectory, "*.ini");
 			RuntimeDependencies.Add(ProfileFiles);
 		}
@@ -50,6 +51,7 @@ public class JoystickPlugin : ModuleRules
 		var GameControllerDbFile = Path.Combine(PluginDirectory, "ThirdParty", "gamecontrollerdb.txt");
 		if (File.Exists(GameControllerDbFile))
 		{
+			// Add gamecontrollerdb.txt to runtime deps
 			RuntimeDependencies.Add(GameControllerDbFile);
 		}
 	}

@@ -49,8 +49,10 @@ void SJoystickInputViewer::Construct(const FArguments& InArgs, const TSharedRef<
 					if (UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>())
 					{
 						FJoystickInformation JoystickInfo;
-						JoystickSubsystem->GetJoystickInfo(*InItem, JoystickInfo);
-						return SNew(STextBlock).Text(FText::FromString(*JoystickInfo.DeviceName));
+						if (JoystickSubsystem->GetJoystickInfo(*InItem, JoystickInfo))
+						{
+							return SNew(STextBlock).Text(FText::FromString(*JoystickInfo.DeviceName));
+						}
 					}
 
 					return SNew(STextBlock).Text(FText::FromString("ERROR"));

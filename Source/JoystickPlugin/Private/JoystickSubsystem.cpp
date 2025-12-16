@@ -812,10 +812,14 @@ void UJoystickSubsystem::JoystickPluggedIn(const FDeviceInfoSDL& Device) const
 	{
 		JoystickPluggedInDelegate.Broadcast(Device.InstanceId);
 	}
-	if (Internal_JoystickPluggedInDelegate.IsBound())
+
+	AsyncTask(ENamedThreads::GameThread, [&, Device]()
 	{
-		Internal_JoystickPluggedInDelegate.Broadcast(Device.InstanceId);
-	}
+		if (Internal_JoystickPluggedInDelegate.IsBound())
+		{
+			Internal_JoystickPluggedInDelegate.Broadcast(Device.InstanceId);
+		}
+	});
 }
 
 void UJoystickSubsystem::JoystickUnplugged(const FJoystickInstanceId& InstanceId) const
@@ -831,10 +835,14 @@ void UJoystickSubsystem::JoystickUnplugged(const FJoystickInstanceId& InstanceId
 	{
 		JoystickUnpluggedDelegate.Broadcast(InstanceId);
 	}
-	if (Internal_JoystickUnpluggedDelegate.IsBound())
+
+	AsyncTask(ENamedThreads::GameThread, [&, InstanceId]()
 	{
-		Internal_JoystickUnpluggedDelegate.Broadcast(InstanceId);
-	}
+		if (Internal_JoystickUnpluggedDelegate.IsBound())
+		{
+			Internal_JoystickUnpluggedDelegate.Broadcast(InstanceId);
+		}
+	});
 }
 
 void UJoystickSubsystem::LoadJoystickProfiles() const

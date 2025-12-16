@@ -47,6 +47,9 @@ UJoystickInputSelector::UJoystickInputSelector(const FObjectInitializer& ObjectI
 	bAllowGamepadKeys = true;
 	bAllowNonGamepadKeys = true;
 	bAllowJoystickKeys = true;
+	bUseAxisProperties = true;
+	MinRange = 0.0f;
+	MaxRange = 1.0f;
 	MinRangeOffset = 0.0f;
 	MaxRangeOffset = 0.0f;
 	DeadZone = 0.05f;
@@ -138,6 +141,36 @@ void UJoystickInputSelector::SetAllowModifierKeys(const bool bInAllowModifierKey
 	}
 
 	bAllowModifierKeys = bInAllowModifierKeys;
+}
+
+void UJoystickInputSelector::SetUseAxisProperties(const bool bInUseAxisProperties)
+{
+	if (JoystickInputSelector.IsValid())
+	{
+		JoystickInputSelector->SetUseAxisProperties(bInUseAxisProperties);
+	}
+
+	bUseAxisProperties = bInUseAxisProperties;
+}
+
+void UJoystickInputSelector::SetMinRange(const float InMinRange)
+{
+	if (JoystickInputSelector.IsValid())
+	{
+		JoystickInputSelector->SetMinRange(InMinRange);
+	}
+
+	MinRange = InMinRange;
+}
+
+void UJoystickInputSelector::SetMaxRange(const float InMaxRange)
+{
+	if (JoystickInputSelector.IsValid())
+	{
+		JoystickInputSelector->SetMaxRange(InMaxRange);
+	}
+
+	MaxRange = InMaxRange;
 }
 
 void UJoystickInputSelector::SetAllowGamepadKeys(const bool bInAllowGamepadKeys)
@@ -253,6 +286,9 @@ void UJoystickInputSelector::SynchronizeProperties()
 	JoystickInputSelector->SetAllowGamepadKeys(bAllowGamepadKeys);
 	JoystickInputSelector->SetAllowAxisKeys(bAllowAxisKeys);
 	JoystickInputSelector->SetAllowButtonKeys(bAllowButtonKeys);
+	JoystickInputSelector->SetUseAxisProperties(bUseAxisProperties);
+	JoystickInputSelector->SetMinRange(MinRange);
+	JoystickInputSelector->SetMaxRange(MaxRange);
 	JoystickInputSelector->SetMinRangeOffset(MinRangeOffset);
 	JoystickInputSelector->SetMaxRangeOffset(MaxRangeOffset);
 	JoystickInputSelector->SetAxisSelectionTimeout(AxisSelectionTimeout);
@@ -282,6 +318,9 @@ TSharedRef<SWidget> UJoystickInputSelector::RebuildWidget()
 		.AllowJoystickKeys(bAllowJoystickKeys)
 		.AllowAxisKeys(bAllowAxisKeys)
 		.AllowButtonKeys(bAllowButtonKeys)
+		.SetUseAxisProperties(bUseAxisProperties)
+		.SetMinRange(MinRange)
+		.SetMaxRange(MaxRange)
 		.SetMinRangeOffset(MinRangeOffset)
 		.SetMaxRangeOffset(MaxRangeOffset)
 		.SetAxisSelectionTimeout(AxisSelectionTimeout)

@@ -83,6 +83,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Key Selection")
 	bool bAllowModifierKeys;
 
+	/** When true, will use the min and max defined in the Axis Properties for the key */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Key Selection")
+	bool bUseAxisProperties;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Key Selection", meta=(EditCondition="!bUseAxisProperties"))
+	float MinRange;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Key Selection", meta=(EditCondition="!bUseAxisProperties"))
+	float MaxRange;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Key Selection")
 	float MinRangeOffset;
 
@@ -141,6 +151,15 @@ public:
 	/** Sets whether modifier keys are allowed in the selected key. */
 	UFUNCTION(BlueprintCallable, Category = "Widget")
 	void SetAllowModifierKeys(bool bInAllowModifierKeys);
+
+	UFUNCTION(BlueprintCallable, Category = "Widget")
+	void SetUseAxisProperties(bool bInUseAxisProperties);
+
+	UFUNCTION(BlueprintCallable, Category = "Widget")
+	void SetMinRange(float InMinRange);
+
+	UFUNCTION(BlueprintCallable, Category = "Widget")
+	void SetMaxRange(float InMaxRange);
 
 	UFUNCTION(BlueprintCallable, Category = "Widget")
 	void SetMinRangeOffset(float InMinRangeOffset);
