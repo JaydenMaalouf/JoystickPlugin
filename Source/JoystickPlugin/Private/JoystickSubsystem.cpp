@@ -3,6 +3,7 @@
 
 #include "JoystickSubsystem.h"
 
+#include "Async/Async.h"
 #include "Data/DeviceInfoSDL.h"
 #include "Data/JoystickSensorType.h"
 #include "Data/Settings/JoystickInputDeviceAxisProperties.h"
