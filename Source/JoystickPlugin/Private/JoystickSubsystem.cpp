@@ -6,6 +6,7 @@
 #include "Async/Async.h"
 #include "Data/DeviceInfoSDL.h"
 #include "Data/JoystickSensorType.h"
+#include "Data/PlatformTypes.h"
 #include "Data/Settings/JoystickInputDeviceAxisProperties.h"
 #include "Data/Settings/JoystickInputDeviceConfiguration.h"
 #include "HAL/FileManager.h"

@@ -11,6 +11,7 @@
 #include "Data/Input/KeyPair.h"
 #include "Data/JoystickDeviceState.h"
 #include "Data/JoystickInstanceId.h"
+#include "Data/PlatformTypes.h"
 #include "Data/Settings/JoystickInputDeviceAxisProperties.h"
 #include "Data/Settings/JoystickInputDeviceConfiguration.h"
 #include "Data/Settings/JoystickInputKeyConfiguration.h"
