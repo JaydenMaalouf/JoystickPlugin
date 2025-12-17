@@ -18,6 +18,10 @@ UJoystickInputSettings::UJoystickInputSettings() : UseDeviceName(false),
                                                    EnablePairedKeys(false)
 {
 	MapHatAxisToKeys = static_cast<int32>(EHatDirection::Up | EHatDirection::Down | EHatDirection::Left | EHatDirection::Right);
+
+#if WITH_EDITOR
+	DebugAxis = false;
+#endif
 }
 
 void UJoystickInputSettings::DeviceAdded(const FJoystickInformation& JoystickInfo)

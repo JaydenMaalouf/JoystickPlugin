@@ -41,6 +41,11 @@ public:
 	UPROPERTY(config, EditAnywhere, Category = "Joystick Settings", meta = (ToolTip = "Instead of a separate key for X and Y axis keys, a FVector2D key will be created alongside the existing keys."))
 	bool EnablePairedKeys;
 
+#if WITH_EDITORONLY_DATA
+	UPROPERTY(config, EditAnywhere, Category = "Joystick Settings", meta = (ToolTip = "Debug Axis values by printing them to screen"))
+	bool DebugAxis;
+#endif
+
 	UPROPERTY(config, EditAnywhere, Category = "Joystick Settings",
 		meta = (Bitmask, BitmaskEnum = "/Script/JoystickPlugin.EHatDirection", ToolTip = "Map Hat Axis to Keys. Select which direction keys you would like mapped", ConfigRestartRequired = true))
 	int32 MapHatAxisToKeys;

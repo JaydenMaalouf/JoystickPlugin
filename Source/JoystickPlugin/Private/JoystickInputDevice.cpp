@@ -630,6 +630,8 @@ void FJoystickInputDevice::SendControllerEvents()
 		return;
 	}
 
+	const UJoystickInputSettings* JoystickInputSettings = GetDefault<UJoystickInputSettings>();
+
 	for (const TPair<FJoystickInstanceId, FDeviceInfoSDL>& Device : JoystickSubsystem->GetDevices())
 	{
 		const FJoystickInstanceId& InstanceId = Device.Key;
@@ -671,15 +673,21 @@ void FJoystickInputDevice::SendControllerEvents()
 						continue;
 					}
 
+#if WITH_EDITOR
+					if (IsValid(JoystickInputSettings) && JoystickInputSettings->DebugAxis)
+					{
+						const int Key = CurrentState.InputDeviceId.GetId() * CurrentState.Axes.Num() + AxisIndex;
+						GEngine->AddOnScreenDebugMessage(
+							Key,
+							0.3f,
+							FColor::Green,
+							FString::Printf(TEXT("Axis %s Raw: %.3f Mapped: %.3f"), *AxisKey.GetDisplayName().ToString(), AxisData.Value, CurrentValue)
+						);
+					}
+#endif
+
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
-					constexpr int32 BaseKey = 10000;
-					const int Key = BaseKey + (CurrentState.InputDeviceId.GetId() * CurrentState.Axes.Num()) + AxisIndex;
-					GEngine->AddOnScreenDebugMessage(
-						Key,
-						0.3f,
-						FColor::Green,
-						FString::Printf(TEXT("Axis %s Raw: %.3f Mapped: %.3f"), *AxisKey.GetDisplayName().ToString(), AxisData.Value, CurrentValue)
-					);
+
 					MessageHandler->OnControllerAnalog(AxisKey.GetFName(), PlatformUser, CurrentState.InputDeviceId, CurrentValue);
 #else
 					MessageHandler->OnControllerAnalog(AxisKey.GetFName(), PlayerId, CurrentValue);
