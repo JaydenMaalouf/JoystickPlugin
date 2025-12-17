@@ -244,7 +244,7 @@ void UJoystickSubsystem::MapJoystickDeviceToPlayer(const FJoystickInstanceId& In
 
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
 	IPlatformInputDeviceMapper& DeviceMapper = IPlatformInputDeviceMapper::Get();
-	DeviceMapper.Internal_MapInputDeviceToUser(DeviceInfo->InputDeviceId, DeviceInfo->PlatformUserId, EInputDeviceConnectionState::Connected);
+	DeviceMapper.Internal_MapInputDeviceToUser(DeviceInfo->InputDeviceId, DeviceInfo->PlatformUserId, EInputDeviceConnectionState::Unknown);
 #endif
 }
 
