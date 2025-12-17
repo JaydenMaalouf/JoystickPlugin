@@ -15,6 +15,7 @@
 #include "JoystickLogManager.h"
 #include "JoystickPluginModule.h"
 #include "Misc/ConfigCacheIni.h"
+#include "Misc/CoreMiscDefines.h"
 #include "Misc/Paths.h"
 #include "Runtime/Launch/Resources/Version.h"
 

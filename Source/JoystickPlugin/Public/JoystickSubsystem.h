@@ -15,6 +15,12 @@ struct FJoystickDeviceState;
 struct FJoystickInfo;
 struct FJoystickInformation;
 struct FJoystickInstanceId;
+
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
+struct FInputDeviceId;
+struct FPlatformUserId;
+#endif
+
 union SDL_Event;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnJoystickSubsystemReady);

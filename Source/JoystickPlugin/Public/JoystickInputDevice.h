@@ -15,6 +15,11 @@ enum class EHatDirection : uint8;
 enum class EInputDeviceConnectionState : uint8;
 struct FDeviceInfoSDL;
 
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
+struct FInputDeviceId;
+struct FPlatformUserId;
+#endif
+
 class JOYSTICKPLUGIN_API FJoystickInputDevice final : public IInputDevice
 {
 public:
