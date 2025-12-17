@@ -46,15 +46,12 @@ runs:
         $epicDir        = '${{ inputs.epicGamesDirectory }}'
         $workspace      = '${{ github.workspace }}'
 
-        $inputFolder  = Join-Path $epicDir ("SDL/UE_{0}/{1}" -f $engineVersion, $platform)
-        $outputFolder = Join-Path $workspace ("ThirdParty/SDL2/{0}" -f $platform)
+        $inputFolder  = Join-Path $epicDir ("SDL/UE_{0}" -f $engineVersion)
+        $outputFolder = Join-Path $workspace ("ThirdParty/SDL2")
 
-        if (-not (Test-Path $outputFolder)) {
-          New-Item -Path $outputFolder -ItemType Directory -Force | Out-Null
-        }
+        New-Item -ItemType Directory -Path $outputFolder -Force | Out-Null
 
-        Copy-Item (Join-Path $inputFolder 'SDL2.dll') -Destination $outputFolder -Force
-        Copy-Item (Join-Path $inputFolder 'SDL2.lib') -Destination $outputFolder -Force
+        Copy-Item -Path "$inputFolder/*" -Destination $outputFolder -Recurse -Force
 
     - name: Build Plugin - ${{ inputs.engineVersion }} ${{ inputs.platform }}
       shell: pwsh
