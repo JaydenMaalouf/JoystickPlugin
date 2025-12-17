@@ -16,19 +16,19 @@ struct JOYSTICKPLUGIN_API FMotionData
 	{
 	}
 
-	void UpdateGyro(const FVector& InGyro, const int& InTimestamp)
+	void UpdateGyro(const FVector& InGyro)
 	{
 		Gyro = InGyro;
 	}
 
-	void UpdateAccelerometer(const FVector& InAccelerometer, const int& InTimestamp)
+	void UpdateAccelerometer(const FVector& InAccelerometer)
 	{
 		Accelerometer = InAccelerometer;
 	}
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Motion")
 	FVector Gyro;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Data")
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Motion")
 	FVector Accelerometer;
 };

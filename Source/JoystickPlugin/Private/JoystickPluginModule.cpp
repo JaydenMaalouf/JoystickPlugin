@@ -2,15 +2,19 @@
 // Copyright Jayden Maalouf. All Rights Reserved.
 
 #include "JoystickPluginModule.h"
-#include "Misc/Paths.h"
+
+#include "Engine/Engine.h"
+#include "Interfaces/IPluginManager.h"
 #include "JoystickInputDevice.h"
 #include "JoystickSubsystem.h"
-#include "Interfaces/IPluginManager.h"
-#include "Engine/Engine.h"
+#include "Misc/Paths.h"
 
 #define LOCTEXT_NAMESPACE "JoystickPlugin"
 
-TSharedPtr<class IInputDevice> FJoystickPluginModule::CreateInputDevice(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler)
+FString FJoystickPluginModule::PluginName = "JoystickPlugin";
+FString FJoystickPluginModule::PluginDirectory = "JoystickPlugin";
+
+TSharedPtr<IInputDevice> FJoystickPluginModule::CreateInputDevice(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler)
 {
 	if (!IsValid(GEngine))
 	{
@@ -28,13 +32,14 @@ TSharedPtr<class IInputDevice> FJoystickPluginModule::CreateInputDevice(const TS
 
 void FJoystickPluginModule::StartupModule()
 {
+	PluginDirectory = IPluginManager::Get().FindPlugin(PluginName)->GetBaseDir();
 #if PLATFORM_WINDOWS
-	const FString BaseDir = IPluginManager::Get().FindPlugin("JoystickPlugin")->GetBaseDir();
-	const FString SDLDir = FPaths::Combine(*BaseDir, TEXT("ThirdParty"), TEXT("SDL2"), TEXT("/Win64/"));
+	const FString SdlDir = FPaths::Combine(*PluginDirectory, TEXT("ThirdParty"), TEXT("SDL2"), TEXT("Win64"));
 
-	FPlatformProcess::PushDllDirectory(*SDLDir);
-	SdlDllHandle = FPlatformProcess::GetDllHandle(*(SDLDir + "SDL2.dll"));
-	FPlatformProcess::PopDllDirectory(*SDLDir);
+	FPlatformProcess::PushDllDirectory(*SdlDir);
+	const FString SdlDllDir = FPaths::Combine(SdlDir, "SDL2.dll");
+	SdlDllHandle = FPlatformProcess::GetDllHandle(*SdlDllDir);
+	FPlatformProcess::PopDllDirectory(*SdlDir);
 #endif
 
 	IJoystickPlugin::StartupModule();

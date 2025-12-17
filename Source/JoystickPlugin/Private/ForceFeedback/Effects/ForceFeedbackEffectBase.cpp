@@ -2,13 +2,18 @@
 // Copyright Jayden Maalouf. All Rights Reserved.
 
 #include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
+
 #include "Data/JoystickInstanceId.h"
+#include "GameFramework/Actor.h"
 #include "JoystickHapticDeviceManager.h"
 #include "JoystickLogManager.h"
-#include "JoystickSubsystem.h"
-#include "ForceFeedback/JoystickForceFeedbackComponent.h"
 #include "Runtime/Launch/Resources/Version.h"
-#include "GameFramework/Actor.h"
+
+THIRD_PARTY_INCLUDES_START
+
+#include "SDL_timer.h"
+
+THIRD_PARTY_INCLUDES_END
 
 UForceFeedbackEffectBase::UForceFeedbackEffectBase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -20,21 +25,11 @@ UForceFeedbackEffectBase::UForceFeedbackEffectBase(const FObjectInitializer& Obj
 	  , Tickable(true)
 	  , TickableInEditor(true)
 	  , TickableWhenPaused(false)
+	  , ForceStopAfterDurationLapsed(false)
 	  , Effect()
+	  , StartTime(-1)
+	  , EffectRunning(false)
 {
-}
-
-void UForceFeedbackEffectBase::PostInitProperties()
-{
-	UObject::PostInitProperties();
-
-	if (GetWorld())
-	{
-		if (Configuration.AutoInitialise)
-		{
-			InitialiseEffect();
-		}
-	}
 }
 
 void UForceFeedbackEffectBase::BeginDestroy()
@@ -46,6 +41,13 @@ void UForceFeedbackEffectBase::BeginDestroy()
 
 void UForceFeedbackEffectBase::Tick(const float DeltaTime)
 {
+	if (LastFrameNumber == GFrameCounter)
+	{
+		return;
+	}
+
+	LastFrameNumber = GFrameCounter;
+
 	if (!IsInitialised || this->IsUnreachable())
 	{
 		return;
@@ -57,18 +59,40 @@ void UForceFeedbackEffectBase::Tick(const float DeltaTime)
 	{
 		UpdateEffect();
 	}
+
+	const uint32 Duration = GetEffectDuration();
+	if (EffectRunning && InfiniteIterations == false && StartTime != -1 && Duration != -1)
+	{
+		const uint64 CurrentTime = SDL_GetTicks();
+		if (CurrentTime - StartTime >= Duration)
+		{
+			// Effect should be finished but sometimes SDL2 doesn't handle the status correctly.
+			if (GetEffectStatus() == 0 || ForceStopAfterDurationLapsed)
+			{
+				StopEffect();
+			}
+		}
+	}
 }
 
 void UForceFeedbackEffectBase::InitialiseEffect()
 {
 	if (IsInitialised)
 	{
+		FJoystickLogManager::Get()->LogWarning(TEXT("UForceFeedbackEffectBase::InitialiseEffect: Effect is already initialised."));
+		return;
+	}
+
+	if (InstanceId == -1)
+	{
+		FJoystickLogManager::Get()->LogError(TEXT("UForceFeedbackEffectBase::InitialiseEffect: Effect InstanceId is not set."));
 		return;
 	}
 
 	const UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
 	if (!IsValid(HapticDeviceManager))
 	{
+		FJoystickLogManager::Get()->LogError(TEXT("UForceFeedbackEffectBase::InitialiseEffect: HapticDeviceManager is invalid."));
 		return;
 	}
 
@@ -123,6 +147,8 @@ void UForceFeedbackEffectBase::DestroyEffect()
 
 	IsInitialised = false;
 	EffectId = -1;
+	StartTime = -1;
+	EffectRunning = false;
 
 	//Safety check to ensure we don't try calling BP during destruction
 #if ENGINE_MAJOR_VERSION == 5
@@ -151,9 +177,10 @@ void UForceFeedbackEffectBase::StartEffect()
 		return;
 	}
 
-	const int Status = EffectStatus();
+	const int Status = GetEffectStatus();
 	if (Status == 1)
 	{
+		EffectRunning = true;
 		return;
 	}
 
@@ -173,6 +200,8 @@ void UForceFeedbackEffectBase::StartEffect()
 	{
 		return;
 	}
+	StartTime = SDL_GetTicks64();
+	EffectRunning = true;
 
 	//Safety check to ensure we don't try calling BP during destruction
 #if ENGINE_MAJOR_VERSION == 5
@@ -212,6 +241,8 @@ void UForceFeedbackEffectBase::StopEffect()
 	{
 		return;
 	}
+	StartTime = -1;
+	EffectRunning = false;
 
 	//Safety check to ensure we don't try calling BP during destruction
 #if ENGINE_MAJOR_VERSION == 5
@@ -268,7 +299,11 @@ void UForceFeedbackEffectBase::UpdateEffect()
 	}
 }
 
-int UForceFeedbackEffectBase::EffectStatus() const
+void UForceFeedbackEffectBase::ReceiveTick_Implementation(const float DeltaTime)
+{
+}
+
+int UForceFeedbackEffectBase::GetEffectStatus() const
 {
 	UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
 	if (!IsValid(HapticDeviceManager))
@@ -312,19 +347,7 @@ void UForceFeedbackEffectBase::SetTickableWhenPaused(const bool NewTickableWhenP
 
 AActor* UForceFeedbackEffectBase::GetOwningActor() const
 {
-	const auto Outer = GetOuter();
-	if (!IsValid(Outer))
-	{
-		return nullptr;
-	}
-
-	const UJoystickForceFeedbackComponent* OuterJoystick = Cast<UJoystickForceFeedbackComponent>(Outer);
-	if (IsValid(OuterJoystick))
-	{
-		return OuterJoystick->GetOwner();
-	}
-
-	return Cast<AActor>(Outer);
+	return GetOwningActor<AActor>();
 }
 
 void UForceFeedbackEffectBase::CreateEffect()
@@ -335,4 +358,9 @@ void UForceFeedbackEffectBase::CreateEffect()
 
 void UForceFeedbackEffectBase::UpdateEffectData()
 {
+}
+
+uint32 UForceFeedbackEffectBase::GetEffectDuration()
+{
+	return -1;
 }

@@ -28,12 +28,12 @@ struct JOYSTICKPLUGIN_API FJoystickInstanceId
 	bool operator==(const int& Other) const
 	{
 		return Equals(Other);
-	};
+	}
 
 	bool operator==(const FJoystickInstanceId& Other) const
 	{
 		return Equals(Other);
-	};
+	}
 
 	bool Equals(const FJoystickInstanceId& Other) const
 	{
@@ -45,6 +45,6 @@ struct JOYSTICKPLUGIN_API FJoystickInstanceId
 		return GetTypeHash(Other.Value);
 	}
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Device Config", DisplayName="Instance Id", meta=(ClampMin=-1, UIMin=-1))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Joystick", DisplayName="Instance Id", meta=(ClampMin=-1, UIMin=-1))
 	int Value;
 };

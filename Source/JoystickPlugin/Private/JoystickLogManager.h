@@ -3,18 +3,24 @@
 
 #pragma once
 
+#include "Data/ResultMessage.h"
 #include "JoystickInputSettings.h"
+#include "Misc/Build.h"
 #include "Runtime/Launch/Resources/Version.h"
 
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6
-	#define FUNC_TEMPLATE_PARAMS typename... Types
-	#define FUNC_PARAMS UE::Core::TCheckedFormatString<FString::FmtCharType, Types...> Fmt, Types... Args
+#define FUNC_TEMPLATE_PARAMS typename... Types
+#define FUNC_PARAMS UE::Core::TCheckedFormatString<FString::FmtCharType, Types...> Fmt, Types... Args
 #else
-	#define FUNC_TEMPLATE_PARAMS typename FmtType, typename... Types
-	#define FUNC_PARAMS const FmtType& Fmt, Types... Args
+#define FUNC_TEMPLATE_PARAMS typename FmtType, typename... Types
+#define FUNC_PARAMS const FmtType& Fmt, Types... Args
 #endif
 
+#if UE_BUILD_SHIPPING
+DECLARE_LOG_CATEGORY_EXTERN(LogJoystickPlugin, Display, All);
+#else
 DECLARE_LOG_CATEGORY_EXTERN(LogJoystickPlugin, Log, All);
+#endif
 
 class JOYSTICKPLUGIN_API FJoystickLogManager
 {
@@ -33,10 +39,20 @@ public:
 		LogInternal(Level, *Message);
 	}
 
+	void Log(const ELogVerbosity::Type Level, const FInternalResultMessage& Message)
+	{
+		LogInternal(Level, *Message.ErrorMessage);
+	}
+
 	template <FUNC_TEMPLATE_PARAMS>
 	void LogWarning(FUNC_PARAMS)
 	{
 		Log(ELogVerbosity::Warning, Fmt, Forward<Types>(Args)...);
+	}
+
+	void LogWarning(const FInternalResultMessage& Message)
+	{
+		Log(ELogVerbosity::Warning, Message);
 	}
 
 	template <FUNC_TEMPLATE_PARAMS>
@@ -45,10 +61,20 @@ public:
 		Log(ELogVerbosity::Error, Fmt, Forward<Types>(Args)...);
 	}
 
+	void LogError(const FInternalResultMessage& Message)
+	{
+		Log(ELogVerbosity::Error, Message);
+	}
+
 	template <FUNC_TEMPLATE_PARAMS>
 	void LogDebug(FUNC_PARAMS)
 	{
 		Log(ELogVerbosity::Log, Fmt, Forward<Types>(Args)...);
+	}
+
+	void LogDebug(const FInternalResultMessage& Message)
+	{
+		Log(ELogVerbosity::Log, Message);
 	}
 
 	template <FUNC_TEMPLATE_PARAMS>
@@ -57,12 +83,17 @@ public:
 		Log(ELogVerbosity::Display, Fmt, Forward<Types>(Args)...);
 	}
 
+	void LogInformation(const FInternalResultMessage& Message)
+	{
+		Log(ELogVerbosity::Display, Message);
+	}
+
 	void LogSDLError(const FString& Message);
 
 private:
-	bool CanLog() const
+	static bool CanLog()
 	{
-		const UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
+		const UJoystickInputSettings* JoystickInputSettings = GetDefault<UJoystickInputSettings>();
 		if (!IsValid(JoystickInputSettings))
 		{
 			return false;

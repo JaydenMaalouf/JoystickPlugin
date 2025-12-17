@@ -7,13 +7,13 @@
 #include "Data/JoystickType.h"
 #include "Data/JoystickPowerLevel.h"
 #include "Data/JoystickHapticInformation.h"
-#include "Data/JoystickRumbleInformation.h"
+#include "Data/JoystickHapticRumbleInformation.h"
 #include "Data/JoystickSensorInformation.h"
 
 #include "JoystickInformation.generated.h"
 
 USTRUCT(BlueprintType)
-struct JOYSTICKPLUGIN_API FJoystickInformation
+struct FJoystickInformation
 {
 	GENERATED_BODY()
 
@@ -23,8 +23,9 @@ struct JOYSTICKPLUGIN_API FJoystickInformation
 		  , ProductId(0)
 		  , ProductVersion(0)
 		  , VendorId(0)
-		  , IsGamepad(false)
+		  , IsGameController(false)
 		  , LedSupport(false)
+		  , RumbleSupport(false)
 		  , PowerLevel(EJoystickPowerLevel::Unknown)
 	{
 	}
@@ -45,10 +46,16 @@ struct JOYSTICKPLUGIN_API FJoystickInformation
 	int ProductId;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
+	FString DeviceHash;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
 	FGuid ProductGuid;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
 	FString SerialNumber;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
+	FString Path;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
 	int ProductVersion;
@@ -57,23 +64,26 @@ struct JOYSTICKPLUGIN_API FJoystickInformation
 	int VendorId;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
-	bool IsGamepad;
+	bool IsGameController;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config/Supported Features")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config|Supported Features")
 	bool LedSupport;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config|Supported Features")
+	bool RumbleSupport;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
 	EJoystickPowerLevel PowerLevel;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config/Haptic")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config|Haptic")
 	FJoystickHapticInformation Haptic;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config/Sensors")
-	FJoystickRumbleInformation Rumble;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config|Haptic")
+	FJoystickHapticRumbleInformation HapticRumble;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config/Sensors")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config|Sensors")
 	FJoystickSensorInformation Gyro;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config/Sensors")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config|Sensors")
 	FJoystickSensorInformation Accelerometer;
 };

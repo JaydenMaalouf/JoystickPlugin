@@ -19,4 +19,5 @@ public:
 
 protected:
 	virtual void UpdateEffectData() override;
+	virtual uint32 GetEffectDuration() override;
 };

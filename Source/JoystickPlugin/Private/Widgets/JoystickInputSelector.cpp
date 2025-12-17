@@ -1,15 +1,15 @@
 // JoystickPlugin is licensed under the MIT License.
 // Copyright Jayden Maalouf. All Rights Reserved.
 
-#include "JoystickInputSelector.h"
-#include "SJoystickInputSelector.h"
+#include "Widgets/JoystickInputSelector.h"
+#include "Widgets/SJoystickInputSelector.h"
 #include "Engine/Font.h"
 #include "UObject/ConstructorHelpers.h"
 #include "UObject/FrameworkObjectVersion.h"
 #include "Widgets/DeclarativeSyntaxSupport.h"
 #include "Internationalization/Internationalization.h"
 
-#define LOCTEXT_NAMESPACE "UMG"
+#define LOCTEXT_NAMESPACE "JoystickPlugin"
 
 static FButtonStyle* DefaultInputKeySelectorButtonStyle = nullptr;
 static FTextBlockStyle* DefaultInputKeySelectorTextStyle = nullptr;
@@ -45,9 +45,14 @@ UJoystickInputSelector::UJoystickInputSelector(const FObjectInitializer& ObjectI
 	bAllowButtonKeys = true;
 	bAllowModifierKeys = true;
 	bAllowGamepadKeys = true;
+	bAllowNonGamepadKeys = true;
+	bAllowJoystickKeys = true;
+	bUseAxisProperties = true;
+	MinRange = 0.0f;
+	MaxRange = 1.0f;
 	MinRangeOffset = 0.0f;
 	MaxRangeOffset = 0.0f;
-	DeadZone = 0.0f;
+	DeadZone = 0.05f;
 	AxisSelectionTimeout = 2.5f;
 
 	EscapeKeys.AddUnique(EKeys::Gamepad_Special_Right);
@@ -108,7 +113,7 @@ void UJoystickInputSelector::SetNoKeySpecifiedText(FText InNoKeySpecifiedText)
 	NoKeySpecifiedText = MoveTemp(InNoKeySpecifiedText);
 }
 
-void UJoystickInputSelector::SetAllowAxisKeys(bool bInAllowAxisKeys)
+void UJoystickInputSelector::SetAllowAxisKeys(const bool bInAllowAxisKeys)
 {
 	if (JoystickInputSelector.IsValid())
 	{
@@ -118,7 +123,7 @@ void UJoystickInputSelector::SetAllowAxisKeys(bool bInAllowAxisKeys)
 	bAllowAxisKeys = bInAllowAxisKeys;
 }
 
-void UJoystickInputSelector::SetAllowButtonKeys(bool bInAllowButtonKeys)
+void UJoystickInputSelector::SetAllowButtonKeys(const bool bInAllowButtonKeys)
 {
 	if (JoystickInputSelector.IsValid())
 	{
@@ -138,6 +143,36 @@ void UJoystickInputSelector::SetAllowModifierKeys(const bool bInAllowModifierKey
 	bAllowModifierKeys = bInAllowModifierKeys;
 }
 
+void UJoystickInputSelector::SetUseAxisProperties(const bool bInUseAxisProperties)
+{
+	if (JoystickInputSelector.IsValid())
+	{
+		JoystickInputSelector->SetUseAxisProperties(bInUseAxisProperties);
+	}
+
+	bUseAxisProperties = bInUseAxisProperties;
+}
+
+void UJoystickInputSelector::SetMinRange(const float InMinRange)
+{
+	if (JoystickInputSelector.IsValid())
+	{
+		JoystickInputSelector->SetMinRange(InMinRange);
+	}
+
+	MinRange = InMinRange;
+}
+
+void UJoystickInputSelector::SetMaxRange(const float InMaxRange)
+{
+	if (JoystickInputSelector.IsValid())
+	{
+		JoystickInputSelector->SetMaxRange(InMaxRange);
+	}
+
+	MaxRange = InMaxRange;
+}
+
 void UJoystickInputSelector::SetAllowGamepadKeys(const bool bInAllowGamepadKeys)
 {
 	if (JoystickInputSelector.IsValid())
@@ -146,6 +181,26 @@ void UJoystickInputSelector::SetAllowGamepadKeys(const bool bInAllowGamepadKeys)
 	}
 
 	bAllowGamepadKeys = bInAllowGamepadKeys;
+}
+
+void UJoystickInputSelector::SetAllowNonGamepadKeys(const bool bInAllowNonGamepadKeys)
+{
+	if (JoystickInputSelector.IsValid())
+	{
+		JoystickInputSelector->SetAllowNonGamepadKeys(bInAllowNonGamepadKeys);
+	}
+
+	bAllowNonGamepadKeys = bInAllowNonGamepadKeys;
+}
+
+void UJoystickInputSelector::SetAllowJoystickKeys(const bool bInAllowJoystickKeys)
+{
+	if (JoystickInputSelector.IsValid())
+	{
+		JoystickInputSelector->SetAllowJoystickKeys(bInAllowJoystickKeys);
+	}
+
+	bAllowJoystickKeys = bInAllowJoystickKeys;
 }
 
 void UJoystickInputSelector::SetMinRangeOffset(const float InMinRangeOffset)
@@ -168,7 +223,7 @@ void UJoystickInputSelector::SetMaxRangeOffset(const float InMaxRangeOffset)
 	MaxRangeOffset = InMaxRangeOffset;
 }
 
-void UJoystickInputSelector::SetAxisSelectionTimeout(float InAxisSelectionTimeout)
+void UJoystickInputSelector::SetAxisSelectionTimeout(const float InAxisSelectionTimeout)
 {
 	if (JoystickInputSelector.IsValid())
 	{
@@ -178,7 +233,7 @@ void UJoystickInputSelector::SetAxisSelectionTimeout(float InAxisSelectionTimeou
 	AxisSelectionTimeout = InAxisSelectionTimeout;
 }
 
-void UJoystickInputSelector::SetDeadZone(float InDeadZone)
+void UJoystickInputSelector::SetDeadZone(const float InDeadZone)
 {
 	if (JoystickInputSelector.IsValid())
 	{
@@ -231,6 +286,9 @@ void UJoystickInputSelector::SynchronizeProperties()
 	JoystickInputSelector->SetAllowGamepadKeys(bAllowGamepadKeys);
 	JoystickInputSelector->SetAllowAxisKeys(bAllowAxisKeys);
 	JoystickInputSelector->SetAllowButtonKeys(bAllowButtonKeys);
+	JoystickInputSelector->SetUseAxisProperties(bUseAxisProperties);
+	JoystickInputSelector->SetMinRange(MinRange);
+	JoystickInputSelector->SetMaxRange(MaxRange);
 	JoystickInputSelector->SetMinRangeOffset(MinRangeOffset);
 	JoystickInputSelector->SetMaxRangeOffset(MaxRangeOffset);
 	JoystickInputSelector->SetAxisSelectionTimeout(AxisSelectionTimeout);
@@ -238,7 +296,7 @@ void UJoystickInputSelector::SynchronizeProperties()
 	JoystickInputSelector->SetEscapeKeys(EscapeKeys);
 }
 
-void UJoystickInputSelector::ReleaseSlateResources(bool bReleaseChildren)
+void UJoystickInputSelector::ReleaseSlateResources(const bool bReleaseChildren)
 {
 	Super::ReleaseSlateResources(bReleaseChildren);
 
@@ -256,8 +314,13 @@ TSharedRef<SWidget> UJoystickInputSelector::RebuildWidget()
 		.NoKeySpecifiedText(NoKeySpecifiedText)
 		.AllowModifierKeys(bAllowModifierKeys)
 		.AllowGamepadKeys(bAllowGamepadKeys)
+		.AllowNonGamepadKeys(bAllowNonGamepadKeys)
+		.AllowJoystickKeys(bAllowJoystickKeys)
 		.AllowAxisKeys(bAllowAxisKeys)
 		.AllowButtonKeys(bAllowButtonKeys)
+		.SetUseAxisProperties(bUseAxisProperties)
+		.SetMinRange(MinRange)
+		.SetMaxRange(MaxRange)
 		.SetMinRangeOffset(MinRangeOffset)
 		.SetMaxRangeOffset(MaxRangeOffset)
 		.SetAxisSelectionTimeout(AxisSelectionTimeout)
@@ -281,16 +344,19 @@ void UJoystickInputSelector::HandleKeySelected(const FInputChord& InSelectedKey)
 	OnKeySelected.Broadcast(SelectedKey);
 }
 
-void UJoystickInputSelector::HandleIsSelectingChanged()
+void UJoystickInputSelector::HandleIsSelectingChanged() const
 {
-	OnIsSelectingChanged.Broadcast();
+	if (OnIsSelectingChanged.IsBound())
+	{
+		OnIsSelectingChanged.Broadcast();
+	}
 }
 
 void UJoystickInputSelector::SetTextBlockVisibility(const ESlateVisibility InVisibility)
 {
 	if (JoystickInputSelector.IsValid())
 	{
-		EVisibility SlateVisibility = ConvertSerializedVisibilityToRuntime(InVisibility);
+		const EVisibility SlateVisibility = ConvertSerializedVisibilityToRuntime(InVisibility);
 		JoystickInputSelector->SetTextBlockVisibility(SlateVisibility);
 	}
 }

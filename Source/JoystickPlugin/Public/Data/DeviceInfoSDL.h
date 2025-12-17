@@ -3,7 +3,9 @@
 
 #pragma once
 
+#include "PlatformTypes.h"
 #include "Data/JoystickInformation.h"
+#include "Runtime/Launch/Resources/Version.h"
 
 THIRD_PARTY_INCLUDES_START
 
@@ -13,16 +15,26 @@ THIRD_PARTY_INCLUDES_START
 
 THIRD_PARTY_INCLUDES_END
 
-struct JOYSTICKPLUGIN_API FDeviceInfoSDL : FJoystickInformation
+struct FDeviceInfoSDL : FJoystickInformation
 {
 	FDeviceInfoSDL()
 		: Connected(false)
 		  , SDLHaptic(nullptr)
 		  , SDLJoystick(nullptr)
 		  , SDLGameController(nullptr)
-		  , PlayerId(0)
-		  , InternalDeviceIndex(-1)
 	{
+		InputDeviceId = FInputDeviceId::CreateFromInternalId(0);
+		PlatformUserId = FPlatformUserId::CreateFromInternalId(0);
+	}
+
+	const FPlatformUserId& GetPlatformUserId() const
+	{
+		return PlatformUserId;
+	}
+
+	const FInputDeviceId& GetInputDeviceId() const
+	{
+		return InputDeviceId;
 	}
 
 	bool Connected;
@@ -32,6 +44,6 @@ struct JOYSTICKPLUGIN_API FDeviceInfoSDL : FJoystickInformation
 	SDL_Joystick* SDLJoystick;
 	SDL_GameController* SDLGameController;
 
-	int PlayerId;
-	int InternalDeviceIndex;
+	FPlatformUserId PlatformUserId;
+	FInputDeviceId InputDeviceId;
 };

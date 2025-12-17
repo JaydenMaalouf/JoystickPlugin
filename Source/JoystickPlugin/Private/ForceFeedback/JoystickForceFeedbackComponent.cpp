@@ -4,8 +4,8 @@
 #include "ForceFeedback/JoystickForceFeedbackComponent.h"
 
 #include "Engine/Engine.h"
-#include "JoystickSubsystem.h"
 #include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
+#include "JoystickSubsystem.h"
 
 UJoystickForceFeedbackComponent::UJoystickForceFeedbackComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -64,7 +64,7 @@ void UJoystickForceFeedbackComponent::OnSubsystemReady()
 
 void UJoystickForceFeedbackComponent::CreateEffects()
 {
-	if (!IsValid(EffectType))
+	if (!EffectType)
 	{
 		return;
 	}
@@ -107,7 +107,12 @@ void UJoystickForceFeedbackComponent::CreateInstanceEffect(const FJoystickInstan
 	{
 		return;
 	}
-	
+
+	if (!EffectType)
+	{
+		return;
+	}
+
 	UForceFeedbackEffectBase* ForcedFeedbackEffect = NewObject<UForceFeedbackEffectBase>(this, EffectType);
 	if (!IsValid(ForcedFeedbackEffect))
 	{
@@ -171,13 +176,13 @@ void UJoystickForceFeedbackComponent::DestroyInstanceEffects(const FJoystickInst
 		DestroyEffect(Effect);
 	});
 
-	Effects.RemoveAll([&](const UForceFeedbackEffectBase* Effect)
+	Effects.RemoveAll([JoystickInstanceId](const UForceFeedbackEffectBase* Effect)
 	{
 		return Effect->GetInstanceId() == JoystickInstanceId;
 	});
 }
 
-void UJoystickForceFeedbackComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UJoystickForceFeedbackComponent::TickComponent(const float DeltaTime, const ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
@@ -198,7 +203,8 @@ void UJoystickForceFeedbackComponent::TickComponent(float DeltaTime, ELevelTick 
 			continue;
 		}
 
-		if (ForcedFeedbackEffect->Tickable == false)
+		// If true, the effect will handle its own Tick
+		if (ForcedFeedbackEffect->IsTickable())
 		{
 			continue;
 		}
@@ -282,7 +288,7 @@ void UJoystickForceFeedbackComponent::ActionOnJoystickEffects(const FJoystickIns
 	{
 		return;
 	}
-	
+
 	for (UForceFeedbackEffectBase* Effect : Effects)
 	{
 		if (!IsValid(Effect))

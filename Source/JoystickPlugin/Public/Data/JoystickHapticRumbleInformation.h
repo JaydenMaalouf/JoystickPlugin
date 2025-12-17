@@ -3,14 +3,14 @@
 
 #pragma once
 
-#include "JoystickRumbleInformation.generated.h"
+#include "JoystickHapticRumbleInformation.generated.h"
 
 USTRUCT(BlueprintType)
-struct JOYSTICKPLUGIN_API FJoystickRumbleInformation
+struct FJoystickHapticRumbleInformation
 {
 	GENERATED_BODY()
 
-	FJoystickRumbleInformation()
+	FJoystickHapticRumbleInformation()
 		: Enabled(false)
 		  , Supported(false)
 	{

@@ -69,14 +69,29 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Key Selection")
 	bool bAllowAxisKeys;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Key Selection")
+	bool bAllowGamepadKeys;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Key Selection")
+	bool bAllowNonGamepadKeys;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Key Selection")
+	bool bAllowJoystickKeys;
+
 	/** When true modifier keys such as control and alt are allowed in the */
 	/** input chord representing the selected key, if false modifier keys are ignored. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Key Selection")
 	bool bAllowModifierKeys;
 
-	/** When true gamepad keys are allowed in the input chord representing the selected key, otherwise they are ignored. */
+	/** When true, will use the min and max defined in the Axis Properties for the key */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Key Selection")
-	bool bAllowGamepadKeys;
+	bool bUseAxisProperties;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Key Selection", meta=(EditCondition="!bUseAxisProperties"))
+	float MinRange;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Key Selection", meta=(EditCondition="!bUseAxisProperties"))
+	float MaxRange;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Key Selection")
 	float MinRangeOffset;
@@ -124,13 +139,27 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Widget")
 	void SetAllowButtonKeys(bool bInAllowButtonKeys);
 
-	/** Sets whether or not modifier keys are allowed in the selected key. */
+	UFUNCTION(BlueprintCallable, Category = "Widget")
+	void SetAllowGamepadKeys(bool bInAllowGamepadKeys);
+
+	UFUNCTION(BlueprintCallable, Category = "Widget")
+	void SetAllowNonGamepadKeys(bool bInAllowNonGamepadKeys);
+
+	UFUNCTION(BlueprintCallable, Category = "Widget")
+	void SetAllowJoystickKeys(bool bInAllowJoystickKeys);
+
+	/** Sets whether modifier keys are allowed in the selected key. */
 	UFUNCTION(BlueprintCallable, Category = "Widget")
 	void SetAllowModifierKeys(bool bInAllowModifierKeys);
 
-	/** Sets whether or not gamepad keys are allowed in the selected key. */
 	UFUNCTION(BlueprintCallable, Category = "Widget")
-	void SetAllowGamepadKeys(bool bInAllowGamepadKeys);
+	void SetUseAxisProperties(bool bInUseAxisProperties);
+
+	UFUNCTION(BlueprintCallable, Category = "Widget")
+	void SetMinRange(float InMinRange);
+
+	UFUNCTION(BlueprintCallable, Category = "Widget")
+	void SetMaxRange(float InMaxRange);
 
 	UFUNCTION(BlueprintCallable, Category = "Widget")
 	void SetMinRangeOffset(float InMinRangeOffset);
@@ -153,7 +182,7 @@ public:
 	void SetTextBlockVisibility(const ESlateVisibility InVisibility);
 
 	/** Sets the style of the button used to start key selection mode. */
-	void SetButtonStyle(const FButtonStyle* ButtonStyle);
+	void SetButtonStyle(const FButtonStyle* InButtonStyle);
 
 	/** Sets escape keys. */
 	UFUNCTION(BlueprintCallable, Category = "Widget")
@@ -183,9 +212,8 @@ protected:
 private:
 	virtual void HandleAxisSelected(const FInputChord& InSelectedKey);
 	virtual void HandleKeySelected(const FInputChord& InSelectedKey);
-	void HandleIsSelectingChanged();
+	void HandleIsSelectingChanged() const;
 
-private:
 	/** The input key selector widget managed by this object. */
 	TSharedPtr<SJoystickInputSelector> JoystickInputSelector;
 };

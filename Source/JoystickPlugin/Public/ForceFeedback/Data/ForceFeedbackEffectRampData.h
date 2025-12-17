@@ -21,21 +21,21 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectRampData
 	{
 	}
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Ramp|Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Joystick|Force Feedback|Ramp")
 	FForceFeedbackEffectDirectionData DirectionData;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Ramp|Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Joystick|Force Feedback|Ramp")
 	FForceFeedbackEffectDurationData DurationData;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Ramp|Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Joystick|Force Feedback|Ramp")
 	FForceFeedbackEffectReplayData ReplayData;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Ramp|Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Joystick|Force Feedback|Ramp")
 	FForceFeedbackEffectEnvelopeData EnvelopeData;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Ramp|Data", meta=(UIMin="-1", UIMax="1", ClampMin="-1", ClampMax="1"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Joystick|Force Feedback|Ramp", meta=(UIMin="-1", UIMax="1", ClampMin="-1", ClampMax="1"))
 	float RampStart;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Ramp|Data", meta=(UIMin="-1", UIMax="1", ClampMin="-1", ClampMax="1"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Joystick|Force Feedback|Ramp", meta=(UIMin="-1", UIMax="1", ClampMin="-1", ClampMax="1"))
 	float RampEnd;
 };

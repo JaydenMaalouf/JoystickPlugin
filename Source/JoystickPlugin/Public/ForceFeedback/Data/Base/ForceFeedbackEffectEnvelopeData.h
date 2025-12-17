@@ -18,15 +18,15 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectEnvelopeData
 	{
 	}
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Envelope|Data", meta=(UIMin="0", ClampMin="0"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Joystick|Force Feedback|Envelope", meta=(UIMin="0", ClampMin="0"))
 	float AttackDuration;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Envelope|Data", meta=(UIMin="0", UIMax="1", ClampMin="0", ClampMax="1"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Joystick|Force Feedback|Envelope", meta=(UIMin="0", UIMax="1", ClampMin="0", ClampMax="1"))
 	float AttackLevel;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Envelope|Data", meta=(UIMin="0", ClampMin="0"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Joystick|Force Feedback|Envelope", meta=(UIMin="0", ClampMin="0"))
 	float FadeDuration;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Force Feedback|Envelope|Data", meta=(UIMin="0", UIMax="1", ClampMin="0", ClampMax="1"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Joystick|Force Feedback|Envelope", meta=(UIMin="0", UIMax="1", ClampMin="0", ClampMax="1"))
 	float FadeLevel;
 };

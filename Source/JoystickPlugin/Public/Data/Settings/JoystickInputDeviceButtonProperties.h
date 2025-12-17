@@ -1,0 +1,31 @@
+﻿// JoystickPlugin is licensed under the MIT License.
+// Copyright Jayden Maalouf. All Rights Reserved.
+
+#pragma once
+
+#include "JoystickInputDeviceButtonProperties.generated.h"
+
+USTRUCT()
+struct JOYSTICKPLUGIN_API FJoystickInputDeviceButtonProperties
+{
+	GENERATED_BODY()
+
+	FJoystickInputDeviceButtonProperties()
+		: ButtonIndex(-1),
+		  OverrideDisplayName(false),
+		  InvertOutput(false)
+	{
+	}
+
+	UPROPERTY(EditAnywhere, Category="Button Properties", meta=(UIMin="0", ClampMin="0"))
+	int ButtonIndex;
+
+	UPROPERTY(EditAnywhere, Category="Button Properties")
+	bool OverrideDisplayName;
+
+	UPROPERTY(EditAnywhere, Category="Button Properties", meta=(EditCondition="OverrideDisplayName", EditConditionHides))
+	FString DisplayName;
+
+	UPROPERTY(EditAnywhere, Category="Button Properties")
+	bool InvertOutput;
+};

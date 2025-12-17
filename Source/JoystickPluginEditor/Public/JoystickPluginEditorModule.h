@@ -9,6 +9,7 @@ class FJoystickPluginEditorModule : public IModuleInterface
 {
 public:
 	virtual void ShutdownModule() override;
+	void RegisterProperyLayout();
 	virtual void StartupModule() override;
 
 private:

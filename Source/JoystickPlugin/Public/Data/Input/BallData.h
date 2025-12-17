@@ -32,9 +32,14 @@ struct JOYSTICKPLUGIN_API FBallData
 		Direction = InValue;
 	}
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "JoystickInfo")
+	void Processed()
+	{
+		PreviousDirection = Direction;
+	}
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Ball")
 	FVector2D Direction;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "JoystickInfo")
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Ball")
 	FVector2D PreviousDirection;
 };
