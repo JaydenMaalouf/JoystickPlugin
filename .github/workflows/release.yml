@@ -21,6 +21,14 @@ jobs:
         uses: ./.github/actions/version
         with:
           prerelease: ${{ github.ref != 'refs/heads/master' }}
+      - name: Package Plugin - 5.4
+        uses: ./.github/actions/package
+        with:
+          engineVersion: '5.4'
+          releaseVersion: ${{ steps.gitversion.outputs.semVer }}
+          epicGamesDirectory: ${{ secrets.EPIC_GAMES_DIRECTORY }}
+          launcherDirectory: ${{ secrets.LAUNCHER_DIRECTORY }}
+          controllerDbUrl: ${{ vars.CONTROLLERDB_URL }}
       - name: Package Plugin - 5.5
         uses: ./.github/actions/package
         with:
