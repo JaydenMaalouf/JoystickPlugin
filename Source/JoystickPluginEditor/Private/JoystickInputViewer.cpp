@@ -105,7 +105,7 @@ void SJoystickInputViewer::Construct(const FArguments& InArgs, const TSharedRef<
 				.Padding(10)
 				[
 					SAssignNew(ButtonContainer, SWrapBox)
-					.PreferredSize_Lambda([this]()
+					.PreferredSize_Lambda([this]
 					{
 						return GetCachedGeometry().GetLocalSize().X - 10;
 					})
@@ -118,7 +118,7 @@ void SJoystickInputViewer::Construct(const FArguments& InArgs, const TSharedRef<
 				.Padding(10)
 				[
 					SAssignNew(HatContainer, SWrapBox)
-					.PreferredSize_Lambda([this]()
+					.PreferredSize_Lambda([this]
 					{
 						return GetCachedGeometry().GetLocalSize().X - 10;
 					})
@@ -130,7 +130,7 @@ void SJoystickInputViewer::Construct(const FArguments& InArgs, const TSharedRef<
 				.AutoHeight()
 				[
 					SAssignNew(HatButtonContainer, SWrapBox)
-					.PreferredSize_Lambda([this]()
+					.PreferredSize_Lambda([this]
 					{
 						return GetCachedGeometry().GetLocalSize().X - 10;
 					})
@@ -142,7 +142,7 @@ void SJoystickInputViewer::Construct(const FArguments& InArgs, const TSharedRef<
 				.AutoHeight()
 				[
 					SAssignNew(BallContainer, SWrapBox)
-					.PreferredSize_Lambda([this]()
+					.PreferredSize_Lambda([this]
 					{
 						return GetCachedGeometry().GetLocalSize().X - 10;
 					})

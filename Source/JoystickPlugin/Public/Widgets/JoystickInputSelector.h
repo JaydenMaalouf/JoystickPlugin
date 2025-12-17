@@ -182,7 +182,7 @@ public:
 	void SetTextBlockVisibility(const ESlateVisibility InVisibility);
 
 	/** Sets the style of the button used to start key selection mode. */
-	void SetButtonStyle(const FButtonStyle* ButtonStyle);
+	void SetButtonStyle(const FButtonStyle* InButtonStyle);
 
 	/** Sets escape keys. */
 	UFUNCTION(BlueprintCallable, Category = "Widget")

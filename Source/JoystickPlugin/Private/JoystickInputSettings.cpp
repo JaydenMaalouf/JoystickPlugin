@@ -180,10 +180,10 @@ const FJoystickInputDeviceConfiguration* UJoystickInputSettings::FindConfigurati
 	{
 		if (PredicateDeviceConfig.DeviceIdentifyMethod == EJoystickIdentifierType::Legacy)
 		{
-			return ((IncludeEmptyGuids && !PredicateDeviceConfig.ProductGuid.IsValid()) || Device.ProductGuid == PredicateDeviceConfig.ProductGuid);
+			return (IncludeEmptyGuids && !PredicateDeviceConfig.ProductGuid.IsValid()) || Device.ProductGuid == PredicateDeviceConfig.ProductGuid;
 		}
 
-		return ((IncludeEmptyGuids && PredicateDeviceConfig.DeviceHash.IsEmpty()) || Device.DeviceHash == PredicateDeviceConfig.DeviceHash);
+		return (IncludeEmptyGuids && PredicateDeviceConfig.DeviceHash.IsEmpty()) || Device.DeviceHash == PredicateDeviceConfig.DeviceHash;
 	});
 }
 

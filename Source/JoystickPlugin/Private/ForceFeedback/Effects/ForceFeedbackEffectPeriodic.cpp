@@ -10,28 +10,28 @@ void UForceFeedbackEffectPeriodic::UpdateEffectData()
 
 	switch (EffectData.EffectType)
 	{
-	case(EForceFeedbackPeriodicEffectType::Sine):
+	case EForceFeedbackPeriodicEffectType::Sine:
 		{
 			Effect.type = SDL_HAPTIC_SINE;
 			break;
 		}
-	case(EForceFeedbackPeriodicEffectType::Triangle):
+	case EForceFeedbackPeriodicEffectType::Triangle:
 		{
 			Effect.type = SDL_HAPTIC_TRIANGLE;
 			break;
 		}
-	case(EForceFeedbackPeriodicEffectType::SawtoothUp):
+	case EForceFeedbackPeriodicEffectType::SawtoothUp:
 		{
 			Effect.type = SDL_HAPTIC_SAWTOOTHUP;
 			break;
 		}
-	case(EForceFeedbackPeriodicEffectType::SawtoothDown):
+	case EForceFeedbackPeriodicEffectType::SawtoothDown:
 		{
 			Effect.type = SDL_HAPTIC_SAWTOOTHDOWN;
 			break;
 		}
 	default:
-	case(EForceFeedbackPeriodicEffectType::LeftRight):
+	case EForceFeedbackPeriodicEffectType::LeftRight:
 		{
 			Effect.type = SDL_HAPTIC_LEFTRIGHT;
 			break;

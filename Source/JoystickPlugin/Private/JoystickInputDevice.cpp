@@ -55,8 +55,8 @@ void FJoystickInputDevice::SetChannelValues(int ControllerId, const FForceFeedba
 		return;
 	}
 
-	const float LargeValue = (Values.LeftLarge > Values.RightLarge ? Values.LeftLarge : Values.RightLarge);
-	const float SmallValue = (Values.LeftSmall > Values.RightSmall ? Values.LeftSmall : Values.RightSmall);
+	const float LargeValue = Values.LeftLarge > Values.RightLarge ? Values.LeftLarge : Values.RightLarge;
+	const float SmallValue = Values.LeftSmall > Values.RightSmall ? Values.LeftSmall : Values.RightSmall;
 	for (const TTuple<FJoystickInstanceId, FJoystickDeviceState>& Joystick : JoystickDeviceState)
 	{
 		if (SmallValue == 0 && LargeValue == 0)
@@ -195,7 +195,7 @@ void FJoystickInputDevice::InitialiseHatAxis(const FJoystickInstanceId& Instance
 	DeviceHatAxisKeys.Emplace(InstanceId);
 	DeviceHatAxisPairedKeys.Emplace(InstanceId);
 
-	int HatCount = JoystickState->Hats.Num();
+	const int HatCount = JoystickState->Hats.Num();
 	DeviceHatAxisKeys[InstanceId].SetNum(HatCount);
 	DeviceHatAxisPairedKeys[InstanceId].SetNum(HatCount);
 
@@ -207,7 +207,7 @@ void FJoystickInputDevice::InitialiseHatAxis(const FJoystickInstanceId& Instance
 			FString HatKeyName = FString::Printf(TEXT("%s_Hat_%d_%s"), *BaseKeyName, HatKeyIndex, *HatAxisName);
 			FString HatDisplayName = FString::Printf(TEXT("%s: Hat %d %s"), *BaseDisplayName, HatKeyIndex, *HatAxisName);
 
-			FKey HatKey = FKey(FName(*HatKeyName));
+			const FKey HatKey = FKey(FName(*HatKeyName));
 
 #if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26 || ENGINE_MAJOR_VERSION == 5)
 			FKeyDetails HatKeyDetails = FKeyDetails(HatKey, FText::FromString(HatDisplayName), FKeyDetails::GamepadKey | FKeyDetails::Axis1D, JoystickCategory);
@@ -233,7 +233,7 @@ void FJoystickInputDevice::InitialiseHatAxis(const FJoystickInstanceId& Instance
 			FString HatAxisKeyName = FString::Printf(TEXT("%s_Hat_%d_2D"), *BaseKeyName, HatKeyIndex);
 			FString HatAxisDisplayName = FString::Printf(TEXT("%s: Hat %d 2D"), *BaseDisplayName, HatKeyIndex);
 
-			FKey HatAxisKey = FKey(FName(*HatAxisKeyName));
+			const FKey HatAxisKey = FKey(FName(*HatAxisKeyName));
 
 			FKeyDetails HatAxisKeyDetails = FKeyDetails(HatAxisKey, FText::FromString(HatAxisDisplayName), FKeyDetails::GamepadKey | FKeyDetails::Axis2D, JoystickCategory);
 
@@ -298,7 +298,7 @@ void FJoystickInputDevice::InitialiseHatButtons(const FJoystickInstanceId& Insta
 			}
 
 			const FKey& MappedKey = ButtonKeyDetails.GetKey();
-			int HatButtonIndex = HatKeyIndex * 8 + (i - 1);
+			const int HatButtonIndex = HatKeyIndex * 8 + (i - 1);
 			DeviceHatButtonKeys[InstanceId][HatButtonIndex] = MappedKey;
 			DeviceKeys[InstanceId].Add(MappedKey);
 
@@ -318,7 +318,7 @@ void FJoystickInputDevice::InitialiseBalls(const FJoystickInstanceId& InstanceId
 	DeviceBallKeys.Emplace(InstanceId);
 	DeviceBallPairedKeys.Emplace(InstanceId);
 
-	int BallCount = JoystickState->Balls.Num();
+	const int BallCount = JoystickState->Balls.Num();
 	DeviceBallKeys[InstanceId].SetNum(BallCount);
 	DeviceBallPairedKeys[InstanceId].SetNum(BallCount);
 
@@ -330,7 +330,7 @@ void FJoystickInputDevice::InitialiseBalls(const FJoystickInstanceId& InstanceId
 			FString BallKeyName = FString::Printf(TEXT("%s_Ball_%d_%s"), *BaseKeyName, BallKeyIndex, *BallAxisName);
 			FString BallDisplayName = FString::Printf(TEXT("%s: Ball %d %s"), *BaseDisplayName, BallKeyIndex, *BallAxisName);
 
-			FKey BallKey = FKey(FName(*BallKeyName));
+			const FKey BallKey = FKey(FName(*BallKeyName));
 
 #if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26 || ENGINE_MAJOR_VERSION == 5)
 			FKeyDetails BallKeyDetails = FKeyDetails(BallKey, FText::FromString(BallDisplayName), FKeyDetails::GamepadKey | FKeyDetails::Axis1D, JoystickCategory);
@@ -356,7 +356,7 @@ void FJoystickInputDevice::InitialiseBalls(const FJoystickInstanceId& InstanceId
 			FString BallKeyName = FString::Printf(TEXT("%s_Ball_%d_2D"), *BaseKeyName, BallKeyIndex);
 			FString BallDisplayName = FString::Printf(TEXT("%s: Ball %d 2D"), *BaseDisplayName, BallKeyIndex);
 
-			FKey BallKey = FKey(FName(*BallKeyName));
+			const FKey BallKey = FKey(FName(*BallKeyName));
 
 			FKeyDetails BallKeyDetails = FKeyDetails(BallKey, FText::FromString(BallDisplayName), FKeyDetails::GamepadKey | FKeyDetails::Axis2D, JoystickCategory);
 
@@ -546,7 +546,7 @@ void FJoystickInputDevice::JoystickBall(const FJoystickInstanceId& InstanceId, c
 	State.Update(Value);
 }
 
-void FJoystickInputDevice::JoystickGyro(const FJoystickInstanceId& InstanceId, const int Timestamp, const FVector& Value)
+void FJoystickInputDevice::JoystickGyro(const FJoystickInstanceId& InstanceId, const FVector& Value)
 {
 	auto [DeviceState, Result] = GetDeviceState(InstanceId);
 	if (!DeviceState || Result.bSuccess == false)
@@ -555,10 +555,10 @@ void FJoystickInputDevice::JoystickGyro(const FJoystickInstanceId& InstanceId, c
 		return;
 	}
 
-	DeviceState->Motion.UpdateGyro(Value, Timestamp);
+	DeviceState->Motion.UpdateGyro(Value);
 }
 
-void FJoystickInputDevice::JoystickAccelerometer(const FJoystickInstanceId& InstanceId, const int Timestamp, const FVector& Value)
+void FJoystickInputDevice::JoystickAccelerometer(const FJoystickInstanceId& InstanceId, const FVector& Value)
 {
 	auto [DeviceState, Result] = GetDeviceState(InstanceId);
 	if (!DeviceState || Result.bSuccess == false)
@@ -567,7 +567,7 @@ void FJoystickInputDevice::JoystickAccelerometer(const FJoystickInstanceId& Inst
 		return;
 	}
 
-	DeviceState->Motion.UpdateAccelerometer(Value, Timestamp);
+	DeviceState->Motion.UpdateAccelerometer(Value);
 }
 
 TTuple<FJoystickDeviceState*, FInternalResultMessage> FJoystickInputDevice::GetDeviceState(const FJoystickInstanceId& InstanceId)
@@ -985,7 +985,7 @@ void FJoystickInputDevice::TryAddWidgetNavigation(const FKey& ButtonKey) const
 		return;
 	}
 
-	AsyncTask(ENamedThreads::GameThread, [KeyConfiguration, ButtonKey]()
+	AsyncTask(ENamedThreads::GameThread, [KeyConfiguration, ButtonKey]
 	{
 		const FSlateApplication& SlateApplication = FSlateApplication::Get();
 		const TSharedPtr<FNavigationConfig> NavigationConfig = SlateApplication.GetNavigationConfig();
@@ -1039,7 +1039,7 @@ FString FJoystickInputDevice::SanitiseDeviceName(const FString& InDeviceName) co
 	bool LastCharWasUnderscore = false;
 	for (const TCHAR Char : OutDeviceName)
 	{
-		const bool IsUnderscore = (Char == TEXT('_'));
+		const bool IsUnderscore = Char == TEXT('_');
 		if (IsUnderscore && LastCharWasUnderscore)
 		{
 			continue;

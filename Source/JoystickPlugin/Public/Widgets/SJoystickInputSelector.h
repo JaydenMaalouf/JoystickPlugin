@@ -116,16 +116,16 @@ public:
 	FInputChord GetSelectedKey() const;
 
 	/** Sets the currently selected key chord. */
-	void SetSelectedKey(TAttribute<FInputChord> InSelectedKey);
+	void SetSelectedKey(const TAttribute<FInputChord>& InSelectedKey);
 
 	/** Sets the margin around the text used to display the currently selected key */
-	void SetMargin(TAttribute<FMargin> InMargin);
+	void SetMargin(const TAttribute<FMargin>& InMargin);
 
 	/** Sets the style of the button which is used enter key selection mode. */
-	void SetButtonStyle(const FButtonStyle* ButtonStyle);
+	void SetButtonStyle(const FButtonStyle* ButtonStyle) const;
 
 	/** Sets the style of the text on the button which is used enter key selection mode. */
-	void SetTextStyle(const FTextBlockStyle* InTextStyle);
+	void SetTextStyle(const FTextBlockStyle* InTextStyle) const;
 
 	/** Sets the text which is displayed when selecting a key. */
 	void SetKeySelectionText(FText InKeySelectionText) { KeySelectionText = MoveTemp(InKeySelectionText); }
@@ -146,8 +146,8 @@ public:
 	void SetAllowAxisKeys(const bool bInAllowAxisKeys) { bAllowAxisKeys = bInAllowAxisKeys; }
 	void SetAllowButtonKeys(const bool bInAllowButtonKeys) { bAllowButtonKeys = bInAllowButtonKeys; }
 	void SetAllowGamepadKeys(const bool bInAllowGamepadKeys) { bAllowGamepadKeys = bInAllowGamepadKeys; }
-	void SetAllowNonGamepadKeys(bool bInAllowNonGamepadKeys) { bAllowNonGamepadKeys = bInAllowNonGamepadKeys; }
-	void SetAllowJoystickKeys(bool bInAllowJoystickKeys) { bAllowJoystickKeys = bInAllowJoystickKeys; }
+	void SetAllowNonGamepadKeys(const bool bInAllowNonGamepadKeys) { bAllowNonGamepadKeys = bInAllowNonGamepadKeys; }
+	void SetAllowJoystickKeys(const bool bInAllowJoystickKeys) { bAllowJoystickKeys = bInAllowJoystickKeys; }
 
 	/** When true modifier keys are captured in the selected key chord, otherwise they are ignored. */
 	void SetAllowModifierKeys(const bool bInAllowModifierKeys) { bAllowModifierKeys = bInAllowModifierKeys; }
@@ -159,7 +159,7 @@ public:
 	bool GetIsSelectingKey() const { return bIsSelectingKey; }
 
 	/** Sets the visibility of the text block. */
-	void SetTextBlockVisibility(EVisibility InVisibility);
+	void SetTextBlockVisibility(EVisibility InVisibility) const;
 
 	virtual FReply OnAnalogValueChanged(const FGeometry& MyGeometry, const FAnalogInputEvent& InAnalogInputEvent) override;
 	virtual FReply OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent) override;
@@ -182,8 +182,8 @@ private:
 	FReply OnClicked();
 
 	/** Sets the currently selected key and invokes the associated events. */
-	void SelectAxis(FInputChord NewSelectedKey);
-	void SelectKey(FInputChord NewSelectedKey);
+	void SelectAxis(const FInputChord& NewSelectedKey);
+	void SelectKey(const FInputChord& NewSelectedKey);
 
 	/** Sets bIsSelectingKey and invokes the associated events. */
 	void SetIsSelectingKey(bool bInIsSelectingKey);

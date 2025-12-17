@@ -14,7 +14,7 @@
 FString FJoystickPluginModule::PluginName = "JoystickPlugin";
 FString FJoystickPluginModule::PluginDirectory = "JoystickPlugin";
 
-TSharedPtr<class IInputDevice> FJoystickPluginModule::CreateInputDevice(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler)
+TSharedPtr<IInputDevice> FJoystickPluginModule::CreateInputDevice(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler)
 {
 	if (!IsValid(GEngine))
 	{

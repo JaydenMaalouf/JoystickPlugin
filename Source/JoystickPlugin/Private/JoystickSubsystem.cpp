@@ -756,12 +756,12 @@ int UJoystickSubsystem::HandleSDLEvent(void* UserData, SDL_Event* Event)
 			{
 			case SDL_SENSOR_GYRO:
 				{
-					InputDevice->JoystickGyro(Event->csensor.which, Event->csensor.timestamp, FVector(Event->csensor.data[0], Event->csensor.data[1], Event->csensor.data[2]));
+					InputDevice->JoystickGyro(Event->csensor.which, FVector(Event->csensor.data[0], Event->csensor.data[1], Event->csensor.data[2]));
 					break;
 				}
 			case SDL_SENSOR_ACCEL:
 				{
-					InputDevice->JoystickAccelerometer(Event->csensor.which, Event->csensor.timestamp, FVector(Event->csensor.data[0], Event->csensor.data[1], Event->csensor.data[2]));
+					InputDevice->JoystickAccelerometer(Event->csensor.which, FVector(Event->csensor.data[0], Event->csensor.data[1], Event->csensor.data[2]));
 					break;
 				}
 			default:
@@ -849,7 +849,7 @@ void UJoystickSubsystem::JoystickPluggedIn(const FDeviceInfoSDL& Device) const
 		JoystickPluggedInDelegate.Broadcast(Device.InstanceId);
 	}
 
-	AsyncTask(ENamedThreads::GameThread, [&, Device]()
+	AsyncTask(ENamedThreads::GameThread, [&, Device]
 	{
 		if (Internal_JoystickPluggedInDelegate.IsBound())
 		{
@@ -872,7 +872,7 @@ void UJoystickSubsystem::JoystickUnplugged(const FJoystickInstanceId& InstanceId
 		JoystickUnpluggedDelegate.Broadcast(InstanceId);
 	}
 
-	AsyncTask(ENamedThreads::GameThread, [&, InstanceId]()
+	AsyncTask(ENamedThreads::GameThread, [&, InstanceId]
 	{
 		if (Internal_JoystickUnpluggedDelegate.IsBound())
 		{

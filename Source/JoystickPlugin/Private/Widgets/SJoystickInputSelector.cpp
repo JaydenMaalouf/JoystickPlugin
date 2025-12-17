@@ -154,8 +154,8 @@ FReply SJoystickInputSelector::OnAnalogValueChanged(const FGeometry& MyGeometry,
 
 		const float Tolerance = FMath::Max(DeadZone, 0.0025f);
 
-		const bool bAtMin = (AxisValue <= TargetMin + Tolerance);
-		const bool bAtMax = (AxisValue >= TargetMax - Tolerance);
+		const bool bAtMin = AxisValue <= TargetMin + Tolerance;
+		const bool bAtMax = AxisValue >= TargetMax - Tolerance;
 
 		const double Now = FPlatformTime::Seconds();
 
@@ -297,7 +297,7 @@ FInputChord SJoystickInputSelector::GetSelectedKey() const
 	return SelectedKey.IsSet() ? SelectedKey.Get() : EKeys::Invalid;
 }
 
-void SJoystickInputSelector::SetSelectedKey(TAttribute<FInputChord> InSelectedKey)
+void SJoystickInputSelector::SetSelectedKey(const TAttribute<FInputChord>& InSelectedKey)
 {
 	if (SelectedKey.IdenticalTo(InSelectedKey) == false)
 	{
@@ -311,12 +311,12 @@ FMargin SJoystickInputSelector::GetMargin() const
 	return Margin.Get();
 }
 
-void SJoystickInputSelector::SetMargin(TAttribute<FMargin> InMargin)
+void SJoystickInputSelector::SetMargin(const TAttribute<FMargin>& InMargin)
 {
 	Margin = InMargin;
 }
 
-void SJoystickInputSelector::SetButtonStyle(const FButtonStyle* ButtonStyle)
+void SJoystickInputSelector::SetButtonStyle(const FButtonStyle* ButtonStyle) const
 {
 	if (Button.IsValid())
 	{
@@ -324,7 +324,7 @@ void SJoystickInputSelector::SetButtonStyle(const FButtonStyle* ButtonStyle)
 	}
 }
 
-void SJoystickInputSelector::SetTextStyle(const FTextBlockStyle* InTextStyle)
+void SJoystickInputSelector::SetTextStyle(const FTextBlockStyle* InTextStyle) const
 {
 	if (TextBlock.IsValid())
 	{
@@ -342,7 +342,7 @@ FReply SJoystickInputSelector::OnClicked()
 	return FReply::Handled();
 }
 
-void SJoystickInputSelector::SelectKey(FInputChord NewSelectedKey)
+void SJoystickInputSelector::SelectKey(const FInputChord& NewSelectedKey)
 {
 	if (SelectedKey.IsBound() == false)
 	{
@@ -351,7 +351,7 @@ void SJoystickInputSelector::SelectKey(FInputChord NewSelectedKey)
 	OnKeySelected.ExecuteIfBound(NewSelectedKey);
 }
 
-void SJoystickInputSelector::SelectAxis(FInputChord NewSelectedKey)
+void SJoystickInputSelector::SelectAxis(const FInputChord& NewSelectedKey)
 {
 	if (SelectedKey.IsBound() == false)
 	{
@@ -360,7 +360,7 @@ void SJoystickInputSelector::SelectAxis(FInputChord NewSelectedKey)
 	OnAxisSelected.ExecuteIfBound(NewSelectedKey);
 }
 
-void SJoystickInputSelector::SetIsSelectingKey(bool bInIsSelectingKey)
+void SJoystickInputSelector::SetIsSelectingKey(const bool bInIsSelectingKey)
 {
 	if (bIsSelectingKey != bInIsSelectingKey)
 	{
@@ -430,7 +430,7 @@ void SJoystickInputSelector::OnFocusLost(const FFocusEvent& InFocusEvent)
 	}
 }
 
-void SJoystickInputSelector::SetTextBlockVisibility(EVisibility InVisibility)
+void SJoystickInputSelector::SetTextBlockVisibility(const EVisibility InVisibility) const
 {
 	if (TextBlock.IsValid())
 	{

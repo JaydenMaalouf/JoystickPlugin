@@ -33,7 +33,7 @@ void SAxisBar::Construct(const FArguments& InArgs)
 		.VAlign(VAlign_Center)
 		[
 			SNew(SBox)
-			.HeightOverride_Lambda([this]()
+			.HeightOverride_Lambda([this]
 			{
 				if (Value.Get() <= 0.f)
 				{
@@ -46,7 +46,7 @@ void SAxisBar::Construct(const FArguments& InArgs)
 				SNew(SBorder)
 				.BorderImage(FCoreStyle::Get().GetBrush("WhiteBrush"))
 				.BorderBackgroundColor(FLinearColor::Green)
-				.RenderTransform_Lambda([this]()
+				.RenderTransform_Lambda([this]
 				{
 					const float Offset = -GetCachedGeometry().GetLocalSize().Y * 0.25f * Value.Get(); // Upward
 					return FSlateRenderTransform(FVector2D(0.f, Offset));
@@ -59,7 +59,7 @@ void SAxisBar::Construct(const FArguments& InArgs)
 		.VAlign(VAlign_Center)
 		[
 			SNew(SBox)
-			.HeightOverride_Lambda([this]()
+			.HeightOverride_Lambda([this]
 			{
 				if (Value.Get() >= 0.f)
 				{
@@ -72,7 +72,7 @@ void SAxisBar::Construct(const FArguments& InArgs)
 				SNew(SBorder)
 				.BorderImage(FCoreStyle::Get().GetBrush("WhiteBrush"))
 				.BorderBackgroundColor(FLinearColor::Green)
-				.RenderTransform_Lambda([this]()
+				.RenderTransform_Lambda([this]
 				{
 					const float Offset = GetCachedGeometry().GetLocalSize().Y * 0.25f * -Value.Get(); // Downward
 					return FSlateRenderTransform(FVector2D(0.f, Offset));

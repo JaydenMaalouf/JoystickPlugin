@@ -72,5 +72,5 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectDirectionData
 		}
 
 		return HapticDirection;
-	};
+	}
 };

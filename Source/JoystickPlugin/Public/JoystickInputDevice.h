@@ -40,8 +40,8 @@ public:
 	void JoystickAxis(const FJoystickInstanceId& InstanceId, const int Axis, const float Value);
 	void JoystickHat(const FJoystickInstanceId& InstanceId, const int Hat, const EHatDirection Value);
 	void JoystickBall(const FJoystickInstanceId& InstanceId, const int Ball, const FVector2D& Value);
-	void JoystickGyro(const FJoystickInstanceId& InstanceId, const int Timestamp, const FVector& Value);
-	void JoystickAccelerometer(const FJoystickInstanceId& InstanceId, const int Timestamp, const FVector& Value);
+	void JoystickGyro(const FJoystickInstanceId& InstanceId, const FVector& Value);
+	void JoystickAccelerometer(const FJoystickInstanceId& InstanceId, const FVector& Value);
 
 	TTuple<FJoystickDeviceState*, FInternalResultMessage> GetDeviceState(const FJoystickInstanceId& InstanceId);
 	void GetDeviceKeys(const FJoystickInstanceId& InstanceId, TArray<FKey>& Keys);

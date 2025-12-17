@@ -28,12 +28,12 @@ struct JOYSTICKPLUGIN_API FJoystickInstanceId
 	bool operator==(const int& Other) const
 	{
 		return Equals(Other);
-	};
+	}
 
 	bool operator==(const FJoystickInstanceId& Other) const
 	{
 		return Equals(Other);
-	};
+	}
 
 	bool operator==(const TSharedPtr<FJoystickInstanceId>& Other) const
 	{
@@ -43,7 +43,7 @@ struct JOYSTICKPLUGIN_API FJoystickInstanceId
 		}
 
 		return Equals(*Other.Get());
-	};
+	}
 
 	bool Equals(const FJoystickInstanceId& Other) const
 	{
