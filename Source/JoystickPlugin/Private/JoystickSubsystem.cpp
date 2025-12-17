@@ -558,7 +558,7 @@ bool UJoystickSubsystem::AddDevice(const int DeviceIndex)
 		// Remove existing devices from devices list so we don't collect old data
 		Devices.Remove(PreviousJoystickInstanceId);
 
-		FJoystickLogManager::Get()->LogDebug(TEXT("Previously disconnected device has reconnected: %s (%d)"), *Device.DeviceName, Device.GetInputDeviceId());
+		FJoystickLogManager::Get()->LogDebug(TEXT("Previously disconnected device has reconnected: %s (%d)"), *Device.DeviceName, Device.GetInputDeviceId().GetId());
 	}
 	else
 	{
@@ -567,7 +567,7 @@ bool UJoystickSubsystem::AddDevice(const int DeviceIndex)
 		Device.InputDeviceId = DeviceMapper.AllocateNewInputDeviceId();
 		Device.PlatformUserId = DeviceMapper.GetPrimaryPlatformUser();
 #endif
-		FJoystickLogManager::Get()->LogDebug(TEXT("New device connected: %s (%d)"), *Device.DeviceName, Device.GetInputDeviceId());
+		FJoystickLogManager::Get()->LogDebug(TEXT("New device connected: %s (%d)"), *Device.DeviceName, Device.GetInputDeviceId().GetId());
 	}
 
 	Devices.Emplace(Device.InstanceId, Device);

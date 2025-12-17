@@ -23,11 +23,7 @@ struct FDeviceInfoSDL : FJoystickInformation
 		  , SDLJoystick(nullptr)
 		  , SDLGameController(nullptr)
 	{
-#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
 		InputDeviceId = FInputDeviceId::CreateFromInternalId(0);
-#else
-		InputDeviceId = 0;
-#endif
 		PlatformUserId = FPlatformUserId::CreateFromInternalId(0);
 	}
 
@@ -36,13 +32,9 @@ struct FDeviceInfoSDL : FJoystickInformation
 		return PlatformUserId;
 	}
 
-	int GetInputDeviceId() const
+	const FInputDeviceId& GetInputDeviceId() const
 	{
-#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
-		return InputDeviceId.GetId();
-#else
 		return InputDeviceId;
-#endif
 	}
 
 	bool Connected;

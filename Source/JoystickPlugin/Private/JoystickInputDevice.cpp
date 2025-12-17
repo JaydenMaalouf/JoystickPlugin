@@ -428,7 +428,7 @@ void FJoystickInputDevice::JoystickPluggedIn(const FDeviceInfoSDL& Device)
 
 	if (JoystickInputSettings->IncludeDeviceIndex)
 	{
-		const int InputDeviceId = Device.GetInputDeviceId();
+		const int InputDeviceId = Device.GetInputDeviceId().GetId();
 		BaseKeyName = FString::Printf(TEXT("%s_%d"), *BaseKeyName, InputDeviceId);
 		BaseDisplayName = FString::Printf(TEXT("%s %d"), *BaseDisplayName, InputDeviceId);
 	}
@@ -456,7 +456,7 @@ void FJoystickInputDevice::JoystickPluggedIn(const FDeviceInfoSDL& Device)
 	NotifyDeviceState(Device.InputDeviceId, Device.PlatformUserId, EInputDeviceConnectionState::Connected);
 #endif
 
-	FJoystickLogManager::Get()->LogInformation(TEXT("Device Ready: %s (Device Id: %d) - Instance Id: %d"), *Device.DeviceName, Device.GetInputDeviceId(), Device.InstanceId.Value);
+	FJoystickLogManager::Get()->LogInformation(TEXT("Device Ready: %s (Device Id: %d) - Instance Id: %d"), *Device.DeviceName, Device.GetInputDeviceId().GetId(), Device.InstanceId.Value);
 }
 
 void FJoystickInputDevice::JoystickUnplugged(const FJoystickInstanceId& InstanceId, const FInputDeviceId& InputDeviceId)
@@ -669,7 +669,7 @@ void FJoystickInputDevice::SendControllerEvents()
 #if WITH_EDITOR
 					if (IsValid(JoystickInputSettings) && JoystickInputSettings->DebugAxis)
 					{
-						const int Key = DeviceInfo.GetInputDeviceId() * CurrentState.Axes.Num() + AxisIndex;
+						const int Key = DeviceInfo.GetInputDeviceId().GetId() * CurrentState.Axes.Num() + AxisIndex;
 						GEngine->AddOnScreenDebugMessage(
 							Key,
 							0.3f,
