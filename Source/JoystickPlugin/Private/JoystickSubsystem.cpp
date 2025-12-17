@@ -632,7 +632,8 @@ bool UJoystickSubsystem::FindExistingDevice(const FDeviceInfoSDL& Device, FJoyst
 			continue;
 		}
 
-		if (Device.Path == DeviceInfo.Value.Path && Device.DeviceHash == DeviceInfo.Value.DeviceHash)
+		if ((Device.Path.IsEmpty() && Device.SerialNumber == DeviceInfo.Value.SerialNumber && Device.ProductGuid == DeviceInfo.Value.ProductGuid) ||
+			(Device.Path == DeviceInfo.Value.Path && Device.DeviceHash == DeviceInfo.Value.DeviceHash))
 		{
 			PreviousJoystickInstanceId = DeviceInfo.Value.InstanceId;
 			ExistingInputDeviceId = DeviceInfo.Value.InputDeviceId;
