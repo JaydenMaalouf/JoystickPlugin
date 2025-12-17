@@ -240,14 +240,12 @@ void UJoystickSubsystem::MapJoystickDeviceToPlayer(const FJoystickInstanceId& In
 		return;
 	}
 
-#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
 	DeviceInfo->PlatformUserId = FGenericPlatformMisc::GetPlatformUserForUserIndex(PlayerId);
-#else
-	DeviceInfo->PlayerId = PlayerId;
-#endif
 
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
 	IPlatformInputDeviceMapper& DeviceMapper = IPlatformInputDeviceMapper::Get();
 	DeviceMapper.Internal_MapInputDeviceToUser(DeviceInfo->InputDeviceId, DeviceInfo->PlatformUserId, EInputDeviceConnectionState::Connected);
+#endif
 }
 
 void UJoystickSubsystem::SetIgnoreGameControllers(const bool IgnoreControllers)
@@ -516,7 +514,9 @@ bool UJoystickSubsystem::AddDevice(const int DeviceIndex)
 	Device.LedSupport = SDL_JoystickHasLED(Device.SDLJoystick) == SDL_TRUE;
 #endif
 
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 2
 	Device.Path = SafelyStringify(SDL_JoystickPath(Device.SDLJoystick));
+#endif
 
 	Device.DeviceHash = GenerateDeviceHash(Device);
 
@@ -547,7 +547,6 @@ bool UJoystickSubsystem::AddDevice(const int DeviceIndex)
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tGyro Support: %s"), Device.Gyro.Supported ? TEXT("true") : TEXT("false"));
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tAccelerometer Support: %s"), Device.Accelerometer.Supported ? TEXT("true") : TEXT("false"));
 
-#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
 	FJoystickInstanceId PreviousJoystickInstanceId;
 	FInputDeviceId ExistingInputDeviceId;
 	FPlatformUserId ExistingPlatformUserId;
@@ -559,33 +558,17 @@ bool UJoystickSubsystem::AddDevice(const int DeviceIndex)
 		// Remove existing devices from devices list so we don't collect old data
 		Devices.Remove(PreviousJoystickInstanceId);
 
-		FJoystickLogManager::Get()->LogDebug(TEXT("Previously disconnected device has reconnected: %s (%d)"), *Device.DeviceName, Device.InputDeviceId.GetId());
+		FJoystickLogManager::Get()->LogDebug(TEXT("Previously disconnected device has reconnected: %s (%d)"), *Device.DeviceName, Device.GetInputDeviceId());
 	}
 	else
 	{
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
 		IPlatformInputDeviceMapper& DeviceMapper = IPlatformInputDeviceMapper::Get();
 		Device.InputDeviceId = DeviceMapper.AllocateNewInputDeviceId();
 		Device.PlatformUserId = DeviceMapper.GetPrimaryPlatformUser();
-		FJoystickLogManager::Get()->LogDebug(TEXT("New device connected: %s (%d)"), *Device.DeviceName, Device.InputDeviceId.GetId());
-	}
-#else
-	int ExistingDeviceId;
-	int ExistingPlayerId;
-	if (FindExistingDevice(Device, ExistingDeviceId, ExistingPlayerId))
-	{
-		Device.DeviceId = ExistingDeviceId;
-		Device.PlayerId = ExistingPlayerId;
-		FJoystickLogManager::Get()->LogDebug(TEXT("Previously disconnected device has reconnected: %s (%d)"), *Device.DeviceName, Device.DeviceId);
-	}
-	else
-	{
-		//TODO: Implement for older versions
-		IPlatformInputDeviceMapper& DeviceMapper = IPlatformInputDeviceMapper::Get();
-		Device.InputDeviceId = DeviceMapper.AllocateNewInputDeviceId();
-		Device.PlatformUserId = DeviceMapper.GetPrimaryPlatformUser();
-		FJoystickLogManager::Get()->LogDebug(TEXT("New device connected: %s (%d)"), *Device.DeviceName, Device.InputDeviceId.GetId());
-	}
 #endif
+		FJoystickLogManager::Get()->LogDebug(TEXT("New device connected: %s (%d)"), *Device.DeviceName, Device.GetInputDeviceId());
+	}
 
 	Devices.Emplace(Device.InstanceId, Device);
 	JoystickPluggedIn(Device);
@@ -628,6 +611,17 @@ FString UJoystickSubsystem::SafelyStringify(const char* Input) const
 	return UTF8_TO_TCHAR(Input);
 }
 
+bool UJoystickSubsystem::RemoveDeviceByIndex(const int DeviceIndex)
+{
+	const FJoystickInstanceId& InstanceId = SDL_JoystickGetDeviceInstanceID(DeviceIndex);
+	if (InstanceId == -1)
+	{
+		return false;
+	}
+
+	return RemoveDevice(InstanceId);
+}
+
 bool UJoystickSubsystem::FindExistingDevice(const FDeviceInfoSDL& Device, FJoystickInstanceId& PreviousJoystickInstanceId, FInputDeviceId& ExistingInputDeviceId, FPlatformUserId& ExistingPlatformUserId)
 {
 	for (const TPair<FJoystickInstanceId, FDeviceInfoSDL>& DeviceInfo : Devices)
@@ -647,17 +641,6 @@ bool UJoystickSubsystem::FindExistingDevice(const FDeviceInfoSDL& Device, FJoyst
 	}
 
 	return false;
-}
-
-bool UJoystickSubsystem::RemoveDeviceByIndex(const int DeviceIndex)
-{
-	const FJoystickInstanceId& InstanceId = SDL_JoystickGetDeviceInstanceID(DeviceIndex);
-	if (InstanceId == -1)
-	{
-		return false;
-	}
-
-	return RemoveDevice(InstanceId);
 }
 
 bool UJoystickSubsystem::RemoveDevice(const FJoystickInstanceId& InstanceId)
@@ -823,16 +806,16 @@ TTuple<FDeviceInfoSDL*, FInternalResultMessage> UJoystickSubsystem::GetDeviceInf
 {
 	if (GetJoystickCount() == 0)
 	{
-		return {nullptr, FInternalResultMessage(false, TEXT("Device list is empty."))};
+		return {nullptr, FInternalResultMessage{false, TEXT("Device list is empty.")}};
 	}
 
 	FDeviceInfoSDL* Device = Devices.Find(InstanceId);
 	if (Device == nullptr)
 	{
-		return {nullptr, FInternalResultMessage(false, TEXT("Device not found."))};
+		return {nullptr, FInternalResultMessage{false, TEXT("Device not found.")}};
 	}
 
-	return {Device, FInternalResultMessage(true)};
+	return {Device, FInternalResultMessage{true}};
 }
 
 void UJoystickSubsystem::JoystickPluggedIn(const FDeviceInfoSDL& Device) const

@@ -4,10 +4,10 @@
 #include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
 
 #include "Data/JoystickInstanceId.h"
+#include "GameFramework/Actor.h"
 #include "JoystickHapticDeviceManager.h"
 #include "JoystickLogManager.h"
 #include "Runtime/Launch/Resources/Version.h"
-#include "GameFramework/Actor.h"
 
 THIRD_PARTY_INCLUDES_START
 

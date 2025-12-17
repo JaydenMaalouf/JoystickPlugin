@@ -268,7 +268,7 @@ void SJoystickInputViewer::JoystickPluggedIn(const FJoystickInstanceId& Instance
 
 void SJoystickInputViewer::JoystickUnplugged(const FJoystickInstanceId& InstanceId)
 {
-	if (SelectedJoystick.IsValid() && SelectedJoystick == InstanceId)
+	if (SelectedJoystick.IsValid() && *SelectedJoystick == InstanceId)
 	{
 		SelectedJoystick = nullptr;
 		SelectFirstJoystick();
@@ -276,7 +276,12 @@ void SJoystickInputViewer::JoystickUnplugged(const FJoystickInstanceId& Instance
 
 	Joysticks.RemoveAll([InstanceId](const TSharedPtr<FJoystickInstanceId>& JoystickInstanceId)
 	{
-		return JoystickInstanceId == InstanceId;
+		if (!JoystickInstanceId.IsValid())
+		{
+			return false;
+		}
+
+		return *JoystickInstanceId == InstanceId;
 	});
 
 	RefreshOptions();

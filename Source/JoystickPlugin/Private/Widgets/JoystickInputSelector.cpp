@@ -9,7 +9,7 @@
 #include "Widgets/DeclarativeSyntaxSupport.h"
 #include "Internationalization/Internationalization.h"
 
-#define LOCTEXT_NAMESPACE "UMG"
+#define LOCTEXT_NAMESPACE "JoystickPlugin"
 
 static FButtonStyle* DefaultInputKeySelectorButtonStyle = nullptr;
 static FTextBlockStyle* DefaultInputKeySelectorTextStyle = nullptr;

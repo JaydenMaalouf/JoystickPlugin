@@ -35,16 +35,6 @@ struct JOYSTICKPLUGIN_API FJoystickInstanceId
 		return Equals(Other);
 	}
 
-	bool operator==(const TSharedPtr<FJoystickInstanceId>& Other) const
-	{
-		if (!Other.IsValid())
-		{
-			return false;
-		}
-
-		return Equals(*Other.Get());
-	}
-
 	bool Equals(const FJoystickInstanceId& Other) const
 	{
 		return Value == Other.Value;

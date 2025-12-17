@@ -4,7 +4,9 @@
 #pragma once
 
 #include "Data/DeviceInfoSDL.h"
+#include "Data/JoystickDeviceState.h"
 #include "Data/JoystickSensorType.h"
+#include "Data/PlatformTypes.h"
 #include "Data/ResultMessage.h"
 #include "Subsystems/EngineSubsystem.h"
 
@@ -17,15 +19,9 @@ THIRD_PARTY_INCLUDES_END
 #include "JoystickSubsystem.generated.h"
 
 class FJoystickInputDevice;
-struct FJoystickDeviceState;
 struct FJoystickInfo;
 struct FJoystickInformation;
 struct FJoystickInstanceId;
-
-#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
-struct FInputDeviceId;
-struct FPlatformUserId;
-#endif
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnJoystickSubsystemReady);
 
@@ -130,11 +126,7 @@ private:
 	bool RemoveDevice(const FJoystickInstanceId& InstanceId);
 	bool RemoveDeviceByIndex(const int DeviceIndex);
 
-#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
 	bool FindExistingDevice(const FDeviceInfoSDL& Device, FJoystickInstanceId& PreviousJoystickInstanceId, FInputDeviceId& ExistingInputDeviceId, FPlatformUserId& ExistingPlatformUserId);
-#else
-	bool FindExistingDevice(const FDeviceInfoSDL& Device, int& ExistingDeviceId, int& ExistingPlayerId);
-#endif
 
 	void InitialiseExistingJoysticks();
 

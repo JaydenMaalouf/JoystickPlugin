@@ -19,13 +19,13 @@ TTuple<FDeviceInfoSDL*, FInternalResultMessage> UJoystickHapticDeviceManager::Ge
 {
 	if (!IsValid(GEngine))
 	{
-		return {nullptr, FInternalResultMessage(false, TEXT("GEngine is null."))};
+		return {nullptr, FInternalResultMessage{false, TEXT("GEngine is null.")}};
 	}
 
 	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
 	if (!IsValid(JoystickSubsystem))
 	{
-		return {nullptr, FInternalResultMessage(false, TEXT("JoystickSubsystem is null"))};
+		return {nullptr, FInternalResultMessage{false, TEXT("JoystickSubsystem is null")}};
 	}
 
 	auto [Device, Result] = JoystickSubsystem->GetDeviceInfo(InstanceId);
@@ -34,7 +34,7 @@ TTuple<FDeviceInfoSDL*, FInternalResultMessage> UJoystickHapticDeviceManager::Ge
 		return {nullptr, Result};
 	}
 
-	return {Device, FInternalResultMessage(true)};
+	return {Device, FInternalResultMessage{true}};
 }
 
 TTuple<SDL_Haptic*, FInternalResultMessage> UJoystickHapticDeviceManager::GetHapticDevice(const FJoystickInstanceId& InstanceId) const
@@ -45,7 +45,7 @@ TTuple<SDL_Haptic*, FInternalResultMessage> UJoystickHapticDeviceManager::GetHap
 		return {nullptr, Result};
 	}
 
-	return {DeviceInfo->SDLHaptic, FInternalResultMessage(true)};
+	return {DeviceInfo->SDLHaptic, FInternalResultMessage{true}};
 }
 
 bool UJoystickHapticDeviceManager::SetAutoCenter(const FJoystickInstanceId& InstanceId, const int Center)

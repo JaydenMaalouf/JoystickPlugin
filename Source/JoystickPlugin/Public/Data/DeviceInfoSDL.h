@@ -3,12 +3,9 @@
 
 #pragma once
 
+#include "PlatformTypes.h"
 #include "Data/JoystickInformation.h"
 #include "Runtime/Launch/Resources/Version.h"
-
-#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
-#include "Misc/CoreMiscDefines.h"
-#endif
 
 THIRD_PARTY_INCLUDES_START
 
@@ -27,11 +24,24 @@ struct FDeviceInfoSDL : FJoystickInformation
 		  , SDLGameController(nullptr)
 	{
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
-		PlatformUserId = FPlatformUserId::CreateFromInternalId(0);
 		InputDeviceId = FInputDeviceId::CreateFromInternalId(0);
 #else
-		PlayerId = 0;
-		DeviceId = 0;
+		InputDeviceId = 0;
+#endif
+		PlatformUserId = FPlatformUserId::CreateFromInternalId(0);
+	}
+
+	const FPlatformUserId& GetPlatformUserId() const
+	{
+		return PlatformUserId;
+	}
+
+	int GetInputDeviceId() const
+	{
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
+		return InputDeviceId.GetId();
+#else
+		return InputDeviceId;
 #endif
 	}
 
@@ -42,11 +52,6 @@ struct FDeviceInfoSDL : FJoystickInformation
 	SDL_Joystick* SDLJoystick;
 	SDL_GameController* SDLGameController;
 
-#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
 	FPlatformUserId PlatformUserId;
 	FInputDeviceId InputDeviceId;
-#else
-	int PlayerId;
-	int DeviceId;
-#endif
 };

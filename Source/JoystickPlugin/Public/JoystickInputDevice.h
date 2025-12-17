@@ -7,6 +7,7 @@
 #include "InputCoreTypes.h"
 #include "Data/JoystickDeviceState.h"
 #include "Data/JoystickInstanceId.h"
+#include "Data/PlatformTypes.h"
 #include "Data/ResultMessage.h"
 #include "Data/Input/KeyPair.h"
 #include "Data/Settings/JoystickInputDeviceConfiguration.h"
@@ -15,11 +16,6 @@
 enum class EHatDirection : uint8;
 enum class EInputDeviceConnectionState : uint8;
 struct FDeviceInfoSDL;
-
-#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
-struct FInputDeviceId;
-struct FPlatformUserId;
-#endif
 
 class JOYSTICKPLUGIN_API FJoystickInputDevice final : public IInputDevice
 {
@@ -60,8 +56,9 @@ private:
 	void InitialiseHatAxis(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName, bool PairedKey);
 	void InitialiseHatButtons(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName);
 	void InitialiseBalls(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName, bool PairedKey);
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
 	void NotifyDeviceState(const FInputDeviceId& InputDeviceId, const FPlatformUserId& PlatformUserId, const EInputDeviceConnectionState State) const;
-
+#endif
 	void TryAddWidgetNavigation(const FKey& ButtonKey) const;
 
 	FString SanitiseDeviceName(const FString& InDeviceName) const;
