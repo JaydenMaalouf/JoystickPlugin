@@ -4,6 +4,7 @@
 #pragma once
 
 #include "Misc/CoreMiscDefines.h"
+#include "Runtime/Launch/Resources/Version.h"
 
 #if ENGINE_MAJOR_VERSION == 4 || ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION == 0
 struct FInputDeviceId
