@@ -6,7 +6,6 @@
 #include "Data/DeviceInfoSDL.h"
 #include "Data/JoystickDeviceState.h"
 #include "Data/JoystickSensorType.h"
-#include "Data/PlatformTypes.h"
 #include "Data/ResultMessage.h"
 #include "Subsystems/EngineSubsystem.h"
 
@@ -22,6 +21,8 @@ class FJoystickInputDevice;
 struct FJoystickInfo;
 struct FJoystickInformation;
 struct FJoystickInstanceId;
+struct FInputDeviceId;
+struct FPlatformUserId;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnJoystickSubsystemReady);
 
