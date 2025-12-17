@@ -398,7 +398,7 @@ void FJoystickInputDevice::JoystickPluggedIn(const FDeviceInfoSDL& Device)
 		return;
 	}
 
-	const FJoystickDeviceState& InitialDeviceState = JoystickSubsystem->CreateInitialDeviceState(Device.InstanceId);
+	const FJoystickDeviceState InitialDeviceState = JoystickSubsystem->CreateInitialDeviceState(Device.InstanceId);
 	JoystickDeviceState.Emplace(Device.InstanceId, InitialDeviceState);
 
 	UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
