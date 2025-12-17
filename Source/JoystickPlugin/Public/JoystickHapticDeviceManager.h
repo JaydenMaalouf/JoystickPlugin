@@ -16,7 +16,6 @@ THIRD_PARTY_INCLUDES_END
 
 struct FDeviceInfoSDL;
 using SDL_Haptic = _SDL_Haptic;
-union SDL_HapticEffect;
 
 UCLASS(BlueprintType)
 class JOYSTICKPLUGIN_API UJoystickHapticDeviceManager final : public UObject

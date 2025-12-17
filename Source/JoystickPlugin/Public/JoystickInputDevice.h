@@ -10,6 +10,7 @@
 #include "Data/ResultMessage.h"
 #include "Data/Input/KeyPair.h"
 #include "Data/Settings/JoystickInputDeviceConfiguration.h"
+#include "Runtime/Launch/Resources/Version.h"
 
 enum class EHatDirection : uint8;
 enum class EInputDeviceConnectionState : uint8;
