@@ -8,7 +8,6 @@
 #include "Data/Input/ButtonData.h"
 #include "Data/Input/HatData.h"
 #include "Data/Input/MotionData.h"
-#include "Misc/CoreMiscDefines.h"
 
 #include "JoystickDeviceState.generated.h"
 
@@ -31,7 +30,4 @@ struct FJoystickDeviceState
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|State")
 	FMotionData Motion;
-
-	// InputDeviceId is stored here to avoid recreating it every tick
-	FInputDeviceId InputDeviceId;
 };

@@ -395,19 +395,8 @@ void FJoystickInputDevice::JoystickPluggedIn(const FDeviceInfoSDL& Device)
 		return;
 	}
 
-	const FPlatformUserId PlatformUser = FGenericPlatformMisc::GetPlatformUserForUserIndex(Device.PlayerId);
-
-	auto [DeviceState, Result] = GetDeviceState(Device.InstanceId);
-	if (Result.bSuccess)
-	{
-		NotifyDeviceState(DeviceState->InputDeviceId, PlatformUser, EInputDeviceConnectionState::Connected);
-	}
-	else
-	{
-		FJoystickDeviceState NewDeviceState = JoystickSubsystem->CreateInitialDeviceState(Device.InstanceId);
-		JoystickDeviceState.Emplace(Device.InstanceId, NewDeviceState);
-		NotifyDeviceState(NewDeviceState.InputDeviceId, PlatformUser, EInputDeviceConnectionState::Connected);
-	}
+	FJoystickDeviceState NewDeviceState = JoystickSubsystem->CreateInitialDeviceState(Device.InstanceId);
+	JoystickDeviceState.Emplace(Device.InstanceId, NewDeviceState);
 
 	UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
 	if (!IsValid(JoystickInputSettings))
@@ -437,8 +426,8 @@ void FJoystickInputDevice::JoystickPluggedIn(const FDeviceInfoSDL& Device)
 
 	if (JoystickInputSettings->IncludeDeviceIndex)
 	{
-		BaseKeyName = FString::Printf(TEXT("%s_%d"), *BaseKeyName, Device.InternalDeviceIndex);
-		BaseDisplayName = FString::Printf(TEXT("%s %d"), *BaseDisplayName, Device.InternalDeviceIndex);
+		BaseKeyName = FString::Printf(TEXT("%s_%d"), *BaseKeyName, Device.InputDeviceId.GetId());
+		BaseDisplayName = FString::Printf(TEXT("%s %d"), *BaseDisplayName, Device.InputDeviceId.GetId());
 	}
 
 	DeviceKeys.Emplace(Device.InstanceId);
@@ -460,10 +449,11 @@ void FJoystickInputDevice::JoystickPluggedIn(const FDeviceInfoSDL& Device)
 
 	UpdateAxisProperties();
 
-	FJoystickLogManager::Get()->LogInformation(TEXT("Device Ready: %s (%d) - Instance Id: %d"), *Device.DeviceName, Device.InternalDeviceIndex, Device.InstanceId.Value);
+	NotifyDeviceState(Device.InputDeviceId, Device.PlatformUserId, EInputDeviceConnectionState::Connected);
+	FJoystickLogManager::Get()->LogInformation(TEXT("Device Ready: %s (Device Id: %d) - Instance Id: %d"), *Device.DeviceName, Device.InputDeviceId.GetId(), Device.InstanceId.Value);
 }
 
-void FJoystickInputDevice::JoystickUnplugged(const FJoystickInstanceId& InstanceId)
+void FJoystickInputDevice::JoystickUnplugged(const FJoystickInstanceId& InstanceId, const FInputDeviceId& InputDeviceId)
 {
 	UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
 	if (!IsValid(JoystickInputSettings))
@@ -479,7 +469,7 @@ void FJoystickInputDevice::JoystickUnplugged(const FJoystickInstanceId& Instance
 		//Device managed by subsystem
 		const IPlatformInputDeviceMapper& DeviceMapper = IPlatformInputDeviceMapper::Get();
 		const FPlatformUserId NewUserToAssign = DeviceMapper.GetUserForUnpairedInputDevices();
-		NotifyDeviceState(DeviceState->InputDeviceId, NewUserToAssign, EInputDeviceConnectionState::Disconnected);
+		NotifyDeviceState(InputDeviceId, NewUserToAssign, EInputDeviceConnectionState::Disconnected);
 	}
 }
 
@@ -650,11 +640,6 @@ void FJoystickInputDevice::SendControllerEvents()
 			continue;
 		}
 
-		const int PlayerId = DeviceInfo.PlayerId;
-#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
-		const FPlatformUserId& PlatformUser = FGenericPlatformMisc::GetPlatformUserForUserIndex(PlayerId);
-#endif
-
 		FInputDeviceScope InputScope(this, JoystickInputInterfaceName, InstanceId, DeviceInfo.DeviceName);
 
 		// Axis
@@ -676,7 +661,7 @@ void FJoystickInputDevice::SendControllerEvents()
 #if WITH_EDITOR
 					if (IsValid(JoystickInputSettings) && JoystickInputSettings->DebugAxis)
 					{
-						const int Key = CurrentState.InputDeviceId.GetId() * CurrentState.Axes.Num() + AxisIndex;
+						const int Key = DeviceInfo.InputDeviceId.GetId() * CurrentState.Axes.Num() + AxisIndex;
 						GEngine->AddOnScreenDebugMessage(
 							Key,
 							0.3f,
@@ -688,9 +673,9 @@ void FJoystickInputDevice::SendControllerEvents()
 
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
 
-					MessageHandler->OnControllerAnalog(AxisKey.GetFName(), PlatformUser, CurrentState.InputDeviceId, CurrentValue);
+					MessageHandler->OnControllerAnalog(AxisKey.GetFName(), DeviceInfo.PlatformUserId, DeviceInfo.InputDeviceId, CurrentValue);
 #else
-					MessageHandler->OnControllerAnalog(AxisKey.GetFName(), PlayerId, CurrentValue);
+					MessageHandler->OnControllerAnalog(AxisKey.GetFName(), DeviceInfo.PlayerId, CurrentValue);
 #endif
 
 					AxisData.Processed();
@@ -717,11 +702,11 @@ void FJoystickInputDevice::SendControllerEvents()
 
 					const FVector2D& POVAxis = UJoystickFunctionLibrary::HatDirectionToFVector2D(CurrentValue);
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
-					MessageHandler->OnControllerAnalog(XHatKey.GetFName(), PlatformUser, CurrentState.InputDeviceId, POVAxis.X);
-					MessageHandler->OnControllerAnalog(YHatKey.GetFName(), PlatformUser, CurrentState.InputDeviceId, POVAxis.Y);
+					MessageHandler->OnControllerAnalog(XHatKey.GetFName(), DeviceInfo.PlatformUserId, DeviceInfo.InputDeviceId, POVAxis.X);
+					MessageHandler->OnControllerAnalog(YHatKey.GetFName(), DeviceInfo.PlatformUserId, DeviceInfo.InputDeviceId, POVAxis.Y);
 #else
-					MessageHandler->OnControllerAnalog(XHatKey.GetFName(), PlayerId, POVAxis.X);
-					MessageHandler->OnControllerAnalog(YHatKey.GetFName(), PlayerId, POVAxis.Y);
+					MessageHandler->OnControllerAnalog(XHatKey.GetFName(), DeviceInfo.PlayerId, POVAxis.X);
+					MessageHandler->OnControllerAnalog(YHatKey.GetFName(), DeviceInfo.PlayerId, POVAxis.Y);
 #endif
 				}
 			}
@@ -748,9 +733,9 @@ void FJoystickInputDevice::SendControllerEvents()
 					if (DirectionKey.IsValid())
 					{
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
-						MessageHandler->OnControllerButtonReleased(DirectionKey.GetFName(), PlatformUser, CurrentState.InputDeviceId, false);
+						MessageHandler->OnControllerButtonReleased(DirectionKey.GetFName(), DeviceInfo.PlatformUserId, DeviceInfo.InputDeviceId, false);
 #else
-						MessageHandler->OnControllerButtonReleased(DirectionKey.GetFName(), PlayerId, false);
+						MessageHandler->OnControllerButtonReleased(DirectionKey.GetFName(), DeviceInfo.PlayerId, false);
 #endif
 					}
 				}
@@ -762,9 +747,9 @@ void FJoystickInputDevice::SendControllerEvents()
 					if (DirectionKey.IsValid())
 					{
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
-						MessageHandler->OnControllerButtonPressed(DirectionKey.GetFName(), PlatformUser, CurrentState.InputDeviceId, false);
+						MessageHandler->OnControllerButtonPressed(DirectionKey.GetFName(), DeviceInfo.PlatformUserId, DeviceInfo.InputDeviceId, false);
 #else
-						MessageHandler->OnControllerButtonPressed(DirectionKey.GetFName(), PlayerId, false);
+						MessageHandler->OnControllerButtonPressed(DirectionKey.GetFName(), DeviceInfo.PlayerId, false);
 #endif
 					}
 				}
@@ -791,11 +776,11 @@ void FJoystickInputDevice::SendControllerEvents()
 					}
 
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
-					MessageHandler->OnControllerAnalog(XBallKey.GetFName(), PlatformUser, CurrentState.InputDeviceId, CurrentValue.X);
-					MessageHandler->OnControllerAnalog(YBallKey.GetFName(), PlatformUser, CurrentState.InputDeviceId, CurrentValue.Y);
+					MessageHandler->OnControllerAnalog(XBallKey.GetFName(), DeviceInfo.PlatformUserId, DeviceInfo.InputDeviceId, CurrentValue.X);
+					MessageHandler->OnControllerAnalog(YBallKey.GetFName(), DeviceInfo.PlatformUserId, DeviceInfo.InputDeviceId, CurrentValue.Y);
 #else
-					MessageHandler->OnControllerAnalog(XBallKey.GetFName(), PlayerId, CurrentValue.X);
-					MessageHandler->OnControllerAnalog(YBallKey.GetFName(), PlayerId, CurrentValue.Y);
+					MessageHandler->OnControllerAnalog(XBallKey.GetFName(), DeviceInfo.PlayerId, CurrentValue.X);
+					MessageHandler->OnControllerAnalog(YBallKey.GetFName(), DeviceInfo.PlayerId, CurrentValue.Y);
 #endif
 
 					BallData.Processed();
@@ -822,17 +807,17 @@ void FJoystickInputDevice::SendControllerEvents()
 					if (CurrentValue)
 					{
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
-						MessageHandler->OnControllerButtonPressed(ButtonKey.GetFName(), PlatformUser, CurrentState.InputDeviceId, false);
+						MessageHandler->OnControllerButtonPressed(ButtonKey.GetFName(), DeviceInfo.PlatformUserId, DeviceInfo.InputDeviceId, false);
 #else
-						MessageHandler->OnControllerButtonPressed(ButtonKey.GetFName(), PlayerId, false);
+						MessageHandler->OnControllerButtonPressed(ButtonKey.GetFName(), DeviceInfo.PlayerId, false);
 #endif
 					}
 					else
 					{
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
-						MessageHandler->OnControllerButtonReleased(ButtonKey.GetFName(), PlatformUser, CurrentState.InputDeviceId, false);
+						MessageHandler->OnControllerButtonReleased(ButtonKey.GetFName(), DeviceInfo.PlatformUserId, DeviceInfo.InputDeviceId, false);
 #else
-						MessageHandler->OnControllerButtonReleased(ButtonKey.GetFName(), PlayerId, false);
+						MessageHandler->OnControllerButtonReleased(ButtonKey.GetFName(), DeviceInfo.PlayerId, false);
 #endif
 					}
 
@@ -843,9 +828,9 @@ void FJoystickInputDevice::SendControllerEvents()
 
 		// Gyro
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
-		MessageHandler->OnMotionDetected(FVector::ZeroVector, CurrentState.Motion.Gyro, FVector::ZeroVector, CurrentState.Motion.Accelerometer, PlatformUser, CurrentState.InputDeviceId);
+		MessageHandler->OnMotionDetected(FVector::ZeroVector, CurrentState.Motion.Gyro, FVector::ZeroVector, CurrentState.Motion.Accelerometer, DeviceInfo.PlatformUserId, DeviceInfo.InputDeviceId);
 #else
-		MessageHandler->OnMotionDetected(FVector::ZeroVector, CurrentState.Motion.Gyro, FVector::ZeroVector, CurrentState.Motion.Accelerometer, PlayerId);
+		MessageHandler->OnMotionDetected(FVector::ZeroVector, CurrentState.Motion.Gyro, FVector::ZeroVector, CurrentState.Motion.Accelerometer, DeviceInfo.PlayerId);
 #endif
 	}
 

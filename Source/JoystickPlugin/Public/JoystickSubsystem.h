@@ -119,11 +119,17 @@ private:
 	void AddSensorDevice(FDeviceInfoSDL& Device) const;
 	bool RemoveDevice(const FJoystickInstanceId& InstanceId);
 	bool RemoveDeviceByIndex(const int DeviceIndex);
-	bool FindExistingDeviceIndex(const FDeviceInfoSDL& Device, int& ExistingDeviceIndex);
+	
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
+	bool FindExistingDevice(const FDeviceInfoSDL& Device, FJoystickInstanceId& PreviousJoystickInstanceId, FInputDeviceId& ExistingInputDeviceId, FPlatformUserId& ExistingPlatformUserId);
+#else
+	bool FindExistingDevice(const FDeviceInfoSDL& Device, int& ExistingDeviceId, int& ExistingPlayerId);
+#endif
+	
 	void InitialiseExistingJoysticks();
 
 	void JoystickPluggedIn(const FDeviceInfoSDL& Device) const;
-	void JoystickUnplugged(const FJoystickInstanceId& InstanceId) const;
+	void JoystickUnplugged(const FJoystickInstanceId& InstanceId, const FInputDeviceId& InputDeviceId) const;
 
 	void LoadGameControllerMappings() const;
 	void LoadJoystickProfiles() const;
@@ -132,7 +138,7 @@ private:
 	static float AsFloat(const FString& Input);
 	static int32 AsInteger(const FString& Input);
 
-	void ConvertSDLGuid(FGuid& Out, const SDL_JoystickGUID& SDLGuid) const;
+	void ConvertSDLGuid(const SDL_JoystickGUID& SdlGuid, FGuid& OutGuid) const;
 	FString GenerateDeviceHash(const FDeviceInfoSDL& Device) const;
 	FString SafelyStringify(const char* Input) const;
 
@@ -142,7 +148,6 @@ private:
 
 	bool OwnsSDL;
 	bool bIsInitialised;
-	int PersistentDeviceCount;
 
 	static FString GameControllerMappingFile;
 	static FString AxisPropertiesSection;

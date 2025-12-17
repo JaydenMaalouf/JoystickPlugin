@@ -29,7 +29,7 @@ public:
 	virtual bool IsGamepadAttached() const override;
 
 	void JoystickPluggedIn(const FDeviceInfoSDL& Device);
-	void JoystickUnplugged(const FJoystickInstanceId& InstanceId);
+	void JoystickUnplugged(const FJoystickInstanceId& InstanceId, const FInputDeviceId& InputDeviceId);
 	void JoystickButton(const FJoystickInstanceId& InstanceId, const int Button, const bool Pressed);
 	void JoystickAxis(const FJoystickInstanceId& InstanceId, const int Axis, const float Value);
 	void JoystickHat(const FJoystickInstanceId& InstanceId, const int Hat, const EHatDirection Value);
