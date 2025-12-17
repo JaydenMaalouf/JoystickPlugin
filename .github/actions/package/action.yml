@@ -83,6 +83,8 @@ runs:
         $outputDir   = Join-Path $runnerTemp 'output'
         $zipFilePath = Join-Path $outputDir ("JoystickPlugin-{0}.zip" -f $engineVersion)
 
+        Remove-Item -Path (Join-Path $buildDir "Intermediate") -Recurse -Force -ErrorAction SilentlyContinue
+
         if (-not (Test-Path $outputDir)) {
           New-Item -Path $outputDir -ItemType Directory -Force | Out-Null
         }
