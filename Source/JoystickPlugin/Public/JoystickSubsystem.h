@@ -21,6 +21,12 @@ struct FInputDeviceId;
 struct FPlatformUserId;
 #endif
 
+THIRD_PARTY_INCLUDES_START
+
+#include "SDL_events.h"
+
+THIRD_PARTY_INCLUDES_END
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnJoystickSubsystemReady);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FJoystickEvent, const FJoystickInstanceId&, InstanceId);
