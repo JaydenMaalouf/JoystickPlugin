@@ -11,8 +11,8 @@
 #include "JoystickInputDevice.h"
 #include "JoystickSubsystem.h"
 
-UJoystickInputSettings::UJoystickInputSettings() : UseDeviceName(false),
-                                                   IncludeDeviceIndex(true),
+UJoystickInputSettings::UJoystickInputSettings() : UseDeviceName(true),
+                                                   IncludeDeviceIndex(false),
                                                    IgnoreGameControllers(false),
                                                    EnableLogs(true),
                                                    EnablePairedKeys(false)
