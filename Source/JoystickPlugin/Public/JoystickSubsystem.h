@@ -129,13 +129,13 @@ private:
 	void AddSensorDevice(FDeviceInfoSDL& Device) const;
 	bool RemoveDevice(const FJoystickInstanceId& InstanceId);
 	bool RemoveDeviceByIndex(const int DeviceIndex);
-	
+
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
 	bool FindExistingDevice(const FDeviceInfoSDL& Device, FJoystickInstanceId& PreviousJoystickInstanceId, FInputDeviceId& ExistingInputDeviceId, FPlatformUserId& ExistingPlatformUserId);
 #else
 	bool FindExistingDevice(const FDeviceInfoSDL& Device, int& ExistingDeviceId, int& ExistingPlayerId);
 #endif
-	
+
 	void InitialiseExistingJoysticks();
 
 	void JoystickPluggedIn(const FDeviceInfoSDL& Device) const;

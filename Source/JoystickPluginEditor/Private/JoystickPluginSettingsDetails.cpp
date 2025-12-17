@@ -26,7 +26,7 @@ void FJoystickPluginSettingsDetails::CustomizeDetails(IDetailLayoutBuilder& Deta
 
 	IDetailCategoryBuilder& JoystickCategory = DetailBuilder.EditCategory("Information");
 	JoystickCategory.AddCustomRow(LOCTEXT("Joystick", "Joystick"))
-	                                        .ValueContent()
+	                .ValueContent()
 	[SNew(SHorizontalBox)
 	+ SHorizontalBox::Slot()
 	.Padding(5)
