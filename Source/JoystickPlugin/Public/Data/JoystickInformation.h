@@ -23,7 +23,7 @@ struct FJoystickInformation
 		  , ProductId(0)
 		  , ProductVersion(0)
 		  , VendorId(0)
-		  , IsGamepad(false)
+		  , IsGameController(false)
 		  , LedSupport(false)
 		  , RumbleSupport(false)
 		  , PowerLevel(EJoystickPowerLevel::Unknown)
@@ -64,7 +64,7 @@ struct FJoystickInformation
 	int VendorId;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
-	bool IsGamepad;
+	bool IsGameController;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config|Supported Features")
 	bool LedSupport;

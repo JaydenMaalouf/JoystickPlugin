@@ -34,6 +34,11 @@ struct JOYSTICKPLUGIN_API FHatData
 		Direction = InValue;
 	}
 
+	void Processed()
+	{
+		PreviousDirection = Direction;
+	}
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Hat")
 	EHatDirection Direction;
 

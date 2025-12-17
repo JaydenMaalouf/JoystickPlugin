@@ -32,12 +32,6 @@ struct JOYSTICKPLUGIN_API FAxisData
 		return InvertOutput ? -MappedValue : MappedValue;
 	}
 
-	/* Whether the data represents a valid value */
-	bool HasValue() const
-	{
-		return (InputRangeMin != -1.0f || InputRangeMax != -1.0f);
-	}
-
 	float GetValue() const
 	{
 		if (RemappingEnabled)
@@ -49,13 +43,22 @@ struct JOYSTICKPLUGIN_API FAxisData
 
 	float GetPreviousValue() const
 	{
-		return MapValue(PreviousValue);
+		if (RemappingEnabled)
+		{
+			return MapValue(PreviousValue);
+		}
+		return PreviousValue;
 	}
 
 	void Update(const float& InValue)
 	{
 		PreviousValue = Value;
 		Value = InValue;
+	}
+
+	void Processed()
+	{
+		PreviousValue = Value;
 	}
 
 	/* Current analog value */
@@ -70,30 +73,31 @@ struct JOYSTICKPLUGIN_API FAxisData
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Axis")
 	bool RemappingEnabled;
 
-	/* Offset to apply to normalized axis value */
+	/* Offset to apply to analog value */
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Axis")
 	float InputOffset;
 
+	/* Invert input */
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Axis")
 	bool InvertInput;
 
-	/* Min Analog value */
+	/* Input min analog value */
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Axis")
 	float InputRangeMin;
 
-	/* Max analog value */
+	/* Input max analog value */
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Axis")
 	float InputRangeMax;
 
-	/* Min Analog value */
+	/* Output min analog value */
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Axis")
 	float OutputRangeMin;
 
-	/* Max analog value */
+	/* Output max analog value */
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Axis")
 	float OutputRangeMax;
 
-	/* Is this axis inverted */
+	/* Invert the processed output */
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Axis")
 	bool InvertOutput;
 };

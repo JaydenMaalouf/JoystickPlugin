@@ -347,7 +347,7 @@ bool UJoystickSubsystem::HasRumbleDevice() const
 {
 	for (const TTuple<FJoystickInstanceId, FDeviceInfoSDL>& Device : Devices)
 	{
-		if (Device.Value.IsGamepad || Device.Value.RumbleSupport)
+		if (Device.Value.RumbleSupport)
 		{
 			return true;
 		}
@@ -452,15 +452,15 @@ bool UJoystickSubsystem::AddDevice(const int DeviceIndex)
 		return false;
 	}
 
-	const bool IsGamepad = SDL_IsGameController(DeviceIndex) == SDL_TRUE;
-	if (IsGamepad && JoystickInputSettings->GetIgnoreGameControllers())
+	const bool IsGameController = SDL_IsGameController(DeviceIndex) == SDL_TRUE;
+	if (IsGameController && JoystickInputSettings->GetIgnoreGameControllers())
 	{
 		// Let UE handle it
 		return false;
 	}
 
 	FDeviceInfoSDL Device;
-	Device.IsGamepad = IsGamepad;
+	Device.IsGameController = IsGameController;
 	Device.Connected = true;
 	Device.InstanceId = SDL_JoystickGetDeviceInstanceID(DeviceIndex);
 	Device.VendorId = SDL_JoystickGetDeviceVendor(DeviceIndex);
@@ -478,7 +478,7 @@ bool UJoystickSubsystem::AddDevice(const int DeviceIndex)
 		return false;
 	}
 
-	if (IsGamepad)
+	if (IsGameController)
 	{
 		Device.SDLGameController = SDL_GameControllerOpen(DeviceIndex);
 		if (Device.SDLGameController == nullptr)
@@ -524,7 +524,7 @@ bool UJoystickSubsystem::AddDevice(const int DeviceIndex)
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tProduct Version: %d"), Device.ProductVersion);
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tVendor Id: %d"), Device.VendorId);
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tSerial Number: %s"), *Device.SerialNumber);
-	FJoystickLogManager::Get()->LogDebug(TEXT("\tIs Gamepad: %s"), Device.IsGamepad ? TEXT("true") : TEXT("false"));
+	FJoystickLogManager::Get()->LogDebug(TEXT("\tIs GameController: %s"), Device.IsGameController ? TEXT("true") : TEXT("false"));
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tHaptic Support: %s"), Device.Haptic.Supported ? TEXT("true") : TEXT("false"));
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tHaptic Rumble Support: %s"), Device.HapticRumble.Supported ? TEXT("true") : TEXT("false"));
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tLED Support: %s"), Device.LedSupport ? TEXT("true") : TEXT("false"));

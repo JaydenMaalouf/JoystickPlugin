@@ -423,13 +423,13 @@ void FJoystickInputDevice::JoystickPluggedIn(const FDeviceInfoSDL& Device)
 	{
 		if (DeviceConfig != nullptr && DeviceConfig->OverrideDeviceName)
 		{
-			const FString DeviceName = DeviceConfig->DeviceName.Replace(TEXT(" "), TEXT("_"));
+			const FString DeviceName = SanitiseDeviceName(DeviceConfig->DeviceName);
 			BaseKeyName = FString::Printf(TEXT("Joystick_%s"), *DeviceName);
 			BaseDisplayName = DeviceName;
 		}
 		else
 		{
-			const FString DeviceName = Device.SafeDeviceName.Replace(TEXT(" "), TEXT("_"));
+			const FString DeviceName = SanitiseDeviceName(Device.SafeDeviceName);
 			BaseKeyName = FString::Printf(TEXT("Joystick_%s"), *DeviceName);
 			BaseDisplayName = Device.ProductName;
 		}
@@ -650,7 +650,7 @@ void FJoystickInputDevice::SendControllerEvents()
 
 		const int PlayerId = DeviceInfo.PlayerId;
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
-		const FPlatformUserId PlatformUser = FGenericPlatformMisc::GetPlatformUserForUserIndex(PlayerId);
+		const FPlatformUserId& PlatformUser = FGenericPlatformMisc::GetPlatformUserForUserIndex(PlayerId);
 #endif
 
 		FInputDeviceScope InputScope(this, JoystickInputInterfaceName, InstanceId, DeviceInfo.DeviceName);
@@ -663,11 +663,29 @@ void FJoystickInputDevice::SendControllerEvents()
 				const FKey& AxisKey = DeviceAxisKeys[InstanceId][AxisIndex];
 				if (AxisKey.IsValid())
 				{
+					FAxisData& AxisData = CurrentState.Axes[AxisIndex];
+					const float CurrentValue = AxisData.GetValue();
+					const float PreviousValue = AxisData.GetPreviousValue();
+					if (CurrentValue == PreviousValue)
+					{
+						continue;
+					}
+
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
-					MessageHandler->OnControllerAnalog(AxisKey.GetFName(), PlatformUser, CurrentState.InputDeviceId, CurrentState.Axes[AxisIndex].GetValue());
+					constexpr int32 BaseKey = 10000;
+					const int Key = BaseKey + (CurrentState.InputDeviceId.GetId() * CurrentState.Axes.Num()) + AxisIndex;
+					GEngine->AddOnScreenDebugMessage(
+						Key,
+						0.3f,
+						FColor::Green,
+						FString::Printf(TEXT("Axis %s Raw: %.3f Mapped: %.3f"), *AxisKey.GetDisplayName().ToString(), AxisData.Value, CurrentValue)
+					);
+					MessageHandler->OnControllerAnalog(AxisKey.GetFName(), PlatformUser, CurrentState.InputDeviceId, CurrentValue);
 #else
-					MessageHandler->OnControllerAnalog(AxisKey.GetFName(), PlayerId, CurrentState.Axes[AxisIndex].GetValue());
+					MessageHandler->OnControllerAnalog(AxisKey.GetFName(), PlayerId, CurrentValue);
 #endif
+
+					AxisData.Processed();
 				}
 			}
 		}
@@ -681,7 +699,15 @@ void FJoystickInputDevice::SendControllerEvents()
 				const FKey& YHatKey = DeviceHatAxisKeys[InstanceId][HatKeyIndex][1];
 				if (XHatKey.IsValid() && YHatKey.IsValid())
 				{
-					const FVector2D& POVAxis = UJoystickFunctionLibrary::HatDirectionToFVector2D(CurrentState.Hats[HatKeyIndex].GetValue());
+					FHatData& HatData = CurrentState.Hats[HatKeyIndex];
+					const EHatDirection CurrentValue = HatData.GetValue();
+					const EHatDirection PreviousValue = HatData.GetPreviousValue();
+					if (CurrentValue == PreviousValue)
+					{
+						continue;
+					}
+
+					const FVector2D& POVAxis = UJoystickFunctionLibrary::HatDirectionToFVector2D(CurrentValue);
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
 					MessageHandler->OnControllerAnalog(XHatKey.GetFName(), PlatformUser, CurrentState.InputDeviceId, POVAxis.X);
 					MessageHandler->OnControllerAnalog(YHatKey.GetFName(), PlatformUser, CurrentState.InputDeviceId, POVAxis.Y);
@@ -699,42 +725,43 @@ void FJoystickInputDevice::SendControllerEvents()
 			const UEnum* HatDirectionEnum = StaticEnum<EHatDirection>();
 			for (int HatKeyIndex = 0; HatKeyIndex < CurrentState.Hats.Num(); HatKeyIndex++)
 			{
-				FHatData& CurrentHatState = CurrentState.Hats[HatKeyIndex];
-				const EHatDirection PreviousDirection = CurrentHatState.GetPreviousValue();
-				const EHatDirection CurrentDirection = CurrentHatState.GetValue();
-
-				if (PreviousDirection != CurrentDirection)
+				FHatData& HatData = CurrentState.Hats[HatKeyIndex];
+				const EHatDirection CurrentValue = HatData.GetValue();
+				const EHatDirection PreviousValue = HatData.GetPreviousValue();
+				if (CurrentValue == PreviousValue)
 				{
-					if (PreviousDirection != EHatDirection::None)
-					{
-						const uint8 DirectionIndex = HatDirectionEnum->GetIndexByValue(static_cast<int64>(PreviousDirection)) - 1;
-						const FKey& DirectionKey = DeviceHatButtonKeys[InstanceId][HatKeyIndex * 8 + DirectionIndex];
-						if (DirectionKey.IsValid())
-						{
-#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
-							MessageHandler->OnControllerButtonReleased(DirectionKey.GetFName(), PlatformUser, CurrentState.InputDeviceId, false);
-#else
-							MessageHandler->OnControllerButtonReleased(DirectionKey.GetFName(), PlayerId, false);
-#endif
-						}
-					}
-
-					if (CurrentDirection != EHatDirection::None)
-					{
-						const uint8 DirectionIndex = HatDirectionEnum->GetIndexByValue(static_cast<int64>(CurrentDirection)) - 1;
-						const FKey& DirectionKey = DeviceHatButtonKeys[InstanceId][HatKeyIndex * 8 + DirectionIndex];
-						if (DirectionKey.IsValid())
-						{
-#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
-							MessageHandler->OnControllerButtonPressed(DirectionKey.GetFName(), PlatformUser, CurrentState.InputDeviceId, false);
-#else
-							MessageHandler->OnControllerButtonPressed(DirectionKey.GetFName(), PlayerId, false);
-#endif
-						}
-					}
-
-					CurrentHatState.PreviousDirection = CurrentDirection;
+					continue;
 				}
+
+				if (PreviousValue != EHatDirection::None)
+				{
+					const uint8 DirectionIndex = HatDirectionEnum->GetIndexByValue(static_cast<int64>(PreviousValue)) - 1;
+					const FKey& DirectionKey = DeviceHatButtonKeys[InstanceId][HatKeyIndex * 8 + DirectionIndex];
+					if (DirectionKey.IsValid())
+					{
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
+						MessageHandler->OnControllerButtonReleased(DirectionKey.GetFName(), PlatformUser, CurrentState.InputDeviceId, false);
+#else
+						MessageHandler->OnControllerButtonReleased(DirectionKey.GetFName(), PlayerId, false);
+#endif
+					}
+				}
+
+				if (CurrentValue != EHatDirection::None)
+				{
+					const uint8 DirectionIndex = HatDirectionEnum->GetIndexByValue(static_cast<int64>(CurrentValue)) - 1;
+					const FKey& DirectionKey = DeviceHatButtonKeys[InstanceId][HatKeyIndex * 8 + DirectionIndex];
+					if (DirectionKey.IsValid())
+					{
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
+						MessageHandler->OnControllerButtonPressed(DirectionKey.GetFName(), PlatformUser, CurrentState.InputDeviceId, false);
+#else
+						MessageHandler->OnControllerButtonPressed(DirectionKey.GetFName(), PlayerId, false);
+#endif
+					}
+				}
+
+				HatData.Processed();
 			}
 		}
 
@@ -747,14 +774,23 @@ void FJoystickInputDevice::SendControllerEvents()
 				const FKey& YBallKey = DeviceBallKeys[InstanceId][BallIndex][1];
 				if (XBallKey.IsValid() && YBallKey.IsValid())
 				{
-					const FVector2D& BallAxis = CurrentState.Balls[BallIndex].GetValue();
+					FBallData& BallData = CurrentState.Balls[BallIndex];
+					const FVector2D& CurrentValue = BallData.GetValue();
+					const FVector2D& PreviousValue = BallData.GetPreviousValue();
+					if (CurrentValue == PreviousValue)
+					{
+						continue;
+					}
+
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
-					MessageHandler->OnControllerAnalog(XBallKey.GetFName(), PlatformUser, CurrentState.InputDeviceId, BallAxis.X);
-					MessageHandler->OnControllerAnalog(YBallKey.GetFName(), PlatformUser, CurrentState.InputDeviceId, BallAxis.Y);
+					MessageHandler->OnControllerAnalog(XBallKey.GetFName(), PlatformUser, CurrentState.InputDeviceId, CurrentValue.X);
+					MessageHandler->OnControllerAnalog(YBallKey.GetFName(), PlatformUser, CurrentState.InputDeviceId, CurrentValue.Y);
 #else
-					MessageHandler->OnControllerAnalog(XBallKey.GetFName(), PlayerId, BallAxis.X);
-					MessageHandler->OnControllerAnalog(YBallKey.GetFName(), PlayerId, BallAxis.Y);
+					MessageHandler->OnControllerAnalog(XBallKey.GetFName(), PlayerId, CurrentValue.X);
+					MessageHandler->OnControllerAnalog(YBallKey.GetFName(), PlayerId, CurrentValue.Y);
 #endif
+
+					BallData.Processed();
 				}
 			}
 		}
@@ -767,28 +803,32 @@ void FJoystickInputDevice::SendControllerEvents()
 				const FKey& ButtonKey = DeviceButtonKeys[InstanceId][ButtonIndex];
 				if (ButtonKey.IsValid())
 				{
-					FButtonData& ButtonData = JoystickDeviceState[InstanceId].Buttons[ButtonIndex];
-					if (ButtonData.GetValue() != ButtonData.GetPreviousValue())
+					FButtonData& ButtonData = CurrentState.Buttons[ButtonIndex];
+					const bool CurrentValue = ButtonData.GetValue();
+					const bool PreviousValue = ButtonData.GetPreviousValue();
+					if (CurrentValue == PreviousValue)
 					{
-						if (ButtonData.GetValue())
-						{
-#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
-							MessageHandler->OnControllerButtonPressed(ButtonKey.GetFName(), PlatformUser, CurrentState.InputDeviceId, false);
-#else
-							MessageHandler->OnControllerButtonPressed(ButtonKey.GetFName(), PlayerId, false);
-#endif
-						}
-						else
-						{
-#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
-							MessageHandler->OnControllerButtonReleased(ButtonKey.GetFName(), PlatformUser, CurrentState.InputDeviceId, false);
-#else
-							MessageHandler->OnControllerButtonReleased(ButtonKey.GetFName(), PlayerId, false);
-#endif
-						}
-
-						ButtonData.PreviousButtonState = ButtonData.ButtonState;
+						continue;
 					}
+
+					if (CurrentValue)
+					{
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
+						MessageHandler->OnControllerButtonPressed(ButtonKey.GetFName(), PlatformUser, CurrentState.InputDeviceId, false);
+#else
+						MessageHandler->OnControllerButtonPressed(ButtonKey.GetFName(), PlayerId, false);
+#endif
+					}
+					else
+					{
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
+						MessageHandler->OnControllerButtonReleased(ButtonKey.GetFName(), PlatformUser, CurrentState.InputDeviceId, false);
+#else
+						MessageHandler->OnControllerButtonReleased(ButtonKey.GetFName(), PlayerId, false);
+#endif
+					}
+
+					ButtonData.Processed();
 				}
 			}
 		}
@@ -874,7 +914,19 @@ void FJoystickInputDevice::UpdateAxisProperties()
 			AxisKeyData.RemappingEnabled = AxisProperties->RemappingEnabled;
 			if (AxisKeyData.RemappingEnabled)
 			{
-				AxisKeyData.Value = AxisProperties->InputRangeMin;
+				if (AxisProperties->InputRangeMin == -1.0f && AxisProperties->InputRangeMax == 1.0f && AxisProperties->OutputRangeMin == 0.0f && AxisProperties->OutputRangeMax == 1.0f ||
+					AxisProperties->InputRangeMin == 0.0f && AxisProperties->InputRangeMax == 1.0f && AxisProperties->OutputRangeMin == 0.0f && AxisProperties->OutputRangeMax == 1.0f)
+				{
+					AxisKeyData.Value = AxisProperties->InvertInput ? -AxisProperties->InputRangeMin : AxisProperties->InputRangeMin;
+				}
+				else if (AxisProperties->InputRangeMin == -1.0f && AxisProperties->InputRangeMax == 1.0f && AxisProperties->OutputRangeMin == -1.0f && AxisProperties->OutputRangeMax == 1.0f)
+				{
+					AxisKeyData.Value = 0.0f;
+				}
+				else
+				{
+					AxisKeyData.Value = AxisProperties->InputRangeMin;
+				}
 				AxisKeyData.PreviousValue = AxisKeyData.Value;
 			}
 			AxisKeyData.InputOffset = AxisProperties->InputOffset;
@@ -965,4 +1017,46 @@ void FJoystickInputDevice::TryAddWidgetNavigation(const FKey& ButtonKey) const
 		}
 #endif
 	});
+}
+
+FString FJoystickInputDevice::SanitiseDeviceName(const FString& InDeviceName) const
+{
+	FString OutDeviceName;
+
+	// Reserve to avoid reallocs
+	OutDeviceName.Reserve(InDeviceName.Len());
+
+	for (const TCHAR Char : InDeviceName)
+	{
+		// Allow alphanumeric + underscore only
+		if (FChar::IsAlnum(Char))
+		{
+			OutDeviceName.AppendChar(Char);
+		}
+		else
+		{
+			OutDeviceName.AppendChar(TEXT('_'));
+		}
+	}
+
+	// Collapse multiple underscores
+	FString Collapsed;
+	Collapsed.Reserve(OutDeviceName.Len());
+
+	bool LastCharWasUnderscore = false;
+	for (const TCHAR Char : OutDeviceName)
+	{
+		const bool IsUnderscore = (Char == TEXT('_'));
+		if (IsUnderscore && LastCharWasUnderscore)
+		{
+			continue;
+		}
+
+		LastCharWasUnderscore = IsUnderscore;
+		Collapsed.AppendChar(Char);
+	}
+
+	OutDeviceName = MoveTemp(Collapsed);
+
+	return OutDeviceName.TrimStartAndEnd();
 }
