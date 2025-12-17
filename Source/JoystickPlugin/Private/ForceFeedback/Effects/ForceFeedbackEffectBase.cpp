@@ -41,12 +41,12 @@ void UForceFeedbackEffectBase::BeginDestroy()
 
 void UForceFeedbackEffectBase::Tick(const float DeltaTime)
 {
-	if (LastFrameNumberWeTicked == GFrameCounter)
+	if (LastFrameNumber == GFrameCounter)
 	{
 		return;
 	}
 
-	LastFrameNumberWeTicked = GFrameCounter;
+	LastFrameNumber = GFrameCounter;
 
 	if (!IsInitialised || this->IsUnreachable())
 	{

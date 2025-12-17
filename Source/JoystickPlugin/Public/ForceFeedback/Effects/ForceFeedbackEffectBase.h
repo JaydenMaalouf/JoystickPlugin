@@ -168,7 +168,7 @@ protected:
 private:
 	// The last frame number we were ticked.
 	// We don't want to tick multiple times per frame 
-	uint32 LastFrameNumberWeTicked = INDEX_NONE;
+	uint32 LastFrameNumber = INDEX_NONE;
 	uint64 StartTime;
 
 	bool EffectRunning;

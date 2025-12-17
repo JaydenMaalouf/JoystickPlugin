@@ -29,7 +29,9 @@ THIRD_PARTY_INCLUDES_START
 THIRD_PARTY_INCLUDES_END
 
 UJoystickSubsystem::UJoystickSubsystem()
-	: OwnsSDL(false), bIsInitialised(false), PersistentDeviceCount(0)
+	: OwnsSDL(false)
+	  , bIsInitialised(false)
+	  , PersistentDeviceCount(0)
 {
 }
 

@@ -34,11 +34,12 @@ void FJoystickPluginModule::StartupModule()
 {
 	PluginDirectory = IPluginManager::Get().FindPlugin(PluginName)->GetBaseDir();
 #if PLATFORM_WINDOWS
-	const FString SDLDir = FPaths::Combine(*PluginDirectory, TEXT("ThirdParty"), TEXT("SDL2"), TEXT("/Win64/"));
+	const FString SdlDir = FPaths::Combine(*PluginDirectory, TEXT("ThirdParty"), TEXT("SDL2"), TEXT("Win64"));
 
-	FPlatformProcess::PushDllDirectory(*SDLDir);
-	SdlDllHandle = FPlatformProcess::GetDllHandle(*(SDLDir + "SDL2.dll"));
-	FPlatformProcess::PopDllDirectory(*SDLDir);
+	FPlatformProcess::PushDllDirectory(*SdlDir);
+	const FString SdlDllDir = FPaths::Combine(SdlDir, "SDL2.dll");
+	SdlDllHandle = FPlatformProcess::GetDllHandle(*SdlDllDir);
+	FPlatformProcess::PopDllDirectory(*SdlDir);
 #endif
 
 	IJoystickPlugin::StartupModule();

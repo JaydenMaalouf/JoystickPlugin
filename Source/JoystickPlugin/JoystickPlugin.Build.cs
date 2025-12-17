@@ -7,7 +7,8 @@ public class JoystickPlugin : ModuleRules
 	public JoystickPlugin(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PublicDependencyModuleNames.AddRange(
-			[
+			new[]
+			{
 				"Core",
 				"CoreUObject",
 				"Engine",
@@ -18,8 +19,8 @@ public class JoystickPlugin : ModuleRules
 				"InputDevice",
 				"UMG",
 				"Projects"
-			]);
-		
+			});
+
 		var PluginSdlPath = Path.Combine(PluginDirectory, "ThirdParty", "SDL2");
 
 		var PluginIncludePath = Path.Combine(PluginSdlPath, "include");
