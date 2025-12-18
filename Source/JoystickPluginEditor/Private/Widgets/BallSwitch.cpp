@@ -11,7 +11,11 @@ void SBallSwitch::Construct(const FArguments& InArgs)
 	BallIndex = InArgs._BallIndex;
 	DisplayName = InArgs._DisplayName;
 
-	BallText = FText::FromString(FString::Format(TEXT("Ball {0}\n{1}"), {BallIndex.Get(), DisplayName.Get().ToString()}).TrimStartAndEnd());
+	BallText = FText::Format(
+		FText::FromString(TEXT("Ball {0}\n{1}")),
+		BallIndex.Get(),
+		DisplayName.Get()
+	);
 
 	SetToolTipText(BallText);
 

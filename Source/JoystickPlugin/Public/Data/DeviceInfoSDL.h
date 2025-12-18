@@ -27,9 +27,9 @@ struct FDeviceInfoSDL : FJoystickInformation
 		PlatformUserId = FPlatformUserId::CreateFromInternalId(0);
 	}
 
-	const FPlatformUserId& GetPlatformUserId() const
+	void SetInputDeviceId(const FInputDeviceId& Id)
 	{
-		return PlatformUserId;
+		InputDeviceId = Id;
 	}
 
 	const FInputDeviceId& GetInputDeviceId() const
@@ -37,13 +37,23 @@ struct FDeviceInfoSDL : FJoystickInformation
 		return InputDeviceId;
 	}
 
+	void SetPlatformUserId(const FPlatformUserId& UserId)
+	{
+		PlatformUserId = UserId;
+	}
+
+	const FPlatformUserId& GetPlatformUserId() const
+	{
+		return PlatformUserId;
+	}
+
 	bool Connected;
 	FString SafeDeviceName;
-
 	SDL_Haptic* SDLHaptic;
 	SDL_Joystick* SDLJoystick;
 	SDL_GameController* SDLGameController;
 
+private:
 	FPlatformUserId PlatformUserId;
 	FInputDeviceId InputDeviceId;
 };

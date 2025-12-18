@@ -3,9 +3,11 @@
 
 # :video_game: JoystickPlugin for Unreal Engine
 
-**Plug in. Power up. Feel everything.**
+JoystickPlugin provides **joystick and steering wheel support (including force feedback)** for **Unreal Engine 4 and Unreal Engine 5**, built natively for Unreal using SDL.
 
-`JoystickPlugin` brings SDL2-powered joystick and steering wheel support — including force feedback — to Unreal Engine 4 & 5. With a deep integration into Unreal’s Input System, this plugin is designed to help developers **create immersive, responsive, and reactive input experiences** with minimal setup.
+It integrates directly with Unreal’s **Input System** and **Subsystem architecture**, making it well-suited for simulation, racing, and hardware-driven projects that require reliable, low-level device access with minimal setup.
+
+---
 
 ## :blue_book: Documentation
 
@@ -13,65 +15,64 @@ Head to the [Wiki](https://github.com/JaydenMaalouf/JoystickPlugin/wiki) for ins
 
 ---
 
-## :bulb: Why use JoystickPlugin?
+## :bulb: Why JoystickPlugin?
 
-Unlike generic C++ wrappers, this plugin is **built for Unreal from the ground up**, taking full advantage of:
+JoystickPlugin is designed **specifically for Unreal Engine**, rather than acting as a thin wrapper over SDL. This allows it to take full advantage of engine-native systems, including:
 
-- :electric_plug: Subsystems
-- :gear: Project Settings
-- :jigsaw: Plugin Architecture
+- :electric_plug: Unreal Subsystems for lifecycle management
+- :gear: Project Settings integration
+- :keyboard: Enhanced Input compatibility
+- :wrench: Clean editor and runtime separation
 
-It's also **multi-platform**, with support for **Windows** and **Linux**!
+The plugin currently supports **Windows** and **Linux**.
 
 ---
 
 ## :sparkles: Key Features
 
-- :video_game: **Native Unreal Input Loop** – Fully hooks into Unreal’s enhanced input system
-- :mailbox_with_mail: **Event-Driven Architecture** – React to device input with clean, modular callbacks
-- :bust_in_silhouette: **Player Controller Assignment** – Easily map devices to players
-- :boom: **Force Feedback / Haptics** – Use gameplay events to trigger realistic FFB effects
-- :satellite: **Sensor Data Support** – Read gyro and accelerometer values (where supported)
-- :bulb: **LED Control** – Change device LEDs dynamically
-- :card_index_dividers: **Device Profiles** – Define and load config presets for devices
+- :video_game: **Native Unreal Input Integration**  
+  Hooks directly into Unreal’s input pipeline, including Enhanced Input.
+
+- :mailbox_with_mail: **Event-Driven Architecture**  
+  Clean, modular callbacks for device connection and input events.
+
+- :bust_in_silhouette: **Player & Device Mapping**  
+  Explicit control over which device is assigned to which player.
+
+- :boom: **Force Feedback / Haptics**  
+  Trigger SDL-powered force feedback effects from gameplay logic.
+
+- :satellite: **Sensor Support**  
+  Access gyroscope and accelerometer data where supported by hardware.
+
+- :bulb: **Device LED Control**  
+  Dynamically control device LEDs at runtime.
+
+- :card_index_dividers: **Device Profiles**  
+  Load and apply per-device configuration presets.
 
 ---
 
 ## :thinking: How does it compare to other solutions?
 
-JoystickPlugin isn't just a port — it's a full Unreal-native rework.  
-Originally forked, this version was refactored with Unreal-first principles:
+JoystickPlugin is not a direct port of an SDL wrapper. It is a **ground-up Unreal-native implementation**, focused on:
 
-- :bricks: Uses UE Subsystems instead of ad-hoc architecture
-- :hammer_and_wrench: Exposes plugin features in Project Settings for easy customization
-- :earth_americas: Cross-platform (Windows/Linux) with minimal config
-
----
-
-## :trophy: Contributors & Credits
-
-Big thanks to the original and extended contributors who made this plugin possible:
-
-### Original Foundations
-
-- [tsky1971](https://github.com/tsky1971)
-- [Ikarus76](https://github.com/Ikarus76)
-- [SamPersson](https://github.com/SamPersson)
-
-### Plugin Contributors
-
-- [MalikuMane](https://github.com/MalikuMane)
-- [gotleg](https://github.com/gotleg)
-
-### QA & Bug Bounty Heroes
-
-- [brifsttar](https://github.com/brifsttar)
-- [Juris3D](https://github.com/Juris3D)
-- [craytex](https://github.com/craytex)
+- :video_game: Unreal-first input handling
+- :bricks: Engine subsystem lifecycle management
+- :hammer_and_wrench: Editor-friendly configuration via Project Settings
+- :earth_americas: Cross-platform support with minimal boilerplate
 
 ---
 
-## :art: Aesthetic Attribution
+## :heart: Acknowledgements
+
+This project builds on years of experimentation, forks, and community contributions across the Unreal and SDL ecosystems.
+
+Thank you to **all developers, testers, and open-source contributors** who helped shape this plugin through code, issues, and feedback. Your work is preserved in the project history and genuinely appreciated.
+
+---
+
+## :art: Attribution
 
 Controller icons by [Adib Sulthon](https://www.flaticon.com/authors/adib-sulthon)  
 From [Flaticon.com](https://www.flaticon.com)

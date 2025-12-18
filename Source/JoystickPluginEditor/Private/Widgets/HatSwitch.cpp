@@ -11,7 +11,11 @@ void SHatSwitch::Construct(const FArguments& InArgs)
 	HatIndex = InArgs._HatIndex;
 	DisplayName = InArgs._DisplayName;
 
-	HatText = FText::FromString(FString::Format(TEXT("Hat {0}\n{1}"), {HatIndex.Get(), DisplayName.Get().ToString()}).TrimStartAndEnd());
+	HatText = FText::Format(
+		FText::FromString(TEXT("Hat {0}\n{1}")),
+		HatIndex.Get(),
+		DisplayName.Get()
+	);
 
 	SetToolTipText(HatText);
 

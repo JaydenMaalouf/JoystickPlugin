@@ -7,7 +7,6 @@
 #include "InputCoreTypes.h"
 #include "Data/JoystickDeviceState.h"
 #include "Data/JoystickInstanceId.h"
-#include "Data/PlatformTypes.h"
 #include "Data/ResultMessage.h"
 #include "Data/Input/KeyPair.h"
 #include "Data/Settings/JoystickInputDeviceConfiguration.h"
@@ -16,6 +15,8 @@
 enum class EHatDirection : uint8;
 enum class EInputDeviceConnectionState : uint8;
 struct FDeviceInfoSDL;
+struct FInputDeviceId;
+struct FPlatformUserId;
 
 class JOYSTICKPLUGIN_API FJoystickInputDevice final : public IInputDevice
 {
@@ -31,7 +32,7 @@ public:
 	virtual bool IsGamepadAttached() const override;
 
 	void JoystickPluggedIn(const FDeviceInfoSDL& Device);
-	void JoystickUnplugged(const FJoystickInstanceId& InstanceId, const FInputDeviceId& InputDeviceId);
+	void JoystickUnplugged(const FJoystickInstanceId& InstanceId, const FInputDeviceId& InputDeviceId) const;
 	void JoystickButton(const FJoystickInstanceId& InstanceId, const int Button, const bool Pressed);
 	void JoystickAxis(const FJoystickInstanceId& InstanceId, const int Axis, const float Value);
 	void JoystickHat(const FJoystickInstanceId& InstanceId, const int Hat, const EHatDirection Value);
