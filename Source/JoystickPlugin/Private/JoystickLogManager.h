@@ -41,7 +41,7 @@ public:
 		LogInternal(Level, *Message);
 	}
 
-	FORCEINLINE void Log(const ELogVerbosity::Type Level, const FInternalResultMessage& Message) const
+	FORCEINLINE void Log(const ELogVerbosity::Type Level, const FInternalResultMessage& Message)
 	{
 		LogInternal(Level, *Message.ErrorMessage);
 	}
@@ -52,7 +52,7 @@ public:
 		Log(ELogVerbosity::Type::Warning, Fmt, Forward<Types>(Args)...);
 	}
 
-	FORCEINLINE void LogWarning(const FInternalResultMessage& Message) const
+	FORCEINLINE void LogWarning(const FInternalResultMessage& Message)
 	{
 		Log(ELogVerbosity::Type::Warning, Message);
 	}
@@ -63,7 +63,7 @@ public:
 		Log(ELogVerbosity::Type::Error, Fmt, Forward<Types>(Args)...);
 	}
 
-	FORCEINLINE void LogError(const FInternalResultMessage& Message) const
+	FORCEINLINE void LogError(const FInternalResultMessage& Message)
 	{
 		Log(ELogVerbosity::Type::Error, Message);
 	}
@@ -74,7 +74,7 @@ public:
 		Log(ELogVerbosity::Type::Log, Fmt, Forward<Types>(Args)...);
 	}
 
-	FORCEINLINE void LogDebug(const FInternalResultMessage& Message) const
+	FORCEINLINE void LogDebug(const FInternalResultMessage& Message)
 	{
 		Log(ELogVerbosity::Type::Log, Message);
 	}
@@ -85,7 +85,7 @@ public:
 		Log(ELogVerbosity::Type::Display, Fmt, Forward<Types>(Args)...);
 	}
 
-	FORCEINLINE void LogInformation(const FInternalResultMessage& Message) const
+	FORCEINLINE void LogInformation(const FInternalResultMessage& Message)
 	{
 		Log(ELogVerbosity::Type::Display, Message);
 	}

@@ -20,6 +20,7 @@ public class JoystickPluginEditor : ModuleRules
 			"UnrealEd",
 			"ToolMenus",
 			"LevelEditor",
+			"EditorStyle",
 			"PropertyEditor",
 		});
 	}

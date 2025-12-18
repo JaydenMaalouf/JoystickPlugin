@@ -11,6 +11,7 @@
 #include "Modules/ModuleManager.h"
 #include "PropertyEditorModule.h"
 #include "PropertyEditorDelegates.h"
+#include "ToolMenus.h"
 
 #define LOCTEXT_NAMESPACE "JoystickPluginEditor"
 
