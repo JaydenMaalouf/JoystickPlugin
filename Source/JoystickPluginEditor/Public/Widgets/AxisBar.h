@@ -26,5 +26,5 @@ private:
 	TAttribute<FText> DisplayName;
 	TAttribute<float> Value; // Ranges from -1 to 1
 
-	FText ButtonText;
+	FText AxisText;
 };

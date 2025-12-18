@@ -12,9 +12,13 @@ void SAxisBar::Construct(const FArguments& InArgs)
 	AxisIndex = InArgs._AxisIndex;
 	DisplayName = InArgs._DisplayName;
 
-	ButtonText = FText::FromString(FString::Format(TEXT("Axis {0}\n{1}"), {AxisIndex.Get(), DisplayName.Get().ToString()}));
+	AxisText = FText::Format(
+		FText::FromString(TEXT("Axis {0}\n{1}")),
+		AxisIndex.Get(),
+		DisplayName.Get()
+	);
 
-	SetToolTipText(ButtonText);
+	SetToolTipText(AxisText);
 
 	ChildSlot
 	[
@@ -91,7 +95,7 @@ void SAxisBar::Construct(const FArguments& InArgs)
 			.Clipping(EWidgetClipping::Inherit)
 			[
 				SNew(STextBlock)
-				.Text(ButtonText)
+				.Text(AxisText)
 				.RenderTransformPivot(FVector2D(0.5f, 0.5f))
 				.RenderTransform(FSlateRenderTransform(FQuat2D(FMath::DegreesToRadians(-90.0f))))
 				.Justification(ETextJustify::Center)

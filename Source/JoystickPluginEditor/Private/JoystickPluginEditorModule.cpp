@@ -11,41 +11,71 @@
 #include "Modules/ModuleManager.h"
 #include "PropertyEditorModule.h"
 #include "PropertyEditorDelegates.h"
+#include "ToolMenus.h"
 
 #define LOCTEXT_NAMESPACE "JoystickPluginEditor"
+
+static const FName JoystickViewerTabId(TEXT("JoystickInputViewer"));
 
 void FJoystickPluginEditorModule::StartupModule()
 {
 	RegisterSettings();
-	RegisterProperyLayout();
+	RegisterPropertyLayout();
 
 	FGlobalTabmanager::Get()
-		->RegisterTabSpawner(
-			"JoystickInputViewer",
+		->RegisterNomadTabSpawner(
+			JoystickViewerTabId,
 			FOnSpawnTab::CreateLambda([&](const FSpawnTabArgs& SpawnTabArgs) -> TSharedRef<SDockTab>
 			{
-				const TSharedRef<SDockTab> DockTab = SNew(SDockTab).TabRole(MajorTab);
-				const TSharedRef<SJoystickInputViewer> Frontend = SNew(SJoystickInputViewer, DockTab, SpawnTabArgs.GetOwnerWindow());
+				const TSharedRef<SDockTab> DockTab =
+					SNew(SDockTab)
+					.TabRole(NomadTab);
+
+				const TSharedRef<SJoystickInputViewer> Frontend =
+					SNew(SJoystickInputViewer, DockTab, SpawnTabArgs.GetOwnerWindow());
 
 				DockTab->SetContent(Frontend);
-
 				return DockTab;
 			})
 		)
+		.SetIcon(FSlateIcon(FAppStyle::GetAppStyleSetName(), "GraphEditor.PadEvent_16x"))
 		.SetDisplayName(FText::FromString("Joystick Viewer"))
 		.SetMenuType(ETabSpawnerMenuType::Hidden);
+
+	UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FJoystickPluginEditorModule::RegisterMenus));
 
 	IModuleInterface::StartupModule();
 }
 
+void FJoystickPluginEditorModule::RegisterMenus() const
+{
+	UToolMenu* ToolsMenu = UToolMenus::Get()->ExtendMenu("LevelEditor.MainMenu.Tools");
+	FToolMenuSection& Section = ToolsMenu->FindOrAddSection("Tools");
+	Section.AddMenuEntry(
+		"OpenJoystickViewer",
+		FText::FromString("Joystick Viewer"),
+		FText::FromString("Open the Joystick Input Viewer tab."),
+		FSlateIcon(FAppStyle::GetAppStyleSetName(), "GraphEditor.PadEvent_16x"),
+		FUIAction(FExecuteAction::CreateLambda([]()
+		{
+			FGlobalTabmanager::Get()->TryInvokeTab(JoystickViewerTabId);
+		}))
+	);
+}
+
 void FJoystickPluginEditorModule::ShutdownModule()
 {
-	FGlobalTabmanager::Get()->UnregisterTabSpawner("JoystickInputViewer");
+	FGlobalTabmanager::Get()->UnregisterTabSpawner(JoystickViewerTabId);
+	
+	if (UToolMenus::IsToolMenuUIEnabled())
+	{
+		UToolMenus::UnRegisterStartupCallback(this);
+	}
 
 	IModuleInterface::ShutdownModule();
 }
 
-void FJoystickPluginEditorModule::RegisterProperyLayout()
+void FJoystickPluginEditorModule::RegisterPropertyLayout() const
 {
 	FPropertyEditorModule& PropertyModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
 	PropertyModule.RegisterCustomClassLayout(UJoystickInputSettings::StaticClass()->GetFName(), FOnGetDetailCustomizationInstance::CreateStatic(&FJoystickPluginSettingsDetails::MakeInstance));

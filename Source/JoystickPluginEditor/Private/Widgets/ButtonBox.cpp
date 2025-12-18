@@ -11,7 +11,11 @@ void SButtonBox::Construct(const FArguments& InArgs)
 	ButtonIndex = InArgs._ButtonIndex;
 	DisplayName = InArgs._DisplayName;
 
-	ButtonText = FText::FromString(FString::Format(TEXT("Button {0}\n{1}"), {ButtonIndex.Get(), DisplayName.Get().ToString()}).TrimStartAndEnd());
+	ButtonText = FText::Format(
+		FText::FromString(TEXT("Button {0}\n{1}")),
+		ButtonIndex.Get(),
+		DisplayName.Get()
+	);
 
 	SetToolTipText(ButtonText);
 

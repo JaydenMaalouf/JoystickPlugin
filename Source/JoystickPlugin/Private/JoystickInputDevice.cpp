@@ -454,13 +454,13 @@ void FJoystickInputDevice::JoystickPluggedIn(const FDeviceInfoSDL& Device)
 	UpdateAxisProperties();
 
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
-	NotifyDeviceState(Device.InputDeviceId, Device.PlatformUserId, EInputDeviceConnectionState::Connected);
+	NotifyDeviceState(Device.GetInputDeviceId(), Device.GetPlatformUserId(), EInputDeviceConnectionState::Connected);
 #endif
 
 	FJoystickLogManager::Get()->LogInformation(TEXT("Device Ready: %s (Device Id: %d) - Instance Id: %d"), *Device.DeviceName, Device.GetInputDeviceId().GetId(), Device.InstanceId.Value);
 }
 
-void FJoystickInputDevice::JoystickUnplugged(const FJoystickInstanceId& InstanceId, const FInputDeviceId& InputDeviceId)
+void FJoystickInputDevice::JoystickUnplugged(const FJoystickInstanceId& InstanceId, const FInputDeviceId& InputDeviceId) const
 {
 	UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
 	if (!IsValid(JoystickInputSettings))
@@ -471,10 +471,9 @@ void FJoystickInputDevice::JoystickUnplugged(const FJoystickInstanceId& Instance
 	JoystickInputSettings->DeviceRemoved(InstanceId);
 
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
-	auto [DeviceState, Result] = GetDeviceState(InstanceId);
-	if (Result.bSuccess)
+	if (JoystickDeviceState.Contains(InstanceId))
 	{
-		//Device managed by subsystem
+		// Device managed by subsystem
 		const IPlatformInputDeviceMapper& DeviceMapper = IPlatformInputDeviceMapper::Get();
 		const FPlatformUserId NewUserToAssign = DeviceMapper.GetUserForUnpairedInputDevices();
 		NotifyDeviceState(InputDeviceId, NewUserToAssign, EInputDeviceConnectionState::Disconnected);
@@ -583,10 +582,10 @@ TTuple<FJoystickDeviceState*, FInternalResultMessage> FJoystickInputDevice::GetD
 {
 	if (!JoystickDeviceState.Contains(InstanceId))
 	{
-		return {nullptr, FInternalResultMessage{false, TEXT("Device is not a valid Joystick device")}};
+		return {nullptr, FInternalResultMessage(false, TEXT("Device is not a valid Joystick device"))};
 	}
 
-	return {&JoystickDeviceState[InstanceId], FInternalResultMessage{true}};
+	return {&JoystickDeviceState[InstanceId], FInternalResultMessage(true)};
 }
 
 void FJoystickInputDevice::GetDeviceKeys(const FJoystickInstanceId& InstanceId, TArray<FKey>& Keys)
@@ -994,7 +993,8 @@ void FJoystickInputDevice::TryAddWidgetNavigation(const FKey& ButtonKey) const
 		return;
 	}
 
-	AsyncTask(ENamedThreads::GameThread, [KeyConfiguration, ButtonKey]
+	const FJoystickInputKeyConfiguration KeyConfig = *KeyConfiguration;
+	AsyncTask(ENamedThreads::GameThread, [KeyConfig, ButtonKey]
 	{
 		const FSlateApplication& SlateApplication = FSlateApplication::Get();
 		const TSharedPtr<FNavigationConfig> NavigationConfig = SlateApplication.GetNavigationConfig();
@@ -1004,18 +1004,18 @@ void FJoystickInputDevice::TryAddWidgetNavigation(const FKey& ButtonKey) const
 		}
 
 		// Key Event (Up, Down, Left, Right, etc.)
-		if (KeyConfiguration->Direction != EUINavigation::Invalid)
+		if (KeyConfig.Direction != EUINavigation::Invalid)
 		{
-			FJoystickLogManager::Get()->LogDebug(TEXT("Added FKey (%s) to Slate Navigation Events with direction: %s"), *ButtonKey.GetDisplayName().ToString(), *UEnum::GetValueAsString(KeyConfiguration->Direction));
-			NavigationConfig->KeyEventRules.Add(ButtonKey, KeyConfiguration->Direction);
+			FJoystickLogManager::Get()->LogDebug(TEXT("Added FKey (%s) to Slate Navigation Events with direction: %s"), *ButtonKey.GetDisplayName().ToString(), *UEnum::GetValueAsString(KeyConfig.Direction));
+			NavigationConfig->KeyEventRules.Add(ButtonKey, KeyConfig.Direction);
 		}
 
 #if ENGINE_MAJOR_VERSION >= 5 && ENGINE_MINOR_VERSION >= 4
 		// Key Action (Accept, Back, etc.)
-		if (KeyConfiguration->Action != EUINavigationAction::Invalid)
+		if (KeyConfig.Action != EUINavigationAction::Invalid)
 		{
-			FJoystickLogManager::Get()->LogDebug(TEXT("Added FKey (%s) to Slate Navigation Actions with action: %s"), *ButtonKey.GetDisplayName().ToString(), *UEnum::GetValueAsString(KeyConfiguration->Action));
-			NavigationConfig->KeyActionRules.Add(ButtonKey, KeyConfiguration->Action);
+			FJoystickLogManager::Get()->LogDebug(TEXT("Added FKey (%s) to Slate Navigation Actions with action: %s"), *ButtonKey.GetDisplayName().ToString(), *UEnum::GetValueAsString(KeyConfig.Action));
+			NavigationConfig->KeyActionRules.Add(ButtonKey, KeyConfig.Action);
 		}
 #endif
 	});
@@ -1024,41 +1024,39 @@ void FJoystickInputDevice::TryAddWidgetNavigation(const FKey& ButtonKey) const
 FString FJoystickInputDevice::SanitiseDeviceName(const FString& InDeviceName) const
 {
 	FString OutDeviceName;
+	OutDeviceName.Reserve(InDeviceName.Len()); // Pre-allocate
 
-	// Reserve to avoid reallocs
-	OutDeviceName.Reserve(InDeviceName.Len());
+	bool LastCharWasUnderscore = false;
+	bool LeadingUnderscore = true;
 
 	for (const TCHAR Char : InDeviceName)
 	{
-		// Allow alphanumeric + underscore only
 		if (FChar::IsAlnum(Char))
 		{
 			OutDeviceName.AppendChar(Char);
+			LastCharWasUnderscore = false;
+			LeadingUnderscore = false;
 		}
-		else
+		else if (!LastCharWasUnderscore && !LeadingUnderscore)
 		{
+			// Only add underscore if not leading and not consecutive
 			OutDeviceName.AppendChar(TEXT('_'));
+			LastCharWasUnderscore = true;
 		}
+		// Skip non-alphanumeric leading chars and consecutive underscores
 	}
 
-	// Collapse multiple underscores
-	FString Collapsed;
-	Collapsed.Reserve(OutDeviceName.Len());
-
-	bool LastCharWasUnderscore = false;
-	for (const TCHAR Char : OutDeviceName)
+	// Trim trailing underscores
+	int32 TrimEnd = OutDeviceName.Len();
+	while (TrimEnd > 0 && OutDeviceName[TrimEnd - 1] == TEXT('_'))
 	{
-		const bool IsUnderscore = Char == TEXT('_');
-		if (IsUnderscore && LastCharWasUnderscore)
-		{
-			continue;
-		}
-
-		LastCharWasUnderscore = IsUnderscore;
-		Collapsed.AppendChar(Char);
+		TrimEnd--;
 	}
 
-	OutDeviceName = MoveTemp(Collapsed);
+	if (TrimEnd < OutDeviceName.Len())
+	{
+		OutDeviceName.RemoveAt(TrimEnd, OutDeviceName.Len() - TrimEnd);
+	}
 
-	return OutDeviceName.TrimStartAndEnd();
+	return OutDeviceName;
 }

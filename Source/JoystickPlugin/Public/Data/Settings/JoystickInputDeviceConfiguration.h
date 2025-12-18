@@ -36,7 +36,7 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceConfiguration
 	}
 
 	UPROPERTY(EditAnywhere, Category = "Joystick Settings",
-		meta = (ToolTip = "TODO", ConfigRestartRequired = true))
+		meta = (ToolTip = "Method to identify a joystick to apply configurations to.", ConfigRestartRequired = true))
 	EJoystickIdentifierType DeviceIdentifyMethod;
 
 	UPROPERTY(EditAnywhere, Category="Device Config", meta=(ToolTip="Used to determine the device to apply the configuration to.", EditCondition="DeviceIdentifyMethod == EJoystickIdentifierType::Hashed", EditConditionHides))

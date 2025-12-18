@@ -4,19 +4,24 @@ public class JoystickPluginEditor : ModuleRules
 {
 	public JoystickPluginEditor(ReadOnlyTargetRules Target) : base(Target)
 	{
-		PublicDependencyModuleNames.AddRange(
-			new[]
-			{
-				"Core",
-				"CoreUObject",
-				"Engine",
-				"EditorStyle",
-				"SlateCore",
-				"Slate",
-				"InputCore",
-				"UnrealEd",
-				"JoystickPlugin",
-				"PropertyEditor"
-			});
+		PublicDependencyModuleNames.AddRange(new[]
+		{
+			"Core",
+			"CoreUObject",
+			"Engine",
+			"Slate",
+			"SlateCore",
+			"InputCore",
+			"JoystickPlugin",
+		});
+
+		PrivateDependencyModuleNames.AddRange(new[]
+		{
+			"UnrealEd",
+			"ToolMenus",
+			"LevelEditor",
+			"EditorStyle",
+			"PropertyEditor",
+		});
 	}
 }

@@ -23,7 +23,7 @@ FJoystickLogManager* FJoystickLogManager::Get()
 	return LogManager.Get();
 }
 
-void FJoystickLogManager::LogSDLError(const FString& Message)
+void FJoystickLogManager::LogSDLError(const FStringView Message)
 {
 	if (!CanLog())
 	{
@@ -31,5 +31,11 @@ void FJoystickLogManager::LogSDLError(const FString& Message)
 	}
 
 	const FString ErrorMessage = FString(SDL_GetError());
-	LogError(TEXT("%s: %s"), *Message, *ErrorMessage);
+	if (ErrorMessage.IsEmpty())
+	{
+		LogError(TEXT("%.*s: Unknown error occurred"), Message.Len(), Message.GetData());
+		return;
+	}
+
+	LogError(TEXT("%.*s: %s"), Message.Len(), Message.GetData(), *ErrorMessage);
 }

@@ -64,8 +64,16 @@ void UJoystickSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	else
 	{
 		FJoystickLogManager::Get()->LogDebug(TEXT("DeviceSDL::InitSDL() SDL init 0"));
-		SDL_Init(SdlRequiredFlags);
-		OwnsSDL = true;
+		const int Result = SDL_Init(SdlRequiredFlags);
+		if (Result == 0)
+		{
+			OwnsSDL = true;
+		}
+		else
+		{
+			FJoystickLogManager::Get()->LogSDLError(TEXT("Failed to initialise SDL"));
+			return;
+		}
 	}
 
 	bIsInitialised = true;
@@ -241,11 +249,11 @@ void UJoystickSubsystem::MapJoystickDeviceToPlayer(const FJoystickInstanceId& In
 		return;
 	}
 
-	DeviceInfo->PlatformUserId = FGenericPlatformMisc::GetPlatformUserForUserIndex(PlayerId);
+	DeviceInfo->SetPlatformUserId(FPlatformUserId::CreateFromInternalId(PlayerId));
 
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
 	IPlatformInputDeviceMapper& DeviceMapper = IPlatformInputDeviceMapper::Get();
-	DeviceMapper.Internal_MapInputDeviceToUser(DeviceInfo->InputDeviceId, DeviceInfo->PlatformUserId, EInputDeviceConnectionState::Unknown);
+	DeviceMapper.Internal_MapInputDeviceToUser(DeviceInfo->GetInputDeviceId(), DeviceInfo->GetPlatformUserId(), EInputDeviceConnectionState::Unknown);
 #endif
 }
 
@@ -481,8 +489,7 @@ bool UJoystickSubsystem::AddDevice(const int DeviceIndex)
 	Device.SDLJoystick = SDL_JoystickOpen(DeviceIndex);
 	if (Device.SDLJoystick == nullptr)
 	{
-		const FString ErrorMessage = FString(SDL_GetError());
-		FJoystickLogManager::Get()->LogError(TEXT("Joystick %d Open Error: %s"), Device.InstanceId.Value, *ErrorMessage);
+		FJoystickLogManager::Get()->LogSDLError(FString::Printf(TEXT("Joystick %d Open Error"), Device.InstanceId.Value));
 		return false;
 	}
 
@@ -495,8 +502,7 @@ bool UJoystickSubsystem::AddDevice(const int DeviceIndex)
 		}
 		else
 		{
-			const FString ErrorMessage = FString(SDL_GetError());
-			FJoystickLogManager::Get()->LogError(TEXT("Game Controller %d Open Error: %s"), Device.InstanceId.Value, *ErrorMessage);
+			FJoystickLogManager::Get()->LogSDLError(FString::Printf(TEXT("Game Controller %d Open Error"), Device.InstanceId.Value));
 		}
 	}
 
@@ -553,8 +559,8 @@ bool UJoystickSubsystem::AddDevice(const int DeviceIndex)
 	FPlatformUserId ExistingPlatformUserId;
 	if (FindExistingDevice(Device, PreviousJoystickInstanceId, ExistingInputDeviceId, ExistingPlatformUserId))
 	{
-		Device.InputDeviceId = ExistingInputDeviceId;
-		Device.PlatformUserId = ExistingPlatformUserId;
+		Device.SetInputDeviceId(ExistingInputDeviceId);
+		Device.SetPlatformUserId(ExistingPlatformUserId);
 
 		// Remove existing devices from devices list so we don't collect old data
 		Devices.Remove(PreviousJoystickInstanceId);
@@ -565,8 +571,8 @@ bool UJoystickSubsystem::AddDevice(const int DeviceIndex)
 	{
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
 		IPlatformInputDeviceMapper& DeviceMapper = IPlatformInputDeviceMapper::Get();
-		Device.InputDeviceId = DeviceMapper.AllocateNewInputDeviceId();
-		Device.PlatformUserId = DeviceMapper.GetPrimaryPlatformUser();
+		Device.SetInputDeviceId(DeviceMapper.AllocateNewInputDeviceId());
+		Device.SetPlatformUserId(DeviceMapper.GetPrimaryPlatformUser());
 #endif
 		FJoystickLogManager::Get()->LogDebug(TEXT("New device connected: %s (%d)"), *Device.DeviceName, Device.GetInputDeviceId().GetId());
 	}
@@ -636,8 +642,8 @@ bool UJoystickSubsystem::FindExistingDevice(const FDeviceInfoSDL& Device, FJoyst
 			(Device.Path == DeviceInfo.Value.Path && Device.DeviceHash == DeviceInfo.Value.DeviceHash))
 		{
 			PreviousJoystickInstanceId = DeviceInfo.Value.InstanceId;
-			ExistingInputDeviceId = DeviceInfo.Value.InputDeviceId;
-			ExistingPlatformUserId = DeviceInfo.Value.PlatformUserId;
+			ExistingInputDeviceId = DeviceInfo.Value.GetInputDeviceId();
+			ExistingPlatformUserId = DeviceInfo.Value.GetPlatformUserId();
 			return true;
 		}
 	}
@@ -654,7 +660,7 @@ bool UJoystickSubsystem::RemoveDevice(const FJoystickInstanceId& InstanceId)
 		return false;
 	}
 
-	JoystickUnplugged(InstanceId, DeviceInfo->InputDeviceId);
+	JoystickUnplugged(InstanceId, DeviceInfo->GetInputDeviceId());
 
 	if (DeviceInfo->SDLHaptic != nullptr)
 	{
@@ -777,6 +783,17 @@ FJoystickDeviceState UJoystickSubsystem::CreateInitialDeviceState(const FJoystic
 	const int BallsCount = SDL_JoystickNumBalls(DeviceInfo->SDLJoystick);
 
 	DeviceState.Axes.SetNumZeroed(AxesCount);
+	for (int AxisIndex = 0; AxisIndex < AxesCount; AxisIndex++)
+	{
+		int16 CurrentValue = 0;
+		if (SDL_JoystickGetAxisInitialState(DeviceInfo->SDLJoystick, AxisIndex, &CurrentValue) == SDL_FALSE)
+		{
+			CurrentValue = SDL_JoystickGetAxis(DeviceInfo->SDLJoystick, AxisIndex);
+		}
+
+		DeviceState.Axes[AxisIndex].Update(UJoystickFunctionLibrary::NormalizeAxisRaw(CurrentValue));
+	}
+
 	DeviceState.Buttons.SetNumZeroed(ButtonCount);
 	DeviceState.Hats.SetNumZeroed(HatsCount);
 	DeviceState.Balls.SetNumZeroed(BallsCount);
@@ -808,16 +825,16 @@ TTuple<FDeviceInfoSDL*, FInternalResultMessage> UJoystickSubsystem::GetDeviceInf
 {
 	if (GetJoystickCount() == 0)
 	{
-		return {nullptr, FInternalResultMessage{false, TEXT("Device list is empty.")}};
+		return {nullptr, FInternalResultMessage(false, TEXT("Device list is empty."))};
 	}
 
 	FDeviceInfoSDL* Device = Devices.Find(InstanceId);
 	if (Device == nullptr)
 	{
-		return {nullptr, FInternalResultMessage{false, TEXT("Device not found.")}};
+		return {nullptr, FInternalResultMessage(false, TEXT("Device not found."))};
 	}
 
-	return {Device, FInternalResultMessage{true}};
+	return {Device, FInternalResultMessage(true)};
 }
 
 void UJoystickSubsystem::JoystickPluggedIn(const FDeviceInfoSDL& Device) const
@@ -834,18 +851,20 @@ void UJoystickSubsystem::JoystickPluggedIn(const FDeviceInfoSDL& Device) const
 		JoystickPluggedInDelegate.Broadcast(Device.InstanceId);
 	}
 
-	AsyncTask(ENamedThreads::GameThread, [&, Device]
+	const FInternalJoystickEvent DelegateCopy = Internal_JoystickPluggedInDelegate;
+	const int32 InstanceId = Device.InstanceId;
+	AsyncTask(ENamedThreads::GameThread, [DelegateCopy, InstanceId]
 	{
-		if (Internal_JoystickPluggedInDelegate.IsBound())
+		if (DelegateCopy.IsBound())
 		{
-			Internal_JoystickPluggedInDelegate.Broadcast(Device.InstanceId);
+			DelegateCopy.Broadcast(InstanceId);
 		}
 	});
 }
 
 void UJoystickSubsystem::JoystickUnplugged(const FJoystickInstanceId& InstanceId, const FInputDeviceId& InputDeviceId) const
 {
-	FJoystickInputDevice* InputDevice = GetInputDevice();
+	const FJoystickInputDevice* InputDevice = GetInputDevice();
 	if (InputDevice == nullptr)
 	{
 		return;
@@ -857,11 +876,12 @@ void UJoystickSubsystem::JoystickUnplugged(const FJoystickInstanceId& InstanceId
 		JoystickUnpluggedDelegate.Broadcast(InstanceId);
 	}
 
-	AsyncTask(ENamedThreads::GameThread, [&, InstanceId]
+	const FInternalJoystickEvent DelegateCopy = Internal_JoystickUnpluggedDelegate;
+	AsyncTask(ENamedThreads::GameThread, [DelegateCopy, InstanceId]
 	{
-		if (Internal_JoystickUnpluggedDelegate.IsBound())
+		if (DelegateCopy.IsBound())
 		{
-			Internal_JoystickUnpluggedDelegate.Broadcast(InstanceId);
+			DelegateCopy.Broadcast(InstanceId);
 		}
 	});
 }
@@ -891,7 +911,7 @@ void UJoystickSubsystem::LoadJoystickProfiles() const
 				continue;
 			}
 
-			const FString ProfileName = FileName.Replace(TEXT(".ini"), TEXT(""));
+			const FString ProfileName = FileName.EndsWith(TEXT(".ini"), ESearchCase::IgnoreCase) ? FString(FileName.Left(FileName.Len() - 4)) : FileName;
 			FJoystickLogManager::Get()->LogDebug(TEXT("Loading Joystick profile %s"), *ProfileName);
 
 			FConfigFile ConfigFile;
@@ -928,7 +948,9 @@ void UJoystickSubsystem::LoadJoystickProfiles() const
 				else if (ConfigSection.Key.StartsWith(AxisPropertiesSection))
 				{
 					FJoystickInputDeviceAxisProperties AxisProperties;
-					const FString& AxisIndexString = ConfigSection.Key.Replace(*AxisPropertiesSection, TEXT(""), ESearchCase::IgnoreCase).TrimStartAndEnd();
+					FString AxisIndexString = ConfigSection.Key;
+					AxisIndexString.RemoveFromStart(*AxisPropertiesSection, ESearchCase::IgnoreCase);
+					AxisIndexString.TrimStartAndEndInline();
 					AxisProperties.AxisIndex = AsInteger(AxisIndexString);
 
 					for (const TTuple<FName, FConfigValue>& Pair : ConfigSection.Value)
@@ -988,7 +1010,9 @@ void UJoystickSubsystem::LoadJoystickProfiles() const
 				else if (ConfigSection.Key.StartsWith(ButtonPropertiesSection))
 				{
 					FJoystickInputDeviceButtonProperties ButtonProperties;
-					const FString& ButtonIndexString = ConfigSection.Key.Replace(*ButtonPropertiesSection, TEXT(""), ESearchCase::IgnoreCase).TrimStartAndEnd();
+					FString ButtonIndexString = ConfigSection.Key;
+					ButtonIndexString.RemoveFromStart(*ButtonPropertiesSection, ESearchCase::IgnoreCase);
+					ButtonIndexString.TrimStartAndEndInline();
 					ButtonProperties.ButtonIndex = AsInteger(ButtonIndexString);
 
 					for (const TTuple<FName, FConfigValue>& Pair : ConfigSection.Value)

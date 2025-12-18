@@ -22,13 +22,15 @@ DECLARE_LOG_CATEGORY_EXTERN(LogJoystickPlugin, Display, All);
 DECLARE_LOG_CATEGORY_EXTERN(LogJoystickPlugin, Log, All);
 #endif
 
+#define JOYSTICK_LOG(Verbosity, Message) UE_LOG(LogJoystickPlugin, Verbosity, TEXT("%s"), Message)
+
 class JOYSTICKPLUGIN_API FJoystickLogManager
 {
 public:
 	static FJoystickLogManager* Get();
 
 	template <FUNC_TEMPLATE_PARAMS>
-	void Log(const ELogVerbosity::Type Level, FUNC_PARAMS)
+	FORCEINLINE void Log(const ELogVerbosity::Type Level, FUNC_PARAMS)
 	{
 		if (!CanLog())
 		{
@@ -39,56 +41,56 @@ public:
 		LogInternal(Level, *Message);
 	}
 
-	void Log(const ELogVerbosity::Type Level, const FInternalResultMessage& Message)
+	FORCEINLINE void Log(const ELogVerbosity::Type Level, const FInternalResultMessage& Message)
 	{
 		LogInternal(Level, *Message.ErrorMessage);
 	}
 
 	template <FUNC_TEMPLATE_PARAMS>
-	void LogWarning(FUNC_PARAMS)
+	FORCEINLINE void LogWarning(FUNC_PARAMS)
 	{
-		Log(ELogVerbosity::Warning, Fmt, Forward<Types>(Args)...);
+		Log(ELogVerbosity::Type::Warning, Fmt, Forward<Types>(Args)...);
 	}
 
-	void LogWarning(const FInternalResultMessage& Message)
+	FORCEINLINE void LogWarning(const FInternalResultMessage& Message)
 	{
-		Log(ELogVerbosity::Warning, Message);
-	}
-
-	template <FUNC_TEMPLATE_PARAMS>
-	void LogError(FUNC_PARAMS)
-	{
-		Log(ELogVerbosity::Error, Fmt, Forward<Types>(Args)...);
-	}
-
-	void LogError(const FInternalResultMessage& Message)
-	{
-		Log(ELogVerbosity::Error, Message);
+		Log(ELogVerbosity::Type::Warning, Message);
 	}
 
 	template <FUNC_TEMPLATE_PARAMS>
-	void LogDebug(FUNC_PARAMS)
+	FORCEINLINE void LogError(FUNC_PARAMS)
 	{
-		Log(ELogVerbosity::Log, Fmt, Forward<Types>(Args)...);
+		Log(ELogVerbosity::Type::Error, Fmt, Forward<Types>(Args)...);
 	}
 
-	void LogDebug(const FInternalResultMessage& Message)
+	FORCEINLINE void LogError(const FInternalResultMessage& Message)
 	{
-		Log(ELogVerbosity::Log, Message);
+		Log(ELogVerbosity::Type::Error, Message);
 	}
 
 	template <FUNC_TEMPLATE_PARAMS>
-	void LogInformation(FUNC_PARAMS)
+	FORCEINLINE void LogDebug(FUNC_PARAMS)
 	{
-		Log(ELogVerbosity::Display, Fmt, Forward<Types>(Args)...);
+		Log(ELogVerbosity::Type::Log, Fmt, Forward<Types>(Args)...);
 	}
 
-	void LogInformation(const FInternalResultMessage& Message)
+	FORCEINLINE void LogDebug(const FInternalResultMessage& Message)
 	{
-		Log(ELogVerbosity::Display, Message);
+		Log(ELogVerbosity::Type::Log, Message);
 	}
 
-	void LogSDLError(const FString& Message);
+	template <FUNC_TEMPLATE_PARAMS>
+	FORCEINLINE void LogInformation(FUNC_PARAMS)
+	{
+		Log(ELogVerbosity::Type::Display, Fmt, Forward<Types>(Args)...);
+	}
+
+	FORCEINLINE void LogInformation(const FInternalResultMessage& Message)
+	{
+		Log(ELogVerbosity::Type::Display, Message);
+	}
+
+	void LogSDLError(FStringView Message);
 
 private:
 	static bool CanLog()
@@ -106,17 +108,19 @@ private:
 	{
 		switch (Level)
 		{
-		case ELogVerbosity::Error: UE_LOG(LogJoystickPlugin, Error, TEXT("%s"), Message);
+		case ELogVerbosity::Error: JOYSTICK_LOG(Error, Message);
 			break;
-		case ELogVerbosity::Warning: UE_LOG(LogJoystickPlugin, Warning, TEXT("%s"), Message);
+		case ELogVerbosity::Warning: JOYSTICK_LOG(Warning, Message);
 			break;
-		case ELogVerbosity::Display: UE_LOG(LogJoystickPlugin, Display, TEXT("%s"), Message);
+		case ELogVerbosity::Display: JOYSTICK_LOG(Display, Message);
 			break;
-		case ELogVerbosity::Verbose: UE_LOG(LogJoystickPlugin, Verbose, TEXT("%s"), Message);
+		case ELogVerbosity::Verbose: JOYSTICK_LOG(Verbose, Message);
 			break;
-		case ELogVerbosity::VeryVerbose: UE_LOG(LogJoystickPlugin, VeryVerbose, TEXT("%s"), Message);
+		case ELogVerbosity::VeryVerbose: JOYSTICK_LOG(VeryVerbose, Message);
 			break;
-		default: UE_LOG(LogJoystickPlugin, Log, TEXT("%s"), Message);
+		case ELogVerbosity::Fatal: JOYSTICK_LOG(Fatal, Message);
+			break;
+		default: JOYSTICK_LOG(Log, Message);
 			break;
 		}
 	}

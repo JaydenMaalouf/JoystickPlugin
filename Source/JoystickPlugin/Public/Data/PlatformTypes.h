@@ -14,7 +14,7 @@ struct FInputDeviceId
 		IdToReturn.InternalId = InInternalId;
 		return IdToReturn;
 	}
-	
+
 	int32 GetId() const
 	{
 		return InternalId;
@@ -24,7 +24,7 @@ struct FInputDeviceId
 	{
 		return InternalId >= 0;
 	}
-	
+
 private:
 	int32 InternalId = INDEX_NONE;
 };
