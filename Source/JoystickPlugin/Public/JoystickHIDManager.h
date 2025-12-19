@@ -36,5 +36,5 @@ public:
 	bool WriteReport(const FDeviceHID& Device, const TArray<uint8> Data);
 
 private:
-	bool Internal_OpenHID(const int VendorId, const int ProductId, FDeviceHID& Device, const FString* SerialNumber) const;
+	bool Internal_OpenHID(const int32 VendorId, const int32 ProductId, FDeviceHID& Device, const FString* SerialNumber) const;
 };
