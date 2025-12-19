@@ -14,6 +14,7 @@
 UJoystickInputSettings::UJoystickInputSettings() : UseDeviceName(true),
                                                    IncludeDeviceIndex(false),
                                                    IgnoreGameControllers(false),
+                                                   ZeroBasedIndexing(true),
                                                    EnableLogs(true),
                                                    EnablePairedKeys(false)
 {

@@ -31,6 +31,9 @@ public:
 	UPROPERTY(config, EditAnywhere, Category = "Joystick Settings", meta = (ToolTip = "Useful if you want input for controllers (ie. XInput) to be handled by UE directly, instead of via this plugin.", ConfigRestartRequired = true))
 	bool IgnoreGameControllers;
 
+	UPROPERTY(config, EditAnywhere, Category = "Joystick Settings", meta = (ToolTip = "Key name indexes should start from 0 (if false, starts from 1)", ConfigRestartRequired = true))
+	bool ZeroBasedIndexing;
+
 	UPROPERTY(config, EditAnywhere, Category = "Joystick Settings|Debugging", meta = (ToolTip = "Enable debug logging from the plugin."))
 	bool EnableLogs;
 

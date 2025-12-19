@@ -95,6 +95,12 @@ void FJoystickInputDevice::SetMessageHandler(const TSharedRef<FGenericApplicatio
 
 void FJoystickInputDevice::InitialiseAxis(const FJoystickInstanceId& InstanceId, const FJoystickInputDeviceConfiguration* DeviceConfiguration, const FString& BaseKeyName, const FString& BaseDisplayName)
 {
+	const UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
+	if (!IsValid(JoystickInputSettings))
+	{
+		return;
+	}
+
 	const FJoystickDeviceState* JoystickState = JoystickDeviceState.Find(InstanceId);
 	if (JoystickState == nullptr)
 	{
@@ -107,8 +113,9 @@ void FJoystickInputDevice::InitialiseAxis(const FJoystickInstanceId& InstanceId,
 	DeviceAxisKeys[InstanceId].SetNum(AxisCount);
 	for (int AxisKeyIndex = 0; AxisKeyIndex < AxisCount; AxisKeyIndex++)
 	{
-		FString AxisKeyName = FString::Printf(TEXT("%s_Axis_%d"), *BaseKeyName, AxisKeyIndex);
-		FString AxisDisplayName = FString::Printf(TEXT("%s: Axis %d"), *BaseDisplayName, AxisKeyIndex);
+		const int AxisKeyIndexName = JoystickInputSettings->ZeroBasedIndexing ? AxisKeyIndex : AxisKeyIndex + 1;
+		FString AxisKeyName = FString::Printf(TEXT("%s_Axis_%d"), *BaseKeyName, AxisKeyIndexName);
+		FString AxisDisplayName = FString::Printf(TEXT("%s: Axis %d"), *BaseDisplayName, AxisKeyIndexName);
 
 		if (DeviceConfiguration)
 		{
@@ -141,6 +148,12 @@ void FJoystickInputDevice::InitialiseAxis(const FJoystickInstanceId& InstanceId,
 
 void FJoystickInputDevice::InitialiseButtons(const FJoystickInstanceId& InstanceId, const FJoystickInputDeviceConfiguration* DeviceConfiguration, const FString& BaseKeyName, const FString& BaseDisplayName)
 {
+	const UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
+	if (!IsValid(JoystickInputSettings))
+	{
+		return;
+	}
+
 	const FJoystickDeviceState* JoystickState = JoystickDeviceState.Find(InstanceId);
 	if (JoystickState == nullptr)
 	{
@@ -153,8 +166,9 @@ void FJoystickInputDevice::InitialiseButtons(const FJoystickInstanceId& Instance
 	DeviceButtonKeys[InstanceId].SetNum(ButtonCount);
 	for (int ButtonKeyIndex = 0; ButtonKeyIndex < ButtonCount; ButtonKeyIndex++)
 	{
-		FString ButtonKeyName = FString::Printf(TEXT("%s_Button_%d"), *BaseKeyName, ButtonKeyIndex);
-		FString ButtonDisplayName = FString::Printf(TEXT("%s: Button %d"), *BaseDisplayName, ButtonKeyIndex);
+		const int ButtonKeyIndexName = JoystickInputSettings->ZeroBasedIndexing ? ButtonKeyIndex : ButtonKeyIndex + 1;
+		FString ButtonKeyName = FString::Printf(TEXT("%s_Button_%d"), *BaseKeyName, ButtonKeyIndexName);
+		FString ButtonDisplayName = FString::Printf(TEXT("%s: Button %d"), *BaseDisplayName, ButtonKeyIndexName);
 
 		if (DeviceConfiguration)
 		{
@@ -187,6 +201,12 @@ const TArray<FString> AxisNames = {TEXT("X"), TEXT("Y")};
 
 void FJoystickInputDevice::InitialiseHatAxis(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName, const bool PairedKey)
 {
+	const UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
+	if (!IsValid(JoystickInputSettings))
+	{
+		return;
+	}
+
 	const FJoystickDeviceState* JoystickState = JoystickDeviceState.Find(InstanceId);
 	if (JoystickState == nullptr)
 	{
@@ -204,9 +224,10 @@ void FJoystickInputDevice::InitialiseHatAxis(const FJoystickInstanceId& Instance
 	{
 		for (int HatIndex = 0; HatIndex < 2; HatIndex++)
 		{
+			const int HatKeyIndexName = JoystickInputSettings->ZeroBasedIndexing ? HatKeyIndex : HatKeyIndex + 1;
 			FString HatAxisName = *AxisNames[HatIndex];
-			FString HatKeyName = FString::Printf(TEXT("%s_Hat_%d_%s"), *BaseKeyName, HatKeyIndex, *HatAxisName);
-			FString HatDisplayName = FString::Printf(TEXT("%s: Hat %d %s"), *BaseDisplayName, HatKeyIndex, *HatAxisName);
+			FString HatKeyName = FString::Printf(TEXT("%s_Hat_%d_%s"), *BaseKeyName, HatKeyIndexName, *HatAxisName);
+			FString HatDisplayName = FString::Printf(TEXT("%s: Hat %d %s"), *BaseDisplayName, HatKeyIndexName, *HatAxisName);
 
 			const FKey HatKey = FKey(FName(*HatKeyName));
 
@@ -230,9 +251,10 @@ void FJoystickInputDevice::InitialiseHatAxis(const FJoystickInstanceId& Instance
 #if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26 || ENGINE_MAJOR_VERSION == 5)
 		if (PairedKey)
 		{
+			const int HatKeyIndexName = JoystickInputSettings->ZeroBasedIndexing ? HatKeyIndex : HatKeyIndex + 1;
 			const FKeyPair& KeyPair = DeviceHatAxisKeys[InstanceId][HatKeyIndex];
-			FString HatAxisKeyName = FString::Printf(TEXT("%s_Hat_%d_2D"), *BaseKeyName, HatKeyIndex);
-			FString HatAxisDisplayName = FString::Printf(TEXT("%s: Hat %d 2D"), *BaseDisplayName, HatKeyIndex);
+			FString HatAxisKeyName = FString::Printf(TEXT("%s_Hat_%d_2D"), *BaseKeyName, HatKeyIndexName);
+			FString HatAxisDisplayName = FString::Printf(TEXT("%s: Hat %d 2D"), *BaseDisplayName, HatKeyIndexName);
 
 			const FKey HatAxisKey = FKey(FName(*HatAxisKeyName));
 
@@ -285,8 +307,9 @@ void FJoystickInputDevice::InitialiseHatButtons(const FJoystickInstanceId& Insta
 			FString DirectionName = HatDirectionEnum->GetNameStringByIndex(i);
 			FString DirectionDisplayName = DirectionName.Replace(TEXT("_"), TEXT(" "));
 
-			FString ButtonKeyName = FString::Printf(TEXT("%s_Hat_%d_Button_%s"), *BaseKeyName, HatKeyIndex, *DirectionName);
-			FString ButtonDisplayName = FString::Printf(TEXT("%s: Hat %d Button %s"), *BaseDisplayName, HatKeyIndex, *DirectionDisplayName);
+			const int HatKeyIndexName = JoystickInputSettings->ZeroBasedIndexing ? HatKeyIndex : HatKeyIndex + 1;
+			FString ButtonKeyName = FString::Printf(TEXT("%s_Hat_%d_Button_%s"), *BaseKeyName, HatKeyIndexName, *DirectionName);
+			FString ButtonDisplayName = FString::Printf(TEXT("%s: Hat %d Button %s"), *BaseDisplayName, HatKeyIndexName, *DirectionDisplayName);
 
 			const FKey ButtonKey = FKey(FName(ButtonKeyName));
 
@@ -310,6 +333,12 @@ void FJoystickInputDevice::InitialiseHatButtons(const FJoystickInstanceId& Insta
 
 void FJoystickInputDevice::InitialiseBalls(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName, const bool PairedKey)
 {
+	const UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
+	if (!IsValid(JoystickInputSettings))
+	{
+		return;
+	}
+
 	const FJoystickDeviceState* JoystickState = JoystickDeviceState.Find(InstanceId);
 	if (JoystickState == nullptr)
 	{
@@ -327,9 +356,10 @@ void FJoystickInputDevice::InitialiseBalls(const FJoystickInstanceId& InstanceId
 	{
 		for (int BallIndex = 0; BallIndex < 2; BallIndex++)
 		{
+			const int BallKeyIndexName = JoystickInputSettings->ZeroBasedIndexing ? BallKeyIndex : BallKeyIndex + 1;
 			FString BallAxisName = *AxisNames[BallIndex];
-			FString BallKeyName = FString::Printf(TEXT("%s_Ball_%d_%s"), *BaseKeyName, BallKeyIndex, *BallAxisName);
-			FString BallDisplayName = FString::Printf(TEXT("%s: Ball %d %s"), *BaseDisplayName, BallKeyIndex, *BallAxisName);
+			FString BallKeyName = FString::Printf(TEXT("%s_Ball_%d_%s"), *BaseKeyName, BallKeyIndexName, *BallAxisName);
+			FString BallDisplayName = FString::Printf(TEXT("%s: Ball %d %s"), *BaseDisplayName, BallKeyIndexName, *BallAxisName);
 
 			const FKey BallKey = FKey(FName(*BallKeyName));
 
@@ -353,9 +383,10 @@ void FJoystickInputDevice::InitialiseBalls(const FJoystickInstanceId& InstanceId
 #if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26 || ENGINE_MAJOR_VERSION == 5)
 		if (PairedKey)
 		{
+			const int BallKeyIndexName = JoystickInputSettings->ZeroBasedIndexing ? BallKeyIndex : BallKeyIndex + 1;
 			const FKeyPair& KeyPair = DeviceBallKeys[InstanceId][BallKeyIndex];
-			FString BallKeyName = FString::Printf(TEXT("%s_Ball_%d_2D"), *BaseKeyName, BallKeyIndex);
-			FString BallDisplayName = FString::Printf(TEXT("%s: Ball %d 2D"), *BaseDisplayName, BallKeyIndex);
+			FString BallKeyName = FString::Printf(TEXT("%s_Ball_%d_2D"), *BaseKeyName, BallKeyIndexName);
+			FString BallDisplayName = FString::Printf(TEXT("%s: Ball %d 2D"), *BaseDisplayName, BallKeyIndexName);
 
 			const FKey BallKey = FKey(FName(*BallKeyName));
 
