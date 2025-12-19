@@ -29,6 +29,6 @@ struct JOYSTICKPLUGIN_API FForceFeedbackComponentConfiguration : public FForceFe
 	{
 	}
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Joystick|Force Feedback", meta=(ToolTip="Useful if you want to control the Tick Interval and Tick Group of the effects."))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Joystick|Force Feedback", meta=(ToolTip="Useful if you want to control the Tick Interval and Tick Group of the effects."))
 	bool OverrideEffectTick;
 };

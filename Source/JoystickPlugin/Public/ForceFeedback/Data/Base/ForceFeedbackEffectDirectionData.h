@@ -25,13 +25,13 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectDirectionData
 	{
 	}
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Joystick|Force Feedback|Direction")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|Direction")
 	EForceFeedbackDirectionType DirectionType;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Joystick|Force Feedback|Direction",
-		meta = (ToolTip =
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|Direction",
+		meta=(ToolTip=
 			"A vector describing the direction and magnitude of the effect on each axis. Each individual axis has a range of -1.0 to 1.0 and is independent of the other axes. Specifying a negative value for an axis reverses the input values from the axis."
-			, EditCondition = "DirectionType != EForceFeedbackDirectionType::SteeringAxis", EditConditionHides))
+			, EditCondition="DirectionType != EForceFeedbackDirectionType::SteeringAxis", EditConditionHides))
 	FIntVector Direction;
 
 	SDL_HapticDirection ToSDLDirection() const

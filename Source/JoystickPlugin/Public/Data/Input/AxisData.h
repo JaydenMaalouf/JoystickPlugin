@@ -62,42 +62,42 @@ struct JOYSTICKPLUGIN_API FAxisData
 	}
 
 	/* Current analog value */
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Axis")
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Axis")
 	float Value;
 
 	/* Last analog value */
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Axis")
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Axis")
 	float PreviousValue;
 
 	/* Should remap ranges */
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Axis")
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Axis")
 	bool RemappingEnabled;
 
 	/* Offset to apply to analog value */
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Axis")
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Axis")
 	float InputOffset;
 
 	/* Invert input */
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Axis")
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Axis")
 	bool InvertInput;
 
 	/* Input min analog value */
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Axis")
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Axis")
 	float InputRangeMin;
 
 	/* Input max analog value */
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Axis")
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Axis")
 	float InputRangeMax;
 
 	/* Output min analog value */
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Axis")
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Axis")
 	float OutputRangeMin;
 
 	/* Output max analog value */
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Axis")
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Axis")
 	float OutputRangeMax;
 
 	/* Invert the processed output */
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Axis")
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Axis")
 	bool InvertOutput;
 };

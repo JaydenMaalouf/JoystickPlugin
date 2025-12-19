@@ -29,6 +29,6 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectConfiguration : public FForceFeedb
 	{
 	}
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Joystick|Force Feedback", meta = (ExposeOnSpawn = true))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Joystick|Force Feedback", meta=(ExposeOnSpawn=true))
 	bool AutoUpdatePostTick;
 };

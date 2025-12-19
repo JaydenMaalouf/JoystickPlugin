@@ -20,18 +20,18 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectConstantData
 	{
 	}
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Joystick|Force Feedback|Constant")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|Constant")
 	FForceFeedbackEffectDirectionData DirectionData;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Joystick|Force Feedback|Constant")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|Constant")
 	FForceFeedbackEffectDurationData DurationData;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Joystick|Force Feedback|Constant")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|Constant")
 	FForceFeedbackEffectReplayData ReplayData;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Joystick|Force Feedback|Constant")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|Constant")
 	FForceFeedbackEffectEnvelopeData EnvelopeData;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Joystick|Force Feedback|Constant", meta=(UIMin="-1", UIMax="1", ClampMin="-1", ClampMax="1"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|Constant", meta=(UIMin="-1", UIMax="1", ClampMin="-1", ClampMax="1"))
 	float EffectLevel;
 };

@@ -11,9 +11,6 @@
 
 #define LOCTEXT_NAMESPACE "JoystickPlugin"
 
-FString FJoystickPluginModule::PluginName = "JoystickPlugin";
-FString FJoystickPluginModule::PluginDirectory = "JoystickPlugin";
-
 TSharedPtr<IInputDevice> FJoystickPluginModule::CreateInputDevice(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler)
 {
 	if (!IsValid(GEngine))
@@ -28,6 +25,20 @@ TSharedPtr<IInputDevice> FJoystickPluginModule::CreateInputDevice(const TSharedR
 	}
 
 	return JoystickInputDevice;
+}
+
+void FJoystickPluginModule::ShutdownModule()
+{
+#if PLATFORM_WINDOWS
+	FPlatformProcess::FreeDllHandle(SdlDllHandle);
+#endif
+
+	IJoystickPlugin::ShutdownModule();
+
+	if (JoystickInputDevice.IsValid())
+	{
+		JoystickInputDevice.Reset();
+	}
 }
 
 void FJoystickPluginModule::StartupModule()
@@ -45,19 +56,9 @@ void FJoystickPluginModule::StartupModule()
 	IJoystickPlugin::StartupModule();
 }
 
-void FJoystickPluginModule::ShutdownModule()
-{
-#if PLATFORM_WINDOWS
-	FPlatformProcess::FreeDllHandle(SdlDllHandle);
-#endif
+FString FJoystickPluginModule::PluginName = "JoystickPlugin";
 
-	IJoystickPlugin::ShutdownModule();
-
-	if (JoystickInputDevice.IsValid())
-	{
-		JoystickInputDevice.Reset();
-	}
-}
+FString FJoystickPluginModule::PluginDirectory = "JoystickPlugin";
 
 #undef LOCTEXT_NAMESPACE
 

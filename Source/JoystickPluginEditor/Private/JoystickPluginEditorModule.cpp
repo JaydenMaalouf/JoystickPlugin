@@ -47,6 +47,18 @@ void FJoystickPluginEditorModule::StartupModule()
 	IModuleInterface::StartupModule();
 }
 
+void FJoystickPluginEditorModule::ShutdownModule()
+{
+	FGlobalTabmanager::Get()->UnregisterTabSpawner(JoystickViewerTabId);
+
+	if (UToolMenus::IsToolMenuUIEnabled())
+	{
+		UToolMenus::UnRegisterStartupCallback(this);
+	}
+
+	IModuleInterface::ShutdownModule();
+}
+
 void FJoystickPluginEditorModule::RegisterMenus() const
 {
 	UToolMenu* ToolsMenu = UToolMenus::Get()->ExtendMenu("LevelEditor.MainMenu.Tools");
@@ -61,18 +73,6 @@ void FJoystickPluginEditorModule::RegisterMenus() const
 			FGlobalTabmanager::Get()->TryInvokeTab(JoystickViewerTabId);
 		}))
 	);
-}
-
-void FJoystickPluginEditorModule::ShutdownModule()
-{
-	FGlobalTabmanager::Get()->UnregisterTabSpawner(JoystickViewerTabId);
-
-	if (UToolMenus::IsToolMenuUIEnabled())
-	{
-		UToolMenus::UnRegisterStartupCallback(this);
-	}
-
-	IModuleInterface::ShutdownModule();
 }
 
 void FJoystickPluginEditorModule::RegisterPropertyLayout() const

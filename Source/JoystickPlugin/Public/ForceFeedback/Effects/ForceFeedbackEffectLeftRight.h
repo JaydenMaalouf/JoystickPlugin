@@ -14,7 +14,7 @@ class JOYSTICKPLUGIN_API UForceFeedbackEffectLeftRight : public UForceFeedbackEf
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Force Feedback")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Force Feedback")
 	FForceFeedbackEffectLeftRightData EffectData;
 
 protected:

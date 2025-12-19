@@ -224,69 +224,6 @@ void SJoystickInputViewer::Tick(const FGeometry& AllottedGeometry, const double 
 	}
 }
 
-void SJoystickInputViewer::SelectFirstJoystick()
-{
-	if (SelectedJoystick)
-	{
-		return;
-	}
-
-	if (Joysticks.Num() == 0)
-	{
-		return;
-	}
-
-	SelectedJoystick = Joysticks[0];
-	if (SelectedJoystick && DeviceComboBox)
-	{
-		DeviceComboBox->SetSelectedItem(SelectedJoystick);
-	}
-}
-
-void SJoystickInputViewer::AddJoystick(const FJoystickInstanceId& InstanceId, const bool ForceRefreshOptions)
-{
-	Joysticks.Add(MakeShared<FJoystickInstanceId>(InstanceId));
-
-	if (ForceRefreshOptions)
-	{
-		RefreshOptions();
-	}
-}
-
-void SJoystickInputViewer::RefreshOptions() const
-{
-	if (DeviceComboBox)
-	{
-		DeviceComboBox->RefreshOptions();
-	}
-}
-
-void SJoystickInputViewer::JoystickPluggedIn(const FJoystickInstanceId& InstanceId)
-{
-	AddJoystick(InstanceId, true);
-}
-
-void SJoystickInputViewer::JoystickUnplugged(const FJoystickInstanceId& InstanceId)
-{
-	if (SelectedJoystick.IsValid() && *SelectedJoystick == InstanceId)
-	{
-		SelectedJoystick = nullptr;
-		SelectFirstJoystick();
-	}
-
-	Joysticks.RemoveAll([InstanceId](const TSharedPtr<FJoystickInstanceId>& JoystickInstanceId)
-	{
-		if (!JoystickInstanceId.IsValid())
-		{
-			return false;
-		}
-
-		return *JoystickInstanceId == InstanceId;
-	});
-
-	RefreshOptions();
-}
-
 void SJoystickInputViewer::UpdateJoystickList()
 {
 	TArray<FJoystickInstanceId> InstanceIds;
@@ -469,5 +406,68 @@ void SJoystickInputViewer::CreateBallSwitches(const UJoystickSubsystem* Joystick
 			.BallIndex(i)
 		];
 		BallSwitches.Add(Ball);
+	}
+}
+
+void SJoystickInputViewer::JoystickPluggedIn(const FJoystickInstanceId& InstanceId)
+{
+	AddJoystick(InstanceId, true);
+}
+
+void SJoystickInputViewer::JoystickUnplugged(const FJoystickInstanceId& InstanceId)
+{
+	if (SelectedJoystick.IsValid() && *SelectedJoystick == InstanceId)
+	{
+		SelectedJoystick = nullptr;
+		SelectFirstJoystick();
+	}
+
+	Joysticks.RemoveAll([InstanceId](const TSharedPtr<FJoystickInstanceId>& JoystickInstanceId)
+	{
+		if (!JoystickInstanceId.IsValid())
+		{
+			return false;
+		}
+
+		return *JoystickInstanceId == InstanceId;
+	});
+
+	RefreshOptions();
+}
+
+void SJoystickInputViewer::AddJoystick(const FJoystickInstanceId& InstanceId, const bool ForceRefreshOptions)
+{
+	Joysticks.Add(MakeShared<FJoystickInstanceId>(InstanceId));
+
+	if (ForceRefreshOptions)
+	{
+		RefreshOptions();
+	}
+}
+
+void SJoystickInputViewer::RefreshOptions() const
+{
+	if (DeviceComboBox)
+	{
+		DeviceComboBox->RefreshOptions();
+	}
+}
+
+void SJoystickInputViewer::SelectFirstJoystick()
+{
+	if (SelectedJoystick)
+	{
+		return;
+	}
+
+	if (Joysticks.Num() == 0)
+	{
+		return;
+	}
+
+	SelectedJoystick = Joysticks[0];
+	if (SelectedJoystick && DeviceComboBox)
+	{
+		DeviceComboBox->SetSelectedItem(SelectedJoystick);
 	}
 }

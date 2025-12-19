@@ -44,6 +44,49 @@ void UJoystickForceFeedbackComponent::BeginPlay()
 	}
 }
 
+void UJoystickForceFeedbackComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	ActionOnAllEffects([&](UForceFeedbackEffectBase* Effect)
+	{
+		DestroyEffect(Effect);
+	});
+
+	Effects.Empty();
+
+	Super::EndPlay(EndPlayReason);
+}
+
+void UJoystickForceFeedbackComponent::TickComponent(const float DeltaTime, const ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (!Configuration.OverrideEffectTick)
+	{
+		return;
+	}
+
+	if (Effects.Num() == 0)
+	{
+		return;
+	}
+
+	for (UForceFeedbackEffectBase* ForcedFeedbackEffect : Effects)
+	{
+		if (!IsValid(ForcedFeedbackEffect))
+		{
+			continue;
+		}
+
+		// If true, the effect will handle its own Tick
+		if (ForcedFeedbackEffect->IsTickable())
+		{
+			continue;
+		}
+
+		ForcedFeedbackEffect->Tick(DeltaTime);
+	}
+}
+
 void UJoystickForceFeedbackComponent::OnSubsystemReady()
 {
 	CreateEffects();
@@ -141,18 +184,6 @@ void UJoystickForceFeedbackComponent::CreateInstanceEffect(const FJoystickInstan
 	Effects.Add(ForcedFeedbackEffect);
 }
 
-void UJoystickForceFeedbackComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-	ActionOnAllEffects([&](UForceFeedbackEffectBase* Effect)
-	{
-		DestroyEffect(Effect);
-	});
-
-	Effects.Empty();
-
-	Super::EndPlay(EndPlayReason);
-}
-
 void UJoystickForceFeedbackComponent::DestroyEffect(UForceFeedbackEffectBase* ForcedFeedbackEffect)
 {
 	if (!IsValid(ForcedFeedbackEffect))
@@ -180,37 +211,6 @@ void UJoystickForceFeedbackComponent::DestroyInstanceEffects(const FJoystickInst
 	{
 		return Effect->GetInstanceId() == JoystickInstanceId;
 	});
-}
-
-void UJoystickForceFeedbackComponent::TickComponent(const float DeltaTime, const ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	if (!Configuration.OverrideEffectTick)
-	{
-		return;
-	}
-
-	if (Effects.Num() == 0)
-	{
-		return;
-	}
-
-	for (UForceFeedbackEffectBase* ForcedFeedbackEffect : Effects)
-	{
-		if (!IsValid(ForcedFeedbackEffect))
-		{
-			continue;
-		}
-
-		// If true, the effect will handle its own Tick
-		if (ForcedFeedbackEffect->IsTickable())
-		{
-			continue;
-		}
-
-		ForcedFeedbackEffect->Tick(DeltaTime);
-	}
 }
 
 void UJoystickForceFeedbackComponent::OnInitialisedEffect_Implementation(const UForceFeedbackEffectBase* Effect)

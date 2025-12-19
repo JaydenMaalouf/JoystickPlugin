@@ -65,24 +65,6 @@ UJoystickInputSelector::UJoystickInputSelector(const FObjectInitializer& ObjectI
 	}
 }
 
-void UJoystickInputSelector::Serialize(FArchive& Ar)
-{
-	Super::Serialize(Ar);
-
-	Ar.UsingCustomVersion(FFrameworkObjectVersion::GUID);
-}
-
-void UJoystickInputSelector::PostLoad()
-{
-	Super::PostLoad();
-
-	if (GetLinkerCustomVersion(FFrameworkObjectVersion::GUID) < FFrameworkObjectVersion::InputKeySelectorTextStyle)
-	{
-		TextStyle.Font = Font_DEPRECATED;
-		TextStyle.ColorAndOpacity = ColorAndOpacity_DEPRECATED;
-	}
-}
-
 void UJoystickInputSelector::SetSelectedKey(const FInputChord& InSelectedKey)
 {
 	if (JoystickInputSelector.IsValid())
@@ -133,6 +115,36 @@ void UJoystickInputSelector::SetAllowButtonKeys(const bool bInAllowButtonKeys)
 	bAllowButtonKeys = bInAllowButtonKeys;
 }
 
+void UJoystickInputSelector::SetAllowGamepadKeys(const bool bInAllowGamepadKeys)
+{
+	if (JoystickInputSelector.IsValid())
+	{
+		JoystickInputSelector->SetAllowGamepadKeys(bInAllowGamepadKeys);
+	}
+
+	bAllowGamepadKeys = bInAllowGamepadKeys;
+}
+
+void UJoystickInputSelector::SetAllowNonGamepadKeys(const bool bInAllowNonGamepadKeys)
+{
+	if (JoystickInputSelector.IsValid())
+	{
+		JoystickInputSelector->SetAllowNonGamepadKeys(bInAllowNonGamepadKeys);
+	}
+
+	bAllowNonGamepadKeys = bInAllowNonGamepadKeys;
+}
+
+void UJoystickInputSelector::SetAllowJoystickKeys(const bool bInAllowJoystickKeys)
+{
+	if (JoystickInputSelector.IsValid())
+	{
+		JoystickInputSelector->SetAllowJoystickKeys(bInAllowJoystickKeys);
+	}
+
+	bAllowJoystickKeys = bInAllowJoystickKeys;
+}
+
 void UJoystickInputSelector::SetAllowModifierKeys(const bool bInAllowModifierKeys)
 {
 	if (JoystickInputSelector.IsValid())
@@ -171,36 +183,6 @@ void UJoystickInputSelector::SetMaxRange(const float InMaxRange)
 	}
 
 	MaxRange = InMaxRange;
-}
-
-void UJoystickInputSelector::SetAllowGamepadKeys(const bool bInAllowGamepadKeys)
-{
-	if (JoystickInputSelector.IsValid())
-	{
-		JoystickInputSelector->SetAllowGamepadKeys(bInAllowGamepadKeys);
-	}
-
-	bAllowGamepadKeys = bInAllowGamepadKeys;
-}
-
-void UJoystickInputSelector::SetAllowNonGamepadKeys(const bool bInAllowNonGamepadKeys)
-{
-	if (JoystickInputSelector.IsValid())
-	{
-		JoystickInputSelector->SetAllowNonGamepadKeys(bInAllowNonGamepadKeys);
-	}
-
-	bAllowNonGamepadKeys = bInAllowNonGamepadKeys;
-}
-
-void UJoystickInputSelector::SetAllowJoystickKeys(const bool bInAllowJoystickKeys)
-{
-	if (JoystickInputSelector.IsValid())
-	{
-		JoystickInputSelector->SetAllowJoystickKeys(bInAllowJoystickKeys);
-	}
-
-	bAllowJoystickKeys = bInAllowJoystickKeys;
 }
 
 void UJoystickInputSelector::SetMinRangeOffset(const float InMinRangeOffset)
@@ -264,6 +246,13 @@ void UJoystickInputSelector::SetEscapeKeys(const TArray<FKey>& InKeys)
 		JoystickInputSelector->SetEscapeKeys(InKeys);
 	}
 	EscapeKeys = InKeys;
+}
+
+void UJoystickInputSelector::Serialize(FArchive& Ar)
+{
+	Super::Serialize(Ar);
+
+	Ar.UsingCustomVersion(FFrameworkObjectVersion::GUID);
 }
 #if WITH_EDITOR
 const FText UJoystickInputSelector::GetPaletteCategory()

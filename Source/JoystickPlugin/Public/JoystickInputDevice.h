@@ -62,8 +62,6 @@ private:
 #endif
 	void TryAddWidgetNavigation(const FKey& ButtonKey) const;
 
-	FString SanitiseDeviceName(const FString& InDeviceName) const;
-
 	TMap<FJoystickInstanceId, FJoystickDeviceState> JoystickDeviceState;
 
 	TMap<FJoystickInstanceId, TArray<FKey>> DeviceButtonKeys;

@@ -43,16 +43,6 @@ void UJoystickInputSettings::ResetDevices()
 	ConnectedDevices.Empty();
 }
 
-const FJoystickInputDeviceConfiguration* UJoystickInputSettings::GetInputDeviceConfiguration(const FJoystickInformation& Device) const
-{
-	if (const FJoystickInputDeviceConfiguration* DeviceConfiguration = FindConfiguration(DeviceConfigurations, Device, true))
-	{
-		return DeviceConfiguration;
-	}
-
-	return FindConfiguration(ProfileConfigurations, Device, true);
-}
-
 bool UJoystickInputSettings::GetIgnoreGameControllers() const
 {
 	return IgnoreGameControllers;
@@ -63,6 +53,16 @@ bool UJoystickInputSettings::SetIgnoreGameControllers(const bool NewIgnoreGameCo
 	const bool OldIgnoreGameControllers = IgnoreGameControllers;
 	IgnoreGameControllers = NewIgnoreGameControllers;
 	return OldIgnoreGameControllers != NewIgnoreGameControllers;
+}
+
+const FJoystickInputDeviceConfiguration* UJoystickInputSettings::GetInputDeviceConfiguration(const FJoystickInformation& Device) const
+{
+	if (const FJoystickInputDeviceConfiguration* DeviceConfiguration = FindConfiguration(DeviceConfigurations, Device, true))
+	{
+		return DeviceConfiguration;
+	}
+
+	return FindConfiguration(ProfileConfigurations, Device, true);
 }
 
 const FJoystickInputDeviceConfiguration* UJoystickInputSettings::GetInputDeviceConfigurationByKey(const FKey& Key) const

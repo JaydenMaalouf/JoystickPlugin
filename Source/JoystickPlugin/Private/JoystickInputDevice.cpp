@@ -446,13 +446,13 @@ void FJoystickInputDevice::JoystickPluggedIn(const FDeviceInfoSDL& Device)
 	{
 		if (DeviceConfig != nullptr && DeviceConfig->OverrideDeviceName)
 		{
-			const FString DeviceName = SanitiseDeviceName(DeviceConfig->DeviceName);
+			const FString DeviceName = UJoystickFunctionLibrary::SanitiseDeviceName(DeviceConfig->DeviceName);
 			BaseKeyName = FString::Printf(TEXT("Joystick_%s"), *DeviceName);
 			BaseDisplayName = DeviceName;
 		}
 		else
 		{
-			const FString DeviceName = SanitiseDeviceName(Device.SafeDeviceName);
+			const FString DeviceName = Device.SafeDeviceName;
 			BaseKeyName = FString::Printf(TEXT("Joystick_%s"), *DeviceName);
 			BaseDisplayName = Device.ProductName;
 		}
@@ -876,6 +876,44 @@ void FJoystickInputDevice::SendControllerEvents()
 	JoystickSubsystem->Update();
 }
 
+FJoystickInstanceId FJoystickInputDevice::GetInstanceIdByKey(const FKey& Key) const
+{
+	for (const TPair<FJoystickInstanceId, TArray<FKey>>& Device : DeviceKeys)
+	{
+		for (const FKey& DeviceKey : Device.Value)
+		{
+			if (DeviceKey == Key)
+			{
+				return Device.Key;
+			}
+		}
+	}
+
+	return -1;
+}
+
+int FJoystickInputDevice::GetAxisIndexFromKey(const FKey& Key) const
+{
+	for (int i = 0; i < DeviceAxisKeys.Num(); i++)
+	{
+		if (!DeviceAxisKeys.Contains(i))
+		{
+			continue;
+		}
+
+		const TArray<FKey>& Keys = DeviceAxisKeys[i];
+		for (int AxisIndex = 0; AxisIndex < Keys.Num(); AxisIndex++)
+		{
+			if (Keys[AxisIndex] == Key)
+			{
+				return AxisIndex;
+			}
+		}
+	}
+
+	return -1;
+}
+
 void FJoystickInputDevice::ResetAxisProperties()
 {
 	for (TPair<FJoystickInstanceId, FJoystickDeviceState>& DeviceData : JoystickDeviceState)
@@ -972,44 +1010,6 @@ void FJoystickInputDevice::UpdateAxisProperties()
 	}
 }
 
-FJoystickInstanceId FJoystickInputDevice::GetInstanceIdByKey(const FKey& Key) const
-{
-	for (const TPair<FJoystickInstanceId, TArray<FKey>>& Device : DeviceKeys)
-	{
-		for (const FKey& DeviceKey : Device.Value)
-		{
-			if (DeviceKey == Key)
-			{
-				return Device.Key;
-			}
-		}
-	}
-
-	return -1;
-}
-
-int FJoystickInputDevice::GetAxisIndexFromKey(const FKey& Key) const
-{
-	for (int i = 0; i < DeviceAxisKeys.Num(); i++)
-	{
-		if (!DeviceAxisKeys.Contains(i))
-		{
-			continue;
-		}
-
-		const TArray<FKey>& Keys = DeviceAxisKeys[i];
-		for (int AxisIndex = 0; AxisIndex < Keys.Num(); AxisIndex++)
-		{
-			if (Keys[AxisIndex] == Key)
-			{
-				return AxisIndex;
-			}
-		}
-	}
-
-	return -1;
-}
-
 void FJoystickInputDevice::TryAddWidgetNavigation(const FKey& ButtonKey) const
 {
 	const UJoystickInputSettings* JoystickInputSettings = GetDefault<UJoystickInputSettings>();
@@ -1050,44 +1050,4 @@ void FJoystickInputDevice::TryAddWidgetNavigation(const FKey& ButtonKey) const
 		}
 #endif
 	});
-}
-
-FString FJoystickInputDevice::SanitiseDeviceName(const FString& InDeviceName) const
-{
-	FString OutDeviceName;
-	OutDeviceName.Reserve(InDeviceName.Len()); // Pre-allocate
-
-	bool LastCharWasUnderscore = false;
-	bool LeadingUnderscore = true;
-
-	for (const TCHAR Char : InDeviceName)
-	{
-		if (FChar::IsAlnum(Char))
-		{
-			OutDeviceName.AppendChar(Char);
-			LastCharWasUnderscore = false;
-			LeadingUnderscore = false;
-		}
-		else if (!LastCharWasUnderscore && !LeadingUnderscore)
-		{
-			// Only add underscore if not leading and not consecutive
-			OutDeviceName.AppendChar(TEXT('_'));
-			LastCharWasUnderscore = true;
-		}
-		// Skip non-alphanumeric leading chars and consecutive underscores
-	}
-
-	// Trim trailing underscores
-	int32 TrimEnd = OutDeviceName.Len();
-	while (TrimEnd > 0 && OutDeviceName[TrimEnd - 1] == TEXT('_'))
-	{
-		TrimEnd--;
-	}
-
-	if (TrimEnd < OutDeviceName.Len())
-	{
-		OutDeviceName.RemoveAt(TrimEnd, OutDeviceName.Len() - TrimEnd);
-	}
-
-	return OutDeviceName;
 }
