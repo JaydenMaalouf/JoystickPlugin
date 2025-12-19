@@ -5,7 +5,7 @@
 
 #include "HatDirection.generated.h"
 
-UENUM(BlueprintType, meta = (Bitflags, UseEnumValuesAsMaskValuesInEditor = "true"))
+UENUM(BlueprintType, meta=(Bitflags, UseEnumValuesAsMaskValuesInEditor="true"))
 enum class EHatDirection : uint8
 {
 	None = 0,

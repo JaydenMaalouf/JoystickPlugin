@@ -23,42 +23,44 @@ class JOYSTICKPLUGIN_API UJoystickHapticDeviceManager final : public UObject
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintPure, Category = "Joystick|Force Feedback")
+	UFUNCTION(BlueprintPure, Category="Joystick|Force Feedback")
 	static UJoystickHapticDeviceManager* GetJoystickHapticDeviceManager() { return StaticClass()->GetDefaultObject<UJoystickHapticDeviceManager>(); }
 
-	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback")
+	UFUNCTION(BlueprintCallable, Category="Joystick|Force Feedback")
 	bool SetAutoCenter(const FJoystickInstanceId& InstanceId, const int Center);
 
-	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback")
+	UFUNCTION(BlueprintCallable, Category="Joystick|Force Feedback")
 	bool SetGain(const FJoystickInstanceId& InstanceId, const int Gain);
 
-	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback")
+	UFUNCTION(BlueprintCallable, Category="Joystick|Force Feedback")
 	bool PauseDevice(const FJoystickInstanceId& InstanceId) const;
 
-	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback")
+	UFUNCTION(BlueprintCallable, Category="Joystick|Force Feedback")
 	bool UnpauseDevice(const FJoystickInstanceId& InstanceId) const;
 
-	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback")
+	UFUNCTION(BlueprintCallable, Category="Joystick|Force Feedback")
 	bool StopAllEffects(const FJoystickInstanceId& InstanceId) const;
 
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Joystick|Force Feedback")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Joystick|Force Feedback")
 	int GetNumEffects(const FJoystickInstanceId& InstanceId) const;
 
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Joystick|Force Feedback")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Joystick|Force Feedback")
 	int GetNumEffectsPlaying(const FJoystickInstanceId& InstanceId) const;
 
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Joystick|Force Feedback")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Joystick|Force Feedback")
 	int GetEffectStatus(const FJoystickInstanceId& InstanceId, const int EffectId);
 
-	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback")
-	bool PlayRumble(const FJoystickInstanceId& InstanceId, const float LowFrequencyRumble, const float HighFrequencyRumble, UPARAM(DisplayName = "Duration (in seconds)")
+	UFUNCTION(BlueprintCallable, Category="Joystick|Force Feedback")
+	bool PlayRumble(const FJoystickInstanceId& InstanceId, const float LowFrequencyRumble, const float HighFrequencyRumble, UPARAM(DisplayName="Duration (in seconds)")
 	                const float Duration);
-	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback")
+
+	UFUNCTION(BlueprintCallable, Category="Joystick|Force Feedback")
 	bool PlayHapticRumble(const FJoystickInstanceId& InstanceId, const float Strength, const float Duration);
 
-	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback")
+	UFUNCTION(BlueprintCallable, Category="Joystick|Force Feedback")
 	bool StopRumble(const FJoystickInstanceId& InstanceId);
-	UFUNCTION(BlueprintCallable, Category = "Joystick|Force Feedback")
+
+	UFUNCTION(BlueprintCallable, Category="Joystick|Force Feedback")
 	bool StopHapticRumble(const FJoystickInstanceId& InstanceId);
 
 	int CreateEffect(const FJoystickInstanceId& InstanceId, SDL_HapticEffect& Effect) const;

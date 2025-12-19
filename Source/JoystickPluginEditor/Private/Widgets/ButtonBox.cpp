@@ -44,6 +44,11 @@ void SButtonBox::Construct(const FArguments& InArgs)
 	];
 }
 
+FSlateColor SButtonBox::GetForegroundColor() const
+{
+	return GetBackgroundColor();
+}
+
 void SButtonBox::SetValue(const float InValue)
 {
 	Value = InValue;
@@ -57,9 +62,4 @@ FLinearColor SButtonBox::GetColor() const
 FSlateColor SButtonBox::GetBackgroundColor() const
 {
 	return FSlateColor(GetColor());
-}
-
-FSlateColor SButtonBox::GetForegroundColor() const
-{
-	return GetBackgroundColor();
 }

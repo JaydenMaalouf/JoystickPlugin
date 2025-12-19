@@ -26,9 +26,9 @@ struct JOYSTICKPLUGIN_API FMotionData
 		Accelerometer = InAccelerometer;
 	}
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Motion")
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Motion")
 	FVector Gyro;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Joystick|Motion")
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Motion")
 	FVector Accelerometer;
 };

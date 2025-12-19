@@ -21,6 +21,7 @@ struct FJoystickInformation
 		: InstanceId(-1)
 		  , Type(EJoystickType::Unknown)
 		  , ProductId(0)
+		  , FirmwareVersion(0)
 		  , ProductVersion(0)
 		  , VendorId(0)
 		  , IsGameController(false)
@@ -56,6 +57,9 @@ struct FJoystickInformation
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
 	FString Path;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
+	int32 FirmwareVersion;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
 	int32 ProductVersion;

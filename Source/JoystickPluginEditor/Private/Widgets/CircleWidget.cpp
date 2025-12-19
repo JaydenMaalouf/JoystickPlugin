@@ -13,11 +13,6 @@ void SCircleWidget::Construct(const FArguments& InArgs)
 	LineThickness = InArgs._LineThickness;
 }
 
-FVector2D SCircleWidget::ComputeDesiredSize(float) const
-{
-	return FVector2D(Radius.Get() * 2.0f, Radius.Get() * 2.0f);
-}
-
 int32 SCircleWidget::OnPaint(
 	const FPaintArgs& Args,
 	const FGeometry& AllottedGeometry,
@@ -32,6 +27,11 @@ int32 SCircleWidget::OnPaint(
 	DrawCircle(OutDrawElements, AllottedGeometry, LayerId, Center, Radius.Get(), 64, Color.Get(), Filled.Get(false), LineThickness.Get(1.5f));
 
 	return LayerId;
+}
+
+FVector2D SCircleWidget::ComputeDesiredSize(float) const
+{
+	return FVector2D(Radius.Get() * 2.0f, Radius.Get() * 2.0f);
 }
 
 void SCircleWidget::DrawCircle(FSlateWindowElementList& OutDrawElements, const FGeometry& InGeometry, const int32 InLayerId, const FVector2D InCenter, const float InRadius, const int32 InNumSegments, const FLinearColor InColor,

@@ -97,3 +97,43 @@ bool UJoystickFunctionLibrary::IsJoystickKey(IN const FKey& Key)
 
 	return InputDevice->GetInstanceIdByKey(Key) != -1;
 }
+
+FString UJoystickFunctionLibrary::SanitiseDeviceName(const FString& InDeviceName, const bool AllowSpaces)
+{
+	FString OutDeviceName;
+	OutDeviceName.Reserve(InDeviceName.Len()); // Pre-allocate
+
+	bool LastCharWasUnderscore = false;
+	bool LeadingUnderscore = true;
+
+	for (const TCHAR Char : InDeviceName)
+	{
+		if (FChar::IsAlnum(Char) || (AllowSpaces && FChar::IsWhitespace(Char)))
+		{
+			OutDeviceName.AppendChar(Char);
+			LastCharWasUnderscore = false;
+			LeadingUnderscore = false;
+		}
+		else if (!LastCharWasUnderscore && !LeadingUnderscore)
+		{
+			// Only add underscore if not leading and not consecutive
+			OutDeviceName.AppendChar(TEXT('_'));
+			LastCharWasUnderscore = true;
+		}
+		// Skip non-alphanumeric leading chars and consecutive underscores
+	}
+
+	// Trim trailing underscores
+	int32 TrimEnd = OutDeviceName.Len();
+	while (TrimEnd > 0 && OutDeviceName[TrimEnd - 1] == TEXT('_'))
+	{
+		TrimEnd--;
+	}
+
+	if (TrimEnd < OutDeviceName.Len())
+	{
+		OutDeviceName.RemoveAt(TrimEnd, OutDeviceName.Len() - TrimEnd);
+	}
+
+	return OutDeviceName;
+}

@@ -15,16 +15,18 @@ class JOYSTICKPLUGIN_API UJoystickFunctionLibrary final : public UBlueprintFunct
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintPure, Category = "Joystick|Hat")
+	UFUNCTION(BlueprintPure, Category="Joystick|Hat")
 	static FVector2D HatDirectionToFVector2D(const EHatDirection Direction);
 
 	static float NormalizeAxisRaw(const int16 Value);
 
 	static EHatDirection HatValueToDirection(const int8 Value);
 
-	UFUNCTION(BlueprintCallable, Category = "Joystick|Hat")
+	UFUNCTION(BlueprintCallable, Category="Joystick|Hat")
 	static FString HatDirectionAsString(EHatDirection Value);
 
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Joystick|Key")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Joystick|Key")
 	static bool IsJoystickKey(const FKey& Key);
+
+	static FString SanitiseDeviceName(const FString& InDeviceName, const bool AllowSpaces = false);
 };

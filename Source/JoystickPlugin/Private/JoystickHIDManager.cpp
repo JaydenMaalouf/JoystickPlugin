@@ -51,9 +51,124 @@ bool UJoystickHIDManager::OpenHID(const int32 VendorId, const int32 ProductId, F
 	return Internal_OpenHID(VendorId, ProductId, Device, nullptr);
 }
 
-bool UJoystickHIDManager::OpenHIDWithSerialNumber(const int32 VendorId, const int32 ProductId, FDeviceHID& Device, const FString& SerialNumber)
+bool UJoystickHIDManager::OpenHIDSerialNumber(const int32 VendorId, const int32 ProductId, FDeviceHID& Device, const FString& SerialNumber)
 {
 	return Internal_OpenHID(VendorId, ProductId, Device, &SerialNumber);
+}
+
+bool UJoystickHIDManager::OpenHIDPath(const FString& DevicePath, const bool Exclusive, FDeviceHID& Device)
+{
+	SDL_hid_device* HIDDevice = SDL_hid_open_path(TCHAR_TO_UTF8(*DevicePath), Exclusive);
+	if (!HIDDevice)
+	{
+		FJoystickLogManager::Get()->LogSDLError(TEXT("SDL_hid_open_path failed"));
+		return false;
+	}
+
+	Device.Device = HIDDevice;
+	return true;
+}
+
+bool UJoystickHIDManager::CloseHID(const FDeviceHID& Device)
+{
+	if (!Device.Device)
+	{
+		FJoystickLogManager::Get()->LogError(TEXT("Failed to close HID. Device is null"));
+		return false;
+	}
+
+	SDL_hid_close(Device.Device);
+	return true;
+}
+
+bool UJoystickHIDManager::ReadInputReport(const FDeviceHID& Device, TArray<uint8>& Data)
+{
+	if (!Device.Device)
+	{
+		FJoystickLogManager::Get()->LogError(TEXT("Failed to read input report. Device is null"));
+		return false;
+	}
+
+	const int Result = SDL_hid_read(Device.Device, Data.GetData(), Data.Num());
+	if (Result == -1)
+	{
+		FJoystickLogManager::Get()->LogSDLError(TEXT("SDL_hid_read failed"));
+		return false;
+	}
+
+	return true;
+}
+
+bool UJoystickHIDManager::ReadInputReportTimeout(const FDeviceHID& Device, TArray<uint8>& Data, const int Timeout)
+{
+	if (!Device.Device)
+	{
+		FJoystickLogManager::Get()->LogError(TEXT("Failed to read input report with timeout. Device is null"));
+		return false;
+	}
+
+	const int Result = SDL_hid_read_timeout(Device.Device, Data.GetData(), Data.Num(), Timeout);
+	if (Result == -1)
+	{
+		FJoystickLogManager::Get()->LogSDLError(TEXT("SDL_hid_read_timeout failed"));
+		return false;
+	}
+
+	return true;
+}
+
+bool UJoystickHIDManager::ReadFeatureReport(const FDeviceHID& Device, TArray<uint8>& Data)
+{
+	if (!Device.Device)
+	{
+		FJoystickLogManager::Get()->LogError(TEXT("Failed to read feature report. Device is null"));
+		return false;
+	}
+
+	const int Result = SDL_hid_get_feature_report(Device.Device, Data.GetData(), Data.Num());
+	if (Result == -1)
+	{
+		FJoystickLogManager::Get()->LogSDLError(TEXT("SDL_hid_get_feature_report failed"));
+		return false;
+	}
+
+	return true;
+}
+
+bool UJoystickHIDManager::WriteOutputReport(const FDeviceHID& Device, const TArray<uint8>& Data)
+{
+	if (!Device.Device)
+	{
+		FJoystickLogManager::Get()->LogError(TEXT("Failed to write output report. Device is null"));
+		return false;
+	}
+
+	const int Result = SDL_hid_write(Device.Device, Data.GetData(), Data.Num());
+	if (Result == -1)
+	{
+		FJoystickLogManager::Get()->LogSDLError(TEXT("SDL_hid_write failed"));
+		return false;
+	}
+
+	return true;
+}
+
+bool UJoystickHIDManager::SendFeatureReport(const FDeviceHID& Device, const TArray<uint8>& Data)
+{
+	if (!Device.Device)
+	{
+		FJoystickLogManager::Get()->LogError(TEXT("Failed to send feature report. Device is null"));
+		return false;
+	}
+
+	const int Result = SDL_hid_send_feature_report(Device.Device, Data.GetData(), Data.Num());
+	if (Result == -1)
+	{
+		FJoystickLogManager::Get()->LogSDLError(TEXT("SDL_hid_send_feature_report failed"));
+		return false;
+	}
+
+	return true;
 }
 
 bool UJoystickHIDManager::Internal_OpenHID(const int32 VendorId, const int32 ProductId, FDeviceHID& Device, const FString* SerialNumber) const
@@ -70,53 +185,10 @@ bool UJoystickHIDManager::Internal_OpenHID(const int32 VendorId, const int32 Pro
 	SDL_hid_device* HIDDevice = SDL_hid_open(VendorId, ProductId, SerialW);
 	if (!HIDDevice)
 	{
-		FJoystickLogManager::Get()->LogSDLError(TEXT("OpenHIDByPath Error"));
+		FJoystickLogManager::Get()->LogSDLError(TEXT("SDL_hid_open failed"));
 		return false;
 	}
 
 	Device.Device = HIDDevice;
-	return true;
-}
-
-bool UJoystickHIDManager::OpenHIDByPath(const FString& DevicePath, const bool Exclusive, FDeviceHID& Device)
-{
-	SDL_hid_device* HIDDevice = SDL_hid_open_path(TCHAR_TO_UTF8(*DevicePath), Exclusive);
-	if (!HIDDevice)
-	{
-		FJoystickLogManager::Get()->LogSDLError(TEXT("OpenHIDByPath Error"));
-		return false;
-	}
-
-	Device.Device = HIDDevice;
-	return true;
-}
-
-bool UJoystickHIDManager::CloseHID(const FDeviceHID& Device)
-{
-	if (!Device.Device)
-	{
-		FJoystickLogManager::Get()->LogError(TEXT("CloseHID - Device is NULL"));
-		return false;
-	}
-
-	SDL_hid_close(Device.Device);
-	return true;
-}
-
-bool UJoystickHIDManager::WriteReport(const FDeviceHID& Device, const TArray<uint8> Data)
-{
-	if (!Device.Device)
-	{
-		FJoystickLogManager::Get()->LogError(TEXT("CloseHID - Device is NULL"));
-		return false;
-	}
-
-	const int Result = SDL_hid_write(Device.Device, Data.GetData(), Data.Num());
-	if (Result == -1)
-	{
-		FJoystickLogManager::Get()->LogSDLError(TEXT("Write"));
-		return false;
-	}
-
 	return true;
 }

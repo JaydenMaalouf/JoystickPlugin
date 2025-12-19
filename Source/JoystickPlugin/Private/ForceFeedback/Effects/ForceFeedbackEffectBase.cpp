@@ -79,20 +79,20 @@ void UForceFeedbackEffectBase::InitialiseEffect()
 {
 	if (IsInitialised)
 	{
-		FJoystickLogManager::Get()->LogWarning(TEXT("UForceFeedbackEffectBase::InitialiseEffect: Effect is already initialised."));
+		FJoystickLogManager::Get()->LogWarning(TEXT("UForceFeedbackEffectBase::InitialiseEffect: Effect is already initialised"));
 		return;
 	}
 
 	if (InstanceId == -1)
 	{
-		FJoystickLogManager::Get()->LogError(TEXT("UForceFeedbackEffectBase::InitialiseEffect: Effect InstanceId is not set."));
+		FJoystickLogManager::Get()->LogError(TEXT("UForceFeedbackEffectBase::InitialiseEffect: Effect InstanceId is not set"));
 		return;
 	}
 
 	const UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
 	if (!IsValid(HapticDeviceManager))
 	{
-		FJoystickLogManager::Get()->LogError(TEXT("UForceFeedbackEffectBase::InitialiseEffect: HapticDeviceManager is invalid."));
+		FJoystickLogManager::Get()->LogError(TEXT("UForceFeedbackEffectBase::InitialiseEffect: HapticDeviceManager is invalid"));
 		return;
 	}
 
@@ -127,46 +127,6 @@ void UForceFeedbackEffectBase::InitialiseEffect()
 	if (Configuration.AutoStartOnInitialisation)
 	{
 		StartEffect();
-	}
-}
-
-void UForceFeedbackEffectBase::DestroyEffect()
-{
-	if (IsInitialised == false)
-	{
-		return;
-	}
-
-	const UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
-	if (!IsValid(HapticDeviceManager))
-	{
-		return;
-	}
-
-	HapticDeviceManager->DestroyEffect(InstanceId, EffectId);
-
-	IsInitialised = false;
-	EffectId = -1;
-	StartTime = -1;
-	EffectRunning = false;
-
-	//Safety check to ensure we don't try calling BP during destruction
-#if ENGINE_MAJOR_VERSION == 5
-	if (IsValidChecked(this) == false || this->IsUnreachable())
-	{
-		return;
-	}
-#else
-	if (this->IsPendingKillOrUnreachable())
-	{
-		return;
-	}
-#endif
-
-	OnDestroyedEffect();
-	if (OnDestroyedEffectDelegate.IsBound())
-	{
-		OnDestroyedEffectDelegate.Broadcast(this);
 	}
 }
 
@@ -264,6 +224,46 @@ void UForceFeedbackEffectBase::StopEffect()
 	}
 }
 
+void UForceFeedbackEffectBase::DestroyEffect()
+{
+	if (IsInitialised == false)
+	{
+		return;
+	}
+
+	const UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
+	if (!IsValid(HapticDeviceManager))
+	{
+		return;
+	}
+
+	HapticDeviceManager->DestroyEffect(InstanceId, EffectId);
+
+	IsInitialised = false;
+	EffectId = -1;
+	StartTime = -1;
+	EffectRunning = false;
+
+	//Safety check to ensure we don't try calling BP during destruction
+#if ENGINE_MAJOR_VERSION == 5
+	if (IsValidChecked(this) == false || this->IsUnreachable())
+	{
+		return;
+	}
+#else
+	if (this->IsPendingKillOrUnreachable())
+	{
+		return;
+	}
+#endif
+
+	OnDestroyedEffect();
+	if (OnDestroyedEffectDelegate.IsBound())
+	{
+		OnDestroyedEffectDelegate.Broadcast(this);
+	}
+}
+
 void UForceFeedbackEffectBase::UpdateEffect()
 {
 	const UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
@@ -318,7 +318,7 @@ void UForceFeedbackEffectBase::SetInstanceId(const FJoystickInstanceId& NewInsta
 {
 	if (IsInitialised)
 	{
-		FJoystickLogManager::Get()->LogWarning(TEXT("Cannot update Effect InstanceId post initialisation."));
+		FJoystickLogManager::Get()->LogWarning(TEXT("Cannot update Effect InstanceId post initialisation"));
 		return;
 	}
 

@@ -51,9 +51,9 @@ void FJoystickPluginSettingsDetails::CustomizeDetails(IDetailLayoutBuilder& Deta
 	.AutoWidth()
 	[
 		SNew(SButton)
-		.Text(LOCTEXT("OpenVisualizer", "Open Joystick Viewer"))
+		.Text(LOCTEXT("OpenVisualiser", "Open Joystick Viewer"))
 		.ToolTipText(LOCTEXT(
-			"OpenVisualizer_Tooltip", "Opens the Joystick Viewer debugging window."))
+			"OpenVisualiser_Tooltip", "Opens the Joystick Viewer debugging window."))
 		.OnClicked_Lambda([this]
 		{
 			FGlobalTabmanager::Get()->TryInvokeTab(FName("JoystickInputViewer"));

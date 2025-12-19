@@ -18,12 +18,12 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectLeftRightData
 	{
 	}
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Joystick|Force Feedback|LeftRight")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|LeftRight")
 	FForceFeedbackEffectDurationData DurationData;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Joystick|Force Feedback|LeftRight", meta=(UIMin="0", UIMax="1", ClampMin="0", ClampMax="1"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|LeftRight", meta=(UIMin="0", UIMax="1", ClampMin="0", ClampMax="1"))
 	float LargeMagnitude;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Joystick|Force Feedback|LeftRight", meta=(UIMin="0", UIMax="1", ClampMin="0", ClampMax="1"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|LeftRight", meta=(UIMin="0", UIMax="1", ClampMin="0", ClampMax="1"))
 	float SmallMagnitude;
 };

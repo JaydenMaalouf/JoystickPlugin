@@ -24,27 +24,27 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectCustomData
 	{
 	}
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Joystick|Force Feedback|Custom")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|Custom")
 	FForceFeedbackEffectDirectionData DirectionData;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Joystick|Force Feedback|Custom")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|Custom")
 	FForceFeedbackEffectDurationData DurationData;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Joystick|Force Feedback|Custom")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|Custom")
 	FForceFeedbackEffectReplayData ReplayData;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Joystick|Force Feedback|Custom")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|Custom")
 	FForceFeedbackEffectEnvelopeData EnvelopeData;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Joystick|Force Feedback|Custom")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|Custom")
 	uint8 Channels;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Joystick|Force Feedback|Custom", meta = (UIMin="0", UIMax="1", ClampMin="0", ClampMax="1"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|Custom", meta=(UIMin="0", UIMax="1", ClampMin="0", ClampMax="1"))
 	float Period;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Joystick|Force Feedback|Custom", meta = (ClampMin = "0", ClampMax = "65535"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|Custom", meta=(ClampMin="0", ClampMax="65535"))
 	int Samples;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Joystick|Force Feedback|Custom", meta = (ClampMin = "0", ClampMax = "65535"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|Custom", meta=(ClampMin="0", ClampMax="65535"))
 	TArray<int> Data;
 };
