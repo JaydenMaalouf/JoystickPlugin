@@ -12,7 +12,7 @@ public class JoystickPluginEditor : ModuleRules
 			"Slate",
 			"SlateCore",
 			"InputCore",
-			"JoystickPlugin",
+			"JoystickPlugin"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new[]
@@ -21,7 +21,7 @@ public class JoystickPluginEditor : ModuleRules
 			"ToolMenus",
 			"LevelEditor",
 			"EditorStyle",
-			"PropertyEditor",
+			"PropertyEditor"
 		});
 	}
 }

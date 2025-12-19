@@ -66,7 +66,7 @@ void FJoystickPluginEditorModule::RegisterMenus() const
 void FJoystickPluginEditorModule::ShutdownModule()
 {
 	FGlobalTabmanager::Get()->UnregisterTabSpawner(JoystickViewerTabId);
-	
+
 	if (UToolMenus::IsToolMenuUIEnabled())
 	{
 		UToolMenus::UnRegisterStartupCallback(this);
