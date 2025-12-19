@@ -224,8 +224,8 @@ void FJoystickInputDevice::InitialiseHatAxis(const FJoystickInstanceId& Instance
 	{
 		for (int HatIndex = 0; HatIndex < 2; HatIndex++)
 		{
-			const int HatKeyIndexName = JoystickInputSettings->ZeroBasedIndexing ? HatKeyIndex : HatKeyIndex + 1;
 			FString HatAxisName = *AxisNames[HatIndex];
+			const int HatKeyIndexName = JoystickInputSettings->ZeroBasedIndexing ? HatKeyIndex : HatKeyIndex + 1;
 			FString HatKeyName = FString::Printf(TEXT("%s_Hat_%d_%s"), *BaseKeyName, HatKeyIndexName, *HatAxisName);
 			FString HatDisplayName = FString::Printf(TEXT("%s: Hat %d %s"), *BaseDisplayName, HatKeyIndexName, *HatAxisName);
 
@@ -252,7 +252,6 @@ void FJoystickInputDevice::InitialiseHatAxis(const FJoystickInstanceId& Instance
 		if (PairedKey)
 		{
 			const int HatKeyIndexName = JoystickInputSettings->ZeroBasedIndexing ? HatKeyIndex : HatKeyIndex + 1;
-			const FKeyPair& KeyPair = DeviceHatAxisKeys[InstanceId][HatKeyIndex];
 			FString HatAxisKeyName = FString::Printf(TEXT("%s_Hat_%d_2D"), *BaseKeyName, HatKeyIndexName);
 			FString HatAxisDisplayName = FString::Printf(TEXT("%s: Hat %d 2D"), *BaseDisplayName, HatKeyIndexName);
 
@@ -260,6 +259,7 @@ void FJoystickInputDevice::InitialiseHatAxis(const FJoystickInstanceId& Instance
 
 			FKeyDetails HatAxisKeyDetails = FKeyDetails(HatAxisKey, FText::FromString(HatAxisDisplayName), FKeyDetails::GamepadKey | FKeyDetails::Axis2D, JoystickCategory);
 
+			const FKeyPair& KeyPair = DeviceHatAxisKeys[InstanceId][HatKeyIndex];
 			if (!EKeys::GetKeyDetails(HatAxisKey).IsValid())
 			{
 				EKeys::AddPairedKey(HatAxisKeyDetails, KeyPair.X, KeyPair.Y);
@@ -356,8 +356,8 @@ void FJoystickInputDevice::InitialiseBalls(const FJoystickInstanceId& InstanceId
 	{
 		for (int BallIndex = 0; BallIndex < 2; BallIndex++)
 		{
-			const int BallKeyIndexName = JoystickInputSettings->ZeroBasedIndexing ? BallKeyIndex : BallKeyIndex + 1;
 			FString BallAxisName = *AxisNames[BallIndex];
+			const int BallKeyIndexName = JoystickInputSettings->ZeroBasedIndexing ? BallKeyIndex : BallKeyIndex + 1;
 			FString BallKeyName = FString::Printf(TEXT("%s_Ball_%d_%s"), *BaseKeyName, BallKeyIndexName, *BallAxisName);
 			FString BallDisplayName = FString::Printf(TEXT("%s: Ball %d %s"), *BaseDisplayName, BallKeyIndexName, *BallAxisName);
 
@@ -384,7 +384,6 @@ void FJoystickInputDevice::InitialiseBalls(const FJoystickInstanceId& InstanceId
 		if (PairedKey)
 		{
 			const int BallKeyIndexName = JoystickInputSettings->ZeroBasedIndexing ? BallKeyIndex : BallKeyIndex + 1;
-			const FKeyPair& KeyPair = DeviceBallKeys[InstanceId][BallKeyIndex];
 			FString BallKeyName = FString::Printf(TEXT("%s_Ball_%d_2D"), *BaseKeyName, BallKeyIndexName);
 			FString BallDisplayName = FString::Printf(TEXT("%s: Ball %d 2D"), *BaseDisplayName, BallKeyIndexName);
 
@@ -392,6 +391,7 @@ void FJoystickInputDevice::InitialiseBalls(const FJoystickInstanceId& InstanceId
 
 			FKeyDetails BallKeyDetails = FKeyDetails(BallKey, FText::FromString(BallDisplayName), FKeyDetails::GamepadKey | FKeyDetails::Axis2D, JoystickCategory);
 
+			const FKeyPair& KeyPair = DeviceBallKeys[InstanceId][BallKeyIndex];
 			if (!EKeys::GetKeyDetails(BallKey).IsValid())
 			{
 				EKeys::AddPairedKey(BallKeyDetails, KeyPair.X, KeyPair.Y);

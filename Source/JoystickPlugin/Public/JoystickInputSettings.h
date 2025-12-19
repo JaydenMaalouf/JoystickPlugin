@@ -78,6 +78,6 @@ public:
 #endif
 
 private:
-	const FJoystickInputDeviceConfiguration* FindConfiguration(const TArray<FJoystickInputDeviceConfiguration>& ConfigurationArray, const FJoystickInformation& Device, bool IncludeEmptyGuids = false) const;
+	const FJoystickInputDeviceConfiguration* FindConfiguration(const TArray<FJoystickInputDeviceConfiguration>& ConfigurationArray, const FJoystickInformation& Device, const bool IncludeEmptyGuids = false) const;
 	const FJoystickInputDeviceConfiguration* FindConfiguration(const TArray<FJoystickInputDeviceConfiguration>& ConfigurationArray, const FJoystickInputDeviceConfiguration& Device, const bool IncludeEmptyGuids = false) const;
 };

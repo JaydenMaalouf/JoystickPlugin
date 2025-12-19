@@ -13,7 +13,7 @@ THIRD_PARTY_INCLUDES_START
 
 THIRD_PARTY_INCLUDES_END
 
-TArray<FDeviceInfoHID> UJoystickHIDManager::EnumerateHIDs(const int VendorId, const int ProductId)
+TArray<FDeviceInfoHID> UJoystickHIDManager::EnumerateHIDs(const int32 VendorId, const int32 ProductId)
 {
 	SDL_hid_device_info* DeviceList = SDL_hid_enumerate(VendorId, ProductId);
 	const SDL_hid_device_info* CurrentDevice = DeviceList;

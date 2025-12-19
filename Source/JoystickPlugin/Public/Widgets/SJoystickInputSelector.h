@@ -159,7 +159,7 @@ public:
 	bool GetIsSelectingKey() const { return bIsSelectingKey; }
 
 	/** Sets the visibility of the text block. */
-	void SetTextBlockVisibility(EVisibility InVisibility) const;
+	void SetTextBlockVisibility(const EVisibility InVisibility) const;
 
 	virtual FReply OnAnalogValueChanged(const FGeometry& MyGeometry, const FAnalogInputEvent& InAnalogInputEvent) override;
 	virtual FReply OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent) override;
@@ -186,7 +186,7 @@ private:
 	void SelectKey(const FInputChord& NewSelectedKey);
 
 	/** Sets bIsSelectingKey and invokes the associated events. */
-	void SetIsSelectingKey(bool bInIsSelectingKey);
+	void SetIsSelectingKey(const bool bInIsSelectingKey);
 
 	/** Returns true, if the key has been specified as an escape key, else false. */
 	bool IsEscapeKey(const FKey& InKey) const;

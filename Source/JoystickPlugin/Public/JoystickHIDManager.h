@@ -18,16 +18,16 @@ public:
 	static UJoystickHIDManager* GetJoystickHIDManager() { return StaticClass()->GetDefaultObject<UJoystickHIDManager>(); }
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|HID")
-	TArray<FDeviceInfoHID> EnumerateHIDs(int VendorId, int ProductId);
+	TArray<FDeviceInfoHID> EnumerateHIDs(const int32 VendorId, const int32 ProductId);
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|HID")
-	bool OpenHID(const int VendorId, const int ProductId, FDeviceHID& Device);
+	bool OpenHID(const int32 VendorId, const int32 ProductId, FDeviceHID& Device);
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|HID", DisplayName="Open HID with Serial Number")
-	bool OpenHIDWithSerialNumber(const int VendorId, const int ProductId, FDeviceHID& Device, const FString& SerialNumber);
+	bool OpenHIDWithSerialNumber(const int32 VendorId, const int32 ProductId, FDeviceHID& Device, const FString& SerialNumber);
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|HID", DisplayName="Open HID by Path")
-	bool OpenHIDByPath(const FString& DevicePath, bool Exclusive, FDeviceHID& Device);
+	bool OpenHIDByPath(const FString& DevicePath, const bool Exclusive, FDeviceHID& Device);
 
 	UFUNCTION(BlueprintCallable, Category = "Joystick|HID")
 	bool CloseHID(const FDeviceHID& Device);
@@ -36,5 +36,5 @@ public:
 	bool WriteReport(const FDeviceHID& Device, const TArray<uint8> Data);
 
 private:
-	bool Internal_OpenHID(int VendorId, int ProductId, FDeviceHID& Device, const FString* SerialNumber) const;
+	bool Internal_OpenHID(const int32 VendorId, const int32 ProductId, FDeviceHID& Device, const FString* SerialNumber) const;
 };
