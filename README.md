@@ -51,6 +51,9 @@ The plugin currently supports **Windows** and **Linux**.
 - :card_index_dividers: **Device Profiles**  
   Load and apply per-device configuration presets.
 
+- :cactus: **HID Reporting**  
+  Send HID Reports directly to a joystick device.
+
 ---
 
 ## :thinking: How does it compare to other solutions?

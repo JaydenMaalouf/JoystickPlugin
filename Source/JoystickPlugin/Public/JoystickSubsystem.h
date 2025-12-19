@@ -37,6 +37,7 @@ class JOYSTICKPLUGIN_API UJoystickSubsystem : public UEngineSubsystem
 
 public:
 	UJoystickSubsystem();
+
 	// Begin USubsystem
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;

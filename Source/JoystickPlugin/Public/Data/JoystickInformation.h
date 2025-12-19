@@ -24,9 +24,9 @@ struct FJoystickInformation
 		  , ProductVersion(0)
 		  , VendorId(0)
 		  , IsGameController(false)
+		  , PowerLevel(EJoystickPowerLevel::Unknown)
 		  , LedSupport(false)
 		  , RumbleSupport(false)
-		  , PowerLevel(EJoystickPowerLevel::Unknown)
 	{
 	}
 
@@ -43,7 +43,7 @@ struct FJoystickInformation
 	EJoystickType Type;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
-	int ProductId;
+	int32 ProductId;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
 	FString DeviceHash;
@@ -58,22 +58,22 @@ struct FJoystickInformation
 	FString Path;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
-	int ProductVersion;
+	int32 ProductVersion;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
-	int VendorId;
+	int32 VendorId;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
 	bool IsGameController;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
+	EJoystickPowerLevel PowerLevel;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config|Supported Features")
 	bool LedSupport;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config|Supported Features")
 	bool RumbleSupport;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
-	EJoystickPowerLevel PowerLevel;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config|Haptic")
 	FJoystickHapticInformation Haptic;
