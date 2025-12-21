@@ -27,20 +27,6 @@ TSharedPtr<IInputDevice> FJoystickPluginModule::CreateInputDevice(const TSharedR
 	return JoystickInputDevice;
 }
 
-void FJoystickPluginModule::ShutdownModule()
-{
-#if PLATFORM_WINDOWS
-	FPlatformProcess::FreeDllHandle(SdlDllHandle);
-#endif
-
-	IJoystickPlugin::ShutdownModule();
-
-	if (JoystickInputDevice.IsValid())
-	{
-		JoystickInputDevice.Reset();
-	}
-}
-
 void FJoystickPluginModule::StartupModule()
 {
 	PluginDirectory = IPluginManager::Get().FindPlugin(PluginName)->GetBaseDir();
@@ -54,6 +40,20 @@ void FJoystickPluginModule::StartupModule()
 #endif
 
 	IJoystickPlugin::StartupModule();
+}
+
+void FJoystickPluginModule::ShutdownModule()
+{
+#if PLATFORM_WINDOWS
+	FPlatformProcess::FreeDllHandle(SdlDllHandle);
+#endif
+
+	IJoystickPlugin::ShutdownModule();
+
+	if (JoystickInputDevice.IsValid())
+	{
+		JoystickInputDevice.Reset();
+	}
 }
 
 FString FJoystickPluginModule::PluginName = "JoystickPlugin";
