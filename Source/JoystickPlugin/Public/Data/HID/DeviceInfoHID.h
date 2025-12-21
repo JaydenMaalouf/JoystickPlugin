@@ -10,6 +10,17 @@ struct FDeviceInfoHID
 {
 	GENERATED_BODY()
 
+	FDeviceInfoHID() : VendorId(-1),
+	                   ProductId(-1),
+	                   ReleaseNumber(-1),
+	                   UsagePage(-1), Usage(-1),
+	                   InterfaceNumber(-1),
+	                   InterfaceClass(-1),
+	                   InterfaceSubclass(-1),
+	                   InterfaceProtocol(-1)
+	{
+	}
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="HID Config")
 	FString DevicePath;
 

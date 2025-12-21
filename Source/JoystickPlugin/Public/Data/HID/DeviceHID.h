@@ -16,5 +16,9 @@ struct FDeviceHID
 {
 	GENERATED_BODY()
 
+	FDeviceHID() : Device(nullptr)
+	{
+	}
+
 	SDL_hid_device* Device;
 };

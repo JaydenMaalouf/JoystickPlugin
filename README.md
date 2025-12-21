@@ -7,6 +7,11 @@ JoystickPlugin provides **joystick and steering wheel support (including force f
 
 It integrates directly with Unreal’s **Input System** and **Subsystem architecture**, making it well-suited for simulation, racing, and hardware-driven projects that require reliable, low-level device access with minimal setup.
 
+If you're building driving or simulation projects, JoystickPlugin pairs nicely with the
+[VehicleTelemetryPlugin](https://github.com/JaydenMaalouf/VehicleTelemetryPlugin). Use JoystickPlugin
+for input and force feedback, and VehicleTelemetryPlugin to stream real-time vehicle data for HUDs,
+dashboards, logging, or external integrations.
+
 ---
 
 ## :blue_book: Documentation

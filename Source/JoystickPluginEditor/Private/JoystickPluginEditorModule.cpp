@@ -56,6 +56,8 @@ void FJoystickPluginEditorModule::ShutdownModule()
 		UToolMenus::UnRegisterStartupCallback(this);
 	}
 
+	UnregisterSettings();
+
 	IModuleInterface::ShutdownModule();
 }
 
@@ -82,11 +84,12 @@ void FJoystickPluginEditorModule::RegisterPropertyLayout() const
 	PropertyModule.RegisterCustomPropertyTypeLayout("JoystickInstanceId", FOnGetPropertyTypeCustomizationInstance::CreateStatic(&FJoystickInstanceIdCustomization::MakeInstance));
 }
 
+static FName SettingsSection = TEXT("Joystick Input");
 void FJoystickPluginEditorModule::RegisterSettings() const
 {
 	if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
 	{
-		SettingsModule->RegisterSettings("Project", "Engine", "Joystick Input",
+		SettingsModule->RegisterSettings("Project", "Engine", SettingsSection,
 		                                 LOCTEXT("JoystickInputSettingsName", "Joystick Input"),
 		                                 LOCTEXT("JoystickInputSettingsDescription", "Configure Joystick Input"), GetMutableDefault<UJoystickInputSettings>());
 	}
@@ -96,7 +99,7 @@ void FJoystickPluginEditorModule::UnregisterSettings() const
 {
 	if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
 	{
-		SettingsModule->UnregisterSettings("Project", "Engine", "Joystick Input");
+		SettingsModule->UnregisterSettings("Project", "Engine", SettingsSection);
 	}
 }
 
