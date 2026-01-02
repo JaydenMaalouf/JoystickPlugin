@@ -444,18 +444,14 @@ void FJoystickInputDevice::JoystickPluggedIn(const FDeviceInfoSDL& Device)
 	FString BaseDisplayName("Joystick");
 	if (JoystickInputSettings->UseDeviceName)
 	{
+		FString DeviceName = Device.SafeDeviceName;
 		if (DeviceConfig != nullptr && DeviceConfig->OverrideDeviceName)
 		{
-			const FString DeviceName = UJoystickFunctionLibrary::SanitiseDeviceName(DeviceConfig->DeviceName);
-			BaseKeyName = FString::Printf(TEXT("Joystick_%s"), *DeviceName);
-			BaseDisplayName = DeviceName;
+			DeviceName = UJoystickFunctionLibrary::SanitiseDeviceName(DeviceConfig->DeviceName);
 		}
-		else
-		{
-			const FString DeviceName = Device.SafeDeviceName;
-			BaseKeyName = FString::Printf(TEXT("Joystick_%s"), *DeviceName);
-			BaseDisplayName = Device.ProductName;
-		}
+		
+		BaseKeyName = FString::Printf(TEXT("Joystick_%s"), *DeviceName);
+		BaseDisplayName = DeviceName;
 	}
 
 	if (JoystickInputSettings->IncludeDeviceIndex)
