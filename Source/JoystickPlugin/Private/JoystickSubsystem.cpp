@@ -561,9 +561,7 @@ bool UJoystickSubsystem::AddDevice(const int DeviceIndex)
 	Device.PowerLevel = static_cast<EJoystickPowerLevel>(PowerLevel + 1);
 
 	Device.DeviceName = SafelyStringify(SDL_JoystickName(Device.SDLJoystick));
-
-	Device.SafeDeviceName = UJoystickFunctionLibrary::SanitiseDeviceName(Device.DeviceName, true);
-	Device.ProductName = Device.SafeDeviceName.Replace(TEXT(" "), TEXT(""));
+	Device.SafeDeviceName = UJoystickFunctionLibrary::SanitiseDeviceName(Device.DeviceName);
 
 #if ENGINE_MAJOR_VERSION == 5
 	Device.SerialNumber = SafelyStringify(SDL_JoystickGetSerial(Device.SDLJoystick));
