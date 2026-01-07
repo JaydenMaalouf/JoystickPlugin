@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "CircleWidget.h"
 #include "Data/Input/HatDirection.h"
 #include "Widgets/SCompoundWidget.h"
 #include "Widgets/Layout/SConstraintCanvas.h"
@@ -30,6 +31,10 @@ private:
 	TAttribute<FText> DisplayName;
 	TSharedPtr<SConstraintCanvas> Canvas;
 	SConstraintCanvas::FSlot* BallSlot = nullptr;
+	TSharedPtr<SCircleWidget> BallWidget;
+	TSharedPtr<SOverlay> OverlayContainer;
 
 	FText HatText;
+
+	FLinearColor GetBallColor() const;
 };

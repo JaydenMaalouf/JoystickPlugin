@@ -24,6 +24,8 @@ public:
 
 	void Construct(const FArguments& InArgs);
 
+	void SetColor(const TAttribute<FLinearColor>& InColor);
+
 	virtual int32 OnPaint(
 		const FPaintArgs& Args,
 		const FGeometry& AllottedGeometry,

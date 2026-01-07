@@ -4,6 +4,9 @@
 #include "Widgets/HatSwitch.h"
 
 #include "Widgets/CircleWidget.h"
+#include "Styling/AppStyle.h"
+#include "Widgets/Layout/SBorder.h"
+#include "Widgets/Text/STextBlock.h"
 
 void SHatSwitch::Construct(const FArguments& InArgs)
 {
@@ -21,35 +24,81 @@ void SHatSwitch::Construct(const FArguments& InArgs)
 
 	ChildSlot
 	[
-		SNew(SOverlay)
-
-		+ SOverlay::Slot()
+		SNew(SVerticalBox)
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.HAlign(HAlign_Center)
+		.Padding(0, 0, 0, 4)
 		[
-			SNew(SBox)
-			.WidthOverride(100.f)
-			.HeightOverride(100.f)
-			[
-				SNew(SCircleWidget)
-				.Radius(50.0f)
-				.Color(FLinearColor::Black)
-				.Filled(true)
-			]
+			SNew(STextBlock)
+			.Text(DisplayName.Get())
+			.TextStyle(FAppStyle::Get(), "SmallText")
+			.Justification(ETextJustify::Center)
+			.ColorAndOpacity(FLinearColor::White)
 		]
-
-		+ SOverlay::Slot()
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.HAlign(HAlign_Center)
 		[
-			SAssignNew(Canvas, SConstraintCanvas)
-
-			+ SConstraintCanvas::Slot()
-			.Anchors(FAnchors(0.5f, 0.5f))
-			.Alignment(FVector2D(0.5f, 0.5f))
-
-			.AutoSize(true)
-			.Expose(BallSlot)
+			SNew(SBorder)
+			.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
+			.Padding(8.0f)
 			[
-				SNew(SCircleWidget)
-				.Radius(10.0f)
-				.Color(FLinearColor::Green)
+				SNew(SBox)
+				.MinDesiredWidth(120.f)
+				.MinDesiredHeight(120.f)
+				.WidthOverride(120.f)
+				.HeightOverride(120.f)
+				[
+					SAssignNew(OverlayContainer, SOverlay)
+					
+					// Outer Circle Background
+					+ SOverlay::Slot()
+					[
+						SNew(SCircleWidget)
+						.Radius(56.0f)
+						.Color(FLinearColor(0.15f, 0.15f, 0.15f, 1.0f))
+						.Filled(true)
+					]
+					
+					// Inner Circle Track
+					+ SOverlay::Slot()
+					[
+						SNew(SCircleWidget)
+						.Radius(50.0f)
+						.Color(FLinearColor(0.25f, 0.25f, 0.25f, 1.0f))
+						.Filled(true)
+					]
+					
+					// Center Indicator
+					+ SOverlay::Slot()
+					.HAlign(HAlign_Center)
+					.VAlign(VAlign_Center)
+					[
+						SNew(SCircleWidget)
+						.Radius(3.0f)
+						.Color(FLinearColor(0.5f, 0.5f, 0.5f, 1.0f))
+						.Filled(true)
+					]
+
+					// Ball Indicator
+					+ SOverlay::Slot()
+					[
+						SAssignNew(Canvas, SConstraintCanvas)
+
+						+ SConstraintCanvas::Slot()
+						.Anchors(FAnchors(0.5f, 0.5f))
+						.Alignment(FVector2D(0.5f, 0.5f))
+						.AutoSize(true)
+						.Expose(BallSlot)
+						[
+							SAssignNew(BallWidget, SCircleWidget)
+							.Radius(12.0f)
+							.Color(GetBallColor())
+							.Filled(true)
+						]
+					]
+				]
 			]
 		]
 	];
@@ -59,6 +108,21 @@ void SHatSwitch::SetValue(const EHatDirection InValue)
 {
 	Value.Set(InValue);
 	UpdateBallPosition();
+	
+	// Update ball color
+	if (BallWidget.IsValid())
+	{
+		BallWidget->SetColor(TAttribute<FLinearColor>(this, &SHatSwitch::GetBallColor));
+		Invalidate(EInvalidateWidget::Paint);
+	}
+}
+
+FLinearColor SHatSwitch::GetBallColor() const
+{
+	const EHatDirection Direction = Value.Get();
+	return Direction != EHatDirection::None
+		? FLinearColor(0.2f, 0.9f, 0.3f, 1.0f)  // Bright green when active
+		: FLinearColor(0.4f, 0.4f, 0.4f, 1.0f);  // Gray when centered
 }
 
 void SHatSwitch::UpdateBallPosition() const
@@ -104,7 +168,7 @@ void SHatSwitch::UpdateBallPosition() const
 	}
 
 	const FVector2D BallSize(20.f, 20.f);
-	const FVector2D CanvasSize = GetCachedGeometry().GetLocalSize();
+	const FVector2D CanvasSize = OverlayContainer->GetCachedGeometry().GetLocalSize();
 	const FVector2D Radius = CanvasSize * 0.5f;
 	const FVector2D FinalBallPosition = BallOffset * (Radius - (BallSize * 0.5f));
 

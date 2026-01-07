@@ -14,6 +14,9 @@
 #include "Widgets/Layout/SWrapBox.h"
 #include "Widgets/Text/STextBlock.h"
 #include "Widgets/Views/SListView.h"
+#include "Styling/AppStyle.h"
+#include "Widgets/Layout/SBorder.h"
+#include "Widgets/Layout/SSeparator.h"
 
 void SJoystickInputViewer::Construct(const FArguments& InArgs, const TSharedRef<SDockTab>& ConstructUnderMajorTab, const TSharedPtr<SWindow>& ConstructUnderWindow)
 {
@@ -33,125 +36,240 @@ void SJoystickInputViewer::Construct(const FArguments& InArgs, const TSharedRef<
 	ChildSlot
 	[
 		SNew(SVerticalBox)
-		+ SVerticalBox::Slot().AutoHeight().Padding(10)
+		// Header Section with Device Selector
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.Padding(12, 12, 12, 8)
 		[
-			SNew(SHorizontalBox)
-			+ SHorizontalBox::Slot().AutoWidth().Padding(4)
+			SNew(SBorder)
+			.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
+			.Padding(12)
 			[
-				SNew(STextBlock).Text(FText::FromString("Select Device:"))
-			]
-			+ SHorizontalBox::Slot().AutoWidth()
-			[
-				SAssignNew(DeviceComboBox, SComboBox<TSharedPtr<FJoystickInstanceId>>)
-				.OptionsSource(&Joysticks)
-				.OnGenerateWidget_Lambda([](const TSharedPtr<FJoystickInstanceId>& InItem)
-				{
-					if (UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>())
-					{
-						FJoystickInformation JoystickInfo;
-						if (JoystickSubsystem->GetJoystickInfo(*InItem, JoystickInfo))
-						{
-							return SNew(STextBlock).Text(FText::FromString(*JoystickInfo.DeviceName));
-						}
-					}
-
-					return SNew(STextBlock).Text(FText::FromString("ERROR"));
-				})
-				.OnSelectionChanged_Lambda([this](const TSharedPtr<FJoystickInstanceId>& NewSelection, ESelectInfo::Type)
-				{
-					SelectedJoystick = NewSelection;
-					CreateWidgets();
-				})
-				.InitiallySelectedItem(SelectedJoystick)
+				SNew(SVerticalBox)
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(0, 0, 0, 8)
 				[
 					SNew(STextBlock)
-					.Text_Lambda([this]() -> FText
-					{
-						if (!SelectedJoystick.IsValid())
+					.Text(FText::FromString("Device Selection"))
+					.TextStyle(FAppStyle::Get(), "DetailsView.CategoryTextStyle")
+					.Font(FAppStyle::GetFontStyle("PropertyWindow.BoldFont"))
+				]
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(SHorizontalBox)
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.VAlign(VAlign_Center)
+					.Padding(0, 0, 8, 0)
+					[
+						SNew(STextBlock)
+						.Text(FText::FromString("Select Device:"))
+						.TextStyle(FAppStyle::Get(), "NormalText")
+					]
+					+ SHorizontalBox::Slot()
+					.FillWidth(1.0f)
+					.MaxWidth(400.0f)
+					[
+						SAssignNew(DeviceComboBox, SComboBox<TSharedPtr<FJoystickInstanceId>>)
+						.OptionsSource(&Joysticks)
+						.OnGenerateWidget_Lambda([](const TSharedPtr<FJoystickInstanceId>& InItem)
 						{
-							return FText::FromString("None");
-						}
+							if (UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>())
+							{
+								FJoystickInformation JoystickInfo;
+								if (JoystickSubsystem->GetJoystickInfo(*InItem, JoystickInfo))
+								{
+									return SNew(STextBlock)
+										.Text(FText::FromString(*JoystickInfo.DeviceName))
+										.TextStyle(FAppStyle::Get(), "NormalText");
+								}
+							}
 
-						UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
-						if (!IsValid(JoystickSubsystem))
+							return SNew(STextBlock)
+								.Text(FText::FromString("ERROR"))
+								.TextStyle(FAppStyle::Get(), "NormalText");
+						})
+						.OnSelectionChanged_Lambda([this](const TSharedPtr<FJoystickInstanceId>& NewSelection, ESelectInfo::Type)
 						{
-							return FText::FromString("None");
-						}
+							SelectedJoystick = NewSelection;
+							CreateWidgets();
+						})
+						.InitiallySelectedItem(SelectedJoystick)
+						[
+							SNew(STextBlock)
+							.Text_Lambda([this]() -> FText
+							{
+								if (!SelectedJoystick.IsValid())
+								{
+									return FText::FromString("None");
+								}
 
-						FJoystickInformation JoystickInfo;
-						JoystickSubsystem->GetJoystickInfo(*SelectedJoystick, JoystickInfo);
-						return FText::FromString(*JoystickInfo.DeviceName);
-					})
+								UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
+								if (!IsValid(JoystickSubsystem))
+								{
+									return FText::FromString("None");
+								}
+
+								FJoystickInformation JoystickInfo;
+								JoystickSubsystem->GetJoystickInfo(*SelectedJoystick, JoystickInfo);
+								return FText::FromString(*JoystickInfo.DeviceName);
+							})
+							.TextStyle(FAppStyle::Get(), "NormalText")
+						]
+					]
 				]
 			]
 		]
 
-		+ SVerticalBox::Slot().Padding(10)
+		// Content Area
+		+ SVerticalBox::Slot()
+		.FillHeight(1.0f)
+		.Padding(12, 0, 12, 12)
 		[
 			SNew(SScrollBox)
 			+ SScrollBox::Slot()
 			[
 				SNew(SVerticalBox)
+				// Axes Section
 				+ SVerticalBox::Slot()
-#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 5
-				.MinHeight(500)
-#endif
-				.Padding(10) // Row 1, Column 0 – Change this to position it wherever you want
+				.AutoHeight()
+				.Padding(0, 0, 0, 8)
 				[
-					SAssignNew(AxisContainer, SHorizontalBox)
+					SNew(STextBlock)
+					.Text(FText::FromString("Axes"))
+					.TextStyle(FAppStyle::Get(), "DetailsView.CategoryTextStyle")
+					.Font(FAppStyle::GetFontStyle("PropertyWindow.BoldFont"))
 				]
 				+ SVerticalBox::Slot()
 				.AutoHeight()
-				.Padding(10)
+				.Padding(0, 0, 0, 16)
 				[
-					SAssignNew(ButtonContainer, SWrapBox)
-					.PreferredSize_Lambda([this]
-					{
-						return GetCachedGeometry().GetLocalSize().X - 10;
-					})
-					.InnerSlotPadding(FVector2D(5.0f, 5.0f))
-					.Orientation(Orient_Horizontal)
-					.HAlign(HAlign_Center)
+					SNew(SBorder)
+					.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
+					.Padding(12)
+					[
+						SAssignNew(AxisContainer, SHorizontalBox)
+					]
+				]
+				
+				// Buttons Section
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(0, 0, 0, 8)
+				[
+					SNew(STextBlock)
+					.Text(FText::FromString("Buttons"))
+					.TextStyle(FAppStyle::Get(), "DetailsView.CategoryTextStyle")
+					.Font(FAppStyle::GetFontStyle("PropertyWindow.BoldFont"))
 				]
 				+ SVerticalBox::Slot()
 				.AutoHeight()
-				.Padding(10)
+				.Padding(0, 0, 0, 16)
 				[
-					SAssignNew(HatContainer, SWrapBox)
-					.PreferredSize_Lambda([this]
-					{
-						return GetCachedGeometry().GetLocalSize().X - 10;
-					})
-					.InnerSlotPadding(FVector2D(5.0f, 5.0f))
-					.Orientation(Orient_Horizontal)
-					.HAlign(HAlign_Center)
+					SNew(SBorder)
+					.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
+					.Padding(12)
+					[
+						SAssignNew(ButtonContainer, SWrapBox)
+						.PreferredSize_Lambda([this]
+						{
+							return GetCachedGeometry().GetLocalSize().X - 48;
+						})
+						.InnerSlotPadding(FVector2D(8.0f, 8.0f))
+						.Orientation(Orient_Horizontal)
+						.HAlign(HAlign_Left)
+					]
+				]
+				
+				// Hat Switches Section
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(0, 0, 0, 8)
+				[
+					SNew(STextBlock)
+					.Text(FText::FromString("Hat Switches"))
+					.TextStyle(FAppStyle::Get(), "DetailsView.CategoryTextStyle")
+					.Font(FAppStyle::GetFontStyle("PropertyWindow.BoldFont"))
 				]
 				+ SVerticalBox::Slot()
 				.AutoHeight()
+				.Padding(0, 0, 0, 16)
 				[
-					SAssignNew(HatButtonContainer, SWrapBox)
-					.PreferredSize_Lambda([this]
-					{
-						return GetCachedGeometry().GetLocalSize().X - 10;
-					})
-					.InnerSlotPadding(FVector2D(5.0f, 5.0f))
-					.Orientation(Orient_Horizontal)
-					.HAlign(HAlign_Center)
+					SNew(SBorder)
+					.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
+					.Padding(12)
+					[
+						SAssignNew(HatContainer, SWrapBox)
+						.PreferredSize_Lambda([this]
+						{
+							return GetCachedGeometry().GetLocalSize().X - 48;
+						})
+						.InnerSlotPadding(FVector2D(8.0f, 8.0f))
+						.Orientation(Orient_Horizontal)
+						.HAlign(HAlign_Left)
+					]
+				]
+				
+				// Hat Button Switches Section
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(0, 0, 0, 8)
+				[
+					SNew(STextBlock)
+					.Text(FText::FromString("Hat Button Switches"))
+					.TextStyle(FAppStyle::Get(), "DetailsView.CategoryTextStyle")
+					.Font(FAppStyle::GetFontStyle("PropertyWindow.BoldFont"))
 				]
 				+ SVerticalBox::Slot()
 				.AutoHeight()
+				.Padding(0, 0, 0, 16)
 				[
-					SAssignNew(BallContainer, SWrapBox)
-					.PreferredSize_Lambda([this]
-					{
-						return GetCachedGeometry().GetLocalSize().X - 10;
-					})
-					.InnerSlotPadding(FVector2D(5.0f, 5.0f))
-					.Orientation(Orient_Horizontal)
-					.HAlign(HAlign_Center)
+					SNew(SBorder)
+					.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
+					.Padding(12)
+					[
+						SAssignNew(HatButtonContainer, SWrapBox)
+						.PreferredSize_Lambda([this]
+						{
+							return GetCachedGeometry().GetLocalSize().X - 48;
+						})
+						.InnerSlotPadding(FVector2D(8.0f, 8.0f))
+						.Orientation(Orient_Horizontal)
+						.HAlign(HAlign_Left)
+					]
+				]
+				
+				// Ball Switches Section
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(0, 0, 0, 8)
+				[
+					SNew(STextBlock)
+					.Text(FText::FromString("Ball Switches"))
+					.TextStyle(FAppStyle::Get(), "DetailsView.CategoryTextStyle")
+					.Font(FAppStyle::GetFontStyle("PropertyWindow.BoldFont"))
+				]
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(0, 0, 0, 16)
+				[
+					SNew(SBorder)
+					.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
+					.Padding(12)
+					[
+						SAssignNew(BallContainer, SWrapBox)
+						.PreferredSize_Lambda([this]
+						{
+							return GetCachedGeometry().GetLocalSize().X - 48;
+						})
+						.InnerSlotPadding(FVector2D(8.0f, 8.0f))
+						.Orientation(Orient_Horizontal)
+						.HAlign(HAlign_Left)
+					]
 				]
 			]
-
 		]
 	];
 
@@ -215,7 +333,7 @@ void SJoystickInputViewer::Tick(const FGeometry& AllottedGeometry, const double 
 		}
 	}
 
-	for (int i = 0; i < JoystickState.Hats.Num(); ++i)
+	for (int i = 0; i < JoystickState.Balls.Num(); ++i)
 	{
 		if (JoystickState.Balls.IsValidIndex(i) && BallSwitches.IsValidIndex(i))
 		{

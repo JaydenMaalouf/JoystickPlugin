@@ -13,6 +13,11 @@ void SCircleWidget::Construct(const FArguments& InArgs)
 	LineThickness = InArgs._LineThickness;
 }
 
+void SCircleWidget::SetColor(const TAttribute<FLinearColor>& InColor)
+{
+	Color = InColor;
+}
+
 int32 SCircleWidget::OnPaint(
 	const FPaintArgs& Args,
 	const FGeometry& AllottedGeometry,
