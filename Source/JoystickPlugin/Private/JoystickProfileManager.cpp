@@ -1,5 +1,6 @@
 #include "JoystickProfileManager.h"
 
+#include "Engine/Engine.h"
 #include "JoystickInputDevice.h"
 #include "JoystickInputSettings.h"
 #include "JoystickLogManager.h"

@@ -450,7 +450,7 @@ void FJoystickInputDevice::JoystickPluggedIn(const FDeviceInfoSDL& Device)
 		{
 			DeviceName = UJoystickFunctionLibrary::SanitiseDeviceName(DeviceConfig->DeviceName);
 		}
-		
+
 		BaseKeyName = FString::Printf(TEXT("Joystick_%s"), *DeviceName);
 		BaseDisplayName = DeviceName;
 	}
