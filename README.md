@@ -59,6 +59,12 @@ The plugin currently supports **Windows** and **Linux**.
 - :cactus: **HID Reporting**  
   Send HID Reports directly to a joystick device.
 
+- :gear: **Runtime Configuration**  
+  Modify axis and button properties at runtime without restarting.
+
+- :mag: **Joystick Viewer / Debugger**  
+  Visual debugging tool to monitor real-time input from connected joysticks.
+
 ---
 
 ## :thinking: How does it compare to other solutions?
