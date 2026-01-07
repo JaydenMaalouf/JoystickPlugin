@@ -7,14 +7,13 @@
 #include "Data/DeviceInfoSDL.h"
 #include "Data/JoystickSensorType.h"
 #include "Data/PlatformTypes.h"
-#include "Data/Settings/JoystickInputDeviceAxisProperties.h"
-#include "Data/Settings/JoystickInputDeviceConfiguration.h"
 #include "HAL/FileManager.h"
 #include "JoystickFunctionLibrary.h"
 #include "JoystickInputDevice.h"
 #include "JoystickInputSettings.h"
 #include "JoystickLogManager.h"
 #include "JoystickPluginModule.h"
+#include "JoystickProfileManager.h"
 #include "Misc/ConfigCacheIni.h"
 #include "Misc/CoreMiscDefines.h"
 #include "Misc/Paths.h"
@@ -42,9 +41,14 @@ void UJoystickSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
-	LoadJoystickProfiles();
+	UJoystickProfileManager* JoystickProfileManager = GetMutableDefault<UJoystickProfileManager>();
+	if (IsValid(JoystickProfileManager))
+	{
+		JoystickProfileManager->LoadJoystickProfiles();
+	}
 
-	if (UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>())
+	UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
+	if (IsValid(JoystickInputSettings))
 	{
 		JoystickInputSettings->ResetDevices();
 	}
@@ -136,7 +140,7 @@ int UJoystickSubsystem::GetConnectedJoystickCount() const
 	return Count;
 }
 
-bool UJoystickSubsystem::GetJoystickState(const FJoystickInstanceId& InstanceId, FJoystickDeviceState& JoystickDeviceState)
+bool UJoystickSubsystem::GetJoystickState(const FJoystickInstanceId& InstanceId, FJoystickDeviceState& JoystickDeviceState) const
 {
 	FJoystickInputDevice* InputDevice = GetInputDevice();
 	if (InputDevice == nullptr)
@@ -850,184 +854,6 @@ void UJoystickSubsystem::LoadGameControllerMappings() const
 	}
 }
 
-void UJoystickSubsystem::LoadJoystickProfiles() const
-{
-	UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
-	if (!JoystickInputSettings)
-	{
-		return;
-	}
-
-	const FString ProfilesDirectory = FPaths::Combine(FJoystickPluginModule::PluginDirectory, TEXT("Profiles"));
-	FJoystickLogManager::Get()->LogDebug(TEXT("Enumerating profiles in: %s"), *ProfilesDirectory);
-
-	IFileManager& FileManager = IFileManager::Get();
-	if (FileManager.DirectoryExists(*ProfilesDirectory))
-	{
-		TArray<FString> Files;
-		FileManager.FindFiles(Files, *ProfilesDirectory, TEXT("*.ini"));
-
-		for (const FString& FileName : Files)
-		{
-			const FString FilePath = FPaths::Combine(ProfilesDirectory, FileName);
-			if (!FileManager.FileExists(*FilePath))
-			{
-				continue;
-			}
-
-			const FString ProfileName = FileName.EndsWith(TEXT(".ini"), ESearchCase::IgnoreCase) ? FString(FileName.Left(FileName.Len() - 4)) : FileName;
-			FJoystickLogManager::Get()->LogDebug(TEXT("Loading joystick profile: %s"), *ProfileName);
-
-			FConfigFile ConfigFile;
-			ConfigFile.Read(*FilePath);
-
-			FJoystickInputDeviceConfiguration DeviceConfiguration;
-			for (const TTuple<FString, FConfigSection>& ConfigSection : AsConst(ConfigFile))
-			{
-				if (ConfigSection.Key.Equals(JoystickConfigurationSection, ESearchCase::IgnoreCase))
-				{
-					for (const TTuple<FName, FConfigValue>& Pair : ConfigSection.Value)
-					{
-						const FName Key = Pair.Key;
-						const FConfigValue& Value = Pair.Value;
-						FString ValueString = Value.GetSavedValue().TrimStartAndEnd();
-
-						if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceConfiguration, ProductGuid))
-						{
-							DeviceConfiguration.ProductGuid = FGuid(ValueString);
-							DeviceConfiguration.DeviceIdentifyMethod = EJoystickIdentifierType::Legacy;
-						}
-						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceConfiguration, DeviceHash))
-						{
-							DeviceConfiguration.DeviceHash = ValueString;
-							DeviceConfiguration.DeviceIdentifyMethod = EJoystickIdentifierType::Hashed;
-						}
-						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceConfiguration, DeviceName))
-						{
-							DeviceConfiguration.OverrideDeviceName = true;
-							DeviceConfiguration.DeviceName = ValueString;
-						}
-					}
-				}
-				else if (ConfigSection.Key.StartsWith(AxisPropertiesSection))
-				{
-					FJoystickInputDeviceAxisProperties AxisProperties;
-					FString AxisIndexString = ConfigSection.Key;
-					AxisIndexString.RemoveFromStart(*AxisPropertiesSection, ESearchCase::IgnoreCase);
-					AxisIndexString.TrimStartAndEndInline();
-					AxisProperties.AxisIndex = AsInteger(AxisIndexString);
-
-					for (const TTuple<FName, FConfigValue>& Pair : ConfigSection.Value)
-					{
-						const FName Key = Pair.Key;
-						const FConfigValue& Value = Pair.Value;
-						FString ValueString = Value.GetSavedValue().TrimStartAndEnd();
-
-						if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceAxisProperties, DisplayName))
-						{
-							AxisProperties.OverrideDisplayName = true;
-							AxisProperties.DisplayName = ValueString;
-						}
-						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceAxisProperties, InputOffset))
-						{
-							AxisProperties.RemappingEnabled = true;
-							AxisProperties.InputOffset = AsFloat(ValueString);
-						}
-						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceAxisProperties, InvertInput))
-						{
-							AxisProperties.RemappingEnabled = true;
-							AxisProperties.InvertInput = AsBoolean(ValueString);
-						}
-						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceAxisProperties, InputRangeMin))
-						{
-							AxisProperties.RemappingEnabled = true;
-							AxisProperties.RerangeInput = true;
-							AxisProperties.InputRangeMin = AsFloat(ValueString);
-						}
-						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceAxisProperties, InputRangeMax))
-						{
-							AxisProperties.RemappingEnabled = true;
-							AxisProperties.RerangeInput = true;
-							AxisProperties.InputRangeMax = AsFloat(ValueString);
-						}
-						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceAxisProperties, OutputRangeMin))
-						{
-							AxisProperties.RemappingEnabled = true;
-							AxisProperties.RerangeOutput = true;
-							AxisProperties.OutputRangeMin = AsFloat(ValueString);
-						}
-						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceAxisProperties, OutputRangeMax))
-						{
-							AxisProperties.RemappingEnabled = true;
-							AxisProperties.RerangeOutput = true;
-							AxisProperties.OutputRangeMax = AsFloat(ValueString);
-						}
-						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceAxisProperties, InvertOutput))
-						{
-							AxisProperties.RemappingEnabled = true;
-							AxisProperties.InvertOutput = AsBoolean(ValueString);
-						}
-					}
-
-					DeviceConfiguration.AxisProperties.Add(AxisProperties);
-				}
-				else if (ConfigSection.Key.StartsWith(ButtonPropertiesSection))
-				{
-					FJoystickInputDeviceButtonProperties ButtonProperties;
-					FString ButtonIndexString = ConfigSection.Key;
-					ButtonIndexString.RemoveFromStart(*ButtonPropertiesSection, ESearchCase::IgnoreCase);
-					ButtonIndexString.TrimStartAndEndInline();
-					ButtonProperties.ButtonIndex = AsInteger(ButtonIndexString);
-
-					for (const TTuple<FName, FConfigValue>& Pair : ConfigSection.Value)
-					{
-						const FName Key = Pair.Key;
-						const FConfigValue& Value = Pair.Value;
-						FString ValueString = Value.GetSavedValue().TrimStartAndEnd();
-
-						if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceButtonProperties, DisplayName))
-						{
-							ButtonProperties.OverrideDisplayName = true;
-							ButtonProperties.DisplayName = ValueString;
-						}
-						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceButtonProperties, InvertOutput))
-						{
-							ButtonProperties.InvertOutput = AsBoolean(ValueString);
-						}
-					}
-
-					DeviceConfiguration.ButtonProperties.Add(ButtonProperties);
-				}
-			}
-
-			JoystickInputSettings->AddProfileConfiguration(DeviceConfiguration);
-			if (DeviceConfiguration.DeviceIdentifyMethod == EJoystickIdentifierType::Legacy)
-			{
-				FJoystickLogManager::Get()->LogInformation(TEXT("Added joystick %s configuration from legacy profile: %s"), *DeviceConfiguration.ProductGuid.ToString(), *ProfileName);
-			}
-			else
-			{
-				FJoystickLogManager::Get()->LogInformation(TEXT("Added joystick %s configuration from profile: %s"), *DeviceConfiguration.DeviceHash, *ProfileName);
-			}
-		}
-	}
-}
-
-bool UJoystickSubsystem::AsBoolean(const FString& Input)
-{
-	return Input.Equals(TEXT("true"), ESearchCase::IgnoreCase) || Input.Equals(TEXT("1"), ESearchCase::IgnoreCase);
-}
-
-float UJoystickSubsystem::AsFloat(const FString& Input)
-{
-	return FCString::Atof(*Input);
-}
-
-int32 UJoystickSubsystem::AsInteger(const FString& Input)
-{
-	return FCString::Atoi(*Input);
-}
-
 void UJoystickSubsystem::ConvertSDLGuid(const SDL_JoystickGUID& SdlGuid, FGuid& OutGuid) const
 {
 	FMemory::Memcpy(&OutGuid.A, &SdlGuid.data[0], 4);
@@ -1064,9 +890,3 @@ FString UJoystickSubsystem::SafelyStringify(const char* Input) const
 }
 
 FString UJoystickSubsystem::GameControllerMappingFile("gamecontrollerdb.txt");
-
-FString UJoystickSubsystem::AxisPropertiesSection("AxisProperties_");
-
-FString UJoystickSubsystem::ButtonPropertiesSection("ButtonProperties_");
-
-FString UJoystickSubsystem::JoystickConfigurationSection("Joystick");

@@ -89,7 +89,7 @@ void UForceFeedbackEffectBase::InitialiseEffect()
 		return;
 	}
 
-	const UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
+	const UJoystickHapticDeviceManager* HapticDeviceManager = GetDefault<UJoystickHapticDeviceManager>();
 	if (!IsValid(HapticDeviceManager))
 	{
 		FJoystickLogManager::Get()->LogError(TEXT("UForceFeedbackEffectBase::InitialiseEffect: HapticDeviceManager is invalid"));
@@ -144,7 +144,7 @@ void UForceFeedbackEffectBase::StartEffect()
 		return;
 	}
 
-	const UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
+	const UJoystickHapticDeviceManager* HapticDeviceManager = GetDefault<UJoystickHapticDeviceManager>();
 	if (!IsValid(HapticDeviceManager))
 	{
 		return;
@@ -190,7 +190,7 @@ void UForceFeedbackEffectBase::StopEffect()
 		return;
 	}
 
-	const UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
+	const UJoystickHapticDeviceManager* HapticDeviceManager = GetDefault<UJoystickHapticDeviceManager>();
 	if (!IsValid(HapticDeviceManager))
 	{
 		return;
@@ -231,7 +231,7 @@ void UForceFeedbackEffectBase::DestroyEffect()
 		return;
 	}
 
-	const UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
+	const UJoystickHapticDeviceManager* HapticDeviceManager = GetDefault<UJoystickHapticDeviceManager>();
 	if (!IsValid(HapticDeviceManager))
 	{
 		return;
@@ -266,7 +266,7 @@ void UForceFeedbackEffectBase::DestroyEffect()
 
 void UForceFeedbackEffectBase::UpdateEffect()
 {
-	const UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
+	const UJoystickHapticDeviceManager* HapticDeviceManager = GetDefault<UJoystickHapticDeviceManager>();
 	if (!IsValid(HapticDeviceManager))
 	{
 		return;
@@ -305,7 +305,7 @@ void UForceFeedbackEffectBase::ReceiveTick_Implementation(const float DeltaTime)
 
 int UForceFeedbackEffectBase::GetEffectStatus() const
 {
-	UJoystickHapticDeviceManager* HapticDeviceManager = UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager();
+	UJoystickHapticDeviceManager* HapticDeviceManager = GetMutableDefault<UJoystickHapticDeviceManager>();
 	if (!IsValid(HapticDeviceManager))
 	{
 		return -1;

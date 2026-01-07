@@ -4,7 +4,6 @@
 #pragma once
 
 #include "Data/JoystickInformation.h"
-#include "Data/Settings/JoystickInputDeviceAxisProperties.h"
 #include "Data/Settings/JoystickInputKeyConfiguration.h"
 #include "InputCoreTypes.h"
 
@@ -69,15 +68,14 @@ public:
 	bool GetIgnoreGameControllers() const;
 	bool SetIgnoreGameControllers(const bool NewIgnoreGameControllers);
 
-	const FJoystickInputDeviceConfiguration* GetInputDeviceConfiguration(const FJoystickInformation& Device) const;
-	const FJoystickInputDeviceConfiguration* GetInputDeviceConfigurationByKey(const FKey& Key) const;
-	const FJoystickInputDeviceAxisProperties* GetAxisPropertiesByKey(const FKey& AxisKey) const;
+	FJoystickInputDeviceConfiguration* GetDeviceConfiguration(const FJoystickInformation& Device);
+	FJoystickInputDeviceConfiguration* GetProfileConfiguration(const FJoystickInformation& Device);
 
 #if WITH_EDITOR
 	virtual void PostEditChangeChainProperty(FPropertyChangedChainEvent& PropertyChangedEvent) override;
 #endif
 
 private:
-	const FJoystickInputDeviceConfiguration* FindConfiguration(const TArray<FJoystickInputDeviceConfiguration>& ConfigurationArray, const FJoystickInformation& Device, const bool IncludeEmptyGuids = false) const;
-	const FJoystickInputDeviceConfiguration* FindConfiguration(const TArray<FJoystickInputDeviceConfiguration>& ConfigurationArray, const FJoystickInputDeviceConfiguration& Device, const bool IncludeEmptyGuids = false) const;
+	FJoystickInputDeviceConfiguration* FindConfiguration(TArray<FJoystickInputDeviceConfiguration>& ConfigurationArray, const FJoystickInformation& Device, bool IncludeEmptyGuids = false) const;
+	FJoystickInputDeviceConfiguration* FindConfiguration(TArray<FJoystickInputDeviceConfiguration>& ConfigurationArray, const FJoystickInputDeviceConfiguration& Device, bool IncludeEmptyGuids = false) const;
 };

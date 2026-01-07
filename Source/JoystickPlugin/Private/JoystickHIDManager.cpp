@@ -13,6 +13,11 @@ THIRD_PARTY_INCLUDES_START
 
 THIRD_PARTY_INCLUDES_END
 
+const UJoystickHIDManager* UJoystickHIDManager::GetJoystickHIDManager()
+{
+	return GetDefault<UJoystickHIDManager>();
+}
+
 TArray<FDeviceInfoHID> UJoystickHIDManager::EnumerateHIDs(const int32 VendorId, const int32 ProductId)
 {
 	SDL_hid_device_info* DeviceList = SDL_hid_enumerate(VendorId, ProductId);
@@ -46,12 +51,12 @@ TArray<FDeviceInfoHID> UJoystickHIDManager::EnumerateHIDs(const int32 VendorId, 
 	return Devices;
 }
 
-bool UJoystickHIDManager::OpenHID(const int32 VendorId, const int32 ProductId, FDeviceHID& Device)
+bool UJoystickHIDManager::OpenHID(const int32 VendorId, const int32 ProductId, FDeviceHID& Device) const
 {
 	return Internal_OpenHID(VendorId, ProductId, Device, nullptr);
 }
 
-bool UJoystickHIDManager::OpenHIDSerialNumber(const int32 VendorId, const int32 ProductId, FDeviceHID& Device, const FString& SerialNumber)
+bool UJoystickHIDManager::OpenHIDSerialNumber(const int32 VendorId, const int32 ProductId, FDeviceHID& Device, const FString& SerialNumber) const
 {
 	return Internal_OpenHID(VendorId, ProductId, Device, &SerialNumber);
 }

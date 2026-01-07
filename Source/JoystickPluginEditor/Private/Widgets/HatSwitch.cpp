@@ -61,7 +61,7 @@ void SHatSwitch::SetValue(const EHatDirection InValue)
 	UpdateBallPosition();
 }
 
-void SHatSwitch::UpdateBallPosition()
+void SHatSwitch::UpdateBallPosition() const
 {
 	if (!BallSlot)
 	{

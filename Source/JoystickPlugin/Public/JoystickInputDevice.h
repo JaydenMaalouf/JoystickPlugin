@@ -47,13 +47,17 @@ public:
 	const FKeyPair& GetDeviceHatKey(const FJoystickInstanceId& InstanceId, int HatKeyIndex);
 	FJoystickInstanceId GetInstanceIdByKey(const FKey& Key) const;
 	int GetAxisIndexFromKey(const FKey& Key) const;
+	int GetButtonIndexFromKey(const FKey& Key) const;
 
 	void ResetAxisProperties();
-	void UpdateAxisProperties();
+	void ResetButtonProperties();
+	void UpdateDeviceProperties();
+	void UpdateAxisProperties(FJoystickInputDeviceConfiguration* DeviceConfig, FJoystickDeviceState& CurrentState) const;
+	void UpdateButtonProperties(FJoystickInputDeviceConfiguration* DeviceConfig, FJoystickDeviceState& CurrentState) const;
 
 private:
-	void InitialiseAxis(const FJoystickInstanceId& InstanceId, const FJoystickInputDeviceConfiguration* DeviceConfiguration, const FString& BaseKeyName, const FString& BaseDisplayName);
-	void InitialiseButtons(const FJoystickInstanceId& InstanceId, const FJoystickInputDeviceConfiguration* DeviceConfiguration, const FString& BaseKeyName, const FString& BaseDisplayName);
+	void InitialiseAxis(const FJoystickInstanceId& InstanceId, FJoystickInputDeviceConfiguration* DeviceConfiguration, const FString& BaseKeyName, const FString& BaseDisplayName);
+	void InitialiseButtons(const FJoystickInstanceId& InstanceId, FJoystickInputDeviceConfiguration* DeviceConfiguration, const FString& BaseKeyName, const FString& BaseDisplayName);
 	void InitialiseHatAxis(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName, const bool PairedKey);
 	void InitialiseHatButtons(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName);
 	void InitialiseBalls(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName, const bool PairedKey);

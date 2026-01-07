@@ -15,16 +15,16 @@ class JOYSTICKPLUGIN_API UJoystickHIDManager final : public UObject
 
 public:
 	UFUNCTION(BlueprintPure, Category="Joystick|HID", DisplayName="Get Joystick HID Manager")
-	static UJoystickHIDManager* GetJoystickHIDManager() { return StaticClass()->GetDefaultObject<UJoystickHIDManager>(); }
+	static const UJoystickHIDManager* GetJoystickHIDManager();
 
 	UFUNCTION(BlueprintCallable, Category="Joystick|HID")
 	TArray<FDeviceInfoHID> EnumerateHIDs(const int32 VendorId, const int32 ProductId);
 
-	UFUNCTION(BlueprintCallable, Category="Joystick|HID")
-	bool OpenHID(const int32 VendorId, const int32 ProductId, FDeviceHID& Device);
+	UFUNCTION(BlueprintCallable, BlueprintPure=false, Category="Joystick|HID")
+	bool OpenHID(const int32 VendorId, const int32 ProductId, FDeviceHID& Device) const;
 
-	UFUNCTION(BlueprintCallable, Category="Joystick|HID", DisplayName="Open HID with Serial Number")
-	bool OpenHIDSerialNumber(const int32 VendorId, const int32 ProductId, FDeviceHID& Device, const FString& SerialNumber);
+	UFUNCTION(BlueprintCallable, BlueprintPure=false, Category="Joystick|HID", DisplayName="Open HID with Serial Number")
+	bool OpenHIDSerialNumber(const int32 VendorId, const int32 ProductId, FDeviceHID& Device, const FString& SerialNumber) const;
 
 	UFUNCTION(BlueprintCallable, Category="Joystick|HID", DisplayName="Open HID by Path")
 	bool OpenHIDPath(const FString& DevicePath, const bool Exclusive, FDeviceHID& Device);

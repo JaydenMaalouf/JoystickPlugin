@@ -13,17 +13,18 @@ struct JOYSTICKPLUGIN_API FButtonData
 	FButtonData()
 		: ButtonState(false)
 		  , PreviousButtonState(false)
+		  , InvertOutput(false)
 	{
 	}
 
 	bool GetValue() const
 	{
-		return ButtonState;
+		return InvertOutput ? !ButtonState : ButtonState;
 	}
 
 	bool GetPreviousValue() const
 	{
-		return PreviousButtonState;
+		return InvertOutput ? !PreviousButtonState : PreviousButtonState;
 	}
 
 	void Update(const bool& InValue)
@@ -42,4 +43,7 @@ struct JOYSTICKPLUGIN_API FButtonData
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Button")
 	bool PreviousButtonState;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Axis")
+	bool InvertOutput;
 };
