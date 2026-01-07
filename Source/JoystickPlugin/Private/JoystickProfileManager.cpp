@@ -1,6 +1,9 @@
 #include "JoystickProfileManager.h"
 
 #include "Engine/Engine.h"
+#include "HAL/FileManager.h"
+#include "Misc/ConfigCacheIni.h"
+#include "Misc/Paths.h"
 #include "JoystickInputDevice.h"
 #include "JoystickInputSettings.h"
 #include "JoystickLogManager.h"
