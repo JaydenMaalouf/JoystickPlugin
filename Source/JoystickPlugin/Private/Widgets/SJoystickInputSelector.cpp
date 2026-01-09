@@ -5,7 +5,10 @@
 
 #include "JoystickFunctionLibrary.h"
 #include "JoystickInputSettings.h"
+#include "JoystickProfileManager.h"
+#include "Data/Settings/JoystickInputDeviceAxisProperties.h"
 #include "Widgets/Text/STextBlock.h"
+#include "Widgets/SOverlay.h"
 #include "Widgets/Input/SButton.h"
 
 void SJoystickInputSelector::Construct(const FArguments& InArgs)
@@ -13,7 +16,6 @@ void SJoystickInputSelector::Construct(const FArguments& InArgs)
 	SelectedKey = InArgs._SelectedKey;
 	KeySelectionText = InArgs._KeySelectionText;
 	NoKeySpecifiedText = InArgs._NoKeySpecifiedText;
-	OnAxisSelected = InArgs._OnAxisSelected;
 	OnKeySelected = InArgs._OnKeySelected;
 	OnIsSelectingChanged = InArgs._OnIsSelectingChanged;
 	bAllowAxisKeys = InArgs._AllowAxisKeys;
@@ -35,33 +37,40 @@ void SJoystickInputSelector::Construct(const FArguments& InArgs)
 		.IsFocusable(bIsFocusable)
 		.OnClicked(this, &SJoystickInputSelector::OnClicked)
 		[
-			SAssignNew(TextBlock, STextBlock)
-			.Text(this, &SJoystickInputSelector::GetSelectedKeyText)
-			.TextStyle(InArgs._TextStyle)
-			.Margin(Margin)
-			.Justification(ETextJustify::Center)
+			SNew(SOverlay)
+			.Visibility(EVisibility::SelfHitTestInvisible)
+			+ SOverlay::Slot()
+			.HAlign(HAlign_Center)
+			.VAlign(VAlign_Center)
+			[
+				SAssignNew(TextBlock, STextBlock)
+				.Text(this, &SJoystickInputSelector::GetSelectedKeyText)
+				.TextStyle(InArgs._TextStyle)
+				.Margin(Margin)
+				.Justification(ETextJustify::Center)
+			]
 		]
 	];
 }
 
-SJoystickInputSelector::SJoystickInputSelector()
-	: bIsSelectingKey(true)
-	  , UseAxisProperties(false)
-	  , MinRange(0.0f)
-	  , MaxRange(1.0f)
-	  , MinRangeOffset(0.0f)
-	  , MaxRangeOffset(0.0f)
-	  , AxisSelectionTimeout(2.5f)
-	  , DeadZone(0.05f)
-	  , bAllowAxisKeys(true)
-	  , bAllowButtonKeys(true)
-	  , bAllowGamepadKeys(true)
-	  , bAllowNonGamepadKeys(true)
-	  , bAllowJoystickKeys(true)
-	  , bAllowModifierKeys(true)
-	  , bEscapeCancelsSelection(true)
-	  , bIsFocusable(false)
+FText SJoystickInputSelector::GetSelectedKeyText() const
 {
+	if (bIsSelectingKey)
+	{
+		return KeySelectionText;
+	}
+	if (SelectedKey.IsSet())
+	{
+		if (SelectedKey.Get().Key.IsValid())
+		{
+			// If the key in the chord is a modifier key, print it's display name directly since the FInputChord
+			// displays these as empty text.
+			return SelectedKey.Get().Key.IsModifierKey()
+				       ? SelectedKey.Get().Key.GetDisplayName()
+				       : SelectedKey.Get().GetInputText();
+		}
+	}
+	return NoKeySpecifiedText;
 }
 
 FInputChord SJoystickInputSelector::GetSelectedKey() const
@@ -74,10 +83,14 @@ void SJoystickInputSelector::SetSelectedKey(const TAttribute<FInputChord>& InSel
 	if (SelectedKey.IdenticalTo(InSelectedKey) == false)
 	{
 		SelectedKey = InSelectedKey;
-		OnAxisSelected.ExecuteIfBound(SelectedKey.IsSet() ? SelectedKey.Get() : FInputChord(EKeys::Invalid));
+		OnKeySelected.ExecuteIfBound(SelectedKey.IsSet() ? SelectedKey.Get() : FInputChord(EKeys::Invalid));
 	}
 }
 
+FMargin SJoystickInputSelector::GetMargin() const
+{
+	return Margin.Get();
+}
 
 void SJoystickInputSelector::SetMargin(const TAttribute<FMargin>& InMargin)
 {
@@ -97,14 +110,6 @@ void SJoystickInputSelector::SetTextStyle(const FTextBlockStyle* InTextStyle) co
 	if (TextBlock.IsValid())
 	{
 		TextBlock->SetTextStyle(InTextStyle);
-	}
-}
-
-void SJoystickInputSelector::SetTextBlockVisibility(const EVisibility InVisibility) const
-{
-	if (TextBlock.IsValid())
-	{
-		TextBlock->SetVisibility(InVisibility);
 	}
 }
 
@@ -143,8 +148,8 @@ FReply SJoystickInputSelector::OnAnalogValueChanged(const FGeometry& MyGeometry,
 			return FReply::Handled();
 		}
 
-		const UJoystickInputSettings* JoystickInputSettings = GetDefault<UJoystickInputSettings>();
-		if (!IsValid(JoystickInputSettings))
+		UJoystickProfileManager* JoystickProfileManager = GetMutableDefault<UJoystickProfileManager>();
+		if (!IsValid(JoystickProfileManager))
 		{
 			return FReply::Handled();
 		}
@@ -154,7 +159,7 @@ FReply SJoystickInputSelector::OnAnalogValueChanged(const FGeometry& MyGeometry,
 		float MinRangeDetection = MinRange;
 		float MaxRangeDetection = MaxRange;
 
-		const FJoystickInputDeviceAxisProperties* AxisProperties = JoystickInputSettings->GetAxisPropertiesByKey(AxisKey);
+		const FJoystickInputDeviceAxisProperties* AxisProperties = JoystickProfileManager->GetAxisPropertiesByKey(AxisKey);
 		if (UseAxisProperties && AxisProperties != nullptr)
 		{
 			MinRangeDetection = AxisProperties->OutputRangeMin;
@@ -215,7 +220,12 @@ FReply SJoystickInputSelector::OnAnalogValueChanged(const FGeometry& MyGeometry,
 					SelectedKeyData.Reset();
 					SelectedKeyData.bWasSelecting = true;
 					SetIsSelectingKey(false);
-					SelectAxis(NewSelectedKey);
+					SelectKey(
+						AxisKey,
+						ModifierKey == EModifierKey::Shift,
+						ModifierKey == EModifierKey::Control,
+						ModifierKey == EModifierKey::Alt,
+						ModifierKey == EModifierKey::Command);
 					return FReply::Handled();
 				}
 				break;
@@ -228,7 +238,12 @@ FReply SJoystickInputSelector::OnAnalogValueChanged(const FGeometry& MyGeometry,
 					SelectedKeyData.Reset();
 					SelectedKeyData.bWasSelecting = true;
 					SetIsSelectingKey(false);
-					SelectAxis(NewSelectedKey);
+					SelectKey(
+						AxisKey,
+						ModifierKey == EModifierKey::Shift,
+						ModifierKey == EModifierKey::Control,
+						ModifierKey == EModifierKey::Alt,
+						ModifierKey == EModifierKey::Command);
 					return FReply::Handled();
 				}
 				break;
@@ -245,10 +260,62 @@ FReply SJoystickInputSelector::OnAnalogValueChanged(const FGeometry& MyGeometry,
 	if (!bIsSelectingKey && Button.IsValid())
 	{
 		SelectedKeyData.Reset();
-		return Button->OnAnalogValueChanged(MyGeometry, InAnalogInputEvent);
+		return FReply::Handled();
 	}
 
 	return SCompoundWidget::OnAnalogValueChanged(MyGeometry, InAnalogInputEvent);
+}
+
+FReply SJoystickInputSelector::OnClicked()
+{
+	if (bIsSelectingKey == false)
+	{
+		SetIsSelectingKey(true);
+		return FReply::Handled().SetUserFocus(SharedThis(this), EFocusCause::SetDirectly);
+	}
+	return FReply::Handled();
+}
+
+void SJoystickInputSelector::SelectKey(const FKey& Key, const bool bShiftDown, const bool bControlDown, const bool bAltDown, const bool bCommandDown)
+{
+	const FInputChord NewSelectedKey = bAllowModifierKeys
+		                                   ? FInputChord(Key, bShiftDown, bControlDown, bAltDown, bCommandDown)
+		                                   : FInputChord(Key);
+	if (SelectedKey.IsBound() == false)
+	{
+		SelectedKey.Set(NewSelectedKey);
+	}
+	OnKeySelected.ExecuteIfBound(NewSelectedKey);
+}
+
+void SJoystickInputSelector::SetIsSelectingKey(const bool bInIsSelectingKey)
+{
+	if (bIsSelectingKey != bInIsSelectingKey)
+	{
+		bIsSelectingKey = bInIsSelectingKey;
+		// Prevents certain inputs from being consumed by the button
+		if (Button.IsValid())
+		{
+			Button->SetEnabled(!bIsSelectingKey);
+		}
+		OnIsSelectingChanged.ExecuteIfBound();
+	}
+}
+
+bool SJoystickInputSelector::IsEscapeKey(const FKey& InKey) const
+{
+	return EscapeKeys.Contains(InKey);
+}
+
+FReply SJoystickInputSelector::OnPreviewKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent)
+{
+	if (bIsSelectingKey && (bAllowGamepadKeys || InKeyEvent.GetKey().IsGamepadKey() == false) && (bAllowNonGamepadKeys || InKeyEvent.GetKey().IsGamepadKey() == true))
+	{
+		// While selecting keys handle all key downs to prevent contained controls from
+		// interfering with key selection.
+		return FReply::Handled();
+	}
+	return SCompoundWidget::OnPreviewKeyDown(MyGeometry, InKeyEvent);
 }
 
 FReply SJoystickInputSelector::OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent)
@@ -297,14 +364,12 @@ FReply SJoystickInputSelector::OnKeyUp(const FGeometry& MyGeometry, const FKeyEv
 			return FReply::Handled();
 		}
 
-		const FInputChord NewSelectedKey = bAllowModifierKeys
-			                                   ? FInputChord(KeyUp, ModifierKey == EModifierKey::Shift,
-			                                                 ModifierKey == EModifierKey::Control,
-			                                                 ModifierKey == EModifierKey::Alt,
-			                                                 ModifierKey == EModifierKey::Command)
-			                                   : FInputChord(KeyUp);
-
-		SelectKey(NewSelectedKey);
+		SelectKey(
+			KeyUp,
+			ModifierKey == EModifierKey::Shift,
+			ModifierKey == EModifierKey::Control,
+			ModifierKey == EModifierKey::Alt,
+			ModifierKey == EModifierKey::Command);
 		return FReply::Handled();
 	}
 	if (!bIsSelectingKey && Button.IsValid())
@@ -315,24 +380,13 @@ FReply SJoystickInputSelector::OnKeyUp(const FGeometry& MyGeometry, const FKeyEv
 	return SCompoundWidget::OnKeyUp(MyGeometry, InKeyEvent);
 }
 
-FReply SJoystickInputSelector::OnPreviewKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent)
-{
-	if (bIsSelectingKey && (bAllowGamepadKeys || InKeyEvent.GetKey().IsGamepadKey() == false) && (bAllowNonGamepadKeys || InKeyEvent.GetKey().IsGamepadKey() == true))
-	{
-		// While selecting keys handle all key downs to prevent contained controls from
-		// interfering with key selection.
-		return FReply::Handled();
-	}
-	return SCompoundWidget::OnPreviewKeyDown(MyGeometry, InKeyEvent);
-}
-
 FReply SJoystickInputSelector::OnPreviewMouseButtonDown(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
 {
 	if (bIsSelectingKey)
 	{
 		SetIsSelectingKey(false);
 		// TODO: Add options for enabling mouse modifiers.
-		SelectKey(FInputChord(MouseEvent.GetEffectingButton(), false, false, false, false));
+		SelectKey(MouseEvent.GetEffectingButton(), false, false, false, false);
 		return FReply::Handled();
 	}
 	return SCompoundWidget::OnPreviewMouseButtonDown(MyGeometry, MouseEvent);
@@ -348,14 +402,6 @@ FReply SJoystickInputSelector::OnMouseButtonDown(const FGeometry& MyGeometry, co
 	return SCompoundWidget::OnMouseButtonDown(MyGeometry, MouseEvent);
 }
 
-void SJoystickInputSelector::OnFocusLost(const FFocusEvent& InFocusEvent)
-{
-	if (bIsSelectingKey)
-	{
-		SetIsSelectingKey(false);
-	}
-}
-
 FNavigationReply SJoystickInputSelector::OnNavigation(const FGeometry& MyGeometry, const FNavigationEvent& InNavigationEvent)
 {
 	if (Button.IsValid())
@@ -366,74 +412,18 @@ FNavigationReply SJoystickInputSelector::OnNavigation(const FGeometry& MyGeometr
 	return SCompoundWidget::OnNavigation(MyGeometry, InNavigationEvent);
 }
 
-FText SJoystickInputSelector::GetSelectedKeyText() const
+void SJoystickInputSelector::OnFocusLost(const FFocusEvent& InFocusEvent)
 {
 	if (bIsSelectingKey)
 	{
-		return KeySelectionText;
+		SetIsSelectingKey(false);
 	}
-	if (SelectedKey.IsSet())
+}
+
+void SJoystickInputSelector::SetTextBlockVisibility(const EVisibility InVisibility) const
+{
+	if (TextBlock.IsValid())
 	{
-		if (SelectedKey.Get().Key.IsValid())
-		{
-			// If the key in the chord is a modifier key, print it's display name directly since the FInputChord
-			// displays these as empty text.
-			return SelectedKey.Get().Key.IsModifierKey()
-				       ? SelectedKey.Get().Key.GetDisplayName()
-				       : SelectedKey.Get().GetInputText();
-		}
+		TextBlock->SetVisibility(InVisibility);
 	}
-	return NoKeySpecifiedText;
-}
-
-FMargin SJoystickInputSelector::GetMargin() const
-{
-	return Margin.Get();
-}
-
-FReply SJoystickInputSelector::OnClicked()
-{
-	if (bIsSelectingKey == false)
-	{
-		SetIsSelectingKey(true);
-		return FReply::Handled().SetUserFocus(SharedThis(this), EFocusCause::SetDirectly);
-	}
-	return FReply::Handled();
-}
-
-void SJoystickInputSelector::SelectAxis(const FInputChord& NewSelectedKey)
-{
-	if (SelectedKey.IsBound() == false)
-	{
-		SelectedKey.Set(NewSelectedKey);
-	}
-	OnAxisSelected.ExecuteIfBound(NewSelectedKey);
-}
-
-void SJoystickInputSelector::SelectKey(const FInputChord& NewSelectedKey)
-{
-	if (SelectedKey.IsBound() == false)
-	{
-		SelectedKey.Set(NewSelectedKey);
-	}
-	OnKeySelected.ExecuteIfBound(NewSelectedKey);
-}
-
-void SJoystickInputSelector::SetIsSelectingKey(const bool bInIsSelectingKey)
-{
-	if (bIsSelectingKey != bInIsSelectingKey)
-	{
-		bIsSelectingKey = bInIsSelectingKey;
-		// Prevents certain inputs from being consumed by the button
-		if (Button.IsValid())
-		{
-			Button->SetEnabled(!bIsSelectingKey);
-		}
-		OnIsSelectingChanged.ExecuteIfBound();
-	}
-}
-
-bool SJoystickInputSelector::IsEscapeKey(const FKey& InKey) const
-{
-	return EscapeKeys.Contains(InKey);
 }

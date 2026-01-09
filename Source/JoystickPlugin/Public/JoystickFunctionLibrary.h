@@ -22,10 +22,10 @@ public:
 
 	static EHatDirection HatValueToDirection(const int8 Value);
 
-	UFUNCTION(BlueprintCallable, Category="Joystick|Hat")
+	UFUNCTION(BlueprintPure, Category="Joystick|Hat")
 	static FString HatDirectionAsString(EHatDirection Value);
 
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Joystick|Key")
+	UFUNCTION(BlueprintPure, Category="Joystick|Key")
 	static bool IsJoystickKey(const FKey& Key);
 
 	static FString SanitiseDeviceName(const FString& InDeviceName, const bool AllowSpaces = false);

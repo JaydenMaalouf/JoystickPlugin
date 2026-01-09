@@ -15,7 +15,12 @@ THIRD_PARTY_INCLUDES_START
 
 THIRD_PARTY_INCLUDES_END
 
-bool UJoystickHapticDeviceManager::SetAutoCenter(const FJoystickInstanceId& InstanceId, const int Center)
+const UJoystickHapticDeviceManager* UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager()
+{
+	return GetDefault<UJoystickHapticDeviceManager>();
+}
+
+bool UJoystickHapticDeviceManager::SetAutoCenter(const FJoystickInstanceId& InstanceId, const int Center) const
 {
 	auto [HapticDevice, HapticDeviceResult] = GetHapticDevice(InstanceId);
 	if (HapticDevice == nullptr || HapticDeviceResult.bSuccess == false)
@@ -34,7 +39,7 @@ bool UJoystickHapticDeviceManager::SetAutoCenter(const FJoystickInstanceId& Inst
 	return true;
 }
 
-bool UJoystickHapticDeviceManager::SetGain(const FJoystickInstanceId& InstanceId, const int Gain)
+bool UJoystickHapticDeviceManager::SetGain(const FJoystickInstanceId& InstanceId, const int Gain) const
 {
 	auto [HapticDevice, HapticDeviceResult] = GetHapticDevice(InstanceId);
 	if (HapticDevice == nullptr || HapticDeviceResult.bSuccess == false)
@@ -146,7 +151,7 @@ int UJoystickHapticDeviceManager::GetNumEffectsPlaying(const FJoystickInstanceId
 	return Result;
 }
 
-int UJoystickHapticDeviceManager::GetEffectStatus(const FJoystickInstanceId& InstanceId, const int EffectId)
+int UJoystickHapticDeviceManager::GetEffectStatus(const FJoystickInstanceId& InstanceId, const int EffectId) const
 {
 	auto [DeviceInfo, DeviceInfoResult] = GetDeviceInfo(InstanceId);
 	if (DeviceInfo == nullptr || DeviceInfoResult.bSuccess == false)

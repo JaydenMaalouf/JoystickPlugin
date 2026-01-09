@@ -5,7 +5,7 @@
 
 #include "JoystickInputDeviceButtonProperties.generated.h"
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct JOYSTICKPLUGIN_API FJoystickInputDeviceButtonProperties
 {
 	GENERATED_BODY()
@@ -26,6 +26,13 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceButtonProperties
 	UPROPERTY(EditAnywhere, Category="Button Properties", meta=(EditCondition="OverrideDisplayName", EditConditionHides))
 	FString DisplayName;
 
-	UPROPERTY(EditAnywhere, Category="Button Properties")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Button Properties")
 	bool InvertOutput;
+
+	void UpdateProperties(const FJoystickInputDeviceButtonProperties& ButtonProperties)
+	{
+		OverrideDisplayName = ButtonProperties.OverrideDisplayName;
+		DisplayName = ButtonProperties.DisplayName;
+		InvertOutput = ButtonProperties.InvertOutput;
+	}
 };

@@ -61,8 +61,8 @@ public:
 	UFUNCTION(BlueprintPure, Category="Joystick", meta=(ToolTip="The number of connected joysticks monitored by this plugin."))
 	int GetConnectedJoystickCount() const;
 
-	UFUNCTION(BlueprintSetter, Category="Joystick", meta=(ToolTip="The raw input state of the specified joystick."))
-	bool GetJoystickState(const FJoystickInstanceId& InstanceId, FJoystickDeviceState& JoystickDeviceState);
+	UFUNCTION(BlueprintCallable, BlueprintPure=false, Category="Joystick", meta=(ToolTip="The raw input state of the specified joystick."))
+	bool GetJoystickState(const FJoystickInstanceId& InstanceId, FJoystickDeviceState& JoystickDeviceState) const;
 
 	UFUNCTION(BlueprintCallable, Category="Joystick")
 	bool GetJoystickInfo(const FJoystickInstanceId& InstanceId, FJoystickInformation& JoystickInfo);
@@ -135,11 +135,6 @@ private:
 	void JoystickUnplugged(const FJoystickInstanceId& InstanceId, const FInputDeviceId& InputDeviceId) const;
 
 	void LoadGameControllerMappings() const;
-	void LoadJoystickProfiles() const;
-
-	static bool AsBoolean(const FString& Input);
-	static float AsFloat(const FString& Input);
-	static int32 AsInteger(const FString& Input);
 
 	void ConvertSDLGuid(const SDL_JoystickGUID& SdlGuid, FGuid& OutGuid) const;
 	FString GenerateDeviceHash(const FDeviceInfoSDL& Device) const;

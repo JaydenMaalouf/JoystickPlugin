@@ -5,7 +5,7 @@
 
 #include "JoystickInputDeviceAxisProperties.generated.h"
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct JOYSTICKPLUGIN_API FJoystickInputDeviceAxisProperties
 {
 	GENERATED_BODY()
@@ -35,33 +35,47 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceAxisProperties
 	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="OverrideDisplayName", EditConditionHides))
 	FString DisplayName;
 
-	UPROPERTY(EditAnywhere, Category="Axis Properties")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Axis Properties")
 	bool RemappingEnabled;
 
-	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled", EditConditionHides))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled", EditConditionHides))
 	float InputOffset;
 
-	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled", EditConditionHides))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled", EditConditionHides))
 	bool InvertInput;
 
-	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled", EditConditionHides))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled", EditConditionHides))
 	bool RerangeInput;
 
-	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled && RerangeInput", EditConditionHides))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled && RerangeInput", EditConditionHides))
 	float InputRangeMin;
 
-	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled && RerangeInput", EditConditionHides))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled && RerangeInput", EditConditionHides))
 	float InputRangeMax;
 
-	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled", EditConditionHides))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled", EditConditionHides))
 	bool RerangeOutput;
 
-	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled && RerangeOutput", EditConditionHides))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled && RerangeOutput", EditConditionHides))
 	float OutputRangeMin;
 
-	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled && RerangeOutput", EditConditionHides))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled && RerangeOutput", EditConditionHides))
 	float OutputRangeMax;
 
-	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled", EditConditionHides))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Axis Properties", meta=(EditCondition="RemappingEnabled", EditConditionHides))
 	bool InvertOutput;
+
+	void UpdateProperties(const FJoystickInputDeviceAxisProperties& AxisProperties)
+	{
+		RemappingEnabled = AxisProperties.RemappingEnabled;
+		InputOffset = AxisProperties.InputOffset;
+		InvertInput = AxisProperties.InvertInput;
+		RerangeInput = AxisProperties.RerangeInput;
+		InputRangeMin = AxisProperties.InputRangeMin;
+		InputRangeMax = AxisProperties.InputRangeMax;
+		RerangeOutput = AxisProperties.RerangeOutput;
+		OutputRangeMin = AxisProperties.OutputRangeMin;
+		OutputRangeMax = AxisProperties.OutputRangeMax;
+		InvertOutput = AxisProperties.InvertOutput;
+	}
 };

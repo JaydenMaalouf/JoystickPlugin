@@ -10,7 +10,7 @@
 
 #include "JoystickInputDeviceConfiguration.generated.h"
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct JOYSTICKPLUGIN_API FJoystickInputDeviceConfiguration
 {
 	GENERATED_BODY()
@@ -58,7 +58,7 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceConfiguration
 	UPROPERTY(EditAnywhere, Category="Device Config", meta=(TitleProperty="ButtonIndex"))
 	TArray<FJoystickInputDeviceButtonProperties> ButtonProperties;
 
-	const FJoystickInputDeviceAxisProperties* GetAxisProperties(int AxisIndex) const
+	FJoystickInputDeviceAxisProperties* GetAxisProperties(const int AxisIndex)
 	{
 		return AxisProperties.FindByPredicate([AxisIndex](const FJoystickInputDeviceAxisProperties& AxisProperty)
 		{
@@ -66,11 +66,39 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceConfiguration
 		});
 	}
 
-	const FJoystickInputDeviceButtonProperties* GetButtonProperties(int ButtonIndex) const
+	FJoystickInputDeviceButtonProperties* GetButtonProperties(const int ButtonIndex)
 	{
 		return ButtonProperties.FindByPredicate([ButtonIndex](const FJoystickInputDeviceButtonProperties& ButtonProperty)
 		{
 			return ButtonProperty.ButtonIndex != -1 && ButtonProperty.ButtonIndex == ButtonIndex;
 		});
+	}
+
+	void Merge(FJoystickInputDeviceConfiguration& Other)
+	{
+		OverrideDeviceName = Other.OverrideDeviceName;
+		DeviceName = Other.DeviceName;
+
+		for (FJoystickInputDeviceAxisProperties& AxisProperty : AxisProperties)
+		{
+			const FJoystickInputDeviceAxisProperties* OtherAxisProperties = Other.GetAxisProperties(AxisProperty.AxisIndex);
+			if (!OtherAxisProperties)
+			{
+				continue;
+			}
+
+			AxisProperty.UpdateProperties(*OtherAxisProperties);
+		}
+
+		for (FJoystickInputDeviceButtonProperties& ButtonProperty : ButtonProperties)
+		{
+			const FJoystickInputDeviceButtonProperties* OtherButtonProperties = Other.GetButtonProperties(ButtonProperty.ButtonIndex);
+			if (!OtherButtonProperties)
+			{
+				continue;
+			}
+
+			ButtonProperty.UpdateProperties(*OtherButtonProperties);
+		}
 	}
 };

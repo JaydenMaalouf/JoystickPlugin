@@ -70,7 +70,7 @@ void FJoystickPluginEditorModule::RegisterMenus() const
 		FText::FromString("Joystick Viewer"),
 		FText::FromString("Open the Joystick Input Viewer tab."),
 		FSlateIcon(FAppStyle::GetAppStyleSetName(), "GraphEditor.PadEvent_16x"),
-		FUIAction(FExecuteAction::CreateLambda([]()
+		FUIAction(FExecuteAction::CreateLambda([]
 		{
 			FGlobalTabmanager::Get()->TryInvokeTab(JoystickViewerTabId);
 		}))
@@ -85,6 +85,7 @@ void FJoystickPluginEditorModule::RegisterPropertyLayout() const
 }
 
 static FName SettingsSection = TEXT("Joystick Input");
+
 void FJoystickPluginEditorModule::RegisterSettings() const
 {
 	if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))

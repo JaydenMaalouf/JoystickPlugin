@@ -73,7 +73,7 @@ void SJoystickInputViewer::Construct(const FArguments& InArgs, const TSharedRef<
 						}
 
 						UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
-						if (!JoystickSubsystem)
+						if (!IsValid(JoystickSubsystem))
 						{
 							return FText::FromString("None");
 						}
@@ -182,7 +182,7 @@ void SJoystickInputViewer::Tick(const FGeometry& AllottedGeometry, const double 
 	}
 
 	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
-	if (!JoystickSubsystem)
+	if (!IsValid(JoystickSubsystem))
 	{
 		return;
 	}
@@ -260,7 +260,7 @@ void SJoystickInputViewer::CreateWidgets()
 	}
 
 	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
-	if (!JoystickSubsystem)
+	if (!IsValid(JoystickSubsystem))
 	{
 		return;
 	}
@@ -276,7 +276,7 @@ void SJoystickInputViewer::CreateWidgets()
 
 void SJoystickInputViewer::CreateAxisBars(const UJoystickSubsystem* JoystickSubsystem, const FJoystickDeviceState& JoystickState)
 {
-	if (!JoystickSubsystem)
+	if (!IsValid(JoystickSubsystem))
 	{
 		return;
 	}
@@ -309,7 +309,7 @@ void SJoystickInputViewer::CreateAxisBars(const UJoystickSubsystem* JoystickSubs
 
 void SJoystickInputViewer::CreateButtonBoxes(const UJoystickSubsystem* JoystickSubsystem, const FJoystickDeviceState& JoystickState)
 {
-	if (!JoystickSubsystem)
+	if (!IsValid(JoystickSubsystem))
 	{
 		return;
 	}
@@ -345,7 +345,7 @@ void SJoystickInputViewer::CreateButtonBoxes(const UJoystickSubsystem* JoystickS
 
 void SJoystickInputViewer::CreateHatSwitches(const UJoystickSubsystem* JoystickSubsystem, const FJoystickDeviceState& JoystickState)
 {
-	if (!JoystickSubsystem)
+	if (!IsValid(JoystickSubsystem))
 	{
 		return;
 	}
@@ -381,7 +381,7 @@ void SJoystickInputViewer::CreateHatSwitches(const UJoystickSubsystem* JoystickS
 
 void SJoystickInputViewer::CreateBallSwitches(const UJoystickSubsystem* JoystickSubsystem, const FJoystickDeviceState& JoystickState)
 {
-	if (!JoystickSubsystem)
+	if (!IsValid(JoystickSubsystem))
 	{
 		return;
 	}

@@ -84,7 +84,7 @@ bool UJoystickFunctionLibrary::IsJoystickKey(IN const FKey& Key)
 	}
 
 	const UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
-	if (!JoystickSubsystem)
+	if (!IsValid(JoystickSubsystem))
 	{
 		return false;
 	}

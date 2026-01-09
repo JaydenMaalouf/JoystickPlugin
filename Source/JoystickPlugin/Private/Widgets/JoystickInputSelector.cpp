@@ -8,43 +8,34 @@
 #include "UObject/FrameworkObjectVersion.h"
 #include "Widgets/DeclarativeSyntaxSupport.h"
 #include "Internationalization/Internationalization.h"
+#include "Styling/DefaultStyleCache.h"
 
 #define LOCTEXT_NAMESPACE "JoystickPlugin"
 
-static FButtonStyle* DefaultInputKeySelectorButtonStyle = nullptr;
-static FTextBlockStyle* DefaultInputKeySelectorTextStyle = nullptr;
-
 UJoystickInputSelector::UJoystickInputSelector(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-	if (DefaultInputKeySelectorButtonStyle == nullptr)
+	PRAGMA_DISABLE_DEPRECATION_WARNINGS
+	WidgetStyle = UE::Slate::Private::FDefaultStyleCache::GetRuntime().GetButtonStyle();
+	TextStyle = UE::Slate::Private::FDefaultStyleCache::GetRuntime().GetTextBlockStyle();
+
+#if WITH_EDITOR
+	if (IsEditorWidget())
 	{
-		// HACK: THIS SHOULD NOT COME FROM CORESTYLE AND SHOULD INSTEAD BE DEFINED BY ENGINE TEXTURES/PROJECT SETTINGS
-		DefaultInputKeySelectorButtonStyle = new FButtonStyle(FCoreStyle::Get().GetWidgetStyle<FButtonStyle>("Button"));
+		WidgetStyle = UE::Slate::Private::FDefaultStyleCache::GetEditor().GetButtonStyle();
+		TextStyle = UE::Slate::Private::FDefaultStyleCache::GetEditor().GetTextBlockStyle();
 
-		// Unlink UMG default colors from the editor settings colors.
-		DefaultInputKeySelectorButtonStyle->UnlinkColors();
+		// The CDO isn't an editor widget and thus won't use the editor style, call post edit change to mark difference from CDO
+		PostEditChange();
 	}
-
-	if (DefaultInputKeySelectorTextStyle == nullptr)
-	{
-		// HACK: THIS SHOULD NOT COME FROM CORESTYLE AND SHOULD INSTEAD BE DEFINED BY ENGINE TEXTURES/PROJECT SETTINGS
-		DefaultInputKeySelectorTextStyle = new FTextBlockStyle(
-			FCoreStyle::Get().GetWidgetStyle<FTextBlockStyle>("NormalText"));
-
-		// Unlink UMG default colors from the editor settings colors.
-		DefaultInputKeySelectorTextStyle->UnlinkColors();
-	}
-
-	WidgetStyle = *DefaultInputKeySelectorButtonStyle;
-	TextStyle = *DefaultInputKeySelectorTextStyle;
+#endif // WITH_EDITOR
 
 	KeySelectionText = NSLOCTEXT("InputKeySelector", "DefaultKeySelectionText", "...");
 	NoKeySpecifiedText = NSLOCTEXT("InputKeySelector", "DefaultEmptyText", "Empty");
 	SelectedKey = FInputChord(EKeys::Invalid);
-	bAllowAxisKeys = true;
-	bAllowButtonKeys = true;
 	bAllowModifierKeys = true;
 	bAllowGamepadKeys = true;
+	bAllowAxisKeys = true;
+	bAllowButtonKeys = true;
 	bAllowNonGamepadKeys = true;
 	bAllowJoystickKeys = true;
 	bUseAxisProperties = true;
@@ -53,7 +44,8 @@ UJoystickInputSelector::UJoystickInputSelector(const FObjectInitializer& ObjectI
 	MinRangeOffset = 0.0f;
 	MaxRangeOffset = 0.0f;
 	DeadZone = 0.05f;
-	AxisSelectionTimeout = 2.5f;
+	AxisSelectionTimeout = 5.0f;
+	PRAGMA_ENABLE_DEPRECATION_WARNINGS
 
 	EscapeKeys.AddUnique(EKeys::Gamepad_Special_Right);
 	// In most (if not all) cases this is going to be the menu button
@@ -61,18 +53,37 @@ UJoystickInputSelector::UJoystickInputSelector(const FObjectInitializer& ObjectI
 	if (!IsRunningDedicatedServer())
 	{
 		static ConstructorHelpers::FObjectFinder<UFont> RobotoFontObj(*GetDefaultFontName());
+		PRAGMA_DISABLE_DEPRECATION_WARNINGS
 		TextStyle.Font = FSlateFontInfo(RobotoFontObj.Object, 24, FName("Bold"));
+		PRAGMA_ENABLE_DEPRECATION_WARNINGS
 	}
 }
 
+void UJoystickInputSelector::Serialize(FArchive& Ar)
+{
+	Super::Serialize(Ar);
+
+	Ar.UsingCustomVersion(FFrameworkObjectVersion::GUID);
+}
+
+PRAGMA_DISABLE_DEPRECATION_WARNINGS
+
 void UJoystickInputSelector::SetSelectedKey(const FInputChord& InSelectedKey)
 {
-	if (JoystickInputSelector.IsValid())
+	if (SelectedKey != InSelectedKey)
 	{
-		JoystickInputSelector->SetSelectedKey(InSelectedKey);
+		BroadcastFieldValueChanged(FFieldNotificationClassDescriptor::SelectedKey);
+		if (JoystickInputSelector.IsValid())
+		{
+			JoystickInputSelector->SetSelectedKey(InSelectedKey);
+		}
+		SelectedKey = InSelectedKey;
 	}
+}
 
-	SelectedKey = InSelectedKey;
+FInputChord UJoystickInputSelector::GetSelectedKey() const
+{
+	return SelectedKey;
 }
 
 void UJoystickInputSelector::SetKeySelectionText(FText InKeySelectionText)
@@ -85,6 +96,16 @@ void UJoystickInputSelector::SetKeySelectionText(FText InKeySelectionText)
 	KeySelectionText = MoveTemp(InKeySelectionText);
 }
 
+const FText& UJoystickInputSelector::GetNoKeySpecifiedText() const
+{
+	return NoKeySpecifiedText;
+}
+
+const FText& UJoystickInputSelector::GetKeySelectionText() const
+{
+	return KeySelectionText;
+}
+
 void UJoystickInputSelector::SetNoKeySpecifiedText(FText InNoKeySpecifiedText)
 {
 	if (JoystickInputSelector.IsValid())
@@ -93,6 +114,36 @@ void UJoystickInputSelector::SetNoKeySpecifiedText(FText InNoKeySpecifiedText)
 	}
 
 	NoKeySpecifiedText = MoveTemp(InNoKeySpecifiedText);
+}
+
+void UJoystickInputSelector::SetAllowModifierKeys(const bool bInAllowModifierKeys)
+{
+	if (JoystickInputSelector.IsValid())
+	{
+		JoystickInputSelector->SetAllowModifierKeys(bInAllowModifierKeys);
+	}
+
+	bAllowModifierKeys = bInAllowModifierKeys;
+}
+
+bool UJoystickInputSelector::AllowModifierKeys() const
+{
+	return bAllowModifierKeys;
+}
+
+void UJoystickInputSelector::SetAllowGamepadKeys(const bool bInAllowGamepadKeys)
+{
+	if (JoystickInputSelector.IsValid())
+	{
+		JoystickInputSelector->SetAllowGamepadKeys(bInAllowGamepadKeys);
+	}
+
+	bAllowGamepadKeys = bInAllowGamepadKeys;
+}
+
+bool UJoystickInputSelector::AllowGamepadKeys() const
+{
+	return bAllowGamepadKeys;
 }
 
 void UJoystickInputSelector::SetAllowAxisKeys(const bool bInAllowAxisKeys)
@@ -115,16 +166,6 @@ void UJoystickInputSelector::SetAllowButtonKeys(const bool bInAllowButtonKeys)
 	bAllowButtonKeys = bInAllowButtonKeys;
 }
 
-void UJoystickInputSelector::SetAllowGamepadKeys(const bool bInAllowGamepadKeys)
-{
-	if (JoystickInputSelector.IsValid())
-	{
-		JoystickInputSelector->SetAllowGamepadKeys(bInAllowGamepadKeys);
-	}
-
-	bAllowGamepadKeys = bInAllowGamepadKeys;
-}
-
 void UJoystickInputSelector::SetAllowNonGamepadKeys(const bool bInAllowNonGamepadKeys)
 {
 	if (JoystickInputSelector.IsValid())
@@ -143,16 +184,6 @@ void UJoystickInputSelector::SetAllowJoystickKeys(const bool bInAllowJoystickKey
 	}
 
 	bAllowJoystickKeys = bInAllowJoystickKeys;
-}
-
-void UJoystickInputSelector::SetAllowModifierKeys(const bool bInAllowModifierKeys)
-{
-	if (JoystickInputSelector.IsValid())
-	{
-		JoystickInputSelector->SetAllowModifierKeys(bInAllowModifierKeys);
-	}
-
-	bAllowModifierKeys = bInAllowModifierKeys;
 }
 
 void UJoystickInputSelector::SetUseAxisProperties(const bool bInUseAxisProperties)
@@ -225,6 +256,8 @@ void UJoystickInputSelector::SetDeadZone(const float InDeadZone)
 	DeadZone = InDeadZone;
 }
 
+PRAGMA_ENABLE_DEPRECATION_WARNINGS
+
 bool UJoystickInputSelector::GetIsSelectingKey() const
 {
 	return JoystickInputSelector.IsValid() ? JoystickInputSelector->GetIsSelectingKey() : false;
@@ -232,11 +265,37 @@ bool UJoystickInputSelector::GetIsSelectingKey() const
 
 void UJoystickInputSelector::SetButtonStyle(const FButtonStyle* InButtonStyle)
 {
+	SetButtonStyle(*InButtonStyle);
+}
+
+PRAGMA_DISABLE_DEPRECATION_WARNINGS
+
+void UJoystickInputSelector::SetButtonStyle(const FButtonStyle& InButtonStyle)
+{
 	if (JoystickInputSelector.IsValid())
 	{
-		JoystickInputSelector->SetButtonStyle(InButtonStyle);
+		JoystickInputSelector->SetButtonStyle(&InButtonStyle);
 	}
-	WidgetStyle = *InButtonStyle;
+	WidgetStyle = InButtonStyle;
+}
+
+const FButtonStyle& UJoystickInputSelector::GetButtonStyle() const
+{
+	return WidgetStyle;
+}
+
+void UJoystickInputSelector::SetTextStyle(const FTextBlockStyle& InTextStyle)
+{
+	if (JoystickInputSelector.IsValid())
+	{
+		JoystickInputSelector->SetTextStyle(&InTextStyle);
+	}
+	TextStyle = InTextStyle;
+}
+
+const FTextBlockStyle& UJoystickInputSelector::GetTextStyle() const
+{
+	return TextStyle;
 }
 
 void UJoystickInputSelector::SetEscapeKeys(const TArray<FKey>& InKeys)
@@ -248,12 +307,22 @@ void UJoystickInputSelector::SetEscapeKeys(const TArray<FKey>& InKeys)
 	EscapeKeys = InKeys;
 }
 
-void UJoystickInputSelector::Serialize(FArchive& Ar)
+void UJoystickInputSelector::SetMargin(const FMargin& InMargin)
 {
-	Super::Serialize(Ar);
-
-	Ar.UsingCustomVersion(FFrameworkObjectVersion::GUID);
+	if (JoystickInputSelector.IsValid())
+	{
+		JoystickInputSelector->SetMargin(InMargin);
+	}
+	Margin = InMargin;
 }
+
+const FMargin& UJoystickInputSelector::GetMargin() const
+{
+	return Margin;
+}
+
+PRAGMA_ENABLE_DEPRECATION_WARNINGS
+
 #if WITH_EDITOR
 const FText UJoystickInputSelector::GetPaletteCategory()
 {
@@ -261,9 +330,16 @@ const FText UJoystickInputSelector::GetPaletteCategory()
 }
 #endif
 
+PRAGMA_DISABLE_DEPRECATION_WARNINGS
+
 void UJoystickInputSelector::SynchronizeProperties()
 {
 	Super::SynchronizeProperties();
+
+	if (!JoystickInputSelector.IsValid())
+	{
+		return;
+	}
 
 	JoystickInputSelector->SetSelectedKey(SelectedKey);
 	JoystickInputSelector->SetMargin(Margin);
@@ -315,23 +391,19 @@ TSharedRef<SWidget> UJoystickInputSelector::RebuildWidget()
 		.SetAxisSelectionTimeout(AxisSelectionTimeout)
 		.SetDeadZone(DeadZone)
 		.EscapeKeys(EscapeKeys)
-		.OnAxisSelected(BIND_UOBJECT_DELEGATE(SJoystickInputSelector::FOnKeySelected, HandleAxisSelected))
 		.OnKeySelected(BIND_UOBJECT_DELEGATE(SJoystickInputSelector::FOnKeySelected, HandleKeySelected))
 		.OnIsSelectingChanged(BIND_UOBJECT_DELEGATE(SJoystickInputSelector::FOnIsSelectingChanged, HandleIsSelectingChanged));
 	return JoystickInputSelector.ToSharedRef();
 }
 
-void UJoystickInputSelector::HandleAxisSelected(const FInputChord& InSelectedKey)
-{
-	SelectedKey = InSelectedKey;
-	OnAxisSelected.Broadcast(SelectedKey);
-}
-
 void UJoystickInputSelector::HandleKeySelected(const FInputChord& InSelectedKey)
 {
 	SelectedKey = InSelectedKey;
+	BroadcastFieldValueChanged(FFieldNotificationClassDescriptor::SelectedKey);
 	OnKeySelected.Broadcast(SelectedKey);
 }
+
+PRAGMA_ENABLE_DEPRECATION_WARNINGS
 
 void UJoystickInputSelector::HandleIsSelectingChanged() const
 {
@@ -341,7 +413,7 @@ void UJoystickInputSelector::HandleIsSelectingChanged() const
 	}
 }
 
-void UJoystickInputSelector::SetTextBlockVisibility(const ESlateVisibility InVisibility)
+void UJoystickInputSelector::SetTextBlockVisibility(const ESlateVisibility InVisibility) const
 {
 	if (JoystickInputSelector.IsValid())
 	{

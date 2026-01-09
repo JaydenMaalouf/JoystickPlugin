@@ -35,10 +35,10 @@ public:
 			  , _NoKeySpecifiedText(NSLOCTEXT("InputKeySelector", "DefaultEmptyText", "Empty"))
 			  , _AllowAxisKeys(true)
 			  , _AllowButtonKeys(true)
-			  , _AllowGamepadKeys(true)
 			  , _AllowNonGamepadKeys(true)
 			  , _AllowJoystickKeys(true)
 			  , _AllowModifierKeys(true)
+			  , _AllowGamepadKeys(true)
 			  , _SetUseAxisProperties(true)
 			  , _SetMinRange(0.0f)
 			  , _SetMaxRange(1.0f)
@@ -74,12 +74,12 @@ public:
 
 		SLATE_ARGUMENT(bool, AllowAxisKeys)
 		SLATE_ARGUMENT(bool, AllowButtonKeys)
-		SLATE_ARGUMENT(bool, AllowGamepadKeys)
 		SLATE_ARGUMENT(bool, AllowNonGamepadKeys)
 		SLATE_ARGUMENT(bool, AllowJoystickKeys)
 
 		/** When true modifier keys are captured in the selected key chord, otherwise they are ignored. */
 		SLATE_ARGUMENT(bool, AllowModifierKeys)
+		SLATE_ARGUMENT(bool, AllowGamepadKeys)
 
 		SLATE_ARGUMENT(bool, SetUseAxisProperties)
 		SLATE_ARGUMENT(float, SetMinRange)
@@ -98,7 +98,6 @@ public:
 		SLATE_ARGUMENT(TArray<FKey>, EscapeKeys)
 
 		/** Occurs whenever a new key is selected. */
-		SLATE_EVENT(FOnKeySelected, OnAxisSelected)
 		SLATE_EVENT(FOnKeySelected, OnKeySelected)
 
 		/** Occurs whenever key selection mode starts and stops. */
@@ -109,8 +108,6 @@ public:
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs);
-
-	SJoystickInputSelector();
 
 	/** Gets the currently selected key chord. */
 	FInputChord GetSelectedKey() const;
@@ -145,12 +142,12 @@ public:
 
 	void SetAllowAxisKeys(const bool bInAllowAxisKeys) { bAllowAxisKeys = bInAllowAxisKeys; }
 	void SetAllowButtonKeys(const bool bInAllowButtonKeys) { bAllowButtonKeys = bInAllowButtonKeys; }
-	void SetAllowGamepadKeys(const bool bInAllowGamepadKeys) { bAllowGamepadKeys = bInAllowGamepadKeys; }
 	void SetAllowNonGamepadKeys(const bool bInAllowNonGamepadKeys) { bAllowNonGamepadKeys = bInAllowNonGamepadKeys; }
 	void SetAllowJoystickKeys(const bool bInAllowJoystickKeys) { bAllowJoystickKeys = bInAllowJoystickKeys; }
 
 	/** When true modifier keys are captured in the selected key chord, otherwise they are ignored. */
 	void SetAllowModifierKeys(const bool bInAllowModifierKeys) { bAllowModifierKeys = bInAllowModifierKeys; }
+	void SetAllowGamepadKeys(const bool bInAllowGamepadKeys) { bAllowGamepadKeys = bInAllowGamepadKeys; }
 
 	/** Sets the escape keys to check against. */
 	void SetEscapeKeys(TArray<FKey> InEscapeKeys) { EscapeKeys = MoveTemp(InEscapeKeys); }
@@ -182,8 +179,7 @@ private:
 	FReply OnClicked();
 
 	/** Sets the currently selected key and invokes the associated events. */
-	void SelectAxis(const FInputChord& NewSelectedKey);
-	void SelectKey(const FInputChord& NewSelectedKey);
+	void SelectKey(const FKey& Key, bool bShiftDown, bool bControlDown, bool bAltDown, bool bCommandDown);
 
 	/** Sets bIsSelectingKey and invokes the associated events. */
 	void SetIsSelectingKey(const bool bInIsSelectingKey);
@@ -220,21 +216,18 @@ private:
 
 	bool bAllowAxisKeys;
 	bool bAllowButtonKeys;
-	bool bAllowGamepadKeys;
 	bool bAllowNonGamepadKeys;
 	bool bAllowJoystickKeys;
 
 	/** When true modifier keys are recorded on the selected key chord, otherwise they are ignored. */
 	bool bAllowModifierKeys;
+	bool bAllowGamepadKeys;
 
 	/** When true, pressing escape will cancel the key selection, when false, pressing escape will select the escape key. */
 	bool bEscapeCancelsSelection;
 
 	/** When EscapeCancelsSelection is true, escape on specific keys that are unbind able by the user. */
 	TArray<FKey> EscapeKeys;
-
-	/** Delegate which is run any time a new axis is selected. */
-	FOnKeySelected OnAxisSelected;
 
 	/** Delegate which is run any time a new button is selected. */
 	FOnKeySelected OnKeySelected;

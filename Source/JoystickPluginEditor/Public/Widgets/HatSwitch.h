@@ -22,7 +22,7 @@ public:
 	void Construct(const FArguments& InArgs);
 
 	void SetValue(const EHatDirection InValue);
-	void UpdateBallPosition();
+	void UpdateBallPosition() const;
 
 private:
 	TAttribute<EHatDirection> Value;
