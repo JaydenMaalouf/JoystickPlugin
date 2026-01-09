@@ -32,13 +32,13 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure=false, Category="Joystick|Force Feedback")
 	bool SetGain(const FJoystickInstanceId& InstanceId, const int Gain) const;
 
-	UFUNCTION(BlueprintCallable, Category="Joystick|Force Feedback")
+	UFUNCTION(BlueprintCallable, BlueprintPure=false, Category="Joystick|Force Feedback")
 	bool PauseDevice(const FJoystickInstanceId& InstanceId) const;
 
-	UFUNCTION(BlueprintCallable, Category="Joystick|Force Feedback")
+	UFUNCTION(BlueprintCallable, BlueprintPure=false, Category="Joystick|Force Feedback")
 	bool UnpauseDevice(const FJoystickInstanceId& InstanceId) const;
 
-	UFUNCTION(BlueprintCallable, Category="Joystick|Force Feedback")
+	UFUNCTION(BlueprintCallable, BlueprintPure=false, Category="Joystick|Force Feedback")
 	bool StopAllEffects(const FJoystickInstanceId& InstanceId) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Joystick|Force Feedback")
