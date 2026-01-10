@@ -28,7 +28,8 @@ runs:
       shell: pwsh
       run: |
         $workspace      = '${{ github.workspace }}'
-        $thirdPartyDir  = Join-Path $workspace 'ThirdParty'
+        $sourceDir      = Join-Path $workspace 'Source'
+        $thirdPartyDir  = Join-Path $sourceDir 'ThirdParty'
         $targetFile     = Join-Path $thirdPartyDir 'gamecontrollerdb.txt'
         $sourceUrl      = '${{ inputs.controllerDbUrl }}'
 
