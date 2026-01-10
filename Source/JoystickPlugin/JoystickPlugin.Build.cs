@@ -24,37 +24,31 @@ public class JoystickPlugin : ModuleRules
 				"Projects"
 			});
 
-		var PluginSdlPath = Path.Combine(PluginDirectory, "Source", "ThirdParty", "SDL2");
+		var SdlPath = Path.Combine(PluginDirectory, "Source", "ThirdParty", "SDL3");
+		var SdlIncludePath = Path.Combine(SdlPath, "include", "SDL3");
+		var SdlIncludePathParentPath = Path.Combine(SdlPath, "include");
 
-		var PluginIncludePath = Path.Combine(PluginSdlPath, "include");
-		var EngineIncludePath = Path.Combine(EngineDirectory, "Source", "ThirdParty", "SDL2", "SDL-gui-backend", "include");
-
-		var SdlIncludeDir =
-			Directory.Exists(EngineIncludePath) ? EngineIncludePath :
-			Directory.Exists(PluginIncludePath) ? PluginIncludePath :
-			null;
-
-		if (SdlIncludeDir == null)
+		if (!Directory.Exists(SdlIncludePath))
 		{
 			throw new BuildException(
-				"SDL2 headers not found. Checked:\n" +
-				$"  Plugin: {PluginIncludePath}\n" +
-				$"  Engine: {EngineIncludePath}\n" +
-				"Ensure SDL2 is bundled in the plugin ThirdParty/SDL2/include or available in the Engine third-party path.");
+				"SDL headers not found. Checked:\n" +
+				$"  Plugin: {SdlIncludePath}\n" +
+				"Ensure SDL3 is bundled in the plugin ThirdParty/SDL3/include.");
 		}
 
-		PublicSystemIncludePaths.Add(SdlIncludeDir);
+		PublicSystemIncludePaths.Add(SdlIncludePath);
+		PublicSystemIncludePaths.Add(SdlIncludePathParentPath);
 
 		if (Target.Platform == UnrealTargetPlatform.Win64)
 		{
-			var Win64Path = Path.Combine(PluginSdlPath, "Win64");
-			var LibPath = Path.Combine(Win64Path, "SDL2.lib");
-			var DllPath = Path.Combine(Win64Path, "SDL2.dll");
+			var Win64Path = Path.Combine(SdlPath, "Win64");
+			var LibPath = Path.Combine(Win64Path, "SDL3.lib");
+			var DllPath = Path.Combine(Win64Path, "SDL3.dll");
 
 			if (!File.Exists(LibPath) || !File.Exists(DllPath))
 			{
 				throw new BuildException(
-					"SDL2 Win64 binaries not found. Expected:\n" +
+					"SDL3 Win64 binaries not found. Expected:\n" +
 					$"  {LibPath}\n" +
 					$"  {DllPath}");
 			}
@@ -63,7 +57,7 @@ public class JoystickPlugin : ModuleRules
 
 			RuntimeDependencies.Add(DllPath, StagedFileType.NonUFS);
 
-			PublicDelayLoadDLLs.Add("SDL2.dll");
+			PublicDelayLoadDLLs.Add("SDL3.dll");
 		}
 		else if (Target.Platform == UnrealTargetPlatform.Linux)
 		{

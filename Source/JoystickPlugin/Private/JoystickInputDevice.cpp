@@ -21,9 +21,9 @@
 #include "GameFramework/InputSettings.h"
 #include "GenericPlatform/IInputInterface.h"
 #include "JoystickFunctionLibrary.h"
-#include "JoystickHapticDeviceManager.h"
-#include "JoystickLogManager.h"
-#include "JoystickProfileManager.h"
+#include "Managers/JoystickHapticDeviceManager.h"
+#include "Managers/JoystickLogManager.h"
+#include "Managers/JoystickProfileManager.h"
 #include "JoystickSubsystem.h"
 #include "Misc/CoreMiscDefines.h"
 #include "Runtime/Launch/Resources/Version.h"
@@ -50,7 +50,6 @@ void FJoystickInputDevice::SetChannelValue(int ControllerId, FForceFeedbackChann
 
 void FJoystickInputDevice::SetChannelValues(int ControllerId, const FForceFeedbackValues& Values)
 {
-#if ENGINE_MAJOR_VERSION == 5
 	UJoystickHapticDeviceManager* HapticDeviceManager = GetMutableDefault<UJoystickHapticDeviceManager>();
 	if (!IsValid(HapticDeviceManager))
 	{
@@ -68,7 +67,6 @@ void FJoystickInputDevice::SetChannelValues(int ControllerId, const FForceFeedba
 
 		HapticDeviceManager->PlayRumble(Joystick.Key, SmallValue, LargeValue, -1);
 	}
-#endif
 }
 
 bool FJoystickInputDevice::IsGamepadAttached() const
@@ -708,7 +706,6 @@ void FJoystickInputDevice::SendControllerEvents()
 #endif
 
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
-
 					MessageHandler->OnControllerAnalog(AxisKey.GetFName(), DeviceInfo.GetPlatformUserId(), DeviceInfo.GetInputDeviceId(), CurrentValue);
 #else
 					MessageHandler->OnControllerAnalog(AxisKey.GetFName(), DeviceInfo.GetPlatformUserId(), CurrentValue);

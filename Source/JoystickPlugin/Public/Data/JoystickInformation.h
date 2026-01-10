@@ -3,9 +3,12 @@
 
 #pragma once
 
+#include "JoystickConnectionType.h"
+#include "JoystickLedInformation.h"
+#include "JoystickPowerInformation.h"
+#include "JoystickRumbleInformation.h"
 #include "Data/JoystickInstanceId.h"
 #include "Data/JoystickType.h"
-#include "Data/JoystickPowerLevel.h"
 #include "Data/JoystickHapticInformation.h"
 #include "Data/JoystickHapticRumbleInformation.h"
 #include "Data/JoystickSensorInformation.h"
@@ -24,10 +27,8 @@ struct FJoystickInformation
 		  , FirmwareVersion(0)
 		  , ProductVersion(0)
 		  , VendorId(0)
-		  , IsGameController(false)
-		  , PowerLevel(EJoystickPowerLevel::Unknown)
-		  , LedSupport(false)
-		  , RumbleSupport(false)
+		  , IsGamepad(false)
+		  , Connection(EJoystickConnectionType::Unknown)
 	{
 	}
 
@@ -65,21 +66,24 @@ struct FJoystickInformation
 	int32 VendorId;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
-	bool IsGameController;
+	bool IsGamepad;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
-	EJoystickPowerLevel PowerLevel;
+	EJoystickConnectionType Connection;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config|Supported Features")
-	bool LedSupport;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config|Power")
+	FJoystickPowerInformation Power;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config|Supported Features")
-	bool RumbleSupport;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config|Led")
+	FJoystickLedInformation Led;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config|Rumble")
+	FJoystickRumbleInformation Rumble;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config|Haptic")
 	FJoystickHapticInformation Haptic;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config|Haptic")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config|Haptic Rumble")
 	FJoystickHapticRumbleInformation HapticRumble;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config|Sensors")

@@ -76,7 +76,7 @@ public:
 	void ReceiveTick(const float DeltaTime);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Force Feedback")
-	int GetEffectStatus() const;
+	bool GetEffectStatus() const;
 
 	UFUNCTION(BlueprintCallable, Category="Force Feedback")
 	void SetInstanceId(const FJoystickInstanceId& NewInstanceId);

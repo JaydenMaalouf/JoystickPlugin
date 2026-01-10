@@ -6,12 +6,14 @@
 #include "Data/DeviceInfoSDL.h"
 #include "Data/JoystickDeviceState.h"
 #include "Data/JoystickSensorType.h"
+#include "Data/JoystickPowerInformation.h"
 #include "Data/ResultMessage.h"
 #include "Subsystems/EngineSubsystem.h"
 
 THIRD_PARTY_INCLUDES_START
 
 #include "SDL_events.h"
+#include "SDL_guid.h"
 
 THIRD_PARTY_INCLUDES_END
 
@@ -51,10 +53,6 @@ public:
 	bool IsInitialised() const;
 
 	UFUNCTION(BlueprintPure, Category="Joystick",
-		meta=(ToolTip="The number of joysticks captured by SDL2. This does not reflect the joystick count monitored by the plugin - please use GetJoystickCount() or GetConnectedJoystickCount() instead."))
-	int GetRawJoystickCount() const;
-
-	UFUNCTION(BlueprintPure, Category="Joystick",
 		meta=(ToolTip="The number of joysticks captured by this plugin. This does not reflect the current joystick count, as disconnected joysticks will persist in this count - please use GetConnectedJoystickCount() instead."))
 	int GetJoystickCount() const;
 
@@ -71,13 +69,13 @@ public:
 	EJoystickType GetJoystickType(const FJoystickInstanceId& InstanceId);
 
 	UFUNCTION(BlueprintCallable, Category="Joystick")
-	EJoystickPowerLevel GetJoystickPowerLevel(const FJoystickInstanceId& InstanceId);
+	bool GetJoystickPowerInformation(const FJoystickInstanceId& InstanceId, FJoystickPowerInformation& PowerInformation);
 
 	UFUNCTION(BlueprintCallable, Category="Joystick")
 	void MapJoystickDeviceToPlayer(const FJoystickInstanceId& InstanceId, const int PlayerId);
 
 	UFUNCTION(BlueprintCallable, Category="Joystick")
-	void SetIgnoreGameControllers(const bool IgnoreControllers);
+	void SetIgnoreGamepads(const bool IgnoreControllers);
 
 	UFUNCTION(BlueprintCallable, Category="Joystick")
 	bool SetJoystickSensorEnabled(const FJoystickInstanceId& InstanceId, const EJoystickSensorType SensorType, const bool Enabled);
@@ -119,13 +117,12 @@ public:
 	FOnJoystickSubsystemReady JoystickSubsystemInitialised;
 
 private:
-	static int HandleSDLEvent(void* UserData, SDL_Event* Event);
+	static bool HandleSDLEvent(void* UserData, SDL_Event* Event);
 
-	bool AddDevice(const int DeviceIndex);
+	bool AddDevice(const SDL_JoystickID JoystickId);
 	void AddHapticDevice(FDeviceInfoSDL& Device) const;
 	void AddSensorDevice(FDeviceInfoSDL& Device) const;
 	bool RemoveDevice(const FJoystickInstanceId& InstanceId);
-	bool RemoveDeviceByIndex(const int DeviceIndex);
 
 	bool FindExistingDevice(const FDeviceInfoSDL& Device, FJoystickInstanceId& PreviousJoystickInstanceId, FInputDeviceId& ExistingInputDeviceId, FPlatformUserId& ExistingPlatformUserId);
 
@@ -133,10 +130,11 @@ private:
 
 	void JoystickPluggedIn(const FDeviceInfoSDL& Device) const;
 	void JoystickUnplugged(const FJoystickInstanceId& InstanceId, const FInputDeviceId& InputDeviceId) const;
+	void UpdateJoystickPower(FDeviceInfoSDL* DeviceInfo, SDL_Joystick* Joystick) const;
 
-	void LoadGameControllerMappings() const;
+	void LoadGamepadMappings() const;
 
-	void ConvertSDLGuid(const SDL_JoystickGUID& SdlGuid, FGuid& OutGuid) const;
+	void ConvertSDLGuid(const SDL_GUID& SdlGuid, FGuid& OutGuid) const;
 	FString GenerateDeviceHash(const FDeviceInfoSDL& Device) const;
 	FString SafelyStringify(const char* Input) const;
 
@@ -147,7 +145,7 @@ private:
 	bool OwnsSDL;
 	bool bIsInitialised;
 
-	static FString GameControllerMappingFile;
+	static FString GamepadMappingFile;
 	static FString AxisPropertiesSection;
 	static FString ButtonPropertiesSection;
 	static FString JoystickConfigurationSection;

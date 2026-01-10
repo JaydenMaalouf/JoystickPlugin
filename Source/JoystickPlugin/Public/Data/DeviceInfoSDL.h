@@ -11,7 +11,7 @@ THIRD_PARTY_INCLUDES_START
 
 #include "SDL_haptic.h"
 #include "SDL_joystick.h"
-#include "SDL_gamecontroller.h"
+#include "SDL_gamepad.h"
 
 THIRD_PARTY_INCLUDES_END
 
@@ -21,7 +21,7 @@ struct FDeviceInfoSDL : FJoystickInformation
 		: Connected(false)
 		  , SDLHaptic(nullptr)
 		  , SDLJoystick(nullptr)
-		  , SDLGameController(nullptr)
+		  , SDLGamepad(nullptr)
 	{
 		InputDeviceId = FInputDeviceId::CreateFromInternalId(0);
 		PlatformUserId = FPlatformUserId::CreateFromInternalId(0);
@@ -51,7 +51,7 @@ struct FDeviceInfoSDL : FJoystickInformation
 	FString SafeDeviceName;
 	SDL_Haptic* SDLHaptic;
 	SDL_Joystick* SDLJoystick;
-	SDL_GameController* SDLGameController;
+	SDL_Gamepad* SDLGamepad;
 
 private:
 	FPlatformUserId PlatformUserId;

@@ -24,7 +24,7 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectDurationData
 
 	uint32 GetEffectDuration() const
 	{
-		return InfiniteDuration ? SDL_HAPTIC_INFINITY : FMath::Clamp<Uint32>(Duration * 1000.0f, 0, UINT32_MAX);
+		return InfiniteDuration ? SDL_HAPTIC_INFINITY : FMath::Clamp<uint32>(Duration * 1000.0f, 0, UINT32_MAX);
 	}
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|Duration", meta=(ShortToolTip="Duration", ToolTip="The duration of the effect.", UIMin="0", ClampMin="0", EditCondition="!InfiniteDuration"))

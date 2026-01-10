@@ -5,7 +5,7 @@
 
 #include "JoystickFunctionLibrary.h"
 #include "JoystickInputSettings.h"
-#include "JoystickProfileManager.h"
+#include "Managers/JoystickProfileManager.h"
 #include "Data/Settings/JoystickInputDeviceAxisProperties.h"
 #include "Widgets/Text/STextBlock.h"
 #include "Widgets/SOverlay.h"

@@ -1,9 +1,9 @@
 // JoystickPlugin is licensed under the MIT License.
 // Copyright Jayden Maalouf 2026. All Rights Reserved.
 
-#include "JoystickHIDManager.h"
+#include "Managers/JoystickHIDManager.h"
 
-#include "JoystickLogManager.h"
+#include "Managers/JoystickLogManager.h"
 #include "Data/HID/DeviceInfoHID.h"
 #include "Data/HID/DeviceHID.h"
 
@@ -61,9 +61,9 @@ bool UJoystickHIDManager::OpenHIDSerialNumber(const int32 VendorId, const int32 
 	return Internal_OpenHID(VendorId, ProductId, Device, &SerialNumber);
 }
 
-bool UJoystickHIDManager::OpenHIDPath(const FString& DevicePath, const bool Exclusive, FDeviceHID& Device)
+bool UJoystickHIDManager::OpenHIDPath(const FString& DevicePath, FDeviceHID& Device)
 {
-	SDL_hid_device* HIDDevice = SDL_hid_open_path(TCHAR_TO_UTF8(*DevicePath), Exclusive);
+	SDL_hid_device* HIDDevice = SDL_hid_open_path(TCHAR_TO_UTF8(*DevicePath));
 	if (!HIDDevice)
 	{
 		FJoystickLogManager::Get()->LogSDLError(TEXT("SDL_hid_open_path failed"));

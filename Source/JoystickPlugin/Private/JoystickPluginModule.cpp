@@ -33,10 +33,10 @@ void FJoystickPluginModule::StartupModule()
 	PluginSourceDirectory = FPaths::Combine(PluginDirectory, TEXT("Source"));
 	PluginThirdPartyDirectory = FPaths::Combine(PluginSourceDirectory, TEXT("ThirdParty"));
 #if PLATFORM_WINDOWS
-	const FString SdlDir = FPaths::Combine(*PluginThirdPartyDirectory, TEXT("SDL2"), TEXT("Win64"));
+	const FString SdlDir = FPaths::Combine(*PluginThirdPartyDirectory, TEXT("SDL3"), TEXT("Win64"));
 
 	FPlatformProcess::PushDllDirectory(*SdlDir);
-	const FString SdlDllDir = FPaths::Combine(SdlDir, "SDL2.dll");
+	const FString SdlDllDir = FPaths::Combine(SdlDir, "SDL3.dll");
 	SdlDllHandle = FPlatformProcess::GetDllHandle(*SdlDllDir);
 	FPlatformProcess::PopDllDirectory(*SdlDir);
 #endif
