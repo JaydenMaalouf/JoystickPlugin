@@ -1,5 +1,5 @@
 ﻿// JoystickPlugin is licensed under the MIT License.
-// Copyright Jayden Maalouf. All Rights Reserved.
+// Copyright Jayden Maalouf 2026. All Rights Reserved.
 
 #include "Widgets/ButtonBox.h"
 
@@ -31,9 +31,9 @@ void SButtonBox::Construct(const FArguments& InArgs)
 			SNew(SBorder)
 			.BorderImage_Lambda([this]()
 			{
-				return Value.Get() 
-					? FAppStyle::GetBrush("ToolPanel.GroupBorder")
-					: FAppStyle::GetBrush("ToolPanel.DarkGroupBorder");
+				return Value.Get()
+					       ? FAppStyle::GetBrush("ToolPanel.GroupBorder")
+					       : FAppStyle::GetBrush("ToolPanel.DarkGroupBorder");
 			})
 			.BorderBackgroundColor(this, &SButtonBox::GetBackgroundColor)
 			.Padding(2.0f)
@@ -56,9 +56,9 @@ void SButtonBox::Construct(const FArguments& InArgs)
 						.AutoWrapText(true)
 						.ColorAndOpacity_Lambda([this]()
 						{
-							return Value.Get() 
-								? FSlateColor(FLinearColor::White)
-								: FSlateColor(FLinearColor(0.7f, 0.7f, 0.7f, 1.0f));
+							return Value.Get()
+								       ? FSlateColor(FLinearColor::White)
+								       : FSlateColor(FLinearColor(0.7f, 0.7f, 0.7f, 1.0f));
 						})
 					]
 				]
@@ -84,11 +84,8 @@ FLinearColor SButtonBox::GetColor() const
 		// Bright green when pressed
 		return FLinearColor(0.2f, 0.9f, 0.3f, 1.0f);
 	}
-	else
-	{
-		// Dark gray when not pressed
-		return FLinearColor(0.25f, 0.25f, 0.25f, 1.0f);
-	}
+	// Dark gray when not pressed
+	return FLinearColor(0.25f, 0.25f, 0.25f, 1.0f);
 }
 
 FSlateColor SButtonBox::GetBackgroundColor() const

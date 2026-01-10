@@ -1,5 +1,5 @@
 ﻿// JoystickPlugin is licensed under the MIT License.
-// Copyright Jayden Maalouf. All Rights Reserved.
+// Copyright Jayden Maalouf 2026. All Rights Reserved.
 
 #pragma once
 
@@ -33,6 +33,6 @@ private:
 	TSharedPtr<SCircleWidget> BallWidget;
 
 	FText BallText;
-	
+
 	FLinearColor GetBallColor() const;
 };

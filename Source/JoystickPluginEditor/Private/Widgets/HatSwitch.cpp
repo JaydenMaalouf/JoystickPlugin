@@ -1,5 +1,5 @@
 ﻿// JoystickPlugin is licensed under the MIT License.
-// Copyright Jayden Maalouf. All Rights Reserved.
+// Copyright Jayden Maalouf 2026. All Rights Reserved.
 
 #include "Widgets/HatSwitch.h"
 
@@ -51,7 +51,7 @@ void SHatSwitch::Construct(const FArguments& InArgs)
 				.HeightOverride(120.f)
 				[
 					SAssignNew(OverlayContainer, SOverlay)
-					
+
 					// Outer Circle Background
 					+ SOverlay::Slot()
 					[
@@ -60,7 +60,7 @@ void SHatSwitch::Construct(const FArguments& InArgs)
 						.Color(FLinearColor(0.15f, 0.15f, 0.15f, 1.0f))
 						.Filled(true)
 					]
-					
+
 					// Inner Circle Track
 					+ SOverlay::Slot()
 					[
@@ -69,7 +69,7 @@ void SHatSwitch::Construct(const FArguments& InArgs)
 						.Color(FLinearColor(0.25f, 0.25f, 0.25f, 1.0f))
 						.Filled(true)
 					]
-					
+
 					// Center Indicator
 					+ SOverlay::Slot()
 					.HAlign(HAlign_Center)
@@ -108,7 +108,7 @@ void SHatSwitch::SetValue(const EHatDirection InValue)
 {
 	Value.Set(InValue);
 	UpdateBallPosition();
-	
+
 	// Update ball color
 	if (BallWidget.IsValid())
 	{
@@ -121,8 +121,8 @@ FLinearColor SHatSwitch::GetBallColor() const
 {
 	const EHatDirection Direction = Value.Get();
 	return Direction != EHatDirection::None
-		? FLinearColor(0.2f, 0.9f, 0.3f, 1.0f)  // Bright green when active
-		: FLinearColor(0.4f, 0.4f, 0.4f, 1.0f);  // Gray when centered
+		       ? FLinearColor(0.2f, 0.9f, 0.3f, 1.0f) // Bright green when active
+		       : FLinearColor(0.4f, 0.4f, 0.4f, 1.0f); // Gray when centered
 }
 
 void SHatSwitch::UpdateBallPosition() const

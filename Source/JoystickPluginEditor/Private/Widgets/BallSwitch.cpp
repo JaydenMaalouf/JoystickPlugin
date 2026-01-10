@@ -1,5 +1,5 @@
 ﻿// JoystickPlugin is licensed under the MIT License.
-// Copyright Jayden Maalouf. All Rights Reserved.
+// Copyright Jayden Maalouf 2026. All Rights Reserved.
 
 #include "Widgets/BallSwitch.h"
 
@@ -35,9 +35,9 @@ void SBallSwitch::Construct(const FArguments& InArgs)
 			.Text_Lambda([this]()
 			{
 				const FText Name = DisplayName.Get();
-				return Name.IsEmpty() 
-					? FText::Format(FText::FromString("Ball {0}"), BallIndex.Get())
-					: Name;
+				return Name.IsEmpty()
+					       ? FText::Format(FText::FromString("Ball {0}"), BallIndex.Get())
+					       : Name;
 			})
 			.TextStyle(FAppStyle::Get(), "SmallText")
 			.Justification(ETextJustify::Center)
@@ -58,7 +58,7 @@ void SBallSwitch::Construct(const FArguments& InArgs)
 				.HeightOverride(120.f)
 				[
 					SNew(SOverlay)
-					
+
 					// Background
 					+ SOverlay::Slot()
 					[
@@ -66,7 +66,7 @@ void SBallSwitch::Construct(const FArguments& InArgs)
 						.BorderImage(FCoreStyle::Get().GetBrush("WhiteBrush"))
 						.BorderBackgroundColor(FLinearColor(0.15f, 0.15f, 0.15f, 1.0f))
 					]
-					
+
 					// Center Indicator
 					+ SOverlay::Slot()
 					.HAlign(HAlign_Center)
@@ -105,7 +105,7 @@ void SBallSwitch::SetValue(const FVector2D& InValue)
 {
 	Value.Set(InValue);
 	UpdateBallPosition();
-	
+
 	// Update ball color
 	if (BallWidget.IsValid())
 	{
@@ -119,8 +119,8 @@ FLinearColor SBallSwitch::GetBallColor() const
 	const FVector2D Val = Value.Get();
 	const float Magnitude = Val.Size();
 	return Magnitude > 0.01f
-		? FLinearColor(0.2f, 0.9f, 0.3f, 1.0f)  // Bright green when active
-		: FLinearColor(0.4f, 0.4f, 0.4f, 1.0f);  // Gray when centered
+		       ? FLinearColor(0.2f, 0.9f, 0.3f, 1.0f) // Bright green when active
+		       : FLinearColor(0.4f, 0.4f, 0.4f, 1.0f); // Gray when centered
 }
 
 void SBallSwitch::UpdateBallPosition() const

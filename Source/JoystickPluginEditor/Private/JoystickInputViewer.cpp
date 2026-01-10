@@ -1,5 +1,5 @@
 ﻿// JoystickPlugin is licensed under the MIT License.
-// Copyright Jayden Maalouf. All Rights Reserved.
+// Copyright Jayden Maalouf 2026. All Rights Reserved.
 
 #include "JoystickInputViewer.h"
 
@@ -153,7 +153,7 @@ void SJoystickInputViewer::Construct(const FArguments& InArgs, const TSharedRef<
 						SAssignNew(AxisContainer, SHorizontalBox)
 					]
 				]
-				
+
 				// Buttons Section
 				+ SVerticalBox::Slot()
 				.AutoHeight()
@@ -182,7 +182,7 @@ void SJoystickInputViewer::Construct(const FArguments& InArgs, const TSharedRef<
 						.HAlign(HAlign_Left)
 					]
 				]
-				
+
 				// Hat Switches Section
 				+ SVerticalBox::Slot()
 				.AutoHeight()
@@ -211,7 +211,7 @@ void SJoystickInputViewer::Construct(const FArguments& InArgs, const TSharedRef<
 						.HAlign(HAlign_Left)
 					]
 				]
-				
+
 				// Hat Button Switches Section
 				+ SVerticalBox::Slot()
 				.AutoHeight()
@@ -240,7 +240,7 @@ void SJoystickInputViewer::Construct(const FArguments& InArgs, const TSharedRef<
 						.HAlign(HAlign_Left)
 					]
 				]
-				
+
 				// Ball Switches Section
 				+ SVerticalBox::Slot()
 				.AutoHeight()
