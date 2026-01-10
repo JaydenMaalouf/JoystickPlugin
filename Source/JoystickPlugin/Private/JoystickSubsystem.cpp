@@ -842,7 +842,7 @@ void UJoystickSubsystem::JoystickUnplugged(const FJoystickInstanceId& InstanceId
 
 void UJoystickSubsystem::LoadGameControllerMappings() const
 {
-	const FString GameControllerDbPath = FPaths::Combine(*FJoystickPluginModule::PluginDirectory, TEXT("ThirdParty"), GameControllerMappingFile);
+	const FString GameControllerDbPath = FPaths::Combine(*FJoystickPluginModule::PluginThirdPartyDirectory, GameControllerMappingFile);
 	if (FPaths::FileExists(GameControllerDbPath))
 	{
 		const int MappingsAdded = SDL_GameControllerAddMappingsFromFile(TCHAR_TO_UTF8(*GameControllerDbPath));

@@ -47,7 +47,7 @@ runs:
         $workspace      = '${{ github.workspace }}'
 
         $inputFolder  = Join-Path $epicDir ("SDL/UE_{0}" -f $engineVersion)
-        $outputFolder = Join-Path $workspace ("ThirdParty/SDL2")
+        $outputFolder = Join-Path $workspace ("Source/ThirdParty/SDL2")
 
         New-Item -ItemType Directory -Path $outputFolder -Force | Out-Null
 
