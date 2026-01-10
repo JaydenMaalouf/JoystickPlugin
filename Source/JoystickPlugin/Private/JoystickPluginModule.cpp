@@ -30,8 +30,10 @@ TSharedPtr<IInputDevice> FJoystickPluginModule::CreateInputDevice(const TSharedR
 void FJoystickPluginModule::StartupModule()
 {
 	PluginDirectory = IPluginManager::Get().FindPlugin(PluginName)->GetBaseDir();
+	PluginSourceDirectory = FPaths::Combine(PluginDirectory, TEXT("Source"));
+	PluginThirdPartyDirectory = FPaths::Combine(PluginSourceDirectory, TEXT("ThirdParty"));
 #if PLATFORM_WINDOWS
-	const FString SdlDir = FPaths::Combine(*PluginDirectory, TEXT("ThirdParty"), TEXT("SDL2"), TEXT("Win64"));
+	const FString SdlDir = FPaths::Combine(*PluginThirdPartyDirectory, TEXT("SDL2"), TEXT("Win64"));
 
 	FPlatformProcess::PushDllDirectory(*SdlDir);
 	const FString SdlDllDir = FPaths::Combine(SdlDir, "SDL2.dll");
@@ -59,6 +61,10 @@ void FJoystickPluginModule::ShutdownModule()
 FString FJoystickPluginModule::PluginName = "JoystickPlugin";
 
 FString FJoystickPluginModule::PluginDirectory = "JoystickPlugin";
+
+FString FJoystickPluginModule::PluginSourceDirectory = "JoystickPlugin/Source";
+
+FString FJoystickPluginModule::PluginThirdPartyDirectory = "JoystickPlugin/Source/ThirdParty";
 
 #undef LOCTEXT_NAMESPACE
 

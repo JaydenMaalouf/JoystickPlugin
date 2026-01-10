@@ -19,6 +19,8 @@ public:
 
 	static FString PluginName;
 	static FString PluginDirectory;
+	static FString PluginSourceDirectory;
+	static FString PluginThirdPartyDirectory;
 
 private:
 	void* SdlDllHandle = nullptr;
