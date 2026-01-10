@@ -1,5 +1,5 @@
 ﻿// JoystickPlugin is licensed under the MIT License.
-// Copyright Jayden Maalouf. All Rights Reserved.
+// Copyright Jayden Maalouf 2026. All Rights Reserved.
 
 #include "Widgets/AxisBar.h"
 
@@ -30,7 +30,7 @@ void SAxisBar::Construct(const FArguments& InArgs)
 		.HeightOverride(200.0f)
 		[
 			SNew(SOverlay)
-			
+
 			// Outer Border
 			+ SOverlay::Slot()
 			[

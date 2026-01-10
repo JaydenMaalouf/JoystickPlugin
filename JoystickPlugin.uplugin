@@ -30,6 +30,10 @@
       "LoadingPhase": "PostEngineInit",
       "AdditionalDependencies": [
         "Engine"
+      ],
+      "WhitelistPlatforms": [
+        "Win64",
+        "Linux"
       ]
     }
   ]
