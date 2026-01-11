@@ -82,14 +82,8 @@ runs:
         $workspace     = '${{ github.workspace }}'
 
         $buildDir      = Join-Path $runnerTemp ("build\UE_{0}" -f $engineVersion)
-        $pluginDir     = Join-Path $buildDir 'JoystickPlugin'
         $sourceConfig  = Join-Path $workspace 'Config'
-        $targetConfig  = Join-Path $pluginDir 'Config'
-
-        if (-not (Test-Path $pluginDir)) {
-          Write-Error "Plugin directory not found at: $pluginDir"
-          exit 1
-        }
+        $targetConfig  = Join-Path $buildDir 'Config'
 
         Copy-Item -Path $sourceConfig -Destination $targetConfig -Recurse -Force
 
