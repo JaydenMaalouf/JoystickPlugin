@@ -74,6 +74,19 @@ runs:
           ("-Package={0}" -f $buildDir) `
           '-rocket'
 
+    - name: Copy Config folder to packaged plugin
+      shell: pwsh
+      run: |
+        $engineVersion = '${{ inputs.engineVersion }}'
+        $runnerTemp    = $env:RUNNER_TEMP
+        $workspace     = '${{ github.workspace }}'
+
+        $buildDir      = Join-Path $runnerTemp ("build\UE_{0}" -f $engineVersion)
+        $sourceConfig  = Join-Path $workspace 'Config'
+        $targetConfig  = Join-Path $buildDir 'Config'
+
+        Copy-Item -Path $sourceConfig -Destination $targetConfig -Recurse -Force
+
     - name: Archive Plugin - ${{ inputs.engineVersion }}
       shell: pwsh
       run: |
