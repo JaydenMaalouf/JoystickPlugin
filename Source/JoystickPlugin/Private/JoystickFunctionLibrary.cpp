@@ -90,7 +90,7 @@ bool UJoystickFunctionLibrary::IsJoystickKey(IN const FKey& Key)
 	}
 
 	const FJoystickInputDevice* InputDevice = JoystickSubsystem->GetInputDevice();
-	if (!InputDevice)
+	if (InputDevice == nullptr)
 	{
 		return false;
 	}

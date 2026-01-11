@@ -23,7 +23,7 @@ const UJoystickHapticDeviceManager* UJoystickHapticDeviceManager::GetJoystickHap
 bool UJoystickHapticDeviceManager::SetAutoCenter(const FJoystickInstanceId& InstanceId, const int Center) const
 {
 	auto [HapticDevice, HapticDeviceResult] = GetHapticDevice(InstanceId);
-	if (HapticDevice == nullptr || HapticDeviceResult.bSuccess == false)
+	if (HapticDeviceResult.bSuccess == false || HapticDevice == nullptr)
 	{
 		FJoystickLogManager::Get()->LogError(HapticDeviceResult);
 		return false;
@@ -42,7 +42,7 @@ bool UJoystickHapticDeviceManager::SetAutoCenter(const FJoystickInstanceId& Inst
 bool UJoystickHapticDeviceManager::SetGain(const FJoystickInstanceId& InstanceId, const int Gain) const
 {
 	auto [HapticDevice, HapticDeviceResult] = GetHapticDevice(InstanceId);
-	if (HapticDevice == nullptr || HapticDeviceResult.bSuccess == false)
+	if (HapticDeviceResult.bSuccess == false || HapticDevice == nullptr)
 	{
 		FJoystickLogManager::Get()->LogError(HapticDeviceResult);
 		return false;
@@ -61,7 +61,7 @@ bool UJoystickHapticDeviceManager::SetGain(const FJoystickInstanceId& InstanceId
 bool UJoystickHapticDeviceManager::PauseDevice(const FJoystickInstanceId& InstanceId) const
 {
 	auto [HapticDevice, HapticDeviceResult] = GetHapticDevice(InstanceId);
-	if (HapticDevice == nullptr || HapticDeviceResult.bSuccess == false)
+	if (HapticDeviceResult.bSuccess == false || HapticDevice == nullptr)
 	{
 		FJoystickLogManager::Get()->LogError(HapticDeviceResult);
 		return false;
@@ -80,7 +80,7 @@ bool UJoystickHapticDeviceManager::PauseDevice(const FJoystickInstanceId& Instan
 bool UJoystickHapticDeviceManager::UnpauseDevice(const FJoystickInstanceId& InstanceId) const
 {
 	auto [HapticDevice, HapticDeviceResult] = GetHapticDevice(InstanceId);
-	if (HapticDevice == nullptr || HapticDeviceResult.bSuccess == false)
+	if (HapticDeviceResult.bSuccess == false || HapticDevice == nullptr)
 	{
 		FJoystickLogManager::Get()->LogError(HapticDeviceResult);
 		return false;
@@ -99,7 +99,7 @@ bool UJoystickHapticDeviceManager::UnpauseDevice(const FJoystickInstanceId& Inst
 bool UJoystickHapticDeviceManager::StopAllEffects(const FJoystickInstanceId& InstanceId) const
 {
 	auto [HapticDevice, HapticDeviceResult] = GetHapticDevice(InstanceId);
-	if (HapticDevice == nullptr || HapticDeviceResult.bSuccess == false)
+	if (HapticDeviceResult.bSuccess == false || HapticDevice == nullptr)
 	{
 		FJoystickLogManager::Get()->LogError(HapticDeviceResult);
 		return false;
@@ -118,7 +118,7 @@ bool UJoystickHapticDeviceManager::StopAllEffects(const FJoystickInstanceId& Ins
 int UJoystickHapticDeviceManager::GetNumEffects(const FJoystickInstanceId& InstanceId) const
 {
 	auto [HapticDevice, HapticDeviceResult] = GetHapticDevice(InstanceId);
-	if (HapticDevice == nullptr || HapticDeviceResult.bSuccess == false)
+	if (HapticDeviceResult.bSuccess == false || HapticDevice == nullptr)
 	{
 		FJoystickLogManager::Get()->LogError(HapticDeviceResult);
 		return -1;
@@ -136,7 +136,7 @@ int UJoystickHapticDeviceManager::GetNumEffects(const FJoystickInstanceId& Insta
 int UJoystickHapticDeviceManager::GetNumEffectsPlaying(const FJoystickInstanceId& InstanceId) const
 {
 	auto [HapticDevice, HapticDeviceResult] = GetHapticDevice(InstanceId);
-	if (HapticDevice == nullptr || HapticDeviceResult.bSuccess == false)
+	if (HapticDeviceResult.bSuccess == false || HapticDevice == nullptr)
 	{
 		FJoystickLogManager::Get()->LogError(HapticDeviceResult);
 		return -1;
@@ -305,7 +305,7 @@ bool UJoystickHapticDeviceManager::StopRumbleTriggers(const FJoystickInstanceId&
 bool UJoystickHapticDeviceManager::StopHapticRumble(const FJoystickInstanceId& InstanceId) const
 {
 	auto [HapticDevice, HapticDeviceResult] = GetHapticDevice(InstanceId);
-	if (HapticDevice == nullptr || HapticDeviceResult.bSuccess == false)
+	if (HapticDeviceResult.bSuccess == false || HapticDevice == nullptr)
 	{
 		FJoystickLogManager::Get()->LogError(HapticDeviceResult);
 		return false;
@@ -324,7 +324,7 @@ bool UJoystickHapticDeviceManager::StopHapticRumble(const FJoystickInstanceId& I
 int UJoystickHapticDeviceManager::CreateEffect(const FJoystickInstanceId& InstanceId, const SDL_HapticEffect& Effect) const
 {
 	auto [HapticDevice, Result] = GetHapticDevice(InstanceId);
-	if (HapticDevice == nullptr || Result.bSuccess == false)
+	if (Result.bSuccess == false || HapticDevice == nullptr)
 	{
 		FJoystickLogManager::Get()->LogError(Result);
 		return -1;
@@ -342,7 +342,7 @@ int UJoystickHapticDeviceManager::CreateEffect(const FJoystickInstanceId& Instan
 bool UJoystickHapticDeviceManager::UpdateEffect(const FJoystickInstanceId& InstanceId, const int EffectId, const SDL_HapticEffect& Effect) const
 {
 	auto [HapticDevice, HapticDeviceResult] = GetHapticDevice(InstanceId);
-	if (HapticDevice == nullptr || HapticDeviceResult.bSuccess == false)
+	if (HapticDeviceResult.bSuccess == false || HapticDevice == nullptr)
 	{
 		FJoystickLogManager::Get()->LogError(HapticDeviceResult);
 		return false;
@@ -361,7 +361,7 @@ bool UJoystickHapticDeviceManager::UpdateEffect(const FJoystickInstanceId& Insta
 bool UJoystickHapticDeviceManager::RunEffect(const FJoystickInstanceId& InstanceId, const int EffectId, const int Iterations) const
 {
 	auto [HapticDevice, HapticDeviceResult] = GetHapticDevice(InstanceId);
-	if (HapticDevice == nullptr || HapticDeviceResult.bSuccess == false)
+	if (HapticDeviceResult.bSuccess == false || HapticDevice == nullptr)
 	{
 		FJoystickLogManager::Get()->LogError(HapticDeviceResult);
 		return false;
@@ -380,7 +380,7 @@ bool UJoystickHapticDeviceManager::RunEffect(const FJoystickInstanceId& Instance
 bool UJoystickHapticDeviceManager::StopEffect(const FJoystickInstanceId& InstanceId, const int EffectId) const
 {
 	auto [HapticDevice, HapticDeviceResult] = GetHapticDevice(InstanceId);
-	if (HapticDevice == nullptr || HapticDeviceResult.bSuccess == false)
+	if (HapticDeviceResult.bSuccess == false || HapticDevice == nullptr)
 	{
 		FJoystickLogManager::Get()->LogError(HapticDeviceResult);
 		return false;
@@ -399,7 +399,7 @@ bool UJoystickHapticDeviceManager::StopEffect(const FJoystickInstanceId& Instanc
 void UJoystickHapticDeviceManager::DestroyEffect(const FJoystickInstanceId& InstanceId, const int EffectId) const
 {
 	auto [HapticDevice, Result] = GetHapticDevice(InstanceId);
-	if (HapticDevice == nullptr || Result.bSuccess == false)
+	if (Result.bSuccess == false || HapticDevice == nullptr)
 	{
 		FJoystickLogManager::Get()->LogError(Result);
 		return;
@@ -411,7 +411,7 @@ void UJoystickHapticDeviceManager::DestroyEffect(const FJoystickInstanceId& Inst
 TTuple<SDL_Haptic*, FInternalResultMessage> UJoystickHapticDeviceManager::GetHapticDevice(const FJoystickInstanceId& InstanceId) const
 {
 	auto [DeviceInfo, Result] = GetDeviceInfo(InstanceId);
-	if (DeviceInfo == nullptr || Result.bSuccess == false)
+	if (Result.bSuccess == false || DeviceInfo == nullptr)
 	{
 		return {nullptr, Result};
 	}

@@ -1,6 +1,7 @@
 // JoystickPlugin is licensed under the MIT License.
 // Copyright Jayden Maalouf. All Rights Reserved.
 
+using System;
 using System.IO;
 using System.Linq;
 using UnrealBuildTool;
@@ -24,24 +25,25 @@ public class JoystickPlugin : ModuleRules
 				"Projects"
 			});
 
-		var SdlPath = Path.Combine(PluginDirectory, "Source", "ThirdParty", "SDL3");
-		var SdlIncludePath = Path.Combine(SdlPath, "include", "SDL3");
-		var SdlIncludePathParentPath = Path.Combine(SdlPath, "include");
+		var ThirdPartyDirectory = Path.Combine(PluginDirectory, "Source", "ThirdParty");
+		var SdlDirectory = Path.Combine(ThirdPartyDirectory, "SDL3");
+		var SdlIncludeParentDirectory = Path.Combine(SdlDirectory, "include");
+		var SdlIncludeDirectory = Path.Combine(SdlIncludeParentDirectory, "SDL3");
 
-		if (!Directory.Exists(SdlIncludePath))
+		if (!Directory.Exists(SdlIncludeDirectory))
 		{
 			throw new BuildException(
 				"SDL headers not found. Checked:\n" +
-				$"  Plugin: {SdlIncludePath}\n" +
-				"Ensure SDL3 is bundled in the plugin ThirdParty/SDL3/include.");
+				$"  Plugin: {SdlIncludeDirectory}\n" +
+				"Ensure SDL3 is bundled in the plugin Source/ThirdParty/SDL3/include.");
 		}
 
-		PublicSystemIncludePaths.Add(SdlIncludePath);
-		PublicSystemIncludePaths.Add(SdlIncludePathParentPath);
+		PublicSystemIncludePaths.Add(SdlIncludeDirectory);
+		PublicSystemIncludePaths.Add(SdlIncludeParentDirectory);
 
 		if (Target.Platform == UnrealTargetPlatform.Win64)
 		{
-			var Win64Path = Path.Combine(SdlPath, "Win64");
+			var Win64Path = Path.Combine(SdlDirectory, "Win64");
 			var LibPath = Path.Combine(Win64Path, "SDL3.lib");
 			var DllPath = Path.Combine(Win64Path, "SDL3.dll");
 
@@ -72,11 +74,12 @@ public class JoystickPlugin : ModuleRules
 			RuntimeDependencies.Add(ProfileFiles);
 		}
 
-		var GameControllerDbFile = Path.Combine(PluginDirectory, "ThirdParty", "gamecontrollerdb.txt");
+		var GameControllerDbFile = Path.Combine(ThirdPartyDirectory, "gamecontrollerdb.txt");
 		if (File.Exists(GameControllerDbFile))
 		{
 			// Add gamecontrollerdb.txt to runtime deps
 			RuntimeDependencies.Add(GameControllerDbFile);
+			Console.WriteLine("Successfully loaded GameControllerDb");
 		}
 	}
 }

@@ -62,7 +62,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure=false, Category="Joystick|Force Feedback")
 	bool StopRumble(const FJoystickInstanceId& InstanceId) const;
-	
+
 	UFUNCTION(BlueprintCallable, BlueprintPure=false, Category="Joystick|Force Feedback")
 	bool StopRumbleTriggers(const FJoystickInstanceId& InstanceId) const;
 

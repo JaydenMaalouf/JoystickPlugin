@@ -158,7 +158,7 @@ bool UJoystickSubsystem::GetJoystickState(const FJoystickInstanceId& InstanceId,
 bool UJoystickSubsystem::GetJoystickInfo(const FJoystickInstanceId& InstanceId, FJoystickInformation& JoystickInfo)
 {
 	auto [DeviceInfo, Result] = GetDeviceInfo(InstanceId);
-	if (DeviceInfo == nullptr || Result.bSuccess == false)
+	if (Result.bSuccess == false || DeviceInfo == nullptr)
 	{
 		FJoystickLogManager::Get()->LogError(Result);
 		return false;
@@ -172,7 +172,7 @@ bool UJoystickSubsystem::GetJoystickInfo(const FJoystickInstanceId& InstanceId, 
 EJoystickType UJoystickSubsystem::GetJoystickType(const FJoystickInstanceId& InstanceId)
 {
 	auto [DeviceInfo, Result] = GetDeviceInfo(InstanceId);
-	if (DeviceInfo == nullptr || Result.bSuccess == false)
+	if (Result.bSuccess == false || DeviceInfo == nullptr)
 	{
 		FJoystickLogManager::Get()->LogError(Result);
 		return EJoystickType::Unknown;
@@ -184,13 +184,11 @@ EJoystickType UJoystickSubsystem::GetJoystickType(const FJoystickInstanceId& Ins
 bool UJoystickSubsystem::GetJoystickPowerInformation(const FJoystickInstanceId& InstanceId, FJoystickPowerInformation& PowerInformation)
 {
 	auto [DeviceInfo, Result] = GetDeviceInfo(InstanceId);
-	if (DeviceInfo == nullptr || DeviceInfo->SDLJoystick == nullptr || Result.bSuccess == false)
+	if (Result.bSuccess == false || DeviceInfo == nullptr || DeviceInfo->SDLJoystick == nullptr)
 	{
 		FJoystickLogManager::Get()->LogError(Result);
 		return false;
 	}
-
-	UpdateJoystickPower(DeviceInfo, DeviceInfo->SDLJoystick);
 
 	PowerInformation = DeviceInfo->Power;
 	return true;
@@ -200,7 +198,7 @@ void UJoystickSubsystem::MapJoystickDeviceToPlayer(const FJoystickInstanceId& In
 {
 	FJoystickLogManager::Get()->LogDebug(TEXT("Remapping Joystick %d to Player Id %d"), InstanceId.Value, PlayerId);
 	auto [DeviceInfo, Result] = GetDeviceInfo(InstanceId);
-	if (DeviceInfo == nullptr || Result.bSuccess == false)
+	if (Result.bSuccess == false || DeviceInfo == nullptr)
 	{
 		FJoystickLogManager::Get()->LogError(Result);
 		return;
@@ -253,7 +251,7 @@ void UJoystickSubsystem::SetIgnoreGamepads(const bool IgnoreControllers)
 bool UJoystickSubsystem::SetJoystickSensorEnabled(const FJoystickInstanceId& InstanceId, const EJoystickSensorType SensorType, const bool Enabled)
 {
 	auto [DeviceInfo, Result] = GetDeviceInfo(InstanceId);
-	if (DeviceInfo == nullptr || Result.bSuccess == false)
+	if (Result.bSuccess == false || DeviceInfo == nullptr)
 	{
 		FJoystickLogManager::Get()->LogError(Result);
 		return false;
@@ -287,7 +285,7 @@ bool UJoystickSubsystem::SetJoystickSensorEnabled(const FJoystickInstanceId& Ins
 bool UJoystickSubsystem::SetJoystickLedColor(const FJoystickInstanceId& InstanceId, const FColor Color)
 {
 	auto [DeviceInfo, Result] = GetDeviceInfo(InstanceId);
-	if (DeviceInfo == nullptr || DeviceInfo->SDLJoystick == nullptr || Result.bSuccess == false)
+	if (Result.bSuccess == false || DeviceInfo == nullptr || DeviceInfo->SDLJoystick == nullptr)
 	{
 		FJoystickLogManager::Get()->LogError(Result);
 		return false;
@@ -392,7 +390,7 @@ TTuple<FDeviceInfoSDL*, FInternalResultMessage> UJoystickSubsystem::GetDeviceInf
 FJoystickDeviceState UJoystickSubsystem::CreateInitialDeviceState(const FJoystickInstanceId& InstanceId)
 {
 	auto [DeviceInfo, Result] = GetDeviceInfo(InstanceId);
-	if (DeviceInfo == nullptr || DeviceInfo->SDLJoystick == nullptr || Result.bSuccess == false)
+	if (Result.bSuccess == false || DeviceInfo == nullptr || DeviceInfo->SDLJoystick == nullptr)
 	{
 		FJoystickLogManager::Get()->LogError(Result);
 		return FJoystickDeviceState();
@@ -478,6 +476,11 @@ bool UJoystickSubsystem::HandleSDLEvent(void* UserData, SDL_Event* Event)
 	case SDL_EVENT_JOYSTICK_BALL_MOTION:
 		{
 			InputDevice->JoystickBall(Event->jball.which, Event->jball.ball, FVector2D(Event->jball.xrel, Event->jball.yrel));
+			break;
+		}
+	case SDL_EVENT_JOYSTICK_BATTERY_UPDATED:
+		{
+			JoystickSubsystem.JoystickPower(Event->jdevice.which);
 			break;
 		}
 	case SDL_EVENT_GAMEPAD_SENSOR_UPDATE:
@@ -831,10 +834,16 @@ void UJoystickSubsystem::JoystickUnplugged(const FJoystickInstanceId& InstanceId
 	});
 }
 
-void UJoystickSubsystem::UpdateJoystickPower(FDeviceInfoSDL* DeviceInfo, SDL_Joystick* Joystick) const
+void UJoystickSubsystem::JoystickPower(const FJoystickInstanceId& InstanceId)
 {
+	auto [DeviceInfo, Result] = GetDeviceInfo(InstanceId);
+	if (Result.bSuccess == false || DeviceInfo == nullptr || DeviceInfo->SDLJoystick == nullptr)
+	{
+		return;
+	}
+
 	int PowerLevel = -1;
-	const SDL_PowerState PowerState = SDL_GetJoystickPowerInfo(Joystick, &PowerLevel);
+	const SDL_PowerState PowerState = SDL_GetJoystickPowerInfo(DeviceInfo->SDLJoystick, &PowerLevel);
 	DeviceInfo->Power.State = static_cast<EJoystickPowerState>(PowerState + 1);
 	DeviceInfo->Power.Level = PowerLevel;
 }
@@ -888,4 +897,4 @@ FString UJoystickSubsystem::SafelyStringify(const char* Input) const
 	return UTF8_TO_TCHAR(Input);
 }
 
-FString UJoystickSubsystem::GamepadMappingFile("Gamepaddb.txt");
+FString UJoystickSubsystem::GamepadMappingFile("gamecontrollerdb.txt");

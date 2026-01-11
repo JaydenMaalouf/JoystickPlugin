@@ -130,7 +130,7 @@ private:
 
 	void JoystickPluggedIn(const FDeviceInfoSDL& Device) const;
 	void JoystickUnplugged(const FJoystickInstanceId& InstanceId, const FInputDeviceId& InputDeviceId) const;
-	void UpdateJoystickPower(FDeviceInfoSDL* DeviceInfo, SDL_Joystick* Joystick) const;
+	void JoystickPower(const FJoystickInstanceId& InstanceId);
 
 	void LoadGamepadMappings() const;
 
