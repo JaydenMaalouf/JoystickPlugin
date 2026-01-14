@@ -2,8 +2,8 @@
 // Copyright Jayden Maalouf 2026. All Rights Reserved.
 
 #include "Managers/JoystickHIDManager.h"
-
 #include "Managers/JoystickLogManager.h"
+#include "JoystickFunctionLibrary.h"
 #include "Data/HID/DeviceInfoHID.h"
 #include "Data/HID/DeviceHID.h"
 

@@ -485,7 +485,7 @@ bool UJoystickSubsystem::HandleSDLEvent(void* UserData, SDL_Event* Event)
 		}
 	case SDL_EVENT_GAMEPAD_SENSOR_UPDATE:
 		{
-			switch (Event->gsensor.type)
+			switch (static_cast<SDL_SensorType>(Event->gsensor.type))
 			{
 			case SDL_SENSOR_GYRO:
 				{
@@ -577,7 +577,7 @@ bool UJoystickSubsystem::AddDevice(const SDL_JoystickID JoystickId)
 	Device.Rumble.TriggerRumble = SDL_GetBooleanProperty(QueryResult,SDL_PROP_JOYSTICK_CAP_TRIGGER_RUMBLE_BOOLEAN, false);
 
 	Device.FirmwareVersion = SDL_GetJoystickFirmwareVersion(Device.SDLJoystick);
-	Device.Path = SafelyStringify(SDL_GetJoystickPath(Device.SDLJoystick));
+	Device.Path = UJoystickFunctionLibrary::SafelyStringify(SDL_GetJoystickPath(Device.SDLJoystick));
 
 	Device.DeviceHash = GenerateDeviceHash(Device);
 
