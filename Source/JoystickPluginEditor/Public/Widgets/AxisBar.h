@@ -12,7 +12,7 @@ public:
 		{
 		}
 
-		SLATE_ARGUMENT(INT, AxisIndex)
+		SLATE_ARGUMENT(int, AxisIndex)
 		SLATE_ARGUMENT(FText, DisplayName)
 		SLATE_ARGUMENT(float, Value)
 	SLATE_END_ARGS()

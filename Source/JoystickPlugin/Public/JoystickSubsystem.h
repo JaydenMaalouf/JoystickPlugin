@@ -138,7 +138,6 @@ private:
 
 	void ConvertSDLGuid(const SDL_JoystickGUID& SdlGuid, FGuid& OutGuid) const;
 	FString GenerateDeviceHash(const FDeviceInfoSDL& Device) const;
-	FString SafelyStringify(const char* Input) const;
 
 	TMap<FJoystickInstanceId, FDeviceInfoSDL> Devices;
 

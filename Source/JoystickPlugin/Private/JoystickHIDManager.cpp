@@ -3,6 +3,7 @@
 
 #include "JoystickHIDManager.h"
 
+#include "JoystickFunctionLibrary.h"
 #include "JoystickLogManager.h"
 #include "Data/HID/DeviceInfoHID.h"
 #include "Data/HID/DeviceHID.h"
@@ -32,10 +33,10 @@ TArray<FDeviceInfoHID> UJoystickHIDManager::EnumerateHIDs(const int32 VendorId, 
 			DeviceInfo.DevicePath = CurrentDevice->path;
 			DeviceInfo.VendorId = CurrentDevice->vendor_id;
 			DeviceInfo.ProductId = CurrentDevice->product_id;
-			DeviceInfo.SerialNumber = CurrentDevice->serial_number;
+			DeviceInfo.SerialNumber = UJoystickFunctionLibrary::SafelyStringify(CurrentDevice->serial_number);
 			DeviceInfo.ReleaseNumber = CurrentDevice->release_number;
-			DeviceInfo.ManufacturerString = CurrentDevice->manufacturer_string;
-			DeviceInfo.ProductString = CurrentDevice->product_string;
+			DeviceInfo.ManufacturerString = UJoystickFunctionLibrary::SafelyStringify(CurrentDevice->manufacturer_string);
+			DeviceInfo.ProductString = UJoystickFunctionLibrary::SafelyStringify(CurrentDevice->product_string);
 			DeviceInfo.UsagePage = CurrentDevice->usage_page;
 			DeviceInfo.Usage = CurrentDevice->usage;
 			DeviceInfo.InterfaceNumber = CurrentDevice->interface_number;
