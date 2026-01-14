@@ -29,4 +29,6 @@ public:
 	static bool IsJoystickKey(const FKey& Key);
 
 	static FString SanitiseDeviceName(const FString& InDeviceName, const bool AllowSpaces = false);
+	static FString SafelyStringify(const wchar_t* Input);
+	static FString SafelyStringify(const char* Input);
 };

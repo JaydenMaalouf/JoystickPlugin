@@ -564,17 +564,17 @@ bool UJoystickSubsystem::AddDevice(const int DeviceIndex)
 	const SDL_JoystickPowerLevel PowerLevel = SDL_JoystickCurrentPowerLevel(Device.SDLJoystick);
 	Device.PowerLevel = static_cast<EJoystickPowerLevel>(PowerLevel + 1);
 
-	Device.DeviceName = SafelyStringify(SDL_JoystickName(Device.SDLJoystick));
+	Device.DeviceName = UJoystickFunctionLibrary::SafelyStringify(SDL_JoystickName(Device.SDLJoystick));
 	Device.SafeDeviceName = UJoystickFunctionLibrary::SanitiseDeviceName(Device.DeviceName);
 
 #if ENGINE_MAJOR_VERSION == 5
-	Device.SerialNumber = SafelyStringify(SDL_JoystickGetSerial(Device.SDLJoystick));
+	Device.SerialNumber = UJoystickFunctionLibrary::SafelyStringify(SDL_JoystickGetSerial(Device.SDLJoystick));
 	Device.LedSupport = SDL_JoystickHasLED(Device.SDLJoystick) == SDL_TRUE;
 #endif
 
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 2
 	Device.FirmwareVersion = SDL_JoystickGetFirmwareVersion(Device.SDLJoystick);
-	Device.Path = SafelyStringify(SDL_JoystickPath(Device.SDLJoystick));
+	Device.Path = UJoystickFunctionLibrary::SafelyStringify(SDL_JoystickPath(Device.SDLJoystick));
 #endif
 
 	Device.DeviceHash = GenerateDeviceHash(Device);
@@ -877,16 +877,6 @@ FString UJoystickSubsystem::GenerateDeviceHash(const FDeviceInfoSDL& Device) con
 
 	const uint32 HashValue = GetTypeHash(FullSignature);
 	return FString::Printf(TEXT("%08X"), HashValue);
-}
-
-FString UJoystickSubsystem::SafelyStringify(const char* Input) const
-{
-	if (!Input)
-	{
-		return TEXT("");
-	}
-
-	return UTF8_TO_TCHAR(Input);
 }
 
 FString UJoystickSubsystem::GameControllerMappingFile("gamecontrollerdb.txt");
