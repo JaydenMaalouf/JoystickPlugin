@@ -137,3 +137,23 @@ FString UJoystickFunctionLibrary::SanitiseDeviceName(const FString& InDeviceName
 
 	return OutDeviceName;
 }
+
+FString UJoystickFunctionLibrary::SafelyStringify(const wchar_t* Input)
+{
+	if (!Input)
+	{
+		return TEXT("");
+	}
+
+	return UTF8_TO_TCHAR(Input);
+}
+
+FString UJoystickFunctionLibrary::SafelyStringify(const char* Input)
+{
+	if (!Input)
+	{
+		return TEXT("");
+	}
+
+	return UTF8_TO_TCHAR(Input);
+}

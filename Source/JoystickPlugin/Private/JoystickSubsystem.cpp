@@ -564,10 +564,10 @@ bool UJoystickSubsystem::AddDevice(const SDL_JoystickID JoystickId)
 	Device.Power.State = static_cast<EJoystickPowerState>(PowerState + 1);
 	Device.Power.Level = PowerLevel;
 
-	Device.DeviceName = SafelyStringify(SDL_GetJoystickName(Device.SDLJoystick));
+	Device.DeviceName = UJoystickFunctionLibrary::SafelyStringify(SDL_GetJoystickName(Device.SDLJoystick));
 	Device.SafeDeviceName = UJoystickFunctionLibrary::SanitiseDeviceName(Device.DeviceName);
 
-	Device.SerialNumber = SafelyStringify(SDL_GetJoystickSerial(Device.SDLJoystick));
+	Device.SerialNumber = UJoystickFunctionLibrary::SafelyStringify(SDL_GetJoystickSerial(Device.SDLJoystick));
 
 	const unsigned int QueryResult = SDL_GetJoystickProperties(Device.SDLJoystick);
 	Device.Led.Mono = SDL_GetBooleanProperty(QueryResult,SDL_PROP_JOYSTICK_CAP_MONO_LED_BOOLEAN, false);
@@ -885,16 +885,6 @@ FString UJoystickSubsystem::GenerateDeviceHash(const FDeviceInfoSDL& Device) con
 
 	const uint32 HashValue = GetTypeHash(FullSignature);
 	return FString::Printf(TEXT("%08X"), HashValue);
-}
-
-FString UJoystickSubsystem::SafelyStringify(const char* Input) const
-{
-	if (!Input)
-	{
-		return TEXT("");
-	}
-
-	return UTF8_TO_TCHAR(Input);
 }
 
 FString UJoystickSubsystem::GamepadMappingFile("gamecontrollerdb.txt");

@@ -1016,8 +1016,8 @@ void FJoystickInputDevice::UpdateAxisProperties(FJoystickInputDeviceConfiguratio
 		AxisKeyData.RemappingEnabled = AxisProperties->RemappingEnabled;
 		if (AxisKeyData.RemappingEnabled)
 		{
-			if (AxisProperties->InputRangeMin == -1.0f && AxisProperties->InputRangeMax == 1.0f && AxisProperties->OutputRangeMin == 0.0f && AxisProperties->OutputRangeMax == 1.0f ||
-				AxisProperties->InputRangeMin == 0.0f && AxisProperties->InputRangeMax == 1.0f && AxisProperties->OutputRangeMin == 0.0f && AxisProperties->OutputRangeMax == 1.0f)
+			if ((AxisProperties->InputRangeMin == -1.0f && AxisProperties->InputRangeMax == 1.0f && AxisProperties->OutputRangeMin == 0.0f && AxisProperties->OutputRangeMax == 1.0f) ||
+				(AxisProperties->InputRangeMin == 0.0f && AxisProperties->InputRangeMax == 1.0f && AxisProperties->OutputRangeMin == 0.0f && AxisProperties->OutputRangeMax == 1.0f))
 			{
 				AxisKeyData.Value = AxisProperties->InvertInput ? -AxisProperties->InputRangeMin : AxisProperties->InputRangeMin;
 			}
