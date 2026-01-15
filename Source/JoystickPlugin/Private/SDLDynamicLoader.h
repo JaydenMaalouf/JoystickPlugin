@@ -38,7 +38,6 @@ public:
 
 		if (!Handle)
 		{
-			LastError = FString(UTF8_TO_TCHAR(dlerror()));
 			return false;
 		}
 
@@ -55,7 +54,6 @@ public:
 		}
 	}
 
-	FString GetLastError() const { return LastError; }
 	FString GetLoadedPath() const { return LoadedPath; }
 	bool IsLoaded() const { return Handle != nullptr; }
 
@@ -156,7 +154,6 @@ public:
 
 private:
 	void* Handle = nullptr;
-	FString LastError;
 	FString LoadedPath;
 
 	bool LoadAllFunctions();

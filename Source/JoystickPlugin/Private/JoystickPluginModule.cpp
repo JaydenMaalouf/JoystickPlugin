@@ -39,7 +39,7 @@ void FJoystickPluginModule::StartupModule()
 	const FString SdlDir = FPaths::Combine(PluginThirdPartyDirectory, TEXT("SDL3"), TEXT("Win64"));
 	const FString SdlDllDir = FPaths::Combine(SdlDir, "SDL3.dll");
 	
-	FSDLDynamicLoader::Get().Load(SdlDir);
+	FSDLDynamicLoader::Get().Load(SdlDllDir);
 #elif PLATFORM_LINUX
 	const FString SdlDir = FPaths::Combine(PluginThirdPartyDirectory, TEXT("SDL3"), TEXT("Linux"));
 	const FString SdlSoPath = FPaths::Combine(SdlDir, "libSDL3.so");
