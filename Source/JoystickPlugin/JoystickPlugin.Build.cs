@@ -63,7 +63,12 @@ public class JoystickPlugin : ModuleRules
 		}
 		else if (Target.Platform == UnrealTargetPlatform.Linux)
 		{
-			// SDL should be loaded as part of the engine
+			var LinuxPath = Path.Combine(SdlDirectory, "Linux");
+			var SdlSoPath = Path.Combine(LinuxPath, "libSDL3.so");
+
+			PublicAdditionalLibraries.Add(SdlSoPath);
+
+			RuntimeDependencies.Add(SdlSoPath, StagedFileType.NonUFS);
 		}
 
 		var ProfilesDirectory = Path.Combine(PluginDirectory, "Profiles");

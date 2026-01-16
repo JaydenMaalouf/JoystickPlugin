@@ -9,12 +9,7 @@
 #include "Managers/JoystickLogManager.h"
 #include "Runtime/Launch/Resources/Version.h"
 
-THIRD_PARTY_INCLUDES_START
-
-#include "SDL_timer.h"
-#include "SDL_stdinc.h"
-
-THIRD_PARTY_INCLUDES_END
+#include "SDLDynamicLoader.h"
 
 UForceFeedbackEffectBase::UForceFeedbackEffectBase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)

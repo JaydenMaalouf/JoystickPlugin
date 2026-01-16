@@ -1,4 +1,4 @@
-﻿// JoystickPlugin is licensed under the MIT License.
+// JoystickPlugin is licensed under the MIT License.
 // Copyright Jayden Maalouf 2026. All Rights Reserved.
 
 #include "JoystickSubsystem.h"
@@ -11,26 +11,14 @@
 #include "JoystickFunctionLibrary.h"
 #include "JoystickInputDevice.h"
 #include "JoystickInputSettings.h"
-#include "Managers/JoystickLogManager.h"
 #include "JoystickPluginModule.h"
+#include "Managers/JoystickLogManager.h"
 #include "Managers/JoystickProfileManager.h"
 #include "Misc/ConfigCacheIni.h"
 #include "Misc/CoreMiscDefines.h"
 #include "Misc/Paths.h"
 #include "Runtime/Launch/Resources/Version.h"
-
-THIRD_PARTY_INCLUDES_START
-
-#include "SDL_init.h"
-#include "SDL_guid.h"
-#include "SDL_sensor.h"
-#include "SDL_haptic.h"
-#include "SDL_joystick.h"
-#include "SDL_gamepad.h"
-#include "SDL_power.h"
-#include "SDL_properties.h"
-
-THIRD_PARTY_INCLUDES_END
+#include "SDLDynamicLoader.h"
 
 UJoystickSubsystem::UJoystickSubsystem()
 	: OwnsSDL(false)

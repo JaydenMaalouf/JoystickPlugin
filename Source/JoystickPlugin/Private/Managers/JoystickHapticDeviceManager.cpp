@@ -9,11 +9,7 @@
 #include "JoystickSubsystem.h"
 #include "Runtime/Launch/Resources/Version.h"
 
-THIRD_PARTY_INCLUDES_START
-
-#include "SDL_haptic.h"
-
-THIRD_PARTY_INCLUDES_END
+#include "SDLDynamicLoader.h"
 
 const UJoystickHapticDeviceManager* UJoystickHapticDeviceManager::GetJoystickHapticDeviceManager()
 {

@@ -7,11 +7,7 @@
 #include "JoystickInputDevice.h"
 #include "JoystickSubsystem.h"
 
-THIRD_PARTY_INCLUDES_START
-
-#include "SDL_joystick.h"
-
-THIRD_PARTY_INCLUDES_END
+#include "SDLDynamicLoader.h"
 
 FVector2D UJoystickFunctionLibrary::HatDirectionToFVector2D(const EHatDirection Direction)
 {

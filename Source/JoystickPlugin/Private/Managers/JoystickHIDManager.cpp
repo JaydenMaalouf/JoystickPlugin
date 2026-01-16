@@ -7,11 +7,7 @@
 #include "Data/HID/DeviceInfoHID.h"
 #include "Data/HID/DeviceHID.h"
 
-THIRD_PARTY_INCLUDES_START
-
-#include "SDL_hidapi.h"
-
-THIRD_PARTY_INCLUDES_END
+#include "SDLDynamicLoader.h"
 
 const UJoystickHIDManager* UJoystickHIDManager::GetJoystickHIDManager()
 {
