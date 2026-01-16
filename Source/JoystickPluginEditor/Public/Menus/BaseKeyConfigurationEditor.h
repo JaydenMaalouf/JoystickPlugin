@@ -29,12 +29,12 @@ public:
 protected:
 	FKey Key;
 	FJoystickInstanceId InstanceId;
-	int KeyIndex;
+	int KeyIndex = -1;
 
 	virtual void ShowRestartRequiredNotification() const;
 	virtual FReply OnSaveClicked();
 	virtual FReply OnCancelClicked();
-	
+
 	// Returns the Save/Cancel button widget to be added at the bottom of the editor
 	TSharedRef<SWidget> MakeActionButtons();
 };

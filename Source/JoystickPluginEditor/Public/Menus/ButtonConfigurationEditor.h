@@ -36,10 +36,10 @@ private:
 	TSharedPtr<SCheckBox> OverrideDisplayNameCheckBox;
 	TSharedPtr<class SEditableTextBox> DisplayNameTextBox;
 	TSharedPtr<class SHorizontalBox> DisplayNameInputContainer;
-	
+
 	// Track original display name state for restart notification
 	FString OriginalDisplayName;
-	bool bOriginalOverrideDisplayName;
+	bool bOriginalOverrideDisplayName = false;
 
 	virtual void LoadConfiguration() override;
 	virtual void SaveConfiguration() const override;

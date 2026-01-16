@@ -25,7 +25,7 @@ void SAxisConfigurationEditor::Construct(const FArguments& InArgs)
 	Key = InArgs._AxisKey;
 	InstanceId = InArgs._InstanceId;
 	KeyIndex = InArgs._AxisIndex;
-	
+
 	SelectedInputRange = -1;
 	SelectedOutputRange = -1;
 
