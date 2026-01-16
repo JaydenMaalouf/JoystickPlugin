@@ -12,7 +12,6 @@
 #include "Widgets/Layout/SScrollBox.h"
 #include "Widgets/Layout/SSeparator.h"
 #include "Widgets/Text/STextBlock.h"
-#include "Widgets/Input/SButton.h"
 #include "Widgets/Input/SCheckBox.h"
 #include "Widgets/Input/SEditableTextBox.h"
 #include "Widgets/Notifications/SProgressBar.h"
@@ -23,9 +22,10 @@
 
 void SAxisConfigurationEditor::Construct(const FArguments& InArgs)
 {
-	AxisKey = InArgs._AxisKey;
+	Key = InArgs._AxisKey;
 	InstanceId = InArgs._InstanceId;
-	AxisIndex = InArgs._AxisIndex;
+	KeyIndex = InArgs._AxisIndex;
+	
 	SelectedInputRange = -1;
 	SelectedOutputRange = -1;
 
@@ -37,10 +37,14 @@ void SAxisConfigurationEditor::Construct(const FArguments& InArgs)
 
 	// Initialize with default properties
 	CurrentProperties = FJoystickInputDeviceAxisProperties();
-	CurrentProperties.AxisIndex = AxisIndex;
+	CurrentProperties.AxisIndex = KeyIndex;
 
 	// Load current configuration if it exists
-	LoadCurrentConfiguration();
+	LoadConfiguration();
+
+	// Store original display name state for restart notification
+	OriginalDisplayName = CurrentProperties.DisplayName;
+	bOriginalOverrideDisplayName = CurrentProperties.OverrideDisplayName;
 
 	ChildSlot
 	[
@@ -60,7 +64,7 @@ void SAxisConfigurationEditor::Construct(const FArguments& InArgs)
 				.Padding(0, 0, 0, 16)
 				[
 					SNew(STextBlock)
-					.Text(FText::Format(FText::FromString("Axis Configuration - {0}"), AxisKey.GetDisplayName()))
+					.Text(FText::Format(FText::FromString("Axis Configuration - {0}"), Key.GetDisplayName()))
 					.TextStyle(FAppStyle::Get(), "DetailsView.CategoryTextStyle")
 					.Font(FAppStyle::GetFontStyle("PropertyWindow.BoldFont"))
 				]
@@ -99,8 +103,8 @@ void SAxisConfigurationEditor::Construct(const FArguments& InArgs)
 							.HAlign(HAlign_Center)
 							[
 								SAssignNew(InputVisualiser, SAxisBar)
-								.AxisIndex(AxisIndex)
-								.DisplayName(AxisKey.GetDisplayName())
+								.AxisIndex(KeyIndex)
+								.DisplayName(Key.GetDisplayName())
 								.Value(0.0f)
 							]
 						]
@@ -173,6 +177,7 @@ void SAxisConfigurationEditor::Construct(const FArguments& InArgs)
 								.IsChecked_Lambda([this]() { return CurrentProperties.OverrideDisplayName ? ECheckBoxState::Checked : ECheckBoxState::Unchecked; })
 								.OnCheckStateChanged_Lambda([this](const ECheckBoxState NewState)
 								{
+									const bool bWasOverrideEnabled = CurrentProperties.OverrideDisplayName;
 									CurrentProperties.OverrideDisplayName = (NewState == ECheckBoxState::Checked);
 									if (DisplayNameInputContainer.IsValid())
 									{
@@ -465,22 +470,7 @@ void SAxisConfigurationEditor::Construct(const FArguments& InArgs)
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				[
-					SNew(SHorizontalBox)
-					+ SHorizontalBox::Slot()
-					.FillWidth(1.0f)
-					[
-						SNew(SButton)
-						.Text(FText::FromString("Save"))
-						.OnClicked(this, &SAxisConfigurationEditor::OnSaveClicked)
-					]
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.Padding(8, 0, 0, 0)
-					[
-						SNew(SButton)
-						.Text(FText::FromString("Cancel"))
-						.OnClicked(this, &SAxisConfigurationEditor::OnCancelClicked)
-					]
+					MakeActionButtons()
 				]
 			]
 		]
@@ -519,17 +509,17 @@ void SAxisConfigurationEditor::Tick(const FGeometry& AllottedGeometry, const dou
 		return;
 	}
 
-	if (!JoystickState.Axes.IsValidIndex(AxisIndex))
+	if (!JoystickState.Axes.IsValidIndex(KeyIndex))
 	{
 		return;
 	}
 
-	const float CurrentValue = JoystickState.Axes[AxisIndex].GetMockValue(CurrentProperties);
+	const float CurrentValue = JoystickState.Axes[KeyIndex].GetMockValue(CurrentProperties);
 	CurrentValueText->SetText(FText::FromString(FString::Printf(TEXT("Value: %.3f"), CurrentValue)));
 	InputVisualiser->SetValue(CurrentValue);
 }
 
-void SAxisConfigurationEditor::LoadCurrentConfiguration()
+void SAxisConfigurationEditor::LoadConfiguration()
 {
 	UJoystickProfileManager* ProfileManager = GetMutableDefault<UJoystickProfileManager>();
 	if (!IsValid(ProfileManager))
@@ -538,10 +528,10 @@ void SAxisConfigurationEditor::LoadCurrentConfiguration()
 	}
 
 	FJoystickInputDeviceAxisProperties LoadedProperties;
-	if (ProfileManager->GetAxisConfiguration(AxisKey, LoadedProperties))
+	if (ProfileManager->GetAxisConfiguration(Key, LoadedProperties))
 	{
 		CurrentProperties = LoadedProperties;
-		CurrentProperties.AxisIndex = AxisIndex;
+		CurrentProperties.AxisIndex = KeyIndex;
 
 		// Determine selected input range based on loaded properties
 		if (CurrentProperties.RerangeInput)
@@ -576,6 +566,22 @@ void SAxisConfigurationEditor::LoadCurrentConfiguration()
 		UpdateInputRangeButtons();
 		UpdateOutputRangeButtons();
 	}
+}
+
+void SAxisConfigurationEditor::SaveConfiguration() const
+{
+	UJoystickProfileManager* ProfileManager = GetMutableDefault<UJoystickProfileManager>();
+	if (!IsValid(ProfileManager))
+	{
+		return;
+	}
+
+	if (CurrentProperties.OverrideDisplayName != bOriginalOverrideDisplayName || CurrentProperties.DisplayName != OriginalDisplayName)
+	{
+		ShowRestartRequiredNotification();
+	}
+
+	ProfileManager->UpdateAxisConfiguration(Key, CurrentProperties);
 }
 
 void SAxisConfigurationEditor::ApplyWorkingRange()
@@ -626,17 +632,6 @@ void SAxisConfigurationEditor::ApplyOutputRange()
 	UpdateOutputRangeButtons();
 }
 
-void SAxisConfigurationEditor::SaveConfiguration() const
-{
-	UJoystickProfileManager* ProfileManager = GetMutableDefault<UJoystickProfileManager>();
-	if (!IsValid(ProfileManager))
-	{
-		return;
-	}
-
-	ProfileManager->UpdateAxisConfiguration(AxisKey, CurrentProperties);
-}
-
 void SAxisConfigurationEditor::UpdateInputRangeButtons() const
 {
 	if (InputRangeNeg1To0Radio.IsValid())
@@ -669,30 +664,4 @@ void SAxisConfigurationEditor::UpdateOutputRangeButtons() const
 		OutputRangeNeg1To1Radio->SetIsChecked(SelectedOutputRange == 1 ? ECheckBoxState::Checked : ECheckBoxState::Unchecked);
 		OutputRangeNeg1To1Radio->SetEnabled(SelectedOutputRange != 1);
 	}
-}
-
-FReply SAxisConfigurationEditor::OnSaveClicked()
-{
-	SaveConfiguration();
-
-	// Close the window
-	const TSharedPtr<SWindow> ParentWindow = FSlateApplication::Get().FindWidgetWindow(AsShared());
-	if (ParentWindow.IsValid())
-	{
-		ParentWindow->RequestDestroyWindow();
-	}
-
-	return FReply::Handled();
-}
-
-FReply SAxisConfigurationEditor::OnCancelClicked()
-{
-	// Close the window without saving
-	const TSharedPtr<SWindow> ParentWindow = FSlateApplication::Get().FindWidgetWindow(AsShared());
-	if (ParentWindow.IsValid())
-	{
-		ParentWindow->RequestDestroyWindow();
-	}
-
-	return FReply::Handled();
 }

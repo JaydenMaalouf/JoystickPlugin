@@ -20,10 +20,10 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceButtonProperties
 	UPROPERTY(EditAnywhere, Category="Button Properties", meta=(UIMin="0", ClampMin="0"))
 	int ButtonIndex;
 
-	UPROPERTY(EditAnywhere, Category="Button Properties")
+	UPROPERTY(EditAnywhere, Category="Button Properties", meta=(ConfigRestartRequired=true))
 	bool OverrideDisplayName;
 
-	UPROPERTY(EditAnywhere, Category="Button Properties", meta=(EditCondition="OverrideDisplayName", EditConditionHides))
+	UPROPERTY(EditAnywhere, Category="Button Properties", meta=(EditCondition="OverrideDisplayName", EditConditionHides, ConfigRestartRequired=true))
 	FString DisplayName;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Button Properties")

@@ -12,7 +12,6 @@
 #include "Widgets/Layout/SScrollBox.h"
 #include "Widgets/Layout/SSeparator.h"
 #include "Widgets/Text/STextBlock.h"
-#include "Widgets/Input/SButton.h"
 #include "Widgets/Input/SCheckBox.h"
 #include "Widgets/Input/SEditableTextBox.h"
 #include "Styling/AppStyle.h"
@@ -21,16 +20,20 @@
 
 void SButtonConfigurationEditor::Construct(const FArguments& InArgs)
 {
-	ButtonKey = InArgs._ButtonKey;
+	Key = InArgs._ButtonKey;
 	InstanceId = InArgs._InstanceId;
-	ButtonIndex = InArgs._ButtonIndex;
+	KeyIndex = InArgs._ButtonIndex;
 
 	// Initialize with default properties
 	CurrentProperties = FJoystickInputDeviceButtonProperties();
-	CurrentProperties.ButtonIndex = ButtonIndex;
+	CurrentProperties.ButtonIndex = KeyIndex;
 
 	// Load current configuration if it exists
-	LoadCurrentConfiguration();
+	LoadConfiguration();
+
+	// Store original display name state for restart notification
+	OriginalDisplayName = CurrentProperties.DisplayName;
+	bOriginalOverrideDisplayName = CurrentProperties.OverrideDisplayName;
 
 	ChildSlot
 	[
@@ -50,7 +53,7 @@ void SButtonConfigurationEditor::Construct(const FArguments& InArgs)
 				.Padding(0, 0, 0, 16)
 				[
 					SNew(STextBlock)
-					.Text(FText::Format(FText::FromString("Button Configuration - {0}"), ButtonKey.GetDisplayName()))
+					.Text(FText::Format(FText::FromString("Button Configuration - {0}"), Key.GetDisplayName()))
 					.TextStyle(FAppStyle::Get(), "DetailsView.CategoryTextStyle")
 					.Font(FAppStyle::GetFontStyle("PropertyWindow.BoldFont"))
 				]
@@ -81,8 +84,8 @@ void SButtonConfigurationEditor::Construct(const FArguments& InArgs)
 							.HAlign(HAlign_Center)
 							[
 								SAssignNew(InputVisualiser, SButtonBox)
-								.ButtonIndex(ButtonIndex)
-								.DisplayName(ButtonKey.GetDisplayName())
+								.ButtonIndex(KeyIndex)
+								.DisplayName(Key.GetDisplayName())
 								.Value(false)
 							]
 						]
@@ -155,6 +158,7 @@ void SButtonConfigurationEditor::Construct(const FArguments& InArgs)
 								.IsChecked_Lambda([this]() { return CurrentProperties.OverrideDisplayName ? ECheckBoxState::Checked : ECheckBoxState::Unchecked; })
 								.OnCheckStateChanged_Lambda([this](const ECheckBoxState NewState)
 								{
+									const bool bWasOverrideEnabled = CurrentProperties.OverrideDisplayName;
 									CurrentProperties.OverrideDisplayName = (NewState == ECheckBoxState::Checked);
 									if (DisplayNameInputContainer.IsValid())
 									{
@@ -198,22 +202,7 @@ void SButtonConfigurationEditor::Construct(const FArguments& InArgs)
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				[
-					SNew(SHorizontalBox)
-					+ SHorizontalBox::Slot()
-					.FillWidth(1.0f)
-					[
-						SNew(SButton)
-						.Text(FText::FromString("Save"))
-						.OnClicked(this, &SButtonConfigurationEditor::OnSaveClicked)
-					]
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.Padding(8, 0, 0, 0)
-					[
-						SNew(SButton)
-						.Text(FText::FromString("Cancel"))
-						.OnClicked(this, &SButtonConfigurationEditor::OnCancelClicked)
-					]
+					MakeActionButtons()
 				]
 			]
 		]
@@ -233,7 +222,6 @@ void SButtonConfigurationEditor::Tick(const FGeometry& AllottedGeometry, const d
 		return;
 	}
 
-	// Update the visualizer with current button value
 	if (!GEngine)
 	{
 		return;
@@ -252,16 +240,16 @@ void SButtonConfigurationEditor::Tick(const FGeometry& AllottedGeometry, const d
 		return;
 	}
 
-	if (!JoystickState.Buttons.IsValidIndex(ButtonIndex))
+	if (!JoystickState.Buttons.IsValidIndex(KeyIndex))
 	{
 		return;
 	}
 
-	const bool OutputValue = JoystickState.Buttons[ButtonIndex].GetMockValue(CurrentProperties);
+	const bool OutputValue = JoystickState.Buttons[KeyIndex].GetMockValue(CurrentProperties);
 	InputVisualiser->SetValue(OutputValue);
 }
 
-void SButtonConfigurationEditor::LoadCurrentConfiguration()
+void SButtonConfigurationEditor::LoadConfiguration()
 {
 	UJoystickProfileManager* ProfileManager = GetMutableDefault<UJoystickProfileManager>();
 	if (!IsValid(ProfileManager))
@@ -270,10 +258,10 @@ void SButtonConfigurationEditor::LoadCurrentConfiguration()
 	}
 
 	FJoystickInputDeviceButtonProperties LoadedProperties;
-	if (ProfileManager->GetButtonConfiguration(ButtonKey, LoadedProperties))
+	if (ProfileManager->GetButtonConfiguration(Key, LoadedProperties))
 	{
 		CurrentProperties = LoadedProperties;
-		CurrentProperties.ButtonIndex = ButtonIndex;
+		CurrentProperties.ButtonIndex = KeyIndex;
 	}
 }
 
@@ -285,31 +273,10 @@ void SButtonConfigurationEditor::SaveConfiguration() const
 		return;
 	}
 
-	ProfileManager->UpdateButtonConfiguration(ButtonKey, CurrentProperties);
-}
+	ProfileManager->UpdateButtonConfiguration(Key, CurrentProperties);
 
-FReply SButtonConfigurationEditor::OnSaveClicked()
-{
-	SaveConfiguration();
-
-	// Close the window
-	const TSharedPtr<SWindow> ParentWindow = FSlateApplication::Get().FindWidgetWindow(AsShared());
-	if (ParentWindow.IsValid())
+	if (CurrentProperties.OverrideDisplayName != bOriginalOverrideDisplayName || CurrentProperties.DisplayName != OriginalDisplayName)
 	{
-		ParentWindow->RequestDestroyWindow();
+		ShowRestartRequiredNotification();
 	}
-
-	return FReply::Handled();
-}
-
-FReply SButtonConfigurationEditor::OnCancelClicked()
-{
-	// Close the window without saving
-	const TSharedPtr<SWindow> ParentWindow = FSlateApplication::Get().FindWidgetWindow(AsShared());
-	if (ParentWindow.IsValid())
-	{
-		ParentWindow->RequestDestroyWindow();
-	}
-
-	return FReply::Handled();
 }

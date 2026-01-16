@@ -3,11 +3,12 @@
 
 #pragma once
 
+#include "BaseKeyConfigurationEditor.h"
 #include "Data/JoystickInstanceId.h"
 #include "Widgets/SCompoundWidget.h"
 #include "Data/Settings/JoystickInputDeviceButtonProperties.h"
 
-class JOYSTICKPLUGINEDITOR_API SButtonConfigurationEditor final : public SCompoundWidget
+class JOYSTICKPLUGINEDITOR_API SButtonConfigurationEditor final : public SBaseKeyConfigurationEditor
 {
 public:
 	SLATE_BEGIN_ARGS(SButtonConfigurationEditor)
@@ -25,10 +26,6 @@ public:
 	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
 
 private:
-	FKey ButtonKey;
-	FJoystickInstanceId InstanceId;
-	int32 ButtonIndex;
-
 	FJoystickInputDeviceButtonProperties CurrentProperties;
 	TSharedPtr<class SButtonBox> InputVisualiser;
 
@@ -39,10 +36,11 @@ private:
 	TSharedPtr<SCheckBox> OverrideDisplayNameCheckBox;
 	TSharedPtr<class SEditableTextBox> DisplayNameTextBox;
 	TSharedPtr<class SHorizontalBox> DisplayNameInputContainer;
+	
+	// Track original display name state for restart notification
+	FString OriginalDisplayName;
+	bool bOriginalOverrideDisplayName;
 
-	void LoadCurrentConfiguration();
-	void SaveConfiguration() const;
-
-	FReply OnSaveClicked();
-	FReply OnCancelClicked();
+	virtual void LoadConfiguration() override;
+	virtual void SaveConfiguration() const override;
 };

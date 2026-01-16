@@ -3,13 +3,14 @@
 
 #pragma once
 
+#include "BaseKeyConfigurationEditor.h"
 #include "Data/JoystickInstanceId.h"
 #include "Widgets/SCompoundWidget.h"
 #include "Data/Settings/JoystickInputDeviceAxisProperties.h"
 
 class SAxisBar;
 
-class JOYSTICKPLUGINEDITOR_API SAxisConfigurationEditor final : public SCompoundWidget
+class JOYSTICKPLUGINEDITOR_API SAxisConfigurationEditor final : public SBaseKeyConfigurationEditor
 {
 public:
 	SLATE_BEGIN_ARGS(SAxisConfigurationEditor)
@@ -27,9 +28,6 @@ public:
 	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
 
 private:
-	FKey AxisKey;
-	FJoystickInstanceId InstanceId;
-	int32 AxisIndex;
 
 	FJoystickInputDeviceAxisProperties CurrentProperties;
 	TSharedPtr<STextBlock> CurrentValueText;
@@ -52,14 +50,16 @@ private:
 	TSharedPtr<class SEditableTextBox> DisplayNameTextBox;
 	TSharedPtr<class SHorizontalBox> DisplayNameInputContainer;
 	FProgressBarStyle ProgressBarStyle;
+	
+	// Track original display name state for restart notification
+	FString OriginalDisplayName;
+	bool bOriginalOverrideDisplayName;
 
-	void LoadCurrentConfiguration();
+	virtual void LoadConfiguration() override;
+	virtual void SaveConfiguration() const override;
+
 	void ApplyWorkingRange(); // 0: -1 to 0, 1: -1 to 1, 2: 0 to 1
 	void ApplyOutputRange(); // true: 0 to 1, false: -1 to 1
-	void SaveConfiguration() const;
 	void UpdateInputRangeButtons() const;
 	void UpdateOutputRangeButtons() const;
-
-	FReply OnSaveClicked();
-	FReply OnCancelClicked();
 };
