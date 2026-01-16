@@ -1,4 +1,4 @@
-﻿// JoystickPlugin is licensed under the MIT License.
+// JoystickPlugin is licensed under the MIT License.
 // Copyright Jayden Maalouf 2026. All Rights Reserved.
 
 #pragma once
@@ -64,4 +64,7 @@ private:
 	void AddJoystick(const FJoystickInstanceId& InstanceId, const bool ForceRefreshOptions);
 	void RefreshOptions() const;
 	void SelectFirstJoystick();
+
+	void OpenAxisConfigurationEditor(const FKey& AxisKey, int32 AxisIndex) const;
+	void OpenButtonConfigurationEditor(const FKey& ButtonKey, int32 ButtonIndex) const;
 };

@@ -12,7 +12,7 @@ class UJoystickSubsystem;
 class FJoystickInputDevice;
 
 UCLASS(BlueprintType, DisplayName="Joystick HID Manager")
-class UJoystickProfileManager : public UObject
+class JOYSTICKPLUGIN_API UJoystickProfileManager : public UObject
 {
 	GENERATED_BODY()
 

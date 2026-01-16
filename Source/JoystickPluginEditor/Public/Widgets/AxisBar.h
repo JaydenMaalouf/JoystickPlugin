@@ -15,6 +15,7 @@ public:
 		SLATE_ARGUMENT(int, AxisIndex)
 		SLATE_ARGUMENT(FText, DisplayName)
 		SLATE_ARGUMENT(float, Value)
+		SLATE_EVENT(FSimpleDelegate, OnClicked)
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs);
@@ -25,6 +26,9 @@ private:
 	TAttribute<int> AxisIndex;
 	TAttribute<FText> DisplayName;
 	TAttribute<float> Value; // Ranges from -1 to 1
+	FSimpleDelegate OnClickedDelegate;
 
 	FText AxisText;
+
+	FReply HandleClicked();
 };

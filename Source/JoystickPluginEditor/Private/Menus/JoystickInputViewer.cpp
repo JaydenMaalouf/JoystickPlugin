@@ -1,11 +1,13 @@
-﻿// JoystickPlugin is licensed under the MIT License.
+// JoystickPlugin is licensed under the MIT License.
 // Copyright Jayden Maalouf 2026. All Rights Reserved.
 
-#include "JoystickInputViewer.h"
+#include "Menus/JoystickInputViewer.h"
 
 #include "JoystickInputDevice.h"
 #include "JoystickSubsystem.h"
 #include "Data/Input/KeyPair.h"
+#include "Menus/AxisConfigurationEditor.h"
+#include "Menus/ButtonConfigurationEditor.h"
 #include "Widgets/AxisBar.h"
 #include "Widgets/BallSwitch.h"
 #include "Widgets/ButtonBox.h"
@@ -420,6 +422,10 @@ void SJoystickInputViewer::CreateAxisBars(const UJoystickSubsystem* JoystickSubs
 			.Value(AxisValue.GetValue())
 			.AxisIndex(i)
 			.DisplayName(Key.GetDisplayName())
+			.OnClicked(FSimpleDelegate::CreateLambda([this, Key, i]()
+			{
+				OpenAxisConfigurationEditor(Key, i);
+			}))
 		];
 		AxisBars.Add(Bar);
 	}
@@ -456,6 +462,10 @@ void SJoystickInputViewer::CreateButtonBoxes(const UJoystickSubsystem* JoystickS
 			.Value(ButtonValue.GetValue())
 			.ButtonIndex(i)
 			.DisplayName(Key.GetDisplayName())
+			.OnClicked(FSimpleDelegate::CreateLambda([this, Key, i]()
+			{
+				OpenButtonConfigurationEditor(Key, i);
+			}))
 		];
 		ButtonBoxes.Add(Button);
 	}
@@ -588,4 +598,52 @@ void SJoystickInputViewer::SelectFirstJoystick()
 	{
 		DeviceComboBox->SetSelectedItem(SelectedJoystick);
 	}
+}
+
+void SJoystickInputViewer::OpenAxisConfigurationEditor(const FKey& AxisKey, const int AxisIndex) const
+{
+	if (!SelectedJoystick.IsValid())
+	{
+		return;
+	}
+
+	const TSharedRef<SWindow> EditorWindow = SNew(SWindow)
+		.Title(FText::Format(FText::FromString("Axis Configuration - {0}"), AxisKey.GetDisplayName()))
+		.ClientSize(FVector2D(600, 700))
+		.SupportsMaximize(false)
+		.SupportsMinimize(false)
+		.SizingRule(ESizingRule::UserSized);
+
+	const TSharedRef<SAxisConfigurationEditor> EditorWidget = SNew(SAxisConfigurationEditor)
+		.AxisKey(AxisKey)
+		.InstanceId(*SelectedJoystick)
+		.AxisIndex(AxisIndex);
+
+	EditorWindow->SetContent(EditorWidget);
+
+	FSlateApplication::Get().AddWindow(EditorWindow);
+}
+
+void SJoystickInputViewer::OpenButtonConfigurationEditor(const FKey& ButtonKey, const int ButtonIndex) const
+{
+	if (!SelectedJoystick.IsValid())
+	{
+		return;
+	}
+
+	const TSharedRef<SWindow> EditorWindow = SNew(SWindow)
+		.Title(FText::Format(FText::FromString("Button Configuration - {0}"), ButtonKey.GetDisplayName()))
+		.ClientSize(FVector2D(600, 500))
+		.SupportsMaximize(false)
+		.SupportsMinimize(false)
+		.SizingRule(ESizingRule::UserSized);
+
+	const TSharedRef<SButtonConfigurationEditor> EditorWidget = SNew(SButtonConfigurationEditor)
+		.ButtonKey(ButtonKey)
+		.InstanceId(*SelectedJoystick)
+		.ButtonIndex(ButtonIndex);
+
+	EditorWindow->SetContent(EditorWidget);
+
+	FSlateApplication::Get().AddWindow(EditorWindow);
 }
