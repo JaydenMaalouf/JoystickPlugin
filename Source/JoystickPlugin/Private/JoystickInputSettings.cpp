@@ -8,7 +8,7 @@
 #include "Data/Settings/JoystickInputDeviceConfiguration.h"
 #include "Engine/Engine.h"
 #include "JoystickInputDevice.h"
-#include "JoystickProfileManager.h"
+#include "Managers/JoystickProfileManager.h"
 #include "JoystickSubsystem.h"
 
 UJoystickInputSettings::UJoystickInputSettings() : UseDeviceName(true),

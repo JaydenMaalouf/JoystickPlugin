@@ -1,9 +1,10 @@
-﻿// JoystickPlugin is licensed under the MIT License.
+// JoystickPlugin is licensed under the MIT License.
 // Copyright Jayden Maalouf 2026. All Rights Reserved.
 
 #pragma once
 
 #include "Widgets/SCompoundWidget.h"
+#include "Data/JoystickInformation.h"
 
 struct FJoystickInstanceId;
 struct FJoystickDeviceState;
@@ -13,6 +14,7 @@ class SBallSwitch;
 class SHatSwitch;
 class SButtonBox;
 class SAxisBar;
+class SWindow;
 
 class JOYSTICKPLUGINEDITOR_API SJoystickInputViewer final : public SCompoundWidget
 {
@@ -29,6 +31,8 @@ public:
 	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
 
 private:
+	TSharedPtr<SWindow> ParentWindow;
+	TSharedPtr<SWidget> InputBlocker;
 	TArray<TSharedPtr<FJoystickInstanceId>> Joysticks;
 	TSharedPtr<FJoystickInstanceId> SelectedJoystick;
 	TSharedPtr<SComboBox<TSharedPtr<FJoystickInstanceId>>> DeviceComboBox;
@@ -48,6 +52,7 @@ private:
 	TArray<TSharedPtr<SBallSwitch>> BallSwitches;
 	TSharedPtr<SWrapBox> BallContainer;
 
+	FJoystickInformation CachedJoystickInfo;
 	FOnClicked OnJoystickUpdated;
 
 	void UpdateJoystickList();
@@ -64,4 +69,8 @@ private:
 	void AddJoystick(const FJoystickInstanceId& InstanceId, const bool ForceRefreshOptions);
 	void RefreshOptions() const;
 	void SelectFirstJoystick();
+	void UpdateCachedJoystickInfo();
+
+	void OpenAxisConfigurationEditor(const FKey& AxisKey, int32 AxisIndex) const;
+	void OpenButtonConfigurationEditor(const FKey& ButtonKey, int32 ButtonIndex) const;
 };

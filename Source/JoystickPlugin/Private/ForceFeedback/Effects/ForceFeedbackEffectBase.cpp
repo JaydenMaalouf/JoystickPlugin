@@ -5,8 +5,8 @@
 
 #include "Data/JoystickInstanceId.h"
 #include "GameFramework/Actor.h"
-#include "JoystickHapticDeviceManager.h"
-#include "JoystickLogManager.h"
+#include "Managers/JoystickHapticDeviceManager.h"
+#include "Managers/JoystickLogManager.h"
 #include "Runtime/Launch/Resources/Version.h"
 
 THIRD_PARTY_INCLUDES_START

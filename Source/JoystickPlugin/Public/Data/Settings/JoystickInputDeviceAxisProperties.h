@@ -13,7 +13,7 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceAxisProperties
 	FJoystickInputDeviceAxisProperties()
 		: AxisIndex(-1)
 		  , OverrideDisplayName(false)
-		  , RemappingEnabled(true)
+		  , RemappingEnabled(false)
 		  , InputOffset(0.0f)
 		  , InvertInput(false)
 		  , RerangeInput(false)
@@ -29,10 +29,10 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceAxisProperties
 	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(UIMin="0", ClampMin="0"))
 	int AxisIndex;
 
-	UPROPERTY(EditAnywhere, Category="Axis Properties")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Axis Properties", meta=(ConfigRestartRequired=true))
 	bool OverrideDisplayName;
 
-	UPROPERTY(EditAnywhere, Category="Axis Properties", meta=(EditCondition="OverrideDisplayName", EditConditionHides))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Axis Properties", meta=(EditCondition="OverrideDisplayName", EditConditionHides, ConfigRestartRequired=true))
 	FString DisplayName;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Axis Properties")
@@ -67,6 +67,8 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceAxisProperties
 
 	void UpdateProperties(const FJoystickInputDeviceAxisProperties& AxisProperties)
 	{
+		OverrideDisplayName = AxisProperties.OverrideDisplayName;
+		DisplayName = AxisProperties.DisplayName;
 		RemappingEnabled = AxisProperties.RemappingEnabled;
 		InputOffset = AxisProperties.InputOffset;
 		InvertInput = AxisProperties.InvertInput;

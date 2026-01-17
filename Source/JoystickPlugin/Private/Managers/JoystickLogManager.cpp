@@ -1,7 +1,7 @@
 // JoystickPlugin is licensed under the MIT License.
 // Copyright Jayden Maalouf 2026. All Rights Reserved.
 
-#include "JoystickLogManager.h"
+#include "Managers/JoystickLogManager.h"
 
 THIRD_PARTY_INCLUDES_START
 

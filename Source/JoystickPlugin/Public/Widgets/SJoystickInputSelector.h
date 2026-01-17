@@ -33,12 +33,6 @@ public:
 			  , _TextStyle(&FCoreStyle::Get().GetWidgetStyle<FTextBlockStyle>("NormalText"))
 			  , _KeySelectionText(NSLOCTEXT("InputKeySelector", "DefaultKeySelectionText", "..."))
 			  , _NoKeySpecifiedText(NSLOCTEXT("InputKeySelector", "DefaultEmptyText", "Empty"))
-			  , _AllowAxisKeys(true)
-			  , _AllowButtonKeys(true)
-			  , _AllowNonGamepadKeys(true)
-			  , _AllowJoystickKeys(true)
-			  , _AllowModifierKeys(true)
-			  , _AllowGamepadKeys(true)
 			  , _SetUseAxisProperties(true)
 			  , _SetMinRange(0.0f)
 			  , _SetMaxRange(1.0f)
@@ -72,14 +66,8 @@ public:
 		/** The text to display while no key text is available or not selecting a key. */
 		SLATE_ARGUMENT(FText, NoKeySpecifiedText)
 
-		SLATE_ARGUMENT(bool, AllowAxisKeys)
-		SLATE_ARGUMENT(bool, AllowButtonKeys)
-		SLATE_ARGUMENT(bool, AllowNonGamepadKeys)
-		SLATE_ARGUMENT(bool, AllowJoystickKeys)
-
-		/** When true modifier keys are captured in the selected key chord, otherwise they are ignored. */
-		SLATE_ARGUMENT(bool, AllowModifierKeys)
-		SLATE_ARGUMENT(bool, AllowGamepadKeys)
+		SLATE_ARGUMENT(int32, KeySelectorTypes)
+		SLATE_ARGUMENT(int32, InputSelectorTypes)
 
 		SLATE_ARGUMENT(bool, SetUseAxisProperties)
 		SLATE_ARGUMENT(float, SetMinRange)
@@ -130,7 +118,10 @@ public:
 	/** Sets the text to display when no key text is available or not selecting a key. */
 	void SetNoKeySpecifiedText(FText InNoKeySpecifiedText) { NoKeySpecifiedText = MoveTemp(InNoKeySpecifiedText); }
 
+	void SetInputSelectorTypes(int32 NewInputSelectorTypes);
+	void SetKeySelectorTypes(int32 NewKeySelectorTypes);
 	void SetUseAxisProperties(const bool bInUseAxisProperties) { UseAxisProperties = bInUseAxisProperties; }
+
 	void SetMinRange(const float InMinRange) { MinRange = InMinRange; }
 	void SetMaxRange(const float InMaxRange) { MaxRange = InMaxRange; }
 
@@ -139,15 +130,6 @@ public:
 	void SetAxisSelectionTimeout(const float InAxisSelectionTimeout) { AxisSelectionTimeout = InAxisSelectionTimeout; }
 
 	void SetDeadZone(const float InDeadZone) { DeadZone = InDeadZone; }
-
-	void SetAllowAxisKeys(const bool bInAllowAxisKeys) { bAllowAxisKeys = bInAllowAxisKeys; }
-	void SetAllowButtonKeys(const bool bInAllowButtonKeys) { bAllowButtonKeys = bInAllowButtonKeys; }
-	void SetAllowNonGamepadKeys(const bool bInAllowNonGamepadKeys) { bAllowNonGamepadKeys = bInAllowNonGamepadKeys; }
-	void SetAllowJoystickKeys(const bool bInAllowJoystickKeys) { bAllowJoystickKeys = bInAllowJoystickKeys; }
-
-	/** When true modifier keys are captured in the selected key chord, otherwise they are ignored. */
-	void SetAllowModifierKeys(const bool bInAllowModifierKeys) { bAllowModifierKeys = bInAllowModifierKeys; }
-	void SetAllowGamepadKeys(const bool bInAllowGamepadKeys) { bAllowGamepadKeys = bInAllowGamepadKeys; }
 
 	/** Sets the escape keys to check against. */
 	void SetEscapeKeys(TArray<FKey> InEscapeKeys) { EscapeKeys = MoveTemp(InEscapeKeys); }
@@ -187,8 +169,11 @@ private:
 	/** Returns true, if the key has been specified as an escape key, else false. */
 	bool IsEscapeKey(const FKey& InKey) const;
 
+	/** Returns true if the key should be processed based on InputSelectorTypes, else false. */
+	bool ShouldProcessInputKey(const FKey& InKey) const;
+
 	/** True when key selection mode is active. */
-	bool bIsSelectingKey;
+	bool bIsSelectingKey = false;
 
 	/** The currently selected key chord. */
 	TAttribute<FInputChord> SelectedKey;
@@ -202,29 +187,23 @@ private:
 	/**  The text to display while no key text is available or not selecting a key. */
 	FText NoKeySpecifiedText;
 
-	bool UseAxisProperties;
-	float MinRange;
-	float MaxRange;
+	bool UseAxisProperties = false;
+	float MinRange = 0.0f;
+	float MaxRange = 0.0f;
 
-	float MinRangeOffset;
-	float MaxRangeOffset;
-	float AxisSelectionTimeout;
+	float MinRangeOffset = 0.0f;
+	float MaxRangeOffset = 0.0f;
+	float AxisSelectionTimeout = 0.0f;
 	TMap<FKey, FKeySelectorData> KeyData;
 
 	/** Define dead zone percentage to avoid unintentional axis mapping */
-	float DeadZone;
+	float DeadZone = 0.0f;
 
-	bool bAllowAxisKeys;
-	bool bAllowButtonKeys;
-	bool bAllowNonGamepadKeys;
-	bool bAllowJoystickKeys;
-
-	/** When true modifier keys are recorded on the selected key chord, otherwise they are ignored. */
-	bool bAllowModifierKeys;
-	bool bAllowGamepadKeys;
+	int32 InputSelectorTypes = 0;
+	int32 KeySelectorTypes = 0;
 
 	/** When true, pressing escape will cancel the key selection, when false, pressing escape will select the escape key. */
-	bool bEscapeCancelsSelection;
+	bool bEscapeCancelsSelection = false;
 
 	/** When EscapeCancelsSelection is true, escape on specific keys that are unbind able by the user. */
 	TArray<FKey> EscapeKeys;
@@ -242,5 +221,5 @@ private:
 	TSharedPtr<STextBlock> TextBlock;
 
 	/** Can this button be focused? */
-	bool bIsFocusable;
+	bool bIsFocusable = false;
 };

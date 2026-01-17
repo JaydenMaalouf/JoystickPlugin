@@ -2,6 +2,7 @@
 // Copyright Jayden Maalouf 2026. All Rights Reserved.
 
 #pragma once
+#include "Data/Settings/JoystickInputDeviceAxisProperties.h"
 
 #include "AxisData.generated.h"
 
@@ -32,12 +33,34 @@ struct JOYSTICKPLUGIN_API FAxisData
 		return InvertOutput ? -MappedValue : MappedValue;
 	}
 
+	float MapValue(const FJoystickInputDeviceAxisProperties& AxisProperties, const float Input) const
+	{
+		const float InvertedInput = AxisProperties.InvertInput ? -Input : Input;
+		const float OffsetNormalizedValue = InvertedInput + AxisProperties.InputOffset;
+		if (AxisProperties.RerangeInput || AxisProperties.RerangeOutput)
+		{
+			const float MappedValue = FMath::GetMappedRangeValueClamped(FVector2D(InputRangeMin, InputRangeMax), FVector2D(OutputRangeMin, OutputRangeMax), OffsetNormalizedValue);
+			return InvertOutput ? -MappedValue : MappedValue;
+		}
+		return AxisProperties.InvertOutput ? -OffsetNormalizedValue : OffsetNormalizedValue;
+	}
+
 	float GetValue() const
 	{
 		if (RemappingEnabled)
 		{
 			return MapValue(Value);
 		}
+		return Value;
+	}
+
+	float GetMockValue(const FJoystickInputDeviceAxisProperties& AxisProperties) const
+	{
+		if (AxisProperties.RemappingEnabled)
+		{
+			return MapValue(AxisProperties, Value);
+		}
+
 		return Value;
 	}
 
