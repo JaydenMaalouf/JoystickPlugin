@@ -9,6 +9,8 @@
 #include "Data/Settings/JoystickInputDeviceAxisProperties.h"
 
 class SAxisBar;
+template <typename NumericType>
+class SNumericEntryBox;
 
 class JOYSTICKPLUGINEDITOR_API SAxisConfigurationEditor final : public SBaseKeyConfigurationEditor
 {
@@ -33,13 +35,22 @@ private:
 	TSharedPtr<SAxisBar> InputVisualiser;
 
 	// Working range radio buttons
+	TSharedPtr<SCheckBox> InputRangeDisabled;
 	TSharedPtr<SCheckBox> InputRangeNeg1To0Radio;
 	TSharedPtr<SCheckBox> InputRangeNeg1To1Radio;
 	TSharedPtr<SCheckBox> InputRange0To1Radio;
-	int SelectedInputRange = -1; // 0: -1 to 0, 1: -1 to 1, 2: 0 to 1
+	TSharedPtr<SCheckBox> InputRangeCustomRadio;
+	int SelectedInputRange = -1; // 0: -1 to 0, 1: -1 to 1, 2: 0 to 1, 3: custom
+
+	// Custom range inputs
+	TSharedPtr<SNumericEntryBox<float>> CustomRangeMinInput;
+	TSharedPtr<SNumericEntryBox<float>> CustomRangeMaxInput;
+	TSharedPtr<SButton> SetMinButton;
+	TSharedPtr<SButton> SetMaxButton;
 
 	// Simple property editors
 	TSharedPtr<SCheckBox> InvertInputCheckBox;
+	TSharedPtr<SCheckBox> OutputRangeDisabled;
 	TSharedPtr<SCheckBox> OutputRange0To1Radio;
 	TSharedPtr<SCheckBox> OutputRangeNeg1To1Radio;
 	int SelectedOutputRange = -1; // true: 0 to 1, false: -1 to 1
@@ -57,8 +68,11 @@ private:
 	virtual void LoadConfiguration() override;
 	virtual void SaveConfiguration() const override;
 
-	void ApplyWorkingRange(); // 0: -1 to 0, 1: -1 to 1, 2: 0 to 1
+	void ApplyWorkingRange(); // 0: -1 to 0, 1: -1 to 1, 2: 0 to 1, 3: custom
 	void ApplyOutputRange(); // true: 0 to 1, false: -1 to 1
 	void UpdateInputRangeButtons() const;
 	void UpdateOutputRangeButtons() const;
+	float GetCurrentAxisValue() const;
+	FReply OnSetMinButtonClicked();
+	FReply OnSetMaxButtonClicked();
 };

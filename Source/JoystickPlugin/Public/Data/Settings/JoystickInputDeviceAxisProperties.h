@@ -13,7 +13,7 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceAxisProperties
 	FJoystickInputDeviceAxisProperties()
 		: AxisIndex(-1)
 		  , OverrideDisplayName(false)
-		  , RemappingEnabled(true)
+		  , RemappingEnabled(false)
 		  , InputOffset(0.0f)
 		  , InvertInput(false)
 		  , RerangeInput(false)

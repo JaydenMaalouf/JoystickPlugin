@@ -6,6 +6,9 @@
 #include "JoystickInputDevice.h"
 #include "JoystickSubsystem.h"
 #include "Data/Input/KeyPair.h"
+#include "Data/JoystickInformation.h"
+#include "Data/JoystickType.h"
+#include "Data/JoystickPowerLevel.h"
 #include "Menus/AxisConfigurationEditor.h"
 #include "Menus/ButtonConfigurationEditor.h"
 #include "Widgets/AxisBar.h"
@@ -19,9 +22,15 @@
 #include "Styling/AppStyle.h"
 #include "Widgets/Layout/SBorder.h"
 #include "Widgets/Layout/SSeparator.h"
+#include "Widgets/SOverlay.h"
+#include "Framework/Application/SlateApplication.h"
+#include "Widgets/SWindow.h"
+#include "Styling/CoreStyle.h"
 
 void SJoystickInputViewer::Construct(const FArguments& InArgs, const TSharedRef<SDockTab>& ConstructUnderMajorTab, const TSharedPtr<SWindow>& ConstructUnderWindow)
 {
+	ParentWindow = ConstructUnderWindow;
+
 	if (!GEngine)
 	{
 		return;
@@ -37,240 +46,622 @@ void SJoystickInputViewer::Construct(const FArguments& InArgs, const TSharedRef<
 
 	ChildSlot
 	[
-		SNew(SVerticalBox)
-		// Header Section with Device Selector
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(12, 12, 12, 8)
+		SNew(SOverlay)
+		+ SOverlay::Slot()
 		[
-			SNew(SBorder)
-			.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
-			.Padding(12)
+			SNew(SVerticalBox)
+			// Header Section with Device Selector
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(12, 12, 12, 8)
 			[
-				SNew(SVerticalBox)
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(0, 0, 0, 8)
+				SNew(SBorder)
+				.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
+				.Padding(12)
 				[
-					SNew(STextBlock)
-					.Text(FText::FromString("Device Selection"))
-					.TextStyle(FAppStyle::Get(), "DetailsView.CategoryTextStyle")
-					.Font(FAppStyle::GetFontStyle("PropertyWindow.BoldFont"))
-				]
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				[
-					SNew(SHorizontalBox)
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.VAlign(VAlign_Center)
-					.Padding(0, 0, 8, 0)
+					SNew(SVerticalBox)
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(0, 0, 0, 8)
 					[
 						SNew(STextBlock)
-						.Text(FText::FromString("Select Device:"))
-						.TextStyle(FAppStyle::Get(), "NormalText")
+						.Text(FText::FromString("Device Selection"))
+						.TextStyle(FAppStyle::Get(), "DetailsView.CategoryTextStyle")
+						.Font(FAppStyle::GetFontStyle("PropertyWindow.BoldFont"))
 					]
-					+ SHorizontalBox::Slot()
-					.FillWidth(1.0f)
-					.MaxWidth(400.0f)
+					+ SVerticalBox::Slot()
+					.AutoHeight()
 					[
-						SAssignNew(DeviceComboBox, SComboBox<TSharedPtr<FJoystickInstanceId>>)
-						.OptionsSource(&Joysticks)
-						.OnGenerateWidget_Lambda([](const TSharedPtr<FJoystickInstanceId>& InItem)
-						{
-							if (UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>())
-							{
-								FJoystickInformation JoystickInfo;
-								if (JoystickSubsystem->GetJoystickInfo(*InItem, JoystickInfo))
-								{
-									return SNew(STextBlock)
-										.Text(FText::FromString(*JoystickInfo.DeviceName))
-										.TextStyle(FAppStyle::Get(), "NormalText");
-								}
-							}
-
-							return SNew(STextBlock)
-								.Text(FText::FromString("ERROR"))
-								.TextStyle(FAppStyle::Get(), "NormalText");
-						})
-						.OnSelectionChanged_Lambda([this](const TSharedPtr<FJoystickInstanceId>& NewSelection, ESelectInfo::Type)
-						{
-							SelectedJoystick = NewSelection;
-							CreateWidgets();
-						})
-						.InitiallySelectedItem(SelectedJoystick)
+						SNew(SHorizontalBox)
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.VAlign(VAlign_Center)
+						.Padding(0, 0, 8, 0)
 						[
 							SNew(STextBlock)
-							.Text_Lambda([this]() -> FText
-							{
-								if (!SelectedJoystick.IsValid())
-								{
-									return FText::FromString("None");
-								}
-
-								UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
-								if (!IsValid(JoystickSubsystem))
-								{
-									return FText::FromString("None");
-								}
-
-								FJoystickInformation JoystickInfo;
-								JoystickSubsystem->GetJoystickInfo(*SelectedJoystick, JoystickInfo);
-								return FText::FromString(*JoystickInfo.DeviceName);
-							})
+							.Text(FText::FromString("Select Device:"))
 							.TextStyle(FAppStyle::Get(), "NormalText")
+						]
+						+ SHorizontalBox::Slot()
+						.FillWidth(1.0f)
+						.MaxWidth(400.0f)
+						[
+							SAssignNew(DeviceComboBox, SComboBox<TSharedPtr<FJoystickInstanceId>>)
+							.OptionsSource(&Joysticks)
+							.OnGenerateWidget_Lambda([this](const TSharedPtr<FJoystickInstanceId>& InItem)
+							{
+								if (UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>())
+								{
+									FJoystickInformation JoystickInfo;
+									if (JoystickSubsystem->GetJoystickInfo(*InItem, JoystickInfo))
+									{
+										return SNew(STextBlock)
+											.Text(FText::FromString(*JoystickInfo.DeviceName))
+											.TextStyle(FAppStyle::Get(), "NormalText");
+									}
+								}
+
+								return SNew(STextBlock)
+									.Text(FText::FromString("ERROR"))
+									.TextStyle(FAppStyle::Get(), "NormalText");
+							})
+							.OnSelectionChanged_Lambda([this](const TSharedPtr<FJoystickInstanceId>& NewSelection, ESelectInfo::Type)
+							{
+								SelectedJoystick = NewSelection;
+								UpdateCachedJoystickInfo();
+								CreateWidgets();
+							})
+							.InitiallySelectedItem(SelectedJoystick)
+							[
+								SNew(STextBlock)
+								.Text_Lambda([this]() -> FText
+								{
+									if (!SelectedJoystick.IsValid())
+									{
+										return FText::FromString("None");
+									}
+
+									return FText::FromString(*CachedJoystickInfo.DeviceName);
+								})
+								.TextStyle(FAppStyle::Get(), "NormalText")
+							]
+						]
+					]
+				]
+			]
+
+
+			// Content Area
+			+ SVerticalBox::Slot()
+			.FillHeight(1.0f)
+			.Padding(12, 0, 12, 12)
+			[
+				SNew(SScrollBox)
+				+ SScrollBox::Slot()
+				[
+					SNew(SVerticalBox)
+					// Device Information Section
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(0, 0, 0, 8)
+					[
+						SNew(SBorder)
+						.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
+						.Padding(12)
+						[
+							SNew(SHorizontalBox)
+							// Left Column: Device Information
+							+ SHorizontalBox::Slot()
+							.FillWidth(1.0f)
+							.Padding(0, 0, 12, 0)
+							[
+								SNew(SVerticalBox)
+								+ SVerticalBox::Slot()
+								.AutoHeight()
+								.Padding(0, 0, 0, 8)
+								[
+									SNew(STextBlock)
+									.Text(FText::FromString("Device Information"))
+									.TextStyle(FAppStyle::Get(), "DetailsView.CategoryTextStyle")
+									.Font(FAppStyle::GetFontStyle("PropertyWindow.BoldFont"))
+								]
+								+ SVerticalBox::Slot()
+								.AutoHeight()
+								[
+									SNew(SVerticalBox)
+									+ SVerticalBox::Slot()
+									.AutoHeight()
+									.Padding(0, 2)
+									[
+										SNew(SHorizontalBox)
+										+ SHorizontalBox::Slot()
+										.AutoWidth()
+										.Padding(0, 0, 8, 0)
+										[
+											SNew(STextBlock)
+											.Text(FText::FromString("Type:"))
+											.TextStyle(FAppStyle::Get(), "NormalText")
+											.ColorAndOpacity(FSlateColor::UseSubduedForeground())
+										]
+										+ SHorizontalBox::Slot()
+										.AutoWidth()
+										[
+											SNew(STextBlock)
+											.Text_Lambda([this]() -> FText
+											{
+												if (!SelectedJoystick.IsValid())
+												{
+													return FText::FromString("N/A");
+												}
+
+												if (const UEnum* EnumPtr = StaticEnum<EJoystickType>())
+												{
+													FString EnumName = EnumPtr->GetNameStringByValue(static_cast<int64>(CachedJoystickInfo.Type));
+													// Remove the "EJoystickType::" prefix
+													EnumName.RemoveFromStart(TEXT("EJoystickType::"));
+													return FText::FromString(EnumName);
+												}
+												return FText::FromString("Unknown");
+											})
+											.TextStyle(FAppStyle::Get(), "NormalText")
+										]
+									]
+									+ SVerticalBox::Slot()
+									.AutoHeight()
+									.Padding(0, 2)
+									[
+										SNew(SHorizontalBox)
+										+ SHorizontalBox::Slot()
+										.AutoWidth()
+										.Padding(0, 0, 8, 0)
+										[
+											SNew(STextBlock)
+											.Text(FText::FromString("Power Level:"))
+											.TextStyle(FAppStyle::Get(), "NormalText")
+											.ColorAndOpacity(FSlateColor::UseSubduedForeground())
+										]
+										+ SHorizontalBox::Slot()
+										.AutoWidth()
+										[
+											SNew(STextBlock)
+											.Text_Lambda([this]() -> FText
+											{
+												if (!SelectedJoystick.IsValid())
+												{
+													return FText::FromString("N/A");
+												}
+
+												if (const UEnum* EnumPtr = StaticEnum<EJoystickPowerLevel>())
+												{
+													FString EnumName = EnumPtr->GetNameStringByValue(static_cast<int64>(CachedJoystickInfo.PowerLevel));
+													EnumName.RemoveFromStart(TEXT("EJoystickPowerLevel::"));
+													return FText::FromString(EnumName);
+												}
+												return FText::FromString("Unknown");
+											})
+											.TextStyle(FAppStyle::Get(), "NormalText")
+										]
+									]
+									+ SVerticalBox::Slot()
+									.AutoHeight()
+									.Padding(0, 2)
+									[
+										SNew(SHorizontalBox)
+										+ SHorizontalBox::Slot()
+										.AutoWidth()
+										.Padding(0, 0, 8, 0)
+										[
+											SNew(STextBlock)
+											.Text(FText::FromString("Product ID:"))
+											.TextStyle(FAppStyle::Get(), "NormalText")
+											.ColorAndOpacity(FSlateColor::UseSubduedForeground())
+										]
+										+ SHorizontalBox::Slot()
+										.AutoWidth()
+										[
+											SNew(STextBlock)
+											.Text_Lambda([this]() -> FText
+											{
+												if (!SelectedJoystick.IsValid())
+												{
+													return FText::FromString("N/A");
+												}
+
+												return FText::FromString(FString::Printf(TEXT("0x%04X"), CachedJoystickInfo.ProductId));
+											})
+											.TextStyle(FAppStyle::Get(), "NormalText")
+										]
+									]
+									+ SVerticalBox::Slot()
+									.AutoHeight()
+									.Padding(0, 2)
+									[
+										SNew(SHorizontalBox)
+										+ SHorizontalBox::Slot()
+										.AutoWidth()
+										.Padding(0, 0, 8, 0)
+										[
+											SNew(STextBlock)
+											.Text(FText::FromString("Vendor ID:"))
+											.TextStyle(FAppStyle::Get(), "NormalText")
+											.ColorAndOpacity(FSlateColor::UseSubduedForeground())
+										]
+										+ SHorizontalBox::Slot()
+										.AutoWidth()
+										[
+											SNew(STextBlock)
+											.Text_Lambda([this]() -> FText
+											{
+												if (!SelectedJoystick.IsValid())
+												{
+													return FText::FromString("N/A");
+												}
+
+												return FText::FromString(FString::Printf(TEXT("0x%04X"), CachedJoystickInfo.VendorId));
+											})
+											.TextStyle(FAppStyle::Get(), "NormalText")
+										]
+									]
+								]
+							]
+							// Vertical Separator
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(12, 0, 12, 0)
+							[
+								SNew(SSeparator)
+								.Orientation(Orient_Vertical)
+							]
+							// Right Column: Supported Features
+							+ SHorizontalBox::Slot()
+							.FillWidth(1.0f)
+							[
+								SNew(SVerticalBox)
+								+ SVerticalBox::Slot()
+								.AutoHeight()
+								.Padding(0, 0, 0, 8)
+								[
+									SNew(STextBlock)
+									.Text(FText::FromString("Supported Features"))
+									.TextStyle(FAppStyle::Get(), "DetailsView.CategoryTextStyle")
+									.Font(FAppStyle::GetFontStyle("PropertyWindow.BoldFont"))
+								]
+								+ SVerticalBox::Slot()
+								.AutoHeight()
+								[
+									SNew(SVerticalBox)
+									+ SVerticalBox::Slot()
+									.AutoHeight()
+									.Padding(0, 2)
+									[
+										SNew(SHorizontalBox)
+										+ SHorizontalBox::Slot()
+										.AutoWidth()
+										.Padding(0, 0, 8, 0)
+										[
+											SNew(STextBlock)
+											.Text(FText::FromString("LED:"))
+											.TextStyle(FAppStyle::Get(), "NormalText")
+											.ColorAndOpacity(FSlateColor::UseSubduedForeground())
+										]
+										+ SHorizontalBox::Slot()
+										.AutoWidth()
+										[
+											SNew(STextBlock)
+											.Text_Lambda([this]() -> FText
+											{
+												if (!SelectedJoystick.IsValid())
+												{
+													return FText::FromString("N/A");
+												}
+
+												return FText::FromString(CachedJoystickInfo.LedSupport ? TEXT("Yes") : TEXT("No"));
+											})
+											.TextStyle(FAppStyle::Get(), "NormalText")
+										]
+									]
+									+ SVerticalBox::Slot()
+									.AutoHeight()
+									.Padding(0, 2)
+									[
+										SNew(SHorizontalBox)
+										+ SHorizontalBox::Slot()
+										.AutoWidth()
+										.Padding(0, 0, 8, 0)
+										[
+											SNew(STextBlock)
+											.Text(FText::FromString("Rumble:"))
+											.TextStyle(FAppStyle::Get(), "NormalText")
+											.ColorAndOpacity(FSlateColor::UseSubduedForeground())
+										]
+										+ SHorizontalBox::Slot()
+										.AutoWidth()
+										[
+											SNew(STextBlock)
+											.Text_Lambda([this]() -> FText
+											{
+												if (!SelectedJoystick.IsValid())
+												{
+													return FText::FromString("N/A");
+												}
+
+												return FText::FromString(CachedJoystickInfo.RumbleSupport ? TEXT("Yes") : TEXT("No"));
+											})
+											.TextStyle(FAppStyle::Get(), "NormalText")
+										]
+									]
+									+ SVerticalBox::Slot()
+									.AutoHeight()
+									.Padding(0, 2)
+									[
+										SNew(SHorizontalBox)
+										+ SHorizontalBox::Slot()
+										.AutoWidth()
+										.Padding(0, 0, 8, 0)
+										[
+											SNew(STextBlock)
+											.Text(FText::FromString("Haptic:"))
+											.TextStyle(FAppStyle::Get(), "NormalText")
+											.ColorAndOpacity(FSlateColor::UseSubduedForeground())
+										]
+										+ SHorizontalBox::Slot()
+										.AutoWidth()
+										[
+											SNew(STextBlock)
+											.Text_Lambda([this]() -> FText
+											{
+												if (!SelectedJoystick.IsValid())
+												{
+													return FText::FromString("N/A");
+												}
+
+												return FText::FromString(CachedJoystickInfo.Haptic.Supported ? TEXT("Yes") : TEXT("No"));
+											})
+											.TextStyle(FAppStyle::Get(), "NormalText")
+										]
+									]
+									+ SVerticalBox::Slot()
+									.AutoHeight()
+									.Padding(0, 2)
+									[
+										SNew(SHorizontalBox)
+										+ SHorizontalBox::Slot()
+										.AutoWidth()
+										.Padding(0, 0, 8, 0)
+										[
+											SNew(STextBlock)
+											.Text(FText::FromString("Gyro:"))
+											.TextStyle(FAppStyle::Get(), "NormalText")
+											.ColorAndOpacity(FSlateColor::UseSubduedForeground())
+										]
+										+ SHorizontalBox::Slot()
+										.AutoWidth()
+										[
+											SNew(STextBlock)
+											.Text_Lambda([this]() -> FText
+											{
+												if (!SelectedJoystick.IsValid())
+												{
+													return FText::FromString("N/A");
+												}
+
+												return FText::FromString(CachedJoystickInfo.Gyro.Supported ? TEXT("Yes") : TEXT("No"));
+											})
+											.TextStyle(FAppStyle::Get(), "NormalText")
+										]
+									]
+									+ SVerticalBox::Slot()
+									.AutoHeight()
+									.Padding(0, 2)
+									[
+										SNew(SHorizontalBox)
+										+ SHorizontalBox::Slot()
+										.AutoWidth()
+										.Padding(0, 0, 8, 0)
+										[
+											SNew(STextBlock)
+											.Text(FText::FromString("Accelerometer:"))
+											.TextStyle(FAppStyle::Get(), "NormalText")
+											.ColorAndOpacity(FSlateColor::UseSubduedForeground())
+										]
+										+ SHorizontalBox::Slot()
+										.AutoWidth()
+										[
+											SNew(STextBlock)
+											.Text_Lambda([this]() -> FText
+											{
+												if (!SelectedJoystick.IsValid())
+												{
+													return FText::FromString("N/A");
+												}
+
+												return FText::FromString(CachedJoystickInfo.Accelerometer.Supported ? TEXT("Yes") : TEXT("No"));
+											})
+											.TextStyle(FAppStyle::Get(), "NormalText")
+										]
+									]
+									+ SVerticalBox::Slot()
+									.AutoHeight()
+									.Padding(0, 2)
+									[
+										SNew(SHorizontalBox)
+										+ SHorizontalBox::Slot()
+										.AutoWidth()
+										.Padding(0, 0, 8, 0)
+										[
+											SNew(STextBlock)
+											.Text(FText::FromString("Game Controller:"))
+											.TextStyle(FAppStyle::Get(), "NormalText")
+											.ColorAndOpacity(FSlateColor::UseSubduedForeground())
+										]
+										+ SHorizontalBox::Slot()
+										.AutoWidth()
+										[
+											SNew(STextBlock)
+											.Text_Lambda([this]() -> FText
+											{
+												if (!SelectedJoystick.IsValid())
+												{
+													return FText::FromString("N/A");
+												}
+
+												return FText::FromString(CachedJoystickInfo.IsGameController ? TEXT("Yes") : TEXT("No"));
+											})
+											.TextStyle(FAppStyle::Get(), "NormalText")
+										]
+									]
+								]
+							]
+						]
+					]
+					// Axes Section
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(0, 0, 0, 8)
+					[
+						SNew(STextBlock)
+						.Text(FText::FromString("Axes"))
+						.TextStyle(FAppStyle::Get(), "DetailsView.CategoryTextStyle")
+						.Font(FAppStyle::GetFontStyle("PropertyWindow.BoldFont"))
+					]
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(0, 0, 0, 16)
+					[
+						SNew(SBorder)
+						.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
+						.Padding(12)
+						[
+							SAssignNew(AxisContainer, SHorizontalBox)
+						]
+					]
+
+					// Buttons Section
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(0, 0, 0, 8)
+					[
+						SNew(STextBlock)
+						.Text(FText::FromString("Buttons"))
+						.TextStyle(FAppStyle::Get(), "DetailsView.CategoryTextStyle")
+						.Font(FAppStyle::GetFontStyle("PropertyWindow.BoldFont"))
+					]
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(0, 0, 0, 16)
+					[
+						SNew(SBorder)
+						.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
+						.Padding(12)
+						[
+							SAssignNew(ButtonContainer, SWrapBox)
+							.PreferredSize_Lambda([this]
+							{
+								return GetCachedGeometry().GetLocalSize().X - 48;
+							})
+							.InnerSlotPadding(FVector2D(8.0f, 8.0f))
+							.Orientation(Orient_Horizontal)
+							.HAlign(HAlign_Center)
+						]
+					]
+
+					// Hat Switches Section
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(0, 0, 0, 8)
+					[
+						SNew(STextBlock)
+						.Text(FText::FromString("Hat Switches"))
+						.TextStyle(FAppStyle::Get(), "DetailsView.CategoryTextStyle")
+						.Font(FAppStyle::GetFontStyle("PropertyWindow.BoldFont"))
+					]
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(0, 0, 0, 16)
+					[
+						SNew(SBorder)
+						.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
+						.Padding(12)
+						[
+							SAssignNew(HatContainer, SWrapBox)
+							.PreferredSize_Lambda([this]
+							{
+								return GetCachedGeometry().GetLocalSize().X - 48;
+							})
+							.InnerSlotPadding(FVector2D(8.0f, 8.0f))
+							.Orientation(Orient_Horizontal)
+							.HAlign(HAlign_Left)
+						]
+					]
+
+					// Hat Button Switches Section
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(0, 0, 0, 8)
+					[
+						SNew(STextBlock)
+						.Text(FText::FromString("Hat Button Switches"))
+						.TextStyle(FAppStyle::Get(), "DetailsView.CategoryTextStyle")
+						.Font(FAppStyle::GetFontStyle("PropertyWindow.BoldFont"))
+					]
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(0, 0, 0, 16)
+					[
+						SNew(SBorder)
+						.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
+						.Padding(12)
+						[
+							SAssignNew(HatButtonContainer, SWrapBox)
+							.PreferredSize_Lambda([this]
+							{
+								return GetCachedGeometry().GetLocalSize().X - 48;
+							})
+							.InnerSlotPadding(FVector2D(8.0f, 8.0f))
+							.Orientation(Orient_Horizontal)
+							.HAlign(HAlign_Left)
+						]
+					]
+
+					// Ball Switches Section
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(0, 0, 0, 8)
+					[
+						SNew(STextBlock)
+						.Text(FText::FromString("Ball Switches"))
+						.TextStyle(FAppStyle::Get(), "DetailsView.CategoryTextStyle")
+						.Font(FAppStyle::GetFontStyle("PropertyWindow.BoldFont"))
+					]
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(0, 0, 0, 16)
+					[
+						SNew(SBorder)
+						.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
+						.Padding(12)
+						[
+							SAssignNew(BallContainer, SWrapBox)
+							.PreferredSize_Lambda([this]
+							{
+								return GetCachedGeometry().GetLocalSize().X - 48;
+							})
+							.InnerSlotPadding(FVector2D(8.0f, 8.0f))
+							.Orientation(Orient_Horizontal)
+							.HAlign(HAlign_Left)
 						]
 					]
 				]
 			]
 		]
-
-		// Content Area
-		+ SVerticalBox::Slot()
-		.FillHeight(1.0f)
-		.Padding(12, 0, 12, 12)
+		+ SOverlay::Slot()
 		[
-			SNew(SScrollBox)
-			+ SScrollBox::Slot()
+			SAssignNew(InputBlocker, SBox)
+			.Visibility(EVisibility::Collapsed)
 			[
-				SNew(SVerticalBox)
-				// Axes Section
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(0, 0, 0, 8)
-				[
-					SNew(STextBlock)
-					.Text(FText::FromString("Axes"))
-					.TextStyle(FAppStyle::Get(), "DetailsView.CategoryTextStyle")
-					.Font(FAppStyle::GetFontStyle("PropertyWindow.BoldFont"))
-				]
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(0, 0, 0, 16)
-				[
-					SNew(SBorder)
-					.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
-					.Padding(12)
-					[
-						SAssignNew(AxisContainer, SHorizontalBox)
-					]
-				]
-
-				// Buttons Section
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(0, 0, 0, 8)
-				[
-					SNew(STextBlock)
-					.Text(FText::FromString("Buttons"))
-					.TextStyle(FAppStyle::Get(), "DetailsView.CategoryTextStyle")
-					.Font(FAppStyle::GetFontStyle("PropertyWindow.BoldFont"))
-				]
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(0, 0, 0, 16)
-				[
-					SNew(SBorder)
-					.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
-					.Padding(12)
-					[
-						SAssignNew(ButtonContainer, SWrapBox)
-						.PreferredSize_Lambda([this]
-						{
-							return GetCachedGeometry().GetLocalSize().X - 48;
-						})
-						.InnerSlotPadding(FVector2D(8.0f, 8.0f))
-						.Orientation(Orient_Horizontal)
-						.HAlign(HAlign_Left)
-					]
-				]
-
-				// Hat Switches Section
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(0, 0, 0, 8)
-				[
-					SNew(STextBlock)
-					.Text(FText::FromString("Hat Switches"))
-					.TextStyle(FAppStyle::Get(), "DetailsView.CategoryTextStyle")
-					.Font(FAppStyle::GetFontStyle("PropertyWindow.BoldFont"))
-				]
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(0, 0, 0, 16)
-				[
-					SNew(SBorder)
-					.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
-					.Padding(12)
-					[
-						SAssignNew(HatContainer, SWrapBox)
-						.PreferredSize_Lambda([this]
-						{
-							return GetCachedGeometry().GetLocalSize().X - 48;
-						})
-						.InnerSlotPadding(FVector2D(8.0f, 8.0f))
-						.Orientation(Orient_Horizontal)
-						.HAlign(HAlign_Left)
-					]
-				]
-
-				// Hat Button Switches Section
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(0, 0, 0, 8)
-				[
-					SNew(STextBlock)
-					.Text(FText::FromString("Hat Button Switches"))
-					.TextStyle(FAppStyle::Get(), "DetailsView.CategoryTextStyle")
-					.Font(FAppStyle::GetFontStyle("PropertyWindow.BoldFont"))
-				]
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(0, 0, 0, 16)
-				[
-					SNew(SBorder)
-					.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
-					.Padding(12)
-					[
-						SAssignNew(HatButtonContainer, SWrapBox)
-						.PreferredSize_Lambda([this]
-						{
-							return GetCachedGeometry().GetLocalSize().X - 48;
-						})
-						.InnerSlotPadding(FVector2D(8.0f, 8.0f))
-						.Orientation(Orient_Horizontal)
-						.HAlign(HAlign_Left)
-					]
-				]
-
-				// Ball Switches Section
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(0, 0, 0, 8)
-				[
-					SNew(STextBlock)
-					.Text(FText::FromString("Ball Switches"))
-					.TextStyle(FAppStyle::Get(), "DetailsView.CategoryTextStyle")
-					.Font(FAppStyle::GetFontStyle("PropertyWindow.BoldFont"))
-				]
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(0, 0, 0, 16)
-				[
-					SNew(SBorder)
-					.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
-					.Padding(12)
-					[
-						SAssignNew(BallContainer, SWrapBox)
-						.PreferredSize_Lambda([this]
-						{
-							return GetCachedGeometry().GetLocalSize().X - 48;
-						})
-						.InnerSlotPadding(FVector2D(8.0f, 8.0f))
-						.Orientation(Orient_Horizontal)
-						.HAlign(HAlign_Left)
-					]
-				]
+				SNew(SBorder)
+				.BorderImage(FCoreStyle::Get().GetBrush("WhiteBrush"))
+				.BorderBackgroundColor(FLinearColor(0.0f, 0.0f, 0.0f, 0.3f))
 			]
 		]
 	];
@@ -598,6 +989,7 @@ void SJoystickInputViewer::SelectFirstJoystick()
 	{
 		DeviceComboBox->SetSelectedItem(SelectedJoystick);
 	}
+	UpdateCachedJoystickInfo();
 }
 
 void SJoystickInputViewer::OpenAxisConfigurationEditor(const FKey& AxisKey, const int AxisIndex) const
@@ -607,12 +999,19 @@ void SJoystickInputViewer::OpenAxisConfigurationEditor(const FKey& AxisKey, cons
 		return;
 	}
 
+	// Show input blocker
+	if (InputBlocker.IsValid())
+	{
+		InputBlocker->SetVisibility(EVisibility::Visible);
+	}
+
 	const TSharedRef<SWindow> EditorWindow = SNew(SWindow)
 		.Title(FText::Format(FText::FromString("Axis Configuration - {0}"), AxisKey.GetDisplayName()))
-		.ClientSize(FVector2D(600, 700))
 		.SupportsMaximize(false)
 		.SupportsMinimize(false)
-		.SizingRule(ESizingRule::UserSized);
+		.FocusWhenFirstShown(true)
+		.IsTopmostWindow(true)
+		.SizingRule(ESizingRule::Autosized);
 
 	const TSharedRef<SAxisConfigurationEditor> EditorWidget = SNew(SAxisConfigurationEditor)
 		.AxisKey(AxisKey)
@@ -621,7 +1020,40 @@ void SJoystickInputViewer::OpenAxisConfigurationEditor(const FKey& AxisKey, cons
 
 	EditorWindow->SetContent(EditorWidget);
 
+	// Set callback to hide blocker when window closes
+	EditorWindow->SetOnWindowClosed(FOnWindowClosed::CreateLambda([this](const TSharedRef<SWindow>&)
+	{
+		if (InputBlocker.IsValid())
+		{
+			InputBlocker->SetVisibility(EVisibility::Collapsed);
+		}
+	}));
+
 	FSlateApplication::Get().AddWindow(EditorWindow);
+}
+
+void SJoystickInputViewer::UpdateCachedJoystickInfo()
+{
+	if (!SelectedJoystick.IsValid())
+	{
+		CachedJoystickInfo = FJoystickInformation();
+		return;
+	}
+
+	if (!GEngine)
+	{
+		CachedJoystickInfo = FJoystickInformation();
+		return;
+	}
+
+	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
+	if (!IsValid(JoystickSubsystem))
+	{
+		CachedJoystickInfo = FJoystickInformation();
+		return;
+	}
+
+	JoystickSubsystem->GetJoystickInfo(*SelectedJoystick, CachedJoystickInfo);
 }
 
 void SJoystickInputViewer::OpenButtonConfigurationEditor(const FKey& ButtonKey, const int ButtonIndex) const
@@ -631,12 +1063,19 @@ void SJoystickInputViewer::OpenButtonConfigurationEditor(const FKey& ButtonKey, 
 		return;
 	}
 
+	// Show input blocker
+	if (InputBlocker.IsValid())
+	{
+		InputBlocker->SetVisibility(EVisibility::Visible);
+	}
+
 	const TSharedRef<SWindow> EditorWindow = SNew(SWindow)
 		.Title(FText::Format(FText::FromString("Button Configuration - {0}"), ButtonKey.GetDisplayName()))
-		.ClientSize(FVector2D(600, 500))
 		.SupportsMaximize(false)
 		.SupportsMinimize(false)
-		.SizingRule(ESizingRule::UserSized);
+		.FocusWhenFirstShown(true)
+		.IsTopmostWindow(true)
+		.SizingRule(ESizingRule::Autosized);
 
 	const TSharedRef<SButtonConfigurationEditor> EditorWidget = SNew(SButtonConfigurationEditor)
 		.ButtonKey(ButtonKey)
@@ -644,6 +1083,15 @@ void SJoystickInputViewer::OpenButtonConfigurationEditor(const FKey& ButtonKey, 
 		.ButtonIndex(ButtonIndex);
 
 	EditorWindow->SetContent(EditorWidget);
+
+	// Set callback to hide blocker when window closes
+	EditorWindow->SetOnWindowClosed(FOnWindowClosed::CreateLambda([this](const TSharedRef<SWindow>&)
+	{
+		if (InputBlocker.IsValid())
+		{
+			InputBlocker->SetVisibility(EVisibility::Collapsed);
+		}
+	}));
 
 	FSlateApplication::Get().AddWindow(EditorWindow);
 }
