@@ -4,7 +4,6 @@
 #include "Widgets/SJoystickInputSelector.h"
 
 #include "JoystickFunctionLibrary.h"
-#include "JoystickInputSettings.h"
 #include "Data/InputSelectorTypes.h"
 #include "Data/KeySelectorTypes.h"
 #include "Managers/JoystickProfileManager.h"
@@ -389,8 +388,6 @@ FText SJoystickInputSelector::GetSelectedKeyText() const
 	{
 		if (SelectedKey.Get().Key.IsValid())
 		{
-			// If the key in the chord is a modifier key, print it's display name directly since the FInputChord
-			// displays these as empty text.
 			return SelectedKey.Get().Key.IsModifierKey()
 				       ? SelectedKey.Get().Key.GetDisplayName()
 				       : SelectedKey.Get().GetInputText();

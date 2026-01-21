@@ -72,8 +72,11 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category="Force Feedback|Events")
 	void OnDestroyedEffect();
 
+	UFUNCTION(BlueprintCallable, Category="Force Feedback")
+	void DriveTick(float DeltaTime);
+
 	UFUNCTION(BlueprintNativeEvent, meta=(DisplayName="Tick"))
-	void ReceiveTick(const float DeltaTime);
+	void ReceivedTick(const float DeltaTime);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Force Feedback")
 	int GetEffectStatus() const;

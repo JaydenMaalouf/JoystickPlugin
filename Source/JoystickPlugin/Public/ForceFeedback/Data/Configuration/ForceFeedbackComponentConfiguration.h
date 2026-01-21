@@ -13,21 +13,27 @@ struct JOYSTICKPLUGIN_API FForceFeedbackComponentConfiguration : public FForceFe
 	GENERATED_BODY()
 
 	FForceFeedbackComponentConfiguration()
-		: OverrideEffectTick(true)
+		: UseAsyncPhysicsTick(true)
+		  , OverrideEffectTick(true)
 	{
 	}
 
 	FForceFeedbackComponentConfiguration(const FForceFeedbackConfigurationBase& BaseConfiguration, const bool bOverrideEffectTick)
 		: Super(BaseConfiguration)
+		  , UseAsyncPhysicsTick(true)
 		  , OverrideEffectTick(bOverrideEffectTick)
 	{
 	}
 
 	FForceFeedbackComponentConfiguration(const bool bAutoInit, const bool bAutoStartOnInit, const bool bOverrideEffectTick)
 		: Super(bAutoInit, bAutoStartOnInit)
+		  , UseAsyncPhysicsTick(true)
 		  , OverrideEffectTick(bOverrideEffectTick)
 	{
 	}
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Joystick|Force Feedback|Tick")
+	bool UseAsyncPhysicsTick;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Joystick|Force Feedback", meta=(ToolTip="Useful if you want to control the Tick Interval and Tick Group of the effects."))
 	bool OverrideEffectTick;

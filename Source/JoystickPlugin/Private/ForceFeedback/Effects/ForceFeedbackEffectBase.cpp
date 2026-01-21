@@ -48,12 +48,17 @@ void UForceFeedbackEffectBase::Tick(const float DeltaTime)
 
 	LastFrameNumber = GFrameCounter;
 
+	DriveTick(DeltaTime);
+}
+
+void UForceFeedbackEffectBase::DriveTick(const float DeltaTime)
+{
 	if (!IsInitialised || this->IsUnreachable())
 	{
 		return;
 	}
 
-	ReceiveTick(DeltaTime);
+	ReceivedTick(DeltaTime);
 
 	if (Configuration.AutoUpdatePostTick)
 	{
@@ -299,7 +304,7 @@ void UForceFeedbackEffectBase::UpdateEffect()
 	}
 }
 
-void UForceFeedbackEffectBase::ReceiveTick_Implementation(const float DeltaTime)
+void UForceFeedbackEffectBase::ReceivedTick_Implementation(const float DeltaTime)
 {
 }
 

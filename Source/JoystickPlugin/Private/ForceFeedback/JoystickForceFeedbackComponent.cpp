@@ -6,6 +6,7 @@
 #include "Engine/Engine.h"
 #include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
 #include "JoystickSubsystem.h"
+#include "PhysicsEngine/PhysicsSettings.h"
 
 UJoystickForceFeedbackComponent::UJoystickForceFeedbackComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -14,11 +15,32 @@ UJoystickForceFeedbackComponent::UJoystickForceFeedbackComponent(const FObjectIn
 	bAutoActivate = true;
 	PrimaryComponentTick.bCanEverTick = true;
 	PrimaryComponentTick.bStartWithTickEnabled = true;
+	PrimaryComponentTick.TickGroup = TG_PostPhysics;
+	
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3
+	// Opt-in by default; if async physics tick isn't active, we'll fall back to TickComponent.
+	Configuration.UseAsyncPhysicsTick = true;
+	SetAsyncPhysicsTickEnabled(true);
+	
+	const UPhysicsSettings* PhysicsSettings = GetDefault<UPhysicsSettings>();
+	if (!PhysicsSettings)
+	{
+		return;
+	}
+
+	PrimaryComponentTick.TickInterval = PhysicsSettings->AsyncFixedTimeStepSize;
+#else
+	Configuration.UseAsyncPhysicsTick = false;
+#endif
 }
 
 void UJoystickForceFeedbackComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3
+	SetAsyncPhysicsTickEnabled(Configuration.UseAsyncPhysicsTick);
+#endif
 
 	if (!IsValid(GEngine))
 	{
@@ -60,6 +82,31 @@ void UJoystickForceFeedbackComponent::TickComponent(const float DeltaTime, const
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if (Configuration.UseAsyncPhysicsTick)
+	{
+		return;
+	}
+
+	TickEffects(DeltaTime);
+}
+
+#if (ENGINE_MAJOR_VERSION > 5) || (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
+void UJoystickForceFeedbackComponent::AsyncPhysicsTickComponent(const float DeltaTime, const float SimTime)
+{
+	Super::AsyncPhysicsTickComponent(DeltaTime, SimTime);
+
+	if (!Configuration.UseAsyncPhysicsTick)
+	{
+		return;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Hello from tick Delta: %f Sim: %f"), DeltaTime, SimTime)
+	TickEffects(DeltaTime);
+}
+#endif
+
+void UJoystickForceFeedbackComponent::TickEffects(const float DeltaTime)
+{
 	if (!Configuration.OverrideEffectTick)
 	{
 		return;
@@ -77,13 +124,13 @@ void UJoystickForceFeedbackComponent::TickComponent(const float DeltaTime, const
 			continue;
 		}
 
-		// If true, the effect will handle its own Tick
+		// If true, the effect will handle its own Tick.
 		if (ForcedFeedbackEffect->IsTickable())
 		{
 			continue;
 		}
 
-		ForcedFeedbackEffect->Tick(DeltaTime);
+		ForcedFeedbackEffect->DriveTick(DeltaTime);
 	}
 }
 

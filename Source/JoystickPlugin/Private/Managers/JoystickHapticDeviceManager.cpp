@@ -202,9 +202,9 @@ bool UJoystickHapticDeviceManager::PlayRumble(const FJoystickInstanceId& Instanc
 		return false;
 	}
 
-	const Uint16 LowFrequency = FMath::Clamp<Uint16>(LowFrequencyRumble * UINT16_MAX, 0, UINT16_MAX);
-	const Uint16 HighFrequency = FMath::Clamp<Uint16>(HighFrequencyRumble * UINT16_MAX, 0, UINT16_MAX);
-	const Uint32 ClampedDuration = Duration == -1 ? SDL_HAPTIC_INFINITY : FMath::Clamp<Uint32>(Duration * 1000.0f, 0, UINT32_MAX);
+	const uint16 LowFrequency = FMath::Clamp<uint16>(LowFrequencyRumble * UINT16_MAX, 0, UINT16_MAX);
+	const uint16 HighFrequency = FMath::Clamp<uint16>(HighFrequencyRumble * UINT16_MAX, 0, UINT16_MAX);
+	const uint32 ClampedDuration = Duration == -1 ? SDL_HAPTIC_INFINITY : FMath::Clamp<uint32>(Duration * 1000.0f, 0, UINT32_MAX);
 	const int Result = SDL_JoystickRumble(DeviceInfo->SDLJoystick, LowFrequency, HighFrequency, ClampedDuration);
 	if (Result == -1)
 	{
@@ -234,7 +234,7 @@ bool UJoystickHapticDeviceManager::PlayHapticRumble(const FJoystickInstanceId& I
 	}
 
 	const float ClampedStrength = FMath::Clamp<float>(Strength, 0, 1);
-	const Uint32 ClampedDuration = Duration == -1 ? SDL_HAPTIC_INFINITY : FMath::Clamp<Uint32>(Duration * 1000.0f, 0, UINT32_MAX);
+	const uint32 ClampedDuration = Duration == -1 ? SDL_HAPTIC_INFINITY : FMath::Clamp<uint32>(Duration * 1000.0f, 0, UINT32_MAX);
 	const int Result = SDL_HapticRumblePlay(DeviceInfo->SDLHaptic, ClampedStrength, ClampedDuration);
 	if (Result == -1)
 	{
