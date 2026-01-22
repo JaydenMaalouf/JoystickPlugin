@@ -28,6 +28,7 @@ UForceFeedbackEffectBase::UForceFeedbackEffectBase(const FObjectInitializer& Obj
 	  , ForceStopAfterDurationLapsed(false)
 	  , Effect()
 	  , StartTime(-1)
+	  , TimeAccumulator(0)
 	  , EffectRunning(false)
 {
 }
@@ -41,14 +42,31 @@ void UForceFeedbackEffectBase::BeginDestroy()
 
 void UForceFeedbackEffectBase::Tick(const float DeltaTime)
 {
-	if (LastFrameNumber == GFrameCounter)
+	if (Configuration.SubstepTicks)
 	{
-		return;
+		static const float FixedTimeStep = 1.0f / Configuration.EffectHz;
+
+		TimeAccumulator += DeltaTime;
+		
+		int SubTickCount = 0;
+		while (TimeAccumulator >= FixedTimeStep && SubTickCount < Configuration.MaxSubticks)
+		{
+			DriveTick(FixedTimeStep);
+
+			TimeAccumulator -= FixedTimeStep;
+			SubTickCount++;
+		}
+
+		// Clamp accumulator to prevent spiral of death
+		if (TimeAccumulator > FixedTimeStep * Configuration.MaxSubticks)
+		{
+			TimeAccumulator = FixedTimeStep;
+		}
 	}
-
-	LastFrameNumber = GFrameCounter;
-
-	DriveTick(DeltaTime);
+	else
+	{
+		DriveTick(DeltaTime);
+	}
 }
 
 void UForceFeedbackEffectBase::DriveTick(const float DeltaTime)

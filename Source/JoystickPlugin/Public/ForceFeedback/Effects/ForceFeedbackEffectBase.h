@@ -173,6 +173,7 @@ private:
 	// We don't want to tick multiple times per frame 
 	uint32 LastFrameNumber = INDEX_NONE;
 	uint64 StartTime;
+	float TimeAccumulator;
 
 	bool EffectRunning;
 

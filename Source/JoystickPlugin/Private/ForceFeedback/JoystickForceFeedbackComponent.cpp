@@ -6,7 +6,6 @@
 #include "Engine/Engine.h"
 #include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
 #include "JoystickSubsystem.h"
-#include "PhysicsEngine/PhysicsSettings.h"
 
 UJoystickForceFeedbackComponent::UJoystickForceFeedbackComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -21,14 +20,6 @@ UJoystickForceFeedbackComponent::UJoystickForceFeedbackComponent(const FObjectIn
 	// Opt-in by default; if async physics tick isn't active, we'll fall back to TickComponent.
 	Configuration.UseAsyncPhysicsTick = true;
 	SetAsyncPhysicsTickEnabled(true);
-	
-	const UPhysicsSettings* PhysicsSettings = GetDefault<UPhysicsSettings>();
-	if (!PhysicsSettings)
-	{
-		return;
-	}
-
-	PrimaryComponentTick.TickInterval = PhysicsSettings->AsyncFixedTimeStepSize;
 #else
 	Configuration.UseAsyncPhysicsTick = false;
 #endif
@@ -100,7 +91,6 @@ void UJoystickForceFeedbackComponent::AsyncPhysicsTickComponent(const float Delt
 		return;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Hello from tick Delta: %f Sim: %f"), DeltaTime, SimTime)
 	TickEffects(DeltaTime);
 }
 #endif
@@ -130,7 +120,7 @@ void UJoystickForceFeedbackComponent::TickEffects(const float DeltaTime)
 			continue;
 		}
 
-		ForcedFeedbackEffect->DriveTick(DeltaTime);
+		ForcedFeedbackEffect->Tick(DeltaTime);
 	}
 }
 
@@ -199,6 +189,24 @@ void UJoystickForceFeedbackComponent::CreateInstanceEffect(const FJoystickInstan
 	}
 
 	if (!EffectType)
+	{
+		return;
+	}
+
+	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
+	if (!IsValid(JoystickSubsystem))
+	{
+		return;
+	}
+	
+	FJoystickInformation JoystickInfo;
+	const bool Result = JoystickSubsystem->GetJoystickInfo(JoystickInstanceId, JoystickInfo);
+	if (!Result)
+	{
+		return;
+	}
+
+	if (!JoystickInfo.Haptic.Supported)
 	{
 		return;
 	}
