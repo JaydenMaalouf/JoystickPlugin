@@ -85,8 +85,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Joystick")
 	bool SetJoystickLedColor(const FJoystickInstanceId& InstanceId, const FColor Color);
 
-	UFUNCTION(BlueprintCallable, Category="Joystick")
+	UFUNCTION(BlueprintCallable, BlueprintPure=false, Category="Joystick")
 	void GetInstanceIds(TArray<FJoystickInstanceId>& InstanceIds, const bool IncludeDisconnected = false) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure=false, Category="Joystick")
+	void GetInstanceIdsForPlatformUser(const FPlatformUserId& PlatformUserId, TArray<FJoystickInstanceId>& InstanceIds) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Joystick")
+	bool DeviceIdFromInstanceId(const FJoystickInstanceId& InstanceId, FInputDeviceId& DeviceId);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Joystick")
+	bool InstanceIdFromDeviceId(const FInputDeviceId& DeviceId, FJoystickInstanceId& InstanceId) const;
 
 	UFUNCTION(BlueprintCallable, Category="Joystick")
 	bool HasRumbleDevice() const;

@@ -75,7 +75,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Force Feedback")
 	void DriveTick(float DeltaTime);
 
-	UFUNCTION(BlueprintNativeEvent, meta=(DisplayName="Tick"))
+	UFUNCTION(BlueprintNativeEvent)
 	void ReceivedTick(const float DeltaTime);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Force Feedback")
