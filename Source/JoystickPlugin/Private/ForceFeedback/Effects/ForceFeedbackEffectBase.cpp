@@ -44,7 +44,7 @@ void UForceFeedbackEffectBase::Tick(const float DeltaTime)
 {
 	if (Configuration.SubstepTicks)
 	{
-		static const float FixedTimeStep = 1.0f / Configuration.EffectHz;
+		const float FixedTimeStep = 1.0f / Configuration.EffectHz;
 
 		TimeAccumulator += DeltaTime;
 		
