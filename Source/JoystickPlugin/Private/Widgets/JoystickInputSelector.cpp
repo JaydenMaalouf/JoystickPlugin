@@ -11,20 +11,20 @@
 #include "UObject/FrameworkObjectVersion.h"
 #include "Widgets/DeclarativeSyntaxSupport.h"
 #include "Internationalization/Internationalization.h"
-#include "Styling/DefaultStyleCache.h"
+#include "Styling/AppStyle.h"
 
 #define LOCTEXT_NAMESPACE "JoystickPlugin"
 
 UJoystickInputSelector::UJoystickInputSelector(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-	WidgetStyle = UE::Slate::Private::FDefaultStyleCache::GetRuntime().GetButtonStyle();
-	TextStyle = UE::Slate::Private::FDefaultStyleCache::GetRuntime().GetTextBlockStyle();
+	WidgetStyle = FCoreStyle::Get().GetWidgetStyle<FButtonStyle>("Button");
+	TextStyle = FCoreStyle::Get().GetWidgetStyle<FTextBlockStyle>("NormalText");
 
 #if WITH_EDITOR
 	if (IsEditorWidget())
 	{
-		WidgetStyle = UE::Slate::Private::FDefaultStyleCache::GetEditor().GetButtonStyle();
-		TextStyle = UE::Slate::Private::FDefaultStyleCache::GetEditor().GetTextBlockStyle();
+		WidgetStyle = FAppStyle::Get().GetWidgetStyle<FButtonStyle>("Button");
+		TextStyle = FAppStyle::Get().GetWidgetStyle<FTextBlockStyle>("NormalText");
 
 		// The CDO isn't an editor widget and thus won't use the editor style, call post edit change to mark difference from CDO
 		PostEditChange();

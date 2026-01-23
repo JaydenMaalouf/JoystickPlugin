@@ -20,7 +20,6 @@
 #include "Styling/AppStyle.h"
 #include "Styling/SlateTypes.h"
 #include "Framework/Application/SlateApplication.h"
-#include "Styling/DefaultStyleCache.h"
 #include "Widgets/AxisBar.h"
 
 void SAxisConfigurationEditor::Construct(const FArguments& InArgs)
@@ -34,7 +33,7 @@ void SAxisConfigurationEditor::Construct(const FArguments& InArgs)
 
 	// Get the default progress bar style and disable animation
 	// Make sure we get a complete copy of the style with all brushes
-	const FProgressBarStyle& DefaultProgressBarStyle = UE::Slate::Private::FDefaultStyleCache::GetRuntime().GetProgressBarStyle();
+	const FProgressBarStyle& DefaultProgressBarStyle = FAppStyle::Get().GetWidgetStyle<FProgressBarStyle>("ProgressBar");
 	ProgressBarStyle = DefaultProgressBarStyle;
 	ProgressBarStyle.SetEnableFillAnimation(false);
 	ProgressBarStyle.FillImage.TintColor = FLinearColor::White;
