@@ -1,7 +1,4 @@
-﻿// JoystickPlugin is licensed under the MIT License.
-// Copyright Jayden Maalouf 2026. All Rights Reserved.
-
-#pragma once
+﻿#pragma once
 
 #include "Data/DeviceInfoSDL.h"
 #include "Data/JoystickDeviceState.h"
