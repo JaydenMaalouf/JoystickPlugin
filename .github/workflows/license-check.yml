@@ -6,6 +6,9 @@ on:
       - opened
       - synchronize
       - reopened
+    paths:
+      - "**/*.h"
+      - "**/*.cpp"
 
 jobs:
   check-license-headers:
