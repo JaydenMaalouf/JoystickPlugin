@@ -1,4 +1,5 @@
-name: release-plugin
+name: Release Plugin 🚀
+
 on:
   workflow_dispatch:
   push:
