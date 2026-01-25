@@ -5,7 +5,7 @@
 
 #include "IDetailCustomization.h"
 
-class FJoystickPluginSettingsDetails : public IDetailCustomization
+class FJoystickSettingsDetailsCustomization : public IDetailCustomization
 {
 public:
 	/** Makes a new instance of this detail layout class for a specific detail view requesting it */

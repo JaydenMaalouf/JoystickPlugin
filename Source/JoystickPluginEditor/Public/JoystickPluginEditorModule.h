@@ -3,7 +3,12 @@
 
 #pragma once
 
+#include "Delegates/Delegate.h"
 #include "Modules/ModuleInterface.h"
+
+class FBlueprintEditor;
+class FLayoutExtender;
+class FWorkflowAllowedTabSet;
 
 class FJoystickPluginEditorModule : public IModuleInterface
 {
@@ -16,4 +21,10 @@ private:
 	void RegisterPropertyLayout() const;
 	void RegisterSettings() const;
 	void UnregisterSettings() const;
+
+	void RegisterBlueprintEditorTabs(FWorkflowAllowedTabSet& TabFactories, FName ModeName, TSharedPtr<FBlueprintEditor> BlueprintEditor) const;
+	void RegisterBlueprintEditorLayout(FLayoutExtender& Extender) const;
+
+	FDelegateHandle BlueprintTabsHandle;
+	FDelegateHandle BlueprintLayoutHandle;
 };
