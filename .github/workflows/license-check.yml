@@ -1,0 +1,56 @@
+name: License Header Check
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+jobs:
+  check-license-headers:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify license headers
+        shell: pwsh
+        run: |
+          $expected = @(
+            "// JoystickPlugin is licensed under the MIT License.",
+            "// Copyright Jayden Maalouf 2026. All Rights Reserved."
+          )
+
+          $files = git ls-files "*.h" "*.cpp"
+          $missing = @()
+
+          foreach ($file in $files) {
+            $path = Join-Path $pwd $file
+            try {
+              $lines = Get-Content -LiteralPath $path -TotalCount 2
+            }
+            catch {
+              $missing += $path
+              continue
+            }
+
+            $first = if ($lines.Count -ge 1) { $lines[0] } else { "" }
+            $second = if ($lines.Count -ge 2) { $lines[1] } else { "" }
+
+            if ($first -ne $expected[0] -or $second -ne $expected[1]) {
+              $missing += $path
+            }
+          }
+
+          if ($missing.Count -gt 0) {
+            Write-Host "Missing or invalid license header (first 2 lines) in:"
+            foreach ($path in $missing) {
+              Write-Host "  - $path"
+            }
+            exit 1
+          }
+
+          Write-Host "All .h and .cpp files have the required license header."
