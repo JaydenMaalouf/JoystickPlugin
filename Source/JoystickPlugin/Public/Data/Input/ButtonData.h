@@ -2,6 +2,7 @@
 // Copyright Jayden Maalouf 2026. All Rights Reserved.
 
 #pragma once
+#include "Data/Settings/JoystickInputDeviceButtonProperties.h"
 
 #include "ButtonData.generated.h"
 
@@ -20,6 +21,11 @@ struct JOYSTICKPLUGIN_API FButtonData
 	bool GetValue() const
 	{
 		return InvertOutput ? !ButtonState : ButtonState;
+	}
+
+	bool GetMockValue(const FJoystickInputDeviceButtonProperties& ButtonProperties) const
+	{
+		return ButtonProperties.InvertOutput ? !ButtonState : ButtonState;
 	}
 
 	bool GetPreviousValue() const

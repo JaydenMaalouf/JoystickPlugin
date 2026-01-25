@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "Data/JoystickInstanceId.h"
 #include "ForceFeedback/Data/Configuration/ForceFeedbackComponentConfiguration.h"
+#include "Runtime/Launch/Resources/Version.h"
 
 #include "JoystickForceFeedbackComponent.generated.h"
 
@@ -22,6 +23,10 @@ public:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3
+	virtual void AsyncPhysicsTickComponent(float DeltaTime, float SimTime) override;
+#endif
 
 	UFUNCTION(BlueprintNativeEvent, Category="Joystick|Force Feedback Component|Events")
 	void OnInitialisedEffect(const UForceFeedbackEffectBase* Effect);
@@ -66,6 +71,8 @@ private:
 	void JoystickPluggedIn(const FJoystickInstanceId& JoystickInstanceId);
 	UFUNCTION()
 	void JoystickUnplugged(const FJoystickInstanceId& JoystickInstanceId);
+
+	void TickEffects(float DeltaTime);
 
 	void CreateEffects();
 	void CreateInstanceEffect(const FJoystickInstanceId& JoystickInstanceId);

@@ -31,88 +31,71 @@ class JOYSTICKPLUGIN_API UJoystickInputSelector : public UWidget
 public:
 	UJoystickInputSelector(const FObjectInitializer& ObjectInitializer);
 
-	UE_DEPRECATED(5.2, "Direct access to WidgetStyle is now deprecated. Use the setter or getter.")
-	/** The button style used at runtime */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Getter = "GetButtonStyle", Setter = "SetButtonStyle", Category = Appearance, meta = (DisplayName = "Style"))
+	/** The button style used by the widget. */
+	UPROPERTY(EditAnywhere, BlueprintSetter = SetButtonStyle, Category="Appearance", meta = (DisplayName = "Style"))
 	FButtonStyle WidgetStyle;
 
-	UE_DEPRECATED(5.2, "Direct access to TextStyle is now deprecated. Use the setter or getter.")
-	/** The button style used at runtime */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Getter, Setter, Category = Appearance, meta = (DisplayName = "Text Style"))
+	/** The text style used by the widget. */
+	UPROPERTY(EditAnywhere, BlueprintSetter = SetTextStyle, Category="Appearance")
 	FTextBlockStyle TextStyle;
 
-	UE_DEPRECATED(5.2, "Direct access to SelectedKey is now deprecated. Use the setter or getter.")
-	/** The currently selected key chord. */
-	UPROPERTY(BlueprintReadWrite, Getter, Setter, BlueprintSetter = "SetSelectedKey", FieldNotify, Category = "Key Selection")
+	/** The currently selected key input. */
+	UPROPERTY(EditAnywhere, BlueprintSetter = SetSelectedKey, FieldNotify, Category="Key Selection")
 	FInputChord SelectedKey;
 
-	UE_DEPRECATED(5.2, "Direct access to Margin is now deprecated. Use the setter or getter.")
-	/** The amount of blank space around the text used to display the currently selected key. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Getter, Setter, Category = Appearance)
+	/** The margin around the widget content. */
+	UPROPERTY(EditAnywhere, BlueprintSetter = SetMargin, Category="Appearance")
 	FMargin Margin;
 
-	UE_DEPRECATED(5.2, "Direct access to KeySelectionText is now deprecated. Use the setter or getter.")
-	/** Sets the text which is displayed while selecting keys. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Getter, Setter, BlueprintSetter = "SetKeySelectionText", Category = Appearance)
+	/** The text displayed while waiting for key selection. */
+	UPROPERTY(EditAnywhere, BlueprintSetter = SetKeySelectionText, Category="Appearance")
 	FText KeySelectionText;
 
-	UE_DEPRECATED(5.2, "Direct access to NoKeySpecifiedText is now deprecated. Use the setter or getter.")
-	/** Sets the text to display when no key text is available or not selecting a key. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Getter, Setter, BlueprintSetter = "SetNoKeySpecifiedText", Category = Appearance)
+	/** The text displayed when no key is specified. */
+	UPROPERTY(EditAnywhere, BlueprintSetter = SetNoKeySpecifiedText, Category="Appearance")
 	FText NoKeySpecifiedText;
 
-	UE_DEPRECATED(5.2, "Direct access to bAllowModifierKeys is now deprecated. Use the setter or getter.")
-	/**
-	 * When true modifier keys such as control and alt are allowed in the
-	 * input chord representing the selected key, if false modifier keys are ignored.
-	 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Getter = "AllowModifierKeys", Setter = "SetAllowModifierKeys", BlueprintSetter = "SetAllowModifierKeys", Category = "Key Selection")
-	bool bAllowModifierKeys;
+	/** Bitmask of allowed input types (EInputSelectorTypes). */
+	UPROPERTY(EditAnywhere, BlueprintSetter= SetInputSelectionType, Category="Key Selection", meta=(Bitmask, BitmaskEnum="/Script/JoystickPlugin.EInputSelectorTypes"))
+	int32 AllowedInputTypes;
 
-	UE_DEPRECATED(5.2, "Direct access to bAllowGamepadKeys is now deprecated. Use the setter or getter.")
-	/** When true gamepad keys are allowed in the input chord representing the selected key, otherwise they are ignored. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Getter = "AllowGamepadKeys", Setter = "SetAllowGamepadKeys", BlueprintSetter = "SetAllowGamepadKeys", Category = "Key Selection")
-	bool bAllowGamepadKeys;
+	/** Bitmask of allowed key types (EKeySelectorTypes). */
+	UPROPERTY(EditAnywhere, BlueprintSetter= SetKeySelectionType, Category="Key Selection", meta=(Bitmask, BitmaskEnum="/Script/JoystickPlugin.EKeySelectorTypes"))
+	int32 AllowedKeyTypes;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Key Selection")
-	bool bAllowButtonKeys;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Key Selection")
-	bool bAllowAxisKeys;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Key Selection")
-	bool bAllowNonGamepadKeys;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Key Selection")
-	bool bAllowJoystickKeys;
-
-	/** When true, will use the min and max defined in the Axis Properties for the key */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Key Selection")
+	/** Whether to use axis properties for range calculations instead of MinRange and MaxRange. */
+	UPROPERTY(EditAnywhere, BlueprintSetter= SetUseAxisProperties, Category="Key Selection")
 	bool bUseAxisProperties;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Key Selection", meta=(EditCondition="!bUseAxisProperties"))
+	/** The minimum range value for axis input. Only used when bUseAxisProperties is false. */
+	UPROPERTY(EditAnywhere, BlueprintSetter= SetMinRange, Category="Key Selection", meta=(EditCondition="!bUseAxisProperties"))
 	float MinRange;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Key Selection", meta=(EditCondition="!bUseAxisProperties"))
+	/** The maximum range value for axis input. Only used when bUseAxisProperties is false. */
+	UPROPERTY(EditAnywhere, BlueprintSetter= SetMaxRange, Category="Key Selection", meta=(EditCondition="!bUseAxisProperties"))
 	float MaxRange;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Key Selection")
+	/** The minimum range offset for axis input. */
+	UPROPERTY(EditAnywhere, BlueprintSetter= SetMinRangeOffset, Category="Key Selection")
 	float MinRangeOffset;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Key Selection")
+	/** The maximum range offset for axis input. */
+	UPROPERTY(EditAnywhere, BlueprintSetter= SetMaxRangeOffset, Category="Key Selection")
 	float MaxRangeOffset;
 
+	/** The timeout duration for axis selection in seconds. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Key Selection")
 	float AxisSelectionTimeout;
 
+	/** The dead zone threshold for axis input. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Key Selection")
 	float DeadZone;
 
-	/** When true gamepad keys are allowed in the input chord representing the selected key, otherwise they are ignored. */
+	/** Keys that can be pressed to cancel key selection. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Key Selection")
 	TArray<FKey> EscapeKeys;
 
-	/** Called whenever a new key is selected by the user. */
+	/** Called when a key is selected. */
 	UPROPERTY(BlueprintAssignable, Category="Widget Event")
 	FOnKeySelected OnKeySelected;
 
@@ -121,98 +104,77 @@ public:
 	FOnIsSelectingChanged OnIsSelectingChanged;
 
 	/** Sets the currently selected key. */
-	UFUNCTION(BlueprintCallable, Category="Widget")
+	UFUNCTION(BlueprintCallable, BlueprintSetter, Category="Key Selection")
 	void SetSelectedKey(const FInputChord& InSelectedKey);
 
-	/** Returns the currently selected key. */
-	FInputChord GetSelectedKey() const;
-
-	/** Sets the text which is displayed while selecting keys. */
-	UFUNCTION(BlueprintCallable, Category="Widget")
+	/** Sets the text displayed while waiting for key selection. */
+	UFUNCTION(BlueprintSetter, Category="Appearance")
 	void SetKeySelectionText(FText InKeySelectionText);
 
-	const FText& GetKeySelectionText() const;
-
-	UFUNCTION(BlueprintCallable, Category="Widget")
+	/** Sets the text displayed when no key is specified. */
+	UFUNCTION(BlueprintSetter, Category="Appearance")
 	void SetNoKeySpecifiedText(FText InNoKeySpecifiedText);
 
-	const FText& GetNoKeySpecifiedText() const;
-
-	/** Sets whether or not modifier keys are allowed in the selected key. */
-	UFUNCTION(BlueprintCallable, Category="Widget")
-	void SetAllowModifierKeys(bool bInAllowModifierKeys);
-
-	bool AllowModifierKeys() const;
-
-	UFUNCTION(BlueprintCallable, Category="Widget")
-	void SetAllowGamepadKeys(bool bInAllowGamepadKeys);
-
-	bool AllowGamepadKeys() const;
-
-	UFUNCTION(BlueprintCallable, Category="Widget")
-	void SetAllowAxisKeys(bool bInAllowAxisKeys);
-
-	UFUNCTION(BlueprintCallable, Category="Widget")
-	void SetAllowButtonKeys(bool bInAllowButtonKeys);
-
-	UFUNCTION(BlueprintCallable, Category="Widget")
-	void SetAllowNonGamepadKeys(bool bInAllowNonGamepadKeys);
-
-	UFUNCTION(BlueprintCallable, Category="Widget")
-	void SetAllowJoystickKeys(bool bInAllowJoystickKeys);
-
-	UFUNCTION(BlueprintCallable, Category="Widget")
+	/** Sets whether to use axis properties for range calculations. */
+	UFUNCTION(BlueprintSetter, Category="Key Selection")
 	void SetUseAxisProperties(bool bInUseAxisProperties);
 
-	UFUNCTION(BlueprintCallable, Category="Widget")
+	/** Sets the allowed input types (bitmask of EInputSelectorTypes). */
+	UFUNCTION(BlueprintSetter, Category="Input Selection")
+	void SetInputSelectionType(UPARAM(meta=(Bitmask, BitmaskEnum="/Script/JoystickPlugin.EInputSelectorTypes"))
+		int32 NewMask);
+
+	/** Sets the allowed key types (bitmask of EKeySelectorTypes). */
+	UFUNCTION(BlueprintSetter, Category="Key Selection")
+	void SetKeySelectionType(UPARAM(meta=(Bitmask, BitmaskEnum="/Script/JoystickPlugin.EKeySelectorTypes"))
+		int32 NewMask);
+
+	/** Sets the minimum range value for axis input. */
+	UFUNCTION(BlueprintSetter, Category="Key Selection")
 	void SetMinRange(float InMinRange);
 
-	UFUNCTION(BlueprintCallable, Category="Widget")
+	/** Sets the maximum range value for axis input. */
+	UFUNCTION(BlueprintSetter, Category="Key Selection")
 	void SetMaxRange(float InMaxRange);
 
-	UFUNCTION(BlueprintCallable, Category="Widget")
+	/** Sets the minimum range offset for axis input. */
+	UFUNCTION(BlueprintSetter, Category="Key Selection")
 	void SetMinRangeOffset(float InMinRangeOffset);
 
-	UFUNCTION(BlueprintCallable, Category="Widget")
+	/** Sets the maximum range offset for axis input. */
+	UFUNCTION(BlueprintSetter, Category="Key Selection")
 	void SetMaxRangeOffset(float InMaxRangeOffset);
 
-	UFUNCTION(BlueprintCallable, Category="Widget")
+	/** Sets the timeout duration for axis selection in seconds. */
+	UFUNCTION(BlueprintSetter, Category="Key Selection")
 	void SetAxisSelectionTimeout(float InAxisSelectionTimeout);
 
-	UFUNCTION(BlueprintCallable, Category="Widget")
+	/** Sets the dead zone threshold for axis input. */
+	UFUNCTION(BlueprintSetter, Category="Key Selection")
 	void SetDeadZone(float InDeadZone);
 
 	/** Returns true if the widget is currently selecting a key, otherwise returns false. */
-	UFUNCTION(BlueprintCallable, Category="Widget")
+	UFUNCTION(BlueprintCallable, Category="Key Selection")
 	bool GetIsSelectingKey() const;
 
 	/** Sets the visibility of the text block. */
-	UFUNCTION(BlueprintCallable, BlueprintPure=false, Category="Widget")
+	UFUNCTION(BlueprintCallable, BlueprintPure=false, Category="Appearance")
 	void SetTextBlockVisibility(const ESlateVisibility InVisibility) const;
 
+	/** Sets the button style for the widget. */
+	UFUNCTION(BlueprintSetter, Category="Appearance")
 	void SetButtonStyle(const FButtonStyle& ButtonStyle);
 
-	/** Sets the style of the button used to start key selection mode. */
-	UE_DEPRECATED(5.2, "SetButtonStyle with pointer type parameter is deprecated. Please pass a reference instead.")
-	void SetButtonStyle(const FButtonStyle* InButtonStyle);
-
-	/** Returns the style of the button used to start key selection mode. */
-	const FButtonStyle& GetButtonStyle() const;
-
-	/** Sets the style of the text used inside the button. */
+	/** Sets the text style for the widget. */
+	UFUNCTION(BlueprintSetter, Category="Appearance")
 	void SetTextStyle(const FTextBlockStyle& InTextStyle);
 
-	/** Returns the style of the text used inside the button. */
-	const FTextBlockStyle& GetTextStyle() const;
-
-	/** Sets the amount of blank space around the text used to display the currently selected key. */
+	/** Sets the margin around the widget content. */
+	UFUNCTION(BlueprintSetter, Category="Appearance")
 	void SetMargin(const FMargin& InMargin);
 
-	/** Returns the amount of blank space around the text used to display the currently selected key. */
-	const FMargin& GetMargin() const;
-
 	/** Sets escape keys. */
-	UFUNCTION(BlueprintCallable, Category="Widget")
+	UFUNCTION(BlueprintCallable, Category="Key Selection")
 	void SetEscapeKeys(const TArray<FKey>& InKeys);
 
 	//~ Begin UWidget Interface

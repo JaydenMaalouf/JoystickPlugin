@@ -6,6 +6,7 @@
 #include "Engine/Engine.h"
 #include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
 #include "JoystickSubsystem.h"
+#include "PhysicsEngine/PhysicsSettings.h"
 
 UJoystickForceFeedbackComponent::UJoystickForceFeedbackComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -14,11 +15,25 @@ UJoystickForceFeedbackComponent::UJoystickForceFeedbackComponent(const FObjectIn
 	bAutoActivate = true;
 	PrimaryComponentTick.bCanEverTick = true;
 	PrimaryComponentTick.bStartWithTickEnabled = true;
+	PrimaryComponentTick.TickGroup = TG_PostPhysics;
+
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3
+	if (const UPhysicsSettings* PhysicsSettings = GetDefault<UPhysicsSettings>())
+	{
+		Configuration.UseAsyncPhysicsTick = PhysicsSettings->bTickPhysicsAsync;
+	}
+
+	SetAsyncPhysicsTickEnabled(Configuration.UseAsyncPhysicsTick);
+#endif
 }
 
 void UJoystickForceFeedbackComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3
+	SetAsyncPhysicsTickEnabled(Configuration.UseAsyncPhysicsTick);
+#endif
 
 	if (!IsValid(GEngine))
 	{
@@ -60,6 +75,30 @@ void UJoystickForceFeedbackComponent::TickComponent(const float DeltaTime, const
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if (Configuration.UseAsyncPhysicsTick)
+	{
+		return;
+	}
+
+	TickEffects(DeltaTime);
+}
+
+#if (ENGINE_MAJOR_VERSION > 5) || (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
+void UJoystickForceFeedbackComponent::AsyncPhysicsTickComponent(const float DeltaTime, const float SimTime)
+{
+	Super::AsyncPhysicsTickComponent(DeltaTime, SimTime);
+
+	if (!Configuration.UseAsyncPhysicsTick)
+	{
+		return;
+	}
+
+	TickEffects(DeltaTime);
+}
+#endif
+
+void UJoystickForceFeedbackComponent::TickEffects(const float DeltaTime)
+{
 	if (!Configuration.OverrideEffectTick)
 	{
 		return;
@@ -77,7 +116,7 @@ void UJoystickForceFeedbackComponent::TickComponent(const float DeltaTime, const
 			continue;
 		}
 
-		// If true, the effect will handle its own Tick
+		// If true, the effect will handle its own Tick.
 		if (ForcedFeedbackEffect->IsTickable())
 		{
 			continue;
@@ -152,6 +191,24 @@ void UJoystickForceFeedbackComponent::CreateInstanceEffect(const FJoystickInstan
 	}
 
 	if (!EffectType)
+	{
+		return;
+	}
+
+	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
+	if (!IsValid(JoystickSubsystem))
+	{
+		return;
+	}
+
+	FJoystickInformation JoystickInfo;
+	const bool Result = JoystickSubsystem->GetJoystickInfo(JoystickInstanceId, JoystickInfo);
+	if (!Result)
+	{
+		return;
+	}
+
+	if (!JoystickInfo.Haptic.Supported)
 	{
 		return;
 	}

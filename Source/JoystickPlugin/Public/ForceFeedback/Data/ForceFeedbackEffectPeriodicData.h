@@ -40,7 +40,7 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectPeriodicData
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|Periodic")
 	EForceFeedbackPeriodicEffectType EffectType;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|Periodic", meta=(UIMin="0", ClampMin="0"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|Periodic", meta=(UIMin="0", UIMax="65.535", ClampMin="0", ClampMax="65.535"))
 	float Period;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|Periodic", meta=(UIMin="-1", UIMax="1", ClampMin="-1", ClampMax="1"))
@@ -49,6 +49,6 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectPeriodicData
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|Periodic", meta=(UIMin="-1", UIMax="1", ClampMin="-1", ClampMax="1"))
 	float Offset;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|Periodic", meta=(UIMin="0", ClampMin="0"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|Periodic", meta=(UIMin="0", UIMax="655.35", ClampMin="0", ClampMax="655.35"))
 	float Phase;
 };
