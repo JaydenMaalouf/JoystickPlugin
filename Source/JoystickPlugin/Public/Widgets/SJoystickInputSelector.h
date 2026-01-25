@@ -38,7 +38,7 @@ public:
 			  , _SetMaxRange(1.0f)
 			  , _SetMinRangeOffset(0.0f)
 			  , _SetMaxRangeOffset(0.0f)
-			  , _SetAxisSelectionTimeout(2.5f)
+			  , _SetAxisSelectionTimeout(5.0f)
 			  , _SetDeadZone(0.05f)
 			  , _EscapeCancelsSelection(true)
 			  , _IsFocusable(true)
@@ -187,23 +187,23 @@ private:
 	/**  The text to display while no key text is available or not selecting a key. */
 	FText NoKeySpecifiedText;
 
-	bool UseAxisProperties = false;
+	bool UseAxisProperties = true;
 	float MinRange = 0.0f;
-	float MaxRange = 0.0f;
+	float MaxRange = 1.0f;
 
 	float MinRangeOffset = 0.0f;
 	float MaxRangeOffset = 0.0f;
-	float AxisSelectionTimeout = 0.0f;
+	float AxisSelectionTimeout = 5.0f;
 	TMap<FKey, FKeySelectorData> KeyData;
 
 	/** Define dead zone percentage to avoid unintentional axis mapping */
-	float DeadZone = 0.0f;
+	float DeadZone = 0.05f;
 
 	int32 InputSelectorTypes = 0;
 	int32 KeySelectorTypes = 0;
 
 	/** When true, pressing escape will cancel the key selection, when false, pressing escape will select the escape key. */
-	bool bEscapeCancelsSelection = false;
+	bool bEscapeCancelsSelection = true;
 
 	/** When EscapeCancelsSelection is true, escape on specific keys that are unbind able by the user. */
 	TArray<FKey> EscapeKeys;
@@ -221,5 +221,5 @@ private:
 	TSharedPtr<STextBlock> TextBlock;
 
 	/** Can this button be focused? */
-	bool bIsFocusable = false;
+	bool bIsFocusable = true;
 };
