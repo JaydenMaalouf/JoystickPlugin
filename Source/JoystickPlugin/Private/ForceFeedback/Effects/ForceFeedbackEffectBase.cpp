@@ -9,11 +9,7 @@
 #include "Managers/JoystickLogManager.h"
 #include "Runtime/Launch/Resources/Version.h"
 
-THIRD_PARTY_INCLUDES_START
-
-#include "SDL_timer.h"
-
-THIRD_PARTY_INCLUDES_END
+#include "SDLDynamicLoader.h"
 
 UForceFeedbackEffectBase::UForceFeedbackEffectBase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -89,8 +85,8 @@ void UForceFeedbackEffectBase::DriveTick(const float DeltaTime)
 		const uint64 CurrentTime = SDL_GetTicks();
 		if (CurrentTime - StartTime >= Duration)
 		{
-			// Effect should be finished but sometimes SDL2 doesn't handle the status correctly.
-			if (GetEffectStatus() == 0 || ForceStopAfterDurationLapsed)
+			// Effect should be finished but sometimes SDL doesn't handle the status correctly.
+			if (GetEffectStatus() == true || ForceStopAfterDurationLapsed)
 			{
 				StopEffect();
 			}
@@ -160,8 +156,8 @@ void UForceFeedbackEffectBase::StartEffect()
 		return;
 	}
 
-	const int Status = GetEffectStatus();
-	if (Status == 1)
+	const bool Status = GetEffectStatus();
+	if (Status == true)
 	{
 		EffectRunning = true;
 		return;
@@ -183,7 +179,7 @@ void UForceFeedbackEffectBase::StartEffect()
 	{
 		return;
 	}
-	StartTime = SDL_GetTicks64();
+	StartTime = SDL_GetTicks();
 	EffectRunning = true;
 
 	//Safety check to ensure we don't try calling BP during destruction
@@ -326,12 +322,12 @@ void UForceFeedbackEffectBase::ReceivedTick_Implementation(const float DeltaTime
 {
 }
 
-int UForceFeedbackEffectBase::GetEffectStatus() const
+bool UForceFeedbackEffectBase::GetEffectStatus() const
 {
-	UJoystickHapticDeviceManager* HapticDeviceManager = GetMutableDefault<UJoystickHapticDeviceManager>();
+	const UJoystickHapticDeviceManager* HapticDeviceManager = GetMutableDefault<UJoystickHapticDeviceManager>();
 	if (!IsValid(HapticDeviceManager))
 	{
-		return -1;
+		return false;
 	}
 
 	return HapticDeviceManager->GetEffectStatus(InstanceId, EffectId);

@@ -24,11 +24,11 @@ public:
 		meta=(ToolTip="When creating the input keys for devices, use the device name in the key. Default will prefix the key with \"Joystick\" instead.", ConfigRestartRequired=true))
 	bool UseDeviceName;
 
-	UPROPERTY(config, EditAnywhere, Category="Joystick Settings", meta=(ToolTip="Include Device Index in Key names. Disable this if SDL2 is not guaranteeing the same index for your device.", ConfigRestartRequired=true))
+	UPROPERTY(config, EditAnywhere, Category="Joystick Settings", meta=(ToolTip="Include Device Index in Key names. Disable this if SDL is not guaranteeing the same index for your device.", ConfigRestartRequired=true))
 	bool IncludeDeviceIndex;
 
 	UPROPERTY(config, EditAnywhere, Category="Joystick Settings", meta=(ToolTip="Useful if you want input for controllers (ie. XInput) to be handled by UE directly, instead of via this plugin.", ConfigRestartRequired=true))
-	bool IgnoreGameControllers;
+	bool IgnoreGamepads;
 
 	UPROPERTY(config, EditAnywhere, Category="Joystick Settings", meta=(ToolTip="Key name indexes should start from 0 (if false, starts from 1)", ConfigRestartRequired=true))
 	bool ZeroBasedIndexing;
@@ -65,8 +65,8 @@ public:
 	void DeviceRemoved(const FJoystickInstanceId& InstanceId);
 	void ResetDevices();
 
-	bool GetIgnoreGameControllers() const;
-	bool SetIgnoreGameControllers(const bool NewIgnoreGameControllers);
+	bool GetIgnoreGamepads() const;
+	bool SetIgnoreGamepads(const bool bIgnoreGamepads);
 
 	FJoystickInputDeviceConfiguration* GetDeviceConfiguration(const FJoystickInformation& Device);
 	FJoystickInputDeviceConfiguration* GetProfileConfiguration(const FJoystickInformation& Device);

@@ -8,11 +8,7 @@
 #include "Data/HID/DeviceInfoHID.h"
 #include "Data/HID/DeviceHID.h"
 
-THIRD_PARTY_INCLUDES_START
-
-#include "SDL_hidapi.h"
-
-THIRD_PARTY_INCLUDES_END
+#include "SDLDynamicLoader.h"
 
 const UJoystickHIDManager* UJoystickHIDManager::GetJoystickHIDManager()
 {
@@ -62,9 +58,9 @@ bool UJoystickHIDManager::OpenHIDSerialNumber(const int32 VendorId, const int32 
 	return Internal_OpenHID(VendorId, ProductId, Device, &SerialNumber);
 }
 
-bool UJoystickHIDManager::OpenHIDPath(const FString& DevicePath, const bool Exclusive, FDeviceHID& Device)
+bool UJoystickHIDManager::OpenHIDPath(const FString& DevicePath, FDeviceHID& Device)
 {
-	SDL_hid_device* HIDDevice = SDL_hid_open_path(TCHAR_TO_UTF8(*DevicePath), Exclusive);
+	SDL_hid_device* HIDDevice = SDL_hid_open_path(TCHAR_TO_UTF8(*DevicePath));
 	if (!HIDDevice)
 	{
 		FJoystickLogManager::Get()->LogSDLError(TEXT("SDL_hid_open_path failed"));

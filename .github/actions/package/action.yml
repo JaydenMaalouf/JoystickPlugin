@@ -39,7 +39,7 @@ runs:
 
         Invoke-WebRequest -Uri $sourceUrl -OutFile $targetFile
 
-    - name: Copy SDL2 dll and lib to Plugin - ${{ inputs.engineVersion }} ${{ inputs.platform }}
+    - name: Copy SDL3 dll and lib to Plugin - ${{ inputs.engineVersion }} ${{ inputs.platform }}
       shell: pwsh
       run: |
         $engineVersion  = '${{ inputs.engineVersion }}'
@@ -47,8 +47,8 @@ runs:
         $epicDir        = '${{ inputs.epicGamesDirectory }}'
         $workspace      = '${{ github.workspace }}'
 
-        $inputFolder  = Join-Path $epicDir ("SDL/UE_{0}" -f $engineVersion)
-        $outputFolder = Join-Path $workspace ("Source/ThirdParty/SDL2")
+        $inputFolder  = Join-Path $epicDir ("SDL3")
+        $outputFolder = Join-Path $workspace ("Source/ThirdParty/SDL3")
 
         New-Item -ItemType Directory -Path $outputFolder -Force | Out-Null
 

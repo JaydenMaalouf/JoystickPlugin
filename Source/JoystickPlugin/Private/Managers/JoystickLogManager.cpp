@@ -3,11 +3,7 @@
 
 #include "Managers/JoystickLogManager.h"
 
-THIRD_PARTY_INCLUDES_START
-
-#include "SDL_error.h"
-
-THIRD_PARTY_INCLUDES_END
+#include "SDLDynamicLoader.h"
 
 DEFINE_LOG_CATEGORY(LogJoystickPlugin);
 

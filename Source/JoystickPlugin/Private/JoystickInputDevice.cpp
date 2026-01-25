@@ -50,7 +50,6 @@ void FJoystickInputDevice::SetChannelValue(int ControllerId, FForceFeedbackChann
 
 void FJoystickInputDevice::SetChannelValues(int ControllerId, const FForceFeedbackValues& Values)
 {
-#if ENGINE_MAJOR_VERSION == 5
 	UJoystickHapticDeviceManager* HapticDeviceManager = GetMutableDefault<UJoystickHapticDeviceManager>();
 	if (!IsValid(HapticDeviceManager))
 	{
@@ -68,7 +67,6 @@ void FJoystickInputDevice::SetChannelValues(int ControllerId, const FForceFeedba
 
 		HapticDeviceManager->PlayRumble(Joystick.Key, SmallValue, LargeValue, -1);
 	}
-#endif
 }
 
 bool FJoystickInputDevice::IsGamepadAttached() const
@@ -511,18 +509,18 @@ void FJoystickInputDevice::JoystickUnplugged(const FJoystickInstanceId& Instance
 
 void FJoystickInputDevice::JoystickButton(const FJoystickInstanceId& InstanceId, const int Button, const bool Pressed)
 {
-	if (!JoystickDeviceState.Contains(InstanceId))
+	auto [DeviceState, Result] = GetDeviceState(InstanceId);
+	if (Result.bSuccess == false || DeviceState == nullptr)
 	{
 		return;
 	}
 
-	FJoystickDeviceState& DeviceData = JoystickDeviceState[InstanceId];
-	if (!DeviceData.Buttons.IsValidIndex(Button))
+	if (!DeviceState->Buttons.IsValidIndex(Button))
 	{
 		return;
 	}
 
-	FButtonData& State = DeviceData.Buttons[Button];
+	FButtonData& State = DeviceState->Buttons[Button];
 	State.Update(Pressed);
 
 	FJoystickLogManager::Get()->LogDebug(TEXT("Event JoystickButton Device=%d Button=%d State=%d"), InstanceId.Value, Button, State.GetValue());
@@ -531,9 +529,8 @@ void FJoystickInputDevice::JoystickButton(const FJoystickInstanceId& InstanceId,
 void FJoystickInputDevice::JoystickAxis(const FJoystickInstanceId& InstanceId, const int Axis, const float Value)
 {
 	auto [DeviceState, Result] = GetDeviceState(InstanceId);
-	if (!DeviceState || Result.bSuccess == false)
+	if (Result.bSuccess == false || DeviceState == nullptr)
 	{
-		FJoystickLogManager::Get()->LogError(Result);
 		return;
 	}
 
@@ -549,9 +546,8 @@ void FJoystickInputDevice::JoystickAxis(const FJoystickInstanceId& InstanceId, c
 void FJoystickInputDevice::JoystickHat(const FJoystickInstanceId& InstanceId, const int Hat, const EHatDirection Value)
 {
 	auto [DeviceState, Result] = GetDeviceState(InstanceId);
-	if (!DeviceState || Result.bSuccess == false)
+	if (Result.bSuccess == false || DeviceState == nullptr)
 	{
-		FJoystickLogManager::Get()->LogError(Result);
 		return;
 	}
 
@@ -567,9 +563,8 @@ void FJoystickInputDevice::JoystickHat(const FJoystickInstanceId& InstanceId, co
 void FJoystickInputDevice::JoystickBall(const FJoystickInstanceId& InstanceId, const int Ball, const FVector2D& Value)
 {
 	auto [DeviceState, Result] = GetDeviceState(InstanceId);
-	if (!DeviceState || Result.bSuccess == false)
+	if (Result.bSuccess == false || DeviceState == nullptr)
 	{
-		FJoystickLogManager::Get()->LogError(Result);
 		return;
 	}
 
@@ -585,9 +580,8 @@ void FJoystickInputDevice::JoystickBall(const FJoystickInstanceId& InstanceId, c
 void FJoystickInputDevice::JoystickGyro(const FJoystickInstanceId& InstanceId, const FVector& Value)
 {
 	auto [DeviceState, Result] = GetDeviceState(InstanceId);
-	if (!DeviceState || Result.bSuccess == false)
+	if (Result.bSuccess == false || DeviceState == nullptr)
 	{
-		FJoystickLogManager::Get()->LogError(Result);
 		return;
 	}
 
@@ -597,9 +591,8 @@ void FJoystickInputDevice::JoystickGyro(const FJoystickInstanceId& InstanceId, c
 void FJoystickInputDevice::JoystickAccelerometer(const FJoystickInstanceId& InstanceId, const FVector& Value)
 {
 	auto [DeviceState, Result] = GetDeviceState(InstanceId);
-	if (!DeviceState || Result.bSuccess == false)
+	if (Result.bSuccess == false || DeviceState == nullptr)
 	{
-		FJoystickLogManager::Get()->LogError(Result);
 		return;
 	}
 
@@ -708,7 +701,6 @@ void FJoystickInputDevice::SendControllerEvents()
 #endif
 
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
-
 					MessageHandler->OnControllerAnalog(AxisKey.GetFName(), DeviceInfo.GetPlatformUserId(), DeviceInfo.GetInputDeviceId(), CurrentValue);
 #else
 					MessageHandler->OnControllerAnalog(AxisKey.GetFName(), DeviceInfo.GetPlatformUserId(), CurrentValue);

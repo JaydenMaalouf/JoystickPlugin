@@ -13,7 +13,7 @@
 
 UJoystickInputSettings::UJoystickInputSettings() : UseDeviceName(true),
                                                    IncludeDeviceIndex(false),
-                                                   IgnoreGameControllers(false),
+                                                   IgnoreGamepads(false),
                                                    ZeroBasedIndexing(true),
                                                    EnableLogs(true),
                                                    EnablePairedKeys(false)
@@ -43,16 +43,16 @@ void UJoystickInputSettings::ResetDevices()
 	ConnectedDevices.Empty();
 }
 
-bool UJoystickInputSettings::GetIgnoreGameControllers() const
+bool UJoystickInputSettings::GetIgnoreGamepads() const
 {
-	return IgnoreGameControllers;
+	return IgnoreGamepads;
 }
 
-bool UJoystickInputSettings::SetIgnoreGameControllers(const bool NewIgnoreGameControllers)
+bool UJoystickInputSettings::SetIgnoreGamepads(const bool bIgnoreGamepads)
 {
-	const bool OldIgnoreGameControllers = IgnoreGameControllers;
-	IgnoreGameControllers = NewIgnoreGameControllers;
-	return OldIgnoreGameControllers != NewIgnoreGameControllers;
+	const bool bOldIgnoreGamepads = IgnoreGamepads;
+	IgnoreGamepads = bIgnoreGamepads;
+	return bOldIgnoreGamepads != bIgnoreGamepads;
 }
 
 FJoystickInputDeviceConfiguration* UJoystickInputSettings::GetDeviceConfiguration(const FJoystickInformation& Device)
