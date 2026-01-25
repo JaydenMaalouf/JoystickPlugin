@@ -29,13 +29,11 @@ private:
 	FJoystickInputDeviceButtonProperties CurrentProperties;
 	TSharedPtr<class SButtonBox> InputVisualiser;
 
-	// Simple property editors
 	TSharedPtr<SCheckBox> InvertOutputCheckBox;
 
-	// Display name override
 	TSharedPtr<SCheckBox> OverrideDisplayNameCheckBox;
-	TSharedPtr<class SEditableTextBox> DisplayNameTextBox;
-	TSharedPtr<class SHorizontalBox> DisplayNameInputContainer;
+	TSharedPtr<SEditableTextBox> DisplayNameTextBox;
+	TSharedPtr<SHorizontalBox> DisplayNameInputContainer;
 
 	// Track original display name state for restart notification
 	FString OriginalDisplayName;
