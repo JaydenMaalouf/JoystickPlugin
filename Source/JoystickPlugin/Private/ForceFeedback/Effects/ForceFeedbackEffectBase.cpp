@@ -47,7 +47,7 @@ void UForceFeedbackEffectBase::Tick(const float DeltaTime)
 		const float FixedTimeStep = 1.0f / Configuration.EffectHz;
 
 		TimeAccumulator += DeltaTime;
-		
+
 		int SubTickCount = 0;
 		while (TimeAccumulator >= FixedTimeStep && SubTickCount < Configuration.MaxSubticks)
 		{

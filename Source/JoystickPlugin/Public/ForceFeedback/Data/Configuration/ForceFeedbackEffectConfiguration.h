@@ -44,9 +44,9 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectConfiguration : public FForceFeedb
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Joystick|Force Feedback", meta=(ExposeOnSpawn=true))
 	bool SubstepTicks;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Joystick|Force Feedback", meta=(ExposeOnSpawn=true, EditCondition="SubstepTicks", EditConditionHides, ClampMin="1", ClampMax="1000", UIMin="1", UIMax="1200"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Joystick|Force Feedback", meta=(ExposeOnSpawn=true, EditCondition="SubstepTicks", EditConditionHides, ClampMin="1", ClampMax="1000", UIMin="1", UIMax="1000"))
 	int EffectHz;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Joystick|Force Feedback", meta=(ExposeOnSpawn=true, EditCondition="SubstepTicks", EditConditionHides, ClampMin="0", ClampMax="12", UIMin="0", UIMax="12"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Joystick|Force Feedback", meta=(ExposeOnSpawn=true, EditCondition="SubstepTicks", EditConditionHides, ClampMin="1", ClampMax="16", UIMin="1", UIMax="16"))
 	int MaxSubticks;
 };

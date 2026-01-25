@@ -13,21 +13,21 @@ struct JOYSTICKPLUGIN_API FForceFeedbackComponentConfiguration : public FForceFe
 	GENERATED_BODY()
 
 	FForceFeedbackComponentConfiguration()
-		: UseAsyncPhysicsTick(true)
+		: UseAsyncPhysicsTick(false)
 		  , OverrideEffectTick(true)
 	{
 	}
 
 	FForceFeedbackComponentConfiguration(const FForceFeedbackConfigurationBase& BaseConfiguration, const bool bOverrideEffectTick)
 		: Super(BaseConfiguration)
-		  , UseAsyncPhysicsTick(true)
+		  , UseAsyncPhysicsTick(false)
 		  , OverrideEffectTick(bOverrideEffectTick)
 	{
 	}
 
 	FForceFeedbackComponentConfiguration(const bool bAutoInit, const bool bAutoStartOnInit, const bool bOverrideEffectTick)
 		: Super(bAutoInit, bAutoStartOnInit)
-		  , UseAsyncPhysicsTick(true)
+		  , UseAsyncPhysicsTick(false)
 		  , OverrideEffectTick(bOverrideEffectTick)
 	{
 	}

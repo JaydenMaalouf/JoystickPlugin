@@ -6,6 +6,7 @@
 #include "Engine/Engine.h"
 #include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
 #include "JoystickSubsystem.h"
+#include "PhysicsEngine/PhysicsSettings.h"
 
 UJoystickForceFeedbackComponent::UJoystickForceFeedbackComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -15,13 +16,14 @@ UJoystickForceFeedbackComponent::UJoystickForceFeedbackComponent(const FObjectIn
 	PrimaryComponentTick.bCanEverTick = true;
 	PrimaryComponentTick.bStartWithTickEnabled = true;
 	PrimaryComponentTick.TickGroup = TG_PostPhysics;
-	
+
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3
-	// Opt-in by default; if async physics tick isn't active, we'll fall back to TickComponent.
-	Configuration.UseAsyncPhysicsTick = true;
-	SetAsyncPhysicsTickEnabled(true);
-#else
-	Configuration.UseAsyncPhysicsTick = false;
+	if (const UPhysicsSettings* PhysicsSettings = GetDefault<UPhysicsSettings>())
+	{
+		Configuration.UseAsyncPhysicsTick = PhysicsSettings->bTickPhysicsAsync;
+	}
+
+	SetAsyncPhysicsTickEnabled(Configuration.UseAsyncPhysicsTick);
 #endif
 }
 
@@ -198,7 +200,7 @@ void UJoystickForceFeedbackComponent::CreateInstanceEffect(const FJoystickInstan
 	{
 		return;
 	}
-	
+
 	FJoystickInformation JoystickInfo;
 	const bool Result = JoystickSubsystem->GetJoystickInfo(JoystickInstanceId, JoystickInfo);
 	if (!Result)
