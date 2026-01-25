@@ -16,9 +16,11 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectReplayData
 	{
 	}
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|Replay", meta=(ShortToolTip="Delay before starting", ToolTip="Delay before starting the effect.", UIMin="0", ClampMin="0"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|Replay",
+		meta=(Units="Seconds", ShortToolTip="Delay before starting", ToolTip="Delay before starting the effect.", UIMin="0", UIMax="65.535", ClampMin="0", ClampMax="65.535"))
 	float Delay;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|Replay", meta=(ShortToolTip="Retrigger Delay", ToolTip="Delay before the effect can be retriggerd.", UIMin="0", ClampMin="0"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|Replay",
+		meta=(Units="Seconds", ShortToolTip="Retrigger Delay", ToolTip="Delay before the effect can be retriggerd.", UIMin="0", UIMax="65.535", ClampMin="0", ClampMax="65.535"))
 	float RetriggerDelay;
 };

@@ -11,9 +11,9 @@
 #include "JoystickFunctionLibrary.h"
 #include "JoystickInputDevice.h"
 #include "JoystickInputSettings.h"
-#include "JoystickLogManager.h"
+#include "Managers/JoystickLogManager.h"
 #include "JoystickPluginModule.h"
-#include "JoystickProfileManager.h"
+#include "Managers/JoystickProfileManager.h"
 #include "Misc/ConfigCacheIni.h"
 #include "Misc/CoreMiscDefines.h"
 #include "Misc/Paths.h"
@@ -317,6 +317,46 @@ void UJoystickSubsystem::GetInstanceIds(TArray<FJoystickInstanceId>& InstanceIds
 	});
 
 	FilteredDevices.GenerateKeyArray(InstanceIds);
+}
+
+void UJoystickSubsystem::GetInstanceIdsForPlatformUser(const FPlatformUserId& PlatformUserId, TArray<FJoystickInstanceId>& InstanceIds) const
+{
+	const TMap<FJoystickInstanceId, FDeviceInfoSDL> FilteredDevices = Devices.FilterByPredicate([PlatformUserId](const TPair<FJoystickInstanceId, FDeviceInfoSDL>& Item)
+	{
+		return Item.Value.GetPlatformUserId() == PlatformUserId;
+	});
+
+	FilteredDevices.GenerateKeyArray(InstanceIds);
+}
+
+bool UJoystickSubsystem::DeviceIdFromInstanceId(const FJoystickInstanceId& InstanceId, FInputDeviceId& DeviceId)
+{
+	auto [DeviceInfo, Result] = GetDeviceInfo(InstanceId);
+	if (DeviceInfo == nullptr || Result.bSuccess == false)
+	{
+		FJoystickLogManager::Get()->LogError(Result);
+		return false;
+	}
+
+	DeviceId = DeviceInfo->GetInputDeviceId();
+	return true;
+}
+
+bool UJoystickSubsystem::InstanceIdFromDeviceId(const FInputDeviceId& DeviceId, FJoystickInstanceId& InstanceId) const
+{
+	TArray<FDeviceInfoSDL> DeviceInfos;
+	Devices.GenerateValueArray(DeviceInfos);
+
+	for (const auto& DeviceInfo : DeviceInfos)
+	{
+		if (DeviceInfo.GetInputDeviceId() == DeviceId)
+		{
+			InstanceId = DeviceInfo.InstanceId;
+			return true;
+		}
+	}
+
+	return false;
 }
 
 bool UJoystickSubsystem::HasRumbleDevice() const

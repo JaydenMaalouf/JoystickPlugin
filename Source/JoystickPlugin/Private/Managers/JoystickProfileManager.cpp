@@ -1,7 +1,7 @@
 // JoystickPlugin is licensed under the MIT License.
 // Copyright Jayden Maalouf 2026. All Rights Reserved.
 
-#include "JoystickProfileManager.h"
+#include "Managers/JoystickProfileManager.h"
 
 #include "Engine/Engine.h"
 #include "HAL/FileManager.h"
@@ -9,7 +9,7 @@
 #include "Misc/Paths.h"
 #include "JoystickInputDevice.h"
 #include "JoystickInputSettings.h"
-#include "JoystickLogManager.h"
+#include "Managers/JoystickLogManager.h"
 #include "JoystickPluginModule.h"
 #include "JoystickSubsystem.h"
 #include "Data/Settings/JoystickInputDeviceConfiguration.h"

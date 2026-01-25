@@ -5,7 +5,7 @@
 
 #include "ISettingsModule.h"
 #include "JoystickInputSettings.h"
-#include "JoystickInputViewer.h"
+#include "Menus/JoystickInputViewer.h"
 #include "JoystickPluginSettingsDetails.h"
 #include "Customization/JoystickInstanceIdCustomization.h"
 #include "Modules/ModuleManager.h"

@@ -38,6 +38,9 @@ struct FJoystickInformation
 	FString DeviceName;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
+	FString SafeDeviceName;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
 	EJoystickType Type;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")

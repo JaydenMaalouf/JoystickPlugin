@@ -49,7 +49,7 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceConfiguration
 		meta=(ToolTip="If enabled and the global setting for using Device Names as input, it will use the name specified as part of the key name. Requires a restart to apply.", ConfigRestartRequired=true))
 	bool OverrideDeviceName;
 
-	UPROPERTY(EditAnywhere, Category="Device Config", meta=(EditCondition="OverrideDeviceName", EditConditionHides), NoClear)
+	UPROPERTY(EditAnywhere, Category="Device Config", meta=(EditCondition="OverrideDeviceName", EditConditionHides, ConfigRestartRequired=true), NoClear)
 	FString DeviceName;
 
 	UPROPERTY(EditAnywhere, Category="Device Config", meta=(TitleProperty="AxisIndex"))

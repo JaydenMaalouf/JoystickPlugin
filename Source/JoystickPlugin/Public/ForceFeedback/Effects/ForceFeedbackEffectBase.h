@@ -72,8 +72,11 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category="Force Feedback|Events")
 	void OnDestroyedEffect();
 
-	UFUNCTION(BlueprintNativeEvent, meta=(DisplayName="Tick"))
-	void ReceiveTick(const float DeltaTime);
+	UFUNCTION(BlueprintCallable, Category="Force Feedback")
+	void DriveTick(float DeltaTime);
+
+	UFUNCTION(BlueprintNativeEvent)
+	void ReceivedTick(const float DeltaTime);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Force Feedback")
 	int GetEffectStatus() const;
@@ -170,6 +173,7 @@ private:
 	// We don't want to tick multiple times per frame 
 	uint32 LastFrameNumber = INDEX_NONE;
 	uint64 StartTime;
+	float TimeAccumulator;
 
 	bool EffectRunning;
 

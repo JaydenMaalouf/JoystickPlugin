@@ -48,7 +48,6 @@ struct FDeviceInfoSDL : FJoystickInformation
 	}
 
 	bool Connected;
-	FString SafeDeviceName;
 	SDL_Haptic* SDLHaptic;
 	SDL_Joystick* SDLJoystick;
 	SDL_GameController* SDLGameController;
