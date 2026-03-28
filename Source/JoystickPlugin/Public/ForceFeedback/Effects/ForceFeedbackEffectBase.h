@@ -57,26 +57,32 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Force Feedback")
 	void UpdateEffect();
 
-	UFUNCTION(BlueprintImplementableEvent, Category="Force Feedback|Events")
+	UFUNCTION(BlueprintNativeEvent, Category="Force Feedback|Events")
 	void OnInitialisedEffect();
+	virtual void OnInitialisedEffect_Implementation();
 
-	UFUNCTION(BlueprintImplementableEvent, Category="Force Feedback|Events")
+	UFUNCTION(BlueprintNativeEvent, Category="Force Feedback|Events")
 	void OnStartedEffect();
+	virtual void OnStartedEffect_Implementation();
 
-	UFUNCTION(BlueprintImplementableEvent, Category="Force Feedback|Events")
+	UFUNCTION(BlueprintNativeEvent, Category="Force Feedback|Events")
 	void OnStoppedEffect();
+	virtual void OnStoppedEffect_Implementation();
 
-	UFUNCTION(BlueprintImplementableEvent, Category="Force Feedback|Events")
+	UFUNCTION(BlueprintNativeEvent, Category="Force Feedback|Events")
 	void OnUpdatedEffect();
+	virtual void OnUpdatedEffect_Implementation();
 
-	UFUNCTION(BlueprintImplementableEvent, Category="Force Feedback|Events")
+	UFUNCTION(BlueprintNativeEvent, Category="Force Feedback|Events")
 	void OnDestroyedEffect();
+	virtual void OnDestroyedEffect_Implementation();
 
 	UFUNCTION(BlueprintCallable, Category="Force Feedback")
-	void DriveTick(float DeltaTime);
+	void TickEffect(const float DeltaTime);
 
 	UFUNCTION(BlueprintNativeEvent)
 	void ReceivedTick(const float DeltaTime);
+	virtual void OnReceivedTick_Implementation(const float DeltaTime);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Force Feedback")
 	int GetEffectStatus() const;
