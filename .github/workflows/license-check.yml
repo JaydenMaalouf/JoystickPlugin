@@ -1,4 +1,4 @@
-name: License Header Check
+name: License Header Check ✅
 
 on:
   pull_request:
@@ -6,6 +6,9 @@ on:
       - opened
       - synchronize
       - reopened
+    paths:
+      - "**/*.h"
+      - "**/*.cpp"
 
 jobs:
   check-license-headers:
