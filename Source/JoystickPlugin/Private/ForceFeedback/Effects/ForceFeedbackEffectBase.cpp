@@ -346,10 +346,6 @@ void UForceFeedbackEffectBase::ReceivedTick_Implementation(const float DeltaTime
 {
 }
 
-void UForceFeedbackEffectBase::OnReceivedTick_Implementation(const float DeltaTime)
-{
-}
-
 int UForceFeedbackEffectBase::GetEffectStatus() const
 {
 	const UJoystickHapticDeviceManager* HapticDeviceManager = GetMutableDefault<UJoystickHapticDeviceManager>();

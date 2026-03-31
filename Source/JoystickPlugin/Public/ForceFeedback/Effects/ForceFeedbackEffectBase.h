@@ -82,7 +82,7 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent)
 	void ReceivedTick(const float DeltaTime);
-	virtual void OnReceivedTick_Implementation(const float DeltaTime);
+	virtual void ReceivedTick_Implementation(const float DeltaTime);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Force Feedback")
 	int GetEffectStatus() const;
