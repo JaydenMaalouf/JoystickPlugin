@@ -21,7 +21,9 @@ public class JoystickPlugin : ModuleRules
 				"InputCore",
 				"InputDevice",
 				"UMG",
-				"Projects"
+				"Projects",
+				"Chaos",
+				"PhysicsCore"
 			});
 
 		var PluginSdlPath = Path.Combine(PluginDirectory, "Source", "ThirdParty", "SDL2");

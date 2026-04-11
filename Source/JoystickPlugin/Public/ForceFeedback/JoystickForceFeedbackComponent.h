@@ -6,11 +6,19 @@
 #include "Components/ActorComponent.h"
 #include "Data/JoystickInstanceId.h"
 #include "ForceFeedback/Data/Configuration/ForceFeedbackComponentConfiguration.h"
+#include "HAL/CriticalSection.h"
 #include "Runtime/Launch/Resources/Version.h"
 
 #include "JoystickForceFeedbackComponent.generated.h"
 
 class UForceFeedbackEffectBase;
+
+namespace Chaos
+{
+	class FPhysicsSolverBase;
+}
+
+class FJoystickForceFeedbackSubstepCallback;
 
 UCLASS(Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class JOYSTICKPLUGIN_API UJoystickForceFeedbackComponent : public UActorComponent
@@ -65,6 +73,8 @@ public:
 	TArray<UForceFeedbackEffectBase*> Effects;
 
 private:
+	friend class FJoystickForceFeedbackSubstepCallback;
+
 	UFUNCTION()
 	void OnSubsystemReady();
 	UFUNCTION()
@@ -73,6 +83,8 @@ private:
 	void JoystickUnplugged(const FJoystickInstanceId& JoystickInstanceId);
 
 	void TickEffects(float DeltaTime);
+	void RegisterPhysicsSubstepCallback();
+	void UnregisterPhysicsSubstepCallback();
 
 	void CreateEffects();
 	void CreateInstanceEffect(const FJoystickInstanceId& JoystickInstanceId);
@@ -81,4 +93,8 @@ private:
 
 	void ActionOnAllEffects(const TFunctionRef<void(UForceFeedbackEffectBase* Effect)>& CustomInitializer);
 	void ActionOnJoystickEffects(const FJoystickInstanceId& JoystickInstanceId, const TFunctionRef<void(UForceFeedbackEffectBase* Effect)>& CustomInitializer);
+
+	Chaos::FPhysicsSolverBase* RegisteredSolver;
+	FJoystickForceFeedbackSubstepCallback* SubstepCallback;
+	mutable FCriticalSection EffectsCriticalSection;
 };
