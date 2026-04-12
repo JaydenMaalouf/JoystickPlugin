@@ -208,7 +208,6 @@ void UJoystickSubsystem::SetIgnoreGamepads(const bool IgnoreControllers)
 		return;
 	}
 
-	const int JoystickCount = Devices.Num();
 	const bool ChangedValue = JoystickInputSettings->SetIgnoreGamepads(IgnoreControllers);
 	if (ChangedValue && IgnoreControllers)
 	{

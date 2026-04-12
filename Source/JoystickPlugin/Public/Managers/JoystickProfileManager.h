@@ -51,7 +51,7 @@ private:
 	void WriteChangedStructPropsToIni(const UScriptStruct* StructType, const void* CurrentValue, const FString& Section, const FString& IniFile) const;
 
 	//TODO: Expose as an editor at some point
-	void CreateJoystickProfile(const FKey& AxisKey, FJoystickInputDeviceAxisProperties Properties);
+	void CreateJoystickProfile(const FKey& AxisKey, FJoystickInputDeviceAxisProperties Properties) const;
 
 	TMap<FString, FJoystickInputDeviceConfiguration> InputDeviceConfigurations;
 

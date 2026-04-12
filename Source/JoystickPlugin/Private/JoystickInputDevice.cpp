@@ -50,7 +50,7 @@ void FJoystickInputDevice::SetChannelValue(int ControllerId, FForceFeedbackChann
 
 void FJoystickInputDevice::SetChannelValues(int ControllerId, const FForceFeedbackValues& Values)
 {
-	UJoystickHapticDeviceManager* HapticDeviceManager = GetMutableDefault<UJoystickHapticDeviceManager>();
+	const UJoystickHapticDeviceManager* HapticDeviceManager = GetMutableDefault<UJoystickHapticDeviceManager>();
 	if (!IsValid(HapticDeviceManager))
 	{
 		return;
@@ -603,19 +603,52 @@ void FJoystickInputDevice::GetDeviceKeys(const FJoystickInstanceId& InstanceId, 
 	Keys = DeviceKeys[InstanceId];
 }
 
-const FKey& FJoystickInputDevice::GetDeviceAxisKey(const FJoystickInstanceId& InstanceId, const int AxisIndex)
+bool FJoystickInputDevice::GetDeviceAxisKey(const FJoystickInstanceId& InstanceId, const int AxisIndex, FKey& AxisKey)
 {
-	return DeviceAxisKeys[InstanceId][AxisIndex];
+	if (!DeviceAxisKeys.Contains(InstanceId))
+	{
+		return false;
+	}
+
+	if (!DeviceAxisKeys[InstanceId].IsValidIndex(AxisIndex))
+	{
+		return false;
+	}
+
+	AxisKey = DeviceAxisKeys[InstanceId][AxisIndex];
+	return true;
 }
 
-const FKey& FJoystickInputDevice::GetDeviceButtonKey(const FJoystickInstanceId& InstanceId, const int ButtonIndex)
+bool FJoystickInputDevice::GetDeviceButtonKey(const FJoystickInstanceId& InstanceId, const int ButtonIndex, FKey& ButtonKey)
 {
-	return DeviceButtonKeys[InstanceId][ButtonIndex];
+	if (!DeviceButtonKeys.Contains(InstanceId))
+	{
+		return false;
+	}
+
+	if (!DeviceButtonKeys[InstanceId].IsValidIndex(ButtonIndex))
+	{
+		return false;
+	}
+
+	ButtonKey = DeviceButtonKeys[InstanceId][ButtonIndex];
+	return true;
 }
 
-const FKeyPair& FJoystickInputDevice::GetDeviceHatKey(const FJoystickInstanceId& InstanceId, const int HatKeyIndex)
+bool FJoystickInputDevice::GetDeviceHatKey(const FJoystickInstanceId& InstanceId, const int HatAxisKeyIndex, FKeyPair& HatAxisKey)
 {
-	return DeviceHatAxisKeys[InstanceId][HatKeyIndex];
+	if (!DeviceHatAxisKeys.Contains(InstanceId))
+	{
+		return false;
+	}
+
+	if (!DeviceHatAxisKeys[InstanceId].IsValidIndex(HatAxisKeyIndex))
+	{
+		return false;
+	}
+
+	HatAxisKey = DeviceHatAxisKeys[InstanceId][HatAxisKeyIndex];
+	return true;
 }
 
 static FName JoystickInputInterfaceName = FName("JoystickPluginInput");

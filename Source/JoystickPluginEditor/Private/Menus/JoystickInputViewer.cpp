@@ -802,7 +802,12 @@ void SJoystickInputViewer::CreateAxisBars(const UJoystickSubsystem* JoystickSubs
 	for (int i = 0; i < JoystickState.Axes.Num(); i++)
 	{
 		const FAxisData& AxisValue = JoystickState.Axes[i];
-		const FKey& Key = JoystickSubsystem->GetInputDevice()->GetDeviceAxisKey(*SelectedJoystick, i);
+		FKey Key;
+		const bool Result = JoystickSubsystem->GetInputDevice()->GetDeviceAxisKey(*SelectedJoystick, i, Key);
+		if (Result == false || !Key.IsValid())
+		{
+			continue;
+		}
 
 		TSharedPtr<SAxisBar> Bar;
 		AxisContainer->AddSlot()
@@ -839,8 +844,9 @@ void SJoystickInputViewer::CreateButtonBoxes(const UJoystickSubsystem* JoystickS
 	for (int i = 0; i < JoystickState.Buttons.Num(); i++)
 	{
 		const FButtonData& ButtonValue = JoystickState.Buttons[i];
-		const FKey& Key = JoystickSubsystem->GetInputDevice()->GetDeviceButtonKey(*SelectedJoystick, i);
-		if (!Key.IsValid())
+		FKey Key;
+		const bool Result = JoystickSubsystem->GetInputDevice()->GetDeviceButtonKey(*SelectedJoystick, i, Key);
+		if (Result == false || !Key.IsValid())
 		{
 			continue;
 		}
@@ -879,8 +885,9 @@ void SJoystickInputViewer::CreateHatSwitches(const UJoystickSubsystem* JoystickS
 	for (int i = 0; i < JoystickState.Hats.Num(); i++)
 	{
 		const FHatData& HatValue = JoystickState.Hats[i];
-		const FKeyPair& Key = JoystickSubsystem->GetInputDevice()->GetDeviceHatKey(*SelectedJoystick, i);
-		if (!Key.IsValid())
+		FKeyPair Key;
+		const bool Result = JoystickSubsystem->GetInputDevice()->GetDeviceHatKey(*SelectedJoystick, i, Key);
+		if (Result == false || !Key.IsValid())
 		{
 			continue;
 		}

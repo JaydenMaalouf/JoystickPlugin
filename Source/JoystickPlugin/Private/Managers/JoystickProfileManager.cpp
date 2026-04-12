@@ -537,7 +537,7 @@ void UJoystickProfileManager::WriteChangedStructPropsToIni(const UScriptStruct* 
 	}
 }
 
-void UJoystickProfileManager::CreateJoystickProfile(const FKey& AxisKey, FJoystickInputDeviceAxisProperties Properties)
+void UJoystickProfileManager::CreateJoystickProfile(const FKey& AxisKey, FJoystickInputDeviceAxisProperties Properties) const
 {
 	if (!AxisKey.IsValid() || !(AxisKey.IsAxis1D() || AxisKey.IsAxis2D() || AxisKey.IsAxis3D()))
 	{
