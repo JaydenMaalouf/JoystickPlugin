@@ -28,7 +28,8 @@ public class JoystickPluginEditor : ModuleRules
 			"ToolMenus",
 			"LevelEditor",
 			"EditorStyle",
-			"PropertyEditor"
+			"PropertyEditor",
+			"DetailCustomizations"
 		});
 	}
 }
