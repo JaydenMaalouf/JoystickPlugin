@@ -122,7 +122,19 @@ void UJoystickForceFeedbackComponent::TickComponent(const float DeltaTime, const
 		return;
 	}
 
+#if ENGINE_MAJOR_VERSION == 5
 	TickEffects(DeltaTime);
+#else
+	if (TargetPrimitive.IsValid())
+	{
+		return;
+	}
+
+	if (FBodyInstance* BodyInstance = TargetPrimitive->GetBodyInstance())
+	{
+		BodyInstance->AddCustomPhysics(OnCalculateCustomPhysics);
+	}
+#endif
 }
 
 #if (ENGINE_MAJOR_VERSION > 5) || (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
@@ -195,6 +207,7 @@ void UJoystickForceFeedbackComponent::RegisterPhysicsSubstepCallback()
 		return;
 	}
 
+#if ENGINE_MAJOR_VERSION == 5
 	const UWorld* World = GetWorld();
 	if (!IsValid(World))
 	{
@@ -216,10 +229,26 @@ void UJoystickForceFeedbackComponent::RegisterPhysicsSubstepCallback()
 	RegisteredSolver = Solver;
 	SubstepCallback = Solver->CreateAndRegisterSimCallbackObject_External<FJoystickForceFeedbackSubstepCallback>();
 	SubstepCallback->Init(this);
+#else
+	const AActor* OwningPawn = GetOwner();
+	if (!OwningPawn)
+	{
+		return;
+	}
+
+	TargetPrimitive = Cast<UPrimitiveComponent>(OwningPawn->GetRootComponent());
+	if (!TargetPrimitive.IsValid())
+	{
+		return;
+	}
+	
+	OnCalculateCustomPhysics.BindUObject(this, &UJoystickForceFeedbackComponent::HandleSubstepTick);
+#endif
 }
 
 void UJoystickForceFeedbackComponent::UnregisterPhysicsSubstepCallback()
 {
+#if ENGINE_MAJOR_VERSION == 5
 	if (RegisteredSolver != nullptr && SubstepCallback != nullptr)
 	{
 		RegisteredSolver->UnregisterAndFreeSimCallbackObject_External(SubstepCallback);
@@ -227,6 +256,9 @@ void UJoystickForceFeedbackComponent::UnregisterPhysicsSubstepCallback()
 
 	RegisteredSolver = nullptr;
 	SubstepCallback = nullptr;
+#else
+	OnCalculateCustomPhysics.Unbind();
+#endif
 }
 
 void UJoystickForceFeedbackComponent::CreateEffects()
@@ -482,4 +514,9 @@ void UJoystickForceFeedbackComponent::ActionOnJoystickEffects(const FJoystickIns
 	{
 		CustomInitializer(Effect);
 	}
+}
+
+void UJoystickForceFeedbackComponent::HandleSubstepTick(const float DeltaTime, FBodyInstance* BodyInstance)
+{
+	TickEffects(DeltaTime);
 }

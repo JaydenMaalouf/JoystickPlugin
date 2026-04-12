@@ -97,4 +97,8 @@ private:
 	Chaos::FPhysicsSolverBase* RegisteredSolver;
 	FJoystickForceFeedbackSubstepCallback* SubstepCallback;
 	mutable FCriticalSection EffectsCriticalSection;
+
+	TWeakObjectPtr<UPrimitiveComponent> TargetPrimitive;
+	FCalculateCustomPhysics OnCalculateCustomPhysics;
+	void HandleSubstepTick(float DeltaTime, FBodyInstance* BodyInstance);
 };
