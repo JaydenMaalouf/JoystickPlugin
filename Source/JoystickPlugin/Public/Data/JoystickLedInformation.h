@@ -15,7 +15,11 @@ struct FJoystickLedInformation
 		  , RGB(false)
 		  , Player(false)
 	{
+		Supported = Mono || RGB || Player;
 	}
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Led Config")
+	bool Supported;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Led Config")
 	bool Mono;

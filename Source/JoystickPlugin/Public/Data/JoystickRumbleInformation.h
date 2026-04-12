@@ -14,7 +14,11 @@ struct FJoystickRumbleInformation
 		: StandardRumble(false)
 		  , TriggerRumble(false)
 	{
+		Supported = StandardRumble || TriggerRumble;
 	}
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Rumble Config")
+	bool Supported;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Rumble Config")
 	bool StandardRumble;
