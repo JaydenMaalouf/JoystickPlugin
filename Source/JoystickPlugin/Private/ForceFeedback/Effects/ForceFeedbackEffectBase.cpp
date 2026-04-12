@@ -47,7 +47,7 @@ void UForceFeedbackEffectBase::Tick(const float DeltaTime)
 		int SubTickCount = 0;
 		while (TimeAccumulator >= FixedTimeStep && SubTickCount < Configuration.MaxSubticks)
 		{
-			DriveTick(FixedTimeStep);
+			TickEffect(FixedTimeStep);
 
 			TimeAccumulator -= FixedTimeStep;
 			SubTickCount++;
@@ -61,36 +61,7 @@ void UForceFeedbackEffectBase::Tick(const float DeltaTime)
 	}
 	else
 	{
-		DriveTick(DeltaTime);
-	}
-}
-
-void UForceFeedbackEffectBase::DriveTick(const float DeltaTime)
-{
-	if (!IsInitialised || this->IsUnreachable())
-	{
-		return;
-	}
-
-	ReceivedTick(DeltaTime);
-
-	if (Configuration.AutoUpdatePostTick)
-	{
-		UpdateEffect();
-	}
-
-	const uint32 Duration = GetEffectDuration();
-	if (EffectRunning && InfiniteIterations == false && StartTime != -1 && Duration != -1)
-	{
-		const uint64 CurrentTime = SDL_GetTicks();
-		if (CurrentTime - StartTime >= Duration)
-		{
-			// Effect should be finished but sometimes SDL doesn't handle the status correctly.
-			if (GetEffectStatus() == true || ForceStopAfterDurationLapsed)
-			{
-				StopEffect();
-			}
-		}
+		TickEffect(DeltaTime);
 	}
 }
 
@@ -315,6 +286,55 @@ void UForceFeedbackEffectBase::UpdateEffect()
 	if (OnUpdatedEffectDelegate.IsBound())
 	{
 		OnUpdatedEffectDelegate.Broadcast(this);
+	}
+}
+
+void UForceFeedbackEffectBase::OnInitialisedEffect_Implementation()
+{
+}
+
+void UForceFeedbackEffectBase::OnStartedEffect_Implementation()
+{
+}
+
+void UForceFeedbackEffectBase::OnStoppedEffect_Implementation()
+{
+}
+
+void UForceFeedbackEffectBase::OnUpdatedEffect_Implementation()
+{
+}
+
+void UForceFeedbackEffectBase::OnDestroyedEffect_Implementation()
+{
+}
+
+void UForceFeedbackEffectBase::TickEffect(const float DeltaTime)
+{
+	if (!IsInitialised || this->IsUnreachable())
+	{
+		return;
+	}
+
+	ReceivedTick(DeltaTime);
+
+	if (Configuration.AutoUpdatePostTick)
+	{
+		UpdateEffect();
+	}
+
+	const uint32 Duration = GetEffectDuration();
+	if (EffectRunning && InfiniteIterations == false && StartTime != -1 && Duration != -1)
+	{
+		const uint64 CurrentTime = SDL_GetTicks();
+		if (CurrentTime - StartTime >= Duration)
+		{
+			// Effect should be finished but sometimes SDL2 doesn't handle the status correctly.
+			if (GetEffectStatus() == 0 || ForceStopAfterDurationLapsed)
+			{
+				StopEffect();
+			}
+		}
 	}
 }
 
