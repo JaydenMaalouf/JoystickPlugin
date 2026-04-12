@@ -129,11 +129,7 @@ void FJoystickInputDevice::InitialiseAxis(const FJoystickInstanceId& InstanceId,
 		TSharedPtr<FKeyDetails> ExistingKeyDetails = EKeys::GetKeyDetails(AxisKey);
 		if (!ExistingKeyDetails)
 		{
-#if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26 || ENGINE_MAJOR_VERSION == 5)
 			FKeyDetails AxisKeyDetails = FKeyDetails(AxisKey, FText::FromString(AxisDisplayName), FKeyDetails::GamepadKey | FKeyDetails::Axis1D, JoystickCategory);
-#else
-			FKeyDetails AxisKeyDetails = FKeyDetails(AxisKey, FText::FromString(AxisDisplayName), FKeyDetails::GamepadKey | FKeyDetails::FloatAxis, JoystickCategory);
-#endif
 			EKeys::AddKey(AxisKeyDetails);
 			FJoystickLogManager::Get()->LogDebug(TEXT("Added Axis %s (%s) %d"), *AxisKeyName, *AxisDisplayName, InstanceId.Value);
 		}
@@ -232,11 +228,7 @@ void FJoystickInputDevice::InitialiseHatAxis(const FJoystickInstanceId& Instance
 			TSharedPtr<FKeyDetails> ExistingKeyDetails = EKeys::GetKeyDetails(HatKey);
 			if (!ExistingKeyDetails)
 			{
-#if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26 || ENGINE_MAJOR_VERSION == 5)
 				FKeyDetails HatKeyDetails = FKeyDetails(HatKey, FText::FromString(HatDisplayName), FKeyDetails::GamepadKey | FKeyDetails::Axis1D, JoystickCategory);
-#else
-				FKeyDetails HatKeyDetails = FKeyDetails(HatKey, FText::FromString(HatDisplayName), FKeyDetails::GamepadKey | FKeyDetails::FloatAxis, JoystickCategory);
-#endif
 				EKeys::AddKey(HatKeyDetails);
 				FJoystickLogManager::Get()->LogDebug(TEXT("Added Hat %s (%s) %d"), *HatKeyName, *HatDisplayName, InstanceId.Value);
 			}
@@ -245,7 +237,6 @@ void FJoystickInputDevice::InitialiseHatAxis(const FJoystickInstanceId& Instance
 			DeviceKeys[InstanceId].Add(HatKey);
 		}
 
-#if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26 || ENGINE_MAJOR_VERSION == 5)
 		if (PairedKey)
 		{
 			const int HatKeyIndexName = JoystickInputSettings->ZeroBasedIndexing ? HatKeyIndex : HatKeyIndex + 1;
@@ -265,7 +256,6 @@ void FJoystickInputDevice::InitialiseHatAxis(const FJoystickInstanceId& Instance
 			DeviceHatAxisPairedKeys[InstanceId][HatKeyIndex] = HatAxisKey;
 			DeviceKeys[InstanceId].Add(HatAxisKey);
 		}
-#endif
 	}
 }
 
@@ -362,11 +352,7 @@ void FJoystickInputDevice::InitialiseBalls(const FJoystickInstanceId& InstanceId
 			TSharedPtr<FKeyDetails> ExistingKeyDetails = EKeys::GetKeyDetails(BallKey);
 			if (!ExistingKeyDetails)
 			{
-#if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26 || ENGINE_MAJOR_VERSION == 5)
 				FKeyDetails BallKeyDetails = FKeyDetails(BallKey, FText::FromString(BallDisplayName), FKeyDetails::GamepadKey | FKeyDetails::Axis1D, JoystickCategory);
-#else
-				FKeyDetails BallKeyDetails = FKeyDetails(BallKey, FText::FromString(BallDisplayName), FKeyDetails::GamepadKey | FKeyDetails::FloatAxis, JoystickCategory);
-#endif
 				EKeys::AddKey(BallKeyDetails);
 				FJoystickLogManager::Get()->LogDebug(TEXT("Added Ball %s (%s) %d"), *BallKeyName, *BallDisplayName, InstanceId.Value);
 			}
@@ -375,7 +361,6 @@ void FJoystickInputDevice::InitialiseBalls(const FJoystickInstanceId& InstanceId
 			DeviceKeys[InstanceId].Add(BallKey);
 		}
 
-#if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26 || ENGINE_MAJOR_VERSION == 5)
 		if (PairedKey)
 		{
 			const int BallKeyIndexName = JoystickInputSettings->ZeroBasedIndexing ? BallKeyIndex : BallKeyIndex + 1;
@@ -395,7 +380,6 @@ void FJoystickInputDevice::InitialiseBalls(const FJoystickInstanceId& InstanceId
 			DeviceBallPairedKeys[InstanceId][BallKeyIndex] = BallKey;
 			DeviceKeys[InstanceId].Add(BallKey);
 		}
-#endif
 	}
 }
 

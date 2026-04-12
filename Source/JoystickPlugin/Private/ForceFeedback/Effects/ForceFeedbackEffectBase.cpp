@@ -96,17 +96,10 @@ void UForceFeedbackEffectBase::InitialiseEffect()
 	IsInitialised = true;
 
 	//Safety check to ensure we don't try calling BP during destruction
-#if ENGINE_MAJOR_VERSION == 5
 	if (IsValidChecked(this) == false || this->IsUnreachable())
 	{
 		return;
 	}
-#else
-	if (this->IsPendingKillOrUnreachable())
-	{
-		return;
-	}
-#endif
 
 	OnInitialisedEffect();
 	if (OnInitialisedEffectDelegate.IsBound())
@@ -154,17 +147,10 @@ void UForceFeedbackEffectBase::StartEffect()
 	EffectRunning = true;
 
 	//Safety check to ensure we don't try calling BP during destruction
-#if ENGINE_MAJOR_VERSION == 5
 	if (IsValidChecked(this) == false || this->IsUnreachable())
 	{
 		return;
 	}
-#else
-	if (this->IsPendingKillOrUnreachable())
-	{
-		return;
-	}
-#endif
 
 	OnStartedEffect();
 	if (OnStartedEffectDelegate.IsBound())
@@ -195,17 +181,10 @@ void UForceFeedbackEffectBase::StopEffect()
 	EffectRunning = false;
 
 	//Safety check to ensure we don't try calling BP during destruction
-#if ENGINE_MAJOR_VERSION == 5
 	if (IsValidChecked(this) == false || this->IsUnreachable())
 	{
 		return;
 	}
-#else
-	if (this->IsPendingKillOrUnreachable())
-	{
-		return;
-	}
-#endif
 
 	OnStoppedEffect();
 	if (OnStoppedEffectDelegate.IsBound())
@@ -235,17 +214,10 @@ void UForceFeedbackEffectBase::DestroyEffect()
 	EffectRunning = false;
 
 	//Safety check to ensure we don't try calling BP during destruction
-#if ENGINE_MAJOR_VERSION == 5
 	if (IsValidChecked(this) == false || this->IsUnreachable())
 	{
 		return;
 	}
-#else
-	if (this->IsPendingKillOrUnreachable())
-	{
-		return;
-	}
-#endif
 
 	OnDestroyedEffect();
 	if (OnDestroyedEffectDelegate.IsBound())
@@ -270,17 +242,10 @@ void UForceFeedbackEffectBase::UpdateEffect()
 	}
 
 	//Safety check to ensure we don't try calling BP during destruction
-#if ENGINE_MAJOR_VERSION == 5
 	if (IsValidChecked(this) == false || this->IsUnreachable())
 	{
 		return;
 	}
-#else
-	if (this->IsPendingKillOrUnreachable())
-	{
-		return;
-	}
-#endif
 
 	OnUpdatedEffect();
 	if (OnUpdatedEffectDelegate.IsBound())
