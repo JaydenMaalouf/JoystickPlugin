@@ -27,7 +27,7 @@ public:
 	bool OpenHIDSerialNumber(const int32 VendorId, const int32 ProductId, FDeviceHID& Device, const FString& SerialNumber) const;
 
 	UFUNCTION(BlueprintCallable, Category="Joystick|HID", DisplayName="Open HID by Path")
-	bool OpenHIDPath(const FString& DevicePath, const bool Exclusive, FDeviceHID& Device);
+	bool OpenHIDPath(const FString& DevicePath, FDeviceHID& Device);
 
 	UFUNCTION(BlueprintCallable, Category="Joystick|HID")
 	bool CloseHID(const FDeviceHID& Device);

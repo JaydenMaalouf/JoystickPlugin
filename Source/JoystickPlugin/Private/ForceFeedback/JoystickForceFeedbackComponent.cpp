@@ -83,7 +83,7 @@ void UJoystickForceFeedbackComponent::TickComponent(const float DeltaTime, const
 	TickEffects(DeltaTime);
 }
 
-#if (ENGINE_MAJOR_VERSION > 5) || (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3
 void UJoystickForceFeedbackComponent::AsyncPhysicsTickComponent(const float DeltaTime, const float SimTime)
 {
 	Super::AsyncPhysicsTickComponent(DeltaTime, SimTime);

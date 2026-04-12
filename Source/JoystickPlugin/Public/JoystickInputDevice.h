@@ -42,9 +42,9 @@ public:
 
 	TTuple<FJoystickDeviceState*, FInternalResultMessage> GetDeviceState(const FJoystickInstanceId& InstanceId);
 	void GetDeviceKeys(const FJoystickInstanceId& InstanceId, TArray<FKey>& Keys);
-	const FKey& GetDeviceAxisKey(const FJoystickInstanceId& InstanceId, const int AxisIndex);
-	const FKey& GetDeviceButtonKey(const FJoystickInstanceId& InstanceId, const int ButtonIndex);
-	const FKeyPair& GetDeviceHatKey(const FJoystickInstanceId& InstanceId, int HatKeyIndex);
+	bool GetDeviceAxisKey(const FJoystickInstanceId& InstanceId, int AxisIndex, FKey& AxisKey);
+	bool GetDeviceButtonKey(const FJoystickInstanceId& InstanceId, int ButtonIndex, FKey& ButtonKey);
+	bool GetDeviceHatKey(const FJoystickInstanceId& InstanceId, int HatAxisKeyIndex, FKeyPair& HatAxisKey);
 	FJoystickInstanceId GetInstanceIdByKey(const FKey& Key) const;
 	int GetAxisIndexFromKey(const FKey& Key) const;
 	int GetButtonIndexFromKey(const FKey& Key) const;
