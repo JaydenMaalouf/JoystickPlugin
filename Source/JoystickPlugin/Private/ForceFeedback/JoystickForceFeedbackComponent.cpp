@@ -18,9 +18,9 @@ class FJoystickForceFeedbackSubstepCallback final
 		Chaos::FSimCallbackNoOutput>
 {
 public:
-	explicit FJoystickForceFeedbackSubstepCallback(UJoystickForceFeedbackComponent* InComponent)
-		: Component(InComponent)
+	void Init(UJoystickForceFeedbackComponent* InComponent)
 	{
+		Component = InComponent;
 	}
 
 private:
@@ -139,6 +139,24 @@ void UJoystickForceFeedbackComponent::AsyncPhysicsTickComponent(const float Delt
 }
 #endif
 
+void UJoystickForceFeedbackComponent::OnSubsystemReady()
+{
+	CreateEffects();
+
+	if (!IsValid(GEngine))
+	{
+		return;
+	}
+
+	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
+	if (!IsValid(JoystickSubsystem))
+	{
+		return;
+	}
+
+	JoystickSubsystem->JoystickSubsystemReady.RemoveDynamic(this, &UJoystickForceFeedbackComponent::OnSubsystemReady);
+}
+
 void UJoystickForceFeedbackComponent::TickEffects(const float DeltaTime)
 {
 	if (!Configuration.OverrideEffectTick)
@@ -196,7 +214,8 @@ void UJoystickForceFeedbackComponent::RegisterPhysicsSubstepCallback()
 	}
 
 	RegisteredSolver = Solver;
-	SubstepCallback = Solver->CreateAndRegisterSimCallbackObject_External<FJoystickForceFeedbackSubstepCallback>(this);
+	SubstepCallback = Solver->CreateAndRegisterSimCallbackObject_External<FJoystickForceFeedbackSubstepCallback>();
+	SubstepCallback->Init(this);
 }
 
 void UJoystickForceFeedbackComponent::UnregisterPhysicsSubstepCallback()
@@ -208,24 +227,6 @@ void UJoystickForceFeedbackComponent::UnregisterPhysicsSubstepCallback()
 
 	RegisteredSolver = nullptr;
 	SubstepCallback = nullptr;
-}
-
-void UJoystickForceFeedbackComponent::OnSubsystemReady()
-{
-	CreateEffects();
-
-	if (!IsValid(GEngine))
-	{
-		return;
-	}
-
-	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
-	if (!IsValid(JoystickSubsystem))
-	{
-		return;
-	}
-
-	JoystickSubsystem->JoystickSubsystemReady.RemoveDynamic(this, &UJoystickForceFeedbackComponent::OnSubsystemReady);
 }
 
 void UJoystickForceFeedbackComponent::CreateEffects()
