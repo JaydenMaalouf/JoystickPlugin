@@ -805,7 +805,7 @@ void SForceFeedbackEffectDataEditor::ApplyVirtualDataToEffects()
 
 		// Find the EffectData property on the simulation effect
 		const UClass* EffectClass = SimEffect->GetClass();
-		const FProperty* SimEffectDataProp = nullptr;
+		FProperty* SimEffectDataProp = nullptr;
 		for (const UClass* Class = EffectClass; Class && Class != UObject::StaticClass(); Class = Class->GetSuperClass())
 		{
 			SimEffectDataProp = Class->FindPropertyByName(TEXT("EffectData"));
