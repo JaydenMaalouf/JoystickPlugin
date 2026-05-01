@@ -15,17 +15,21 @@ public class JoystickPluginEditor : ModuleRules
 			"Slate",
 			"SlateCore",
 			"InputCore",
-			"JoystickPlugin",
-			"SettingsEditor"
+			"JoystickPlugin", 
+			"SettingsEditor",
+			"PropertyEditor"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new[]
 		{
 			"UnrealEd",
+			"Kismet",
+			"KismetWidgets",
 			"ToolMenus",
 			"LevelEditor",
 			"EditorStyle",
-			"PropertyEditor"
+			"PropertyEditor",
+			"DetailCustomizations"
 		});
 	}
 }

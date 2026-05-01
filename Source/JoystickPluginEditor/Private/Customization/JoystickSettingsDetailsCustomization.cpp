@@ -1,7 +1,7 @@
 // JoystickPlugin is licensed under the MIT License.
 // Copyright Jayden Maalouf 2026. All Rights Reserved.
 
-#include "JoystickPluginSettingsDetails.h"
+#include "Customization/JoystickSettingsDetailsCustomization.h"
 
 #include "Data/Settings/JoystickInputDeviceConfiguration.h"
 #include "DetailCategoryBuilder.h"
@@ -12,12 +12,12 @@
 
 #define LOCTEXT_NAMESPACE "JoystickPluginSettingsDetails"
 
-TSharedRef<IDetailCustomization> FJoystickPluginSettingsDetails::MakeInstance()
+TSharedRef<IDetailCustomization> FJoystickSettingsDetailsCustomization::MakeInstance()
 {
-	return MakeShareable(new FJoystickPluginSettingsDetails);
+	return MakeShareable(new FJoystickSettingsDetailsCustomization);
 }
 
-void FJoystickPluginSettingsDetails::CustomizeDetails(IDetailLayoutBuilder& DetailBuilder)
+void FJoystickSettingsDetailsCustomization::CustomizeDetails(IDetailLayoutBuilder& DetailBuilder)
 {
 	TArray<TWeakObjectPtr<UObject>> ObjectsBeingCustomized;
 	DetailBuilder.GetObjectsBeingCustomized(ObjectsBeingCustomized);

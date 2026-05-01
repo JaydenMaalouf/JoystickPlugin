@@ -3,28 +3,44 @@
 
 #include "JoystickPluginEditorModule.h"
 
+#include "BlueprintEditor.h"
+#include "BlueprintEditorModes.h"
+#include "BlueprintEditorModule.h"
+#include "BlueprintEditorTabs.h"
 #include "ISettingsModule.h"
+#include "JoystickPluginEditorTabIds.h"
 #include "JoystickInputSettings.h"
 #include "Menus/JoystickInputViewer.h"
-#include "JoystickPluginSettingsDetails.h"
 #include "Customization/JoystickInstanceIdCustomization.h"
 #include "Modules/ModuleManager.h"
 #include "PropertyEditorModule.h"
 #include "PropertyEditorDelegates.h"
+#include "Tabs/ForceFeedbackPreviewTabFactory.h"
 #include "ToolMenus.h"
+#include "Customization/JoystickSettingsDetailsCustomization.h"
+#include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
+#include "Framework/Docking/LayoutExtender.h"
+
+#include "Framework/Docking/TabManager.h"
+#include "WorkflowOrientedApp/WorkflowTabManager.h"
 
 #define LOCTEXT_NAMESPACE "JoystickPluginEditor"
-
-static const FName JoystickViewerTabId(TEXT("JoystickInputViewer"));
 
 void FJoystickPluginEditorModule::StartupModule()
 {
 	RegisterSettings();
 	RegisterPropertyLayout();
 
+	// Extend the Blueprint editor (ForceFeedbackEffect blueprints) with a preview tab.
+	{
+		FBlueprintEditorModule& BlueprintEditorModule = FModuleManager::LoadModuleChecked<FBlueprintEditorModule>("Kismet");
+		BlueprintTabsHandle = BlueprintEditorModule.OnRegisterTabsForEditor().AddRaw(this, &FJoystickPluginEditorModule::RegisterBlueprintEditorTabs);
+		BlueprintLayoutHandle = BlueprintEditorModule.OnRegisterLayoutExtensions().AddRaw(this, &FJoystickPluginEditorModule::RegisterBlueprintEditorLayout);
+	}
+
 	FGlobalTabmanager::Get()
 		->RegisterNomadTabSpawner(
-			JoystickViewerTabId,
+			JoystickPluginEditorTabIds::JoystickViewer,
 			FOnSpawnTab::CreateLambda([&](const FSpawnTabArgs& SpawnTabArgs) -> TSharedRef<SDockTab>
 			{
 				const TSharedRef<SDockTab> DockTab =
@@ -49,7 +65,22 @@ void FJoystickPluginEditorModule::StartupModule()
 
 void FJoystickPluginEditorModule::ShutdownModule()
 {
-	FGlobalTabmanager::Get()->UnregisterTabSpawner(JoystickViewerTabId);
+	FGlobalTabmanager::Get()->UnregisterTabSpawner(JoystickPluginEditorTabIds::JoystickViewer);
+
+	// Unhook Blueprint editor extensions.
+	if (FBlueprintEditorModule* BlueprintEditorModule = FModuleManager::GetModulePtr<FBlueprintEditorModule>("Kismet"))
+	{
+		if (BlueprintTabsHandle.IsValid())
+		{
+			BlueprintEditorModule->OnRegisterTabsForEditor().Remove(BlueprintTabsHandle);
+			BlueprintTabsHandle.Reset();
+		}
+		if (BlueprintLayoutHandle.IsValid())
+		{
+			BlueprintEditorModule->OnRegisterLayoutExtensions().Remove(BlueprintLayoutHandle);
+			BlueprintLayoutHandle.Reset();
+		}
+	}
 
 	if (UToolMenus::IsToolMenuUIEnabled())
 	{
@@ -72,7 +103,7 @@ void FJoystickPluginEditorModule::RegisterMenus() const
 		FSlateIcon(FAppStyle::GetAppStyleSetName(), "GraphEditor.PadEvent_16x"),
 		FUIAction(FExecuteAction::CreateLambda([]
 		{
-			FGlobalTabmanager::Get()->TryInvokeTab(JoystickViewerTabId);
+			FGlobalTabmanager::Get()->TryInvokeTab(JoystickPluginEditorTabIds::JoystickViewer);
 		}))
 	);
 }
@@ -80,8 +111,49 @@ void FJoystickPluginEditorModule::RegisterMenus() const
 void FJoystickPluginEditorModule::RegisterPropertyLayout() const
 {
 	FPropertyEditorModule& PropertyModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
-	PropertyModule.RegisterCustomClassLayout(UJoystickInputSettings::StaticClass()->GetFName(), FOnGetDetailCustomizationInstance::CreateStatic(&FJoystickPluginSettingsDetails::MakeInstance));
+	PropertyModule.RegisterCustomClassLayout(UJoystickInputSettings::StaticClass()->GetFName(), FOnGetDetailCustomizationInstance::CreateStatic(&FJoystickSettingsDetailsCustomization::MakeInstance));
 	PropertyModule.RegisterCustomPropertyTypeLayout("JoystickInstanceId", FOnGetPropertyTypeCustomizationInstance::CreateStatic(&FJoystickInstanceIdCustomization::MakeInstance));
+}
+
+void FJoystickPluginEditorModule::RegisterBlueprintEditorTabs(FWorkflowAllowedTabSet& TabFactories, FName ModeName, TSharedPtr<FBlueprintEditor> BlueprintEditor) const
+{
+	if (!BlueprintEditor.IsValid())
+	{
+		return;
+	}
+
+	if (ModeName != FBlueprintEditorApplicationModes::StandardBlueprintEditorMode)
+	{
+		return;
+	}
+
+	const UBlueprint* Blueprint = BlueprintEditor->GetBlueprintObj();
+	if (!IsValid(Blueprint) || !IsValid(Blueprint->ParentClass))
+	{
+		return;
+	}
+
+	// Only show the tab for Force Feedback effect blueprints.
+	if (!Blueprint->ParentClass->IsChildOf(UForceFeedbackEffectBase::StaticClass()))
+	{
+		return;
+	}
+
+	if (!TabFactories.GetFactory(JoystickPluginEditorTabIds::ForceFeedbackPreview).IsValid())
+	{
+		TabFactories.RegisterFactory(MakeShared<FForceFeedbackPreviewTabFactory>(BlueprintEditor));
+	}
+}
+
+void FJoystickPluginEditorModule::RegisterBlueprintEditorLayout(FLayoutExtender& Extender) const
+{
+	// Put our tab next to "My Blueprint" (same tab stack).
+	// If the tab isn't registered for a given blueprint, it won't appear.
+	Extender.ExtendLayout(
+		FTabId(FBlueprintEditorTabs::MyBlueprintID),
+		ELayoutExtensionPosition::Below,
+		FTabManager::FTab(JoystickPluginEditorTabIds::ForceFeedbackPreview, ETabState::ClosedTab)
+	);
 }
 
 static FName SettingsSection = TEXT("Joystick Input");
