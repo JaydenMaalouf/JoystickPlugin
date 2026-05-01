@@ -28,6 +28,7 @@ struct FJoystickInformation
 		  , PowerLevel(EJoystickPowerLevel::Unknown)
 		  , LedSupport(false)
 		  , RumbleSupport(false)
+		  , CollectionIndex(-1)
 	{
 	}
 
@@ -90,4 +91,6 @@ struct FJoystickInformation
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config|Sensors")
 	FJoystickSensorInformation Accelerometer;
+
+	int CollectionIndex;
 };

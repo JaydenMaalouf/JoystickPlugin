@@ -32,7 +32,7 @@ public:
 	virtual bool IsGamepadAttached() const override;
 
 	void JoystickPluggedIn(const FDeviceInfoSDL& Device);
-	void JoystickUnplugged(const FJoystickInstanceId& InstanceId, const FInputDeviceId& InputDeviceId) const;
+	void JoystickUnplugged(const FJoystickInstanceId& InstanceId, const FInputDeviceId& InputDeviceId);
 	void JoystickButton(const FJoystickInstanceId& InstanceId, const int Button, const bool Pressed);
 	void JoystickAxis(const FJoystickInstanceId& InstanceId, const int Axis, const float Value);
 	void JoystickHat(const FJoystickInstanceId& InstanceId, const int Hat, const EHatDirection Value);
@@ -61,6 +61,7 @@ private:
 	void InitialiseHatAxis(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName, const bool PairedKey);
 	void InitialiseHatButtons(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName);
 	void InitialiseBalls(const FJoystickInstanceId& InstanceId, const FString& BaseKeyName, const FString& BaseDisplayName, const bool PairedKey);
+	void RemoveDeviceKeys(const FJoystickInstanceId& InstanceId);
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
 	void NotifyDeviceState(const FInputDeviceId& InputDeviceId, const FPlatformUserId& PlatformUserId, const EInputDeviceConnectionState State) const;
 #endif

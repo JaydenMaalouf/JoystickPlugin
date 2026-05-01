@@ -128,7 +128,7 @@ void FJoystickInputDevice::InitialiseAxis(const FJoystickInstanceId& InstanceId,
 		}
 
 		const FKey AxisKey = FKey(FName(*AxisKeyName));
-		TSharedPtr<FKeyDetails> ExistingKeyDetails = EKeys::GetKeyDetails(AxisKey);
+		const TSharedPtr<FKeyDetails> ExistingKeyDetails = EKeys::GetKeyDetails(AxisKey);
 		if (!ExistingKeyDetails)
 		{
 #if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26 || ENGINE_MAJOR_VERSION == 5)
@@ -179,7 +179,7 @@ void FJoystickInputDevice::InitialiseButtons(const FJoystickInstanceId& Instance
 		}
 
 		const FKey ButtonKey = FKey(FName(*ButtonKeyName));
-		TSharedPtr<FKeyDetails> ExistingKeyDetails = EKeys::GetKeyDetails(ButtonKey);
+		const TSharedPtr<FKeyDetails> ExistingKeyDetails = EKeys::GetKeyDetails(ButtonKey);
 		if (!ExistingKeyDetails)
 		{
 			FKeyDetails ButtonKeyDetails = FKeyDetails(ButtonKey, FText::FromString(ButtonDisplayName), FKeyDetails::GamepadKey, JoystickCategory);
@@ -231,7 +231,7 @@ void FJoystickInputDevice::InitialiseHatAxis(const FJoystickInstanceId& Instance
 			FString HatDisplayName = FString::Printf(TEXT("%s: Hat %d %s"), *BaseDisplayName, HatKeyIndexName, *HatAxisName);
 
 			const FKey HatKey = FKey(FName(*HatKeyName));
-			TSharedPtr<FKeyDetails> ExistingKeyDetails = EKeys::GetKeyDetails(HatKey);
+			const TSharedPtr<FKeyDetails> ExistingKeyDetails = EKeys::GetKeyDetails(HatKey);
 			if (!ExistingKeyDetails)
 			{
 #if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26 || ENGINE_MAJOR_VERSION == 5)
@@ -255,7 +255,7 @@ void FJoystickInputDevice::InitialiseHatAxis(const FJoystickInstanceId& Instance
 			FString HatAxisDisplayName = FString::Printf(TEXT("%s: Hat %d 2D"), *BaseDisplayName, HatKeyIndexName);
 
 			const FKey HatAxisKey = FKey(FName(*HatAxisKeyName));
-			TSharedPtr<FKeyDetails> ExistingKeyDetails = EKeys::GetKeyDetails(HatAxisKey);
+			const TSharedPtr<FKeyDetails> ExistingKeyDetails = EKeys::GetKeyDetails(HatAxisKey);
 			if (!ExistingKeyDetails)
 			{
 				FKeyDetails HatAxisKeyDetails = FKeyDetails(HatAxisKey, FText::FromString(HatAxisDisplayName), FKeyDetails::GamepadKey | FKeyDetails::Axis2D, JoystickCategory);
@@ -309,7 +309,7 @@ void FJoystickInputDevice::InitialiseHatButtons(const FJoystickInstanceId& Insta
 			FString ButtonDisplayName = FString::Printf(TEXT("%s: Hat %d Button %s"), *BaseDisplayName, HatKeyIndexName, *DirectionDisplayName);
 
 			const FKey ButtonKey = FKey(FName(ButtonKeyName));
-			TSharedPtr<FKeyDetails> ExistingKeyDetails = EKeys::GetKeyDetails(ButtonKey);
+			const TSharedPtr<FKeyDetails> ExistingKeyDetails = EKeys::GetKeyDetails(ButtonKey);
 			if (!ExistingKeyDetails)
 			{
 				FKeyDetails ButtonKeyDetails = FKeyDetails(ButtonKey, FText::FromString(ButtonDisplayName), FKeyDetails::GamepadKey, JoystickCategory);
@@ -361,7 +361,7 @@ void FJoystickInputDevice::InitialiseBalls(const FJoystickInstanceId& InstanceId
 			FString BallDisplayName = FString::Printf(TEXT("%s: Ball %d %s"), *BaseDisplayName, BallKeyIndexName, *BallAxisName);
 
 			const FKey BallKey = FKey(FName(*BallKeyName));
-			TSharedPtr<FKeyDetails> ExistingKeyDetails = EKeys::GetKeyDetails(BallKey);
+			const TSharedPtr<FKeyDetails> ExistingKeyDetails = EKeys::GetKeyDetails(BallKey);
 			if (!ExistingKeyDetails)
 			{
 #if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26 || ENGINE_MAJOR_VERSION == 5)
@@ -385,7 +385,7 @@ void FJoystickInputDevice::InitialiseBalls(const FJoystickInstanceId& InstanceId
 			FString BallDisplayName = FString::Printf(TEXT("%s: Ball %d 2D"), *BaseDisplayName, BallKeyIndexName);
 
 			const FKey BallKey = FKey(FName(*BallKeyName));
-			TSharedPtr<FKeyDetails> ExistingKeyDetails = EKeys::GetKeyDetails(BallKey);
+			const TSharedPtr<FKeyDetails> ExistingKeyDetails = EKeys::GetKeyDetails(BallKey);
 			if (!ExistingKeyDetails)
 			{
 				FKeyDetails BallKeyDetails = FKeyDetails(BallKey, FText::FromString(BallDisplayName), FKeyDetails::GamepadKey | FKeyDetails::Axis2D, JoystickCategory);
@@ -488,7 +488,7 @@ void FJoystickInputDevice::JoystickPluggedIn(const FDeviceInfoSDL& Device)
 	FJoystickLogManager::Get()->LogInformation(TEXT("Device Ready: %s (Device Id: %d) - Instance Id: %d"), *Device.DeviceName, Device.GetInputDeviceId().GetId(), Device.InstanceId.Value);
 }
 
-void FJoystickInputDevice::JoystickUnplugged(const FJoystickInstanceId& InstanceId, const FInputDeviceId& InputDeviceId) const
+void FJoystickInputDevice::JoystickUnplugged(const FJoystickInstanceId& InstanceId, const FInputDeviceId& InputDeviceId)
 {
 	UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
 	if (!IsValid(JoystickInputSettings))
@@ -507,6 +507,20 @@ void FJoystickInputDevice::JoystickUnplugged(const FJoystickInstanceId& Instance
 		NotifyDeviceState(InputDeviceId, NewUserToAssign, EInputDeviceConnectionState::Disconnected);
 	}
 #endif
+
+	RemoveDeviceKeys(InstanceId);
+}
+
+void FJoystickInputDevice::RemoveDeviceKeys(const FJoystickInstanceId& InstanceId)
+{
+	DeviceButtonKeys.Remove(InstanceId);
+	DeviceAxisKeys.Remove(InstanceId);
+	DeviceHatAxisKeys.Remove(InstanceId);
+	DeviceHatAxisPairedKeys.Remove(InstanceId);
+	DeviceHatButtonKeys.Remove(InstanceId);
+	DeviceBallKeys.Remove(InstanceId);
+	DeviceBallPairedKeys.Remove(InstanceId);
+	DeviceKeys.Remove(InstanceId);
 }
 
 void FJoystickInputDevice::JoystickButton(const FJoystickInstanceId& InstanceId, const int Button, const bool Pressed)
@@ -676,7 +690,8 @@ void FJoystickInputDevice::SendControllerEvents()
 			continue;
 		}
 
-		FInputDeviceScope InputScope(this, JoystickInputInterfaceName, InstanceId, DeviceInfo.DeviceName);
+		const FString HardwareDeviceIdentifier = JoystickInputSettings->UseDeviceNameAsHardwareDeviceIdentifier ? DeviceInfo.DeviceName : "Joystick";
+		FInputDeviceScope InputScope(this, JoystickInputInterfaceName, InstanceId, HardwareDeviceIdentifier);
 
 		// Axis
 		if (DeviceAxisKeys.Contains(InstanceId))

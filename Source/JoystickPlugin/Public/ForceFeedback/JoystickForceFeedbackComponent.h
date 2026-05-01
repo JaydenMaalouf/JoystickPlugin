@@ -23,10 +23,14 @@ public:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void SetComponentTickEnabled(bool bEnabled) override;
 
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3
 	virtual void AsyncPhysicsTickComponent(float DeltaTime, float SimTime) override;
 #endif
+
+	UFUNCTION(BlueprintCallable, Category="Joystick|Force Feedback Component")
+	void SetTickable(const bool bTickable);
 
 	UFUNCTION(BlueprintNativeEvent, Category="Joystick|Force Feedback Component|Events")
 	void OnInitialisedEffect(const UForceFeedbackEffectBase* Effect);
@@ -63,6 +67,12 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Joystick|Force Feedback Component")
 	TArray<UForceFeedbackEffectBase*> Effects;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Joystick|Force Feedback Component")
+	bool Running;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Joystick|Force Feedback Component")
+	bool Tickable;
 
 private:
 	UFUNCTION()

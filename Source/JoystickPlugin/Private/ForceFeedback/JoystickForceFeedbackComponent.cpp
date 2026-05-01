@@ -11,6 +11,7 @@
 UJoystickForceFeedbackComponent::UJoystickForceFeedbackComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 	  , InstanceId(-1)
+	  , Tickable(true)
 {
 	bAutoActivate = true;
 	PrimaryComponentTick.bCanEverTick = true;
@@ -83,6 +84,13 @@ void UJoystickForceFeedbackComponent::TickComponent(const float DeltaTime, const
 	TickEffects(DeltaTime);
 }
 
+void UJoystickForceFeedbackComponent::SetComponentTickEnabled(const bool bEnabled)
+{
+	Super::SetComponentTickEnabled(bEnabled);
+
+	Running = bEnabled;
+}
+
 #if (ENGINE_MAJOR_VERSION > 5) || (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
 void UJoystickForceFeedbackComponent::AsyncPhysicsTickComponent(const float DeltaTime, const float SimTime)
 {
@@ -97,8 +105,54 @@ void UJoystickForceFeedbackComponent::AsyncPhysicsTickComponent(const float Delt
 }
 #endif
 
+
+void UJoystickForceFeedbackComponent::SetTickable(const bool bTickable)
+{
+	Tickable = bTickable;
+	if (Running)
+	{
+		if (Tickable)
+		{
+			ActionOnAllEffects([](UForceFeedbackEffectBase* Effect)
+			{
+				Effect->StartEffect();
+			});
+		}
+		else
+		{
+			ActionOnAllEffects([](UForceFeedbackEffectBase* Effect)
+			{
+				Effect->StopEffect();
+			});
+		}
+	}
+}
+
+void UJoystickForceFeedbackComponent::OnSubsystemReady()
+{
+	CreateEffects();
+
+	if (!IsValid(GEngine))
+	{
+		return;
+	}
+
+	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
+	if (!IsValid(JoystickSubsystem))
+	{
+		return;
+	}
+
+	JoystickSubsystem->JoystickSubsystemReady.RemoveDynamic(this, &UJoystickForceFeedbackComponent::OnSubsystemReady);
+}
+
 void UJoystickForceFeedbackComponent::TickEffects(const float DeltaTime)
 {
+	if (!Running || !Tickable)
+	{
+		return;
+	}
+
 	if (!Configuration.OverrideEffectTick)
 	{
 		return;
@@ -124,24 +178,6 @@ void UJoystickForceFeedbackComponent::TickEffects(const float DeltaTime)
 
 		ForcedFeedbackEffect->Tick(DeltaTime);
 	}
-}
-
-void UJoystickForceFeedbackComponent::OnSubsystemReady()
-{
-	CreateEffects();
-
-	if (!IsValid(GEngine))
-	{
-		return;
-	}
-
-	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
-	if (!IsValid(JoystickSubsystem))
-	{
-		return;
-	}
-
-	JoystickSubsystem->JoystickSubsystemReady.RemoveDynamic(this, &UJoystickForceFeedbackComponent::OnSubsystemReady);
 }
 
 void UJoystickForceFeedbackComponent::CreateEffects()
@@ -297,6 +333,7 @@ TArray<UForceFeedbackEffectBase*> UJoystickForceFeedbackComponent::GetEffects() 
 
 void UJoystickForceFeedbackComponent::StartEffect()
 {
+	Running = true;
 	ActionOnAllEffects([](UForceFeedbackEffectBase* Effect)
 	{
 		Effect->StartEffect();
@@ -305,6 +342,7 @@ void UJoystickForceFeedbackComponent::StartEffect()
 
 void UJoystickForceFeedbackComponent::StopEffect()
 {
+	Running = false;
 	ActionOnAllEffects([](UForceFeedbackEffectBase* Effect)
 	{
 		Effect->StopEffect();

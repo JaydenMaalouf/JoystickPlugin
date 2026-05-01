@@ -18,7 +18,8 @@ THIRD_PARTY_INCLUDES_END
 struct FDeviceInfoSDL : FJoystickInformation
 {
 	FDeviceInfoSDL()
-		: Connected(false)
+		: DeviceIndex(-1)
+		  , Connected(false)
 		  , SDLHaptic(nullptr)
 		  , SDLJoystick(nullptr)
 		  , SDLGameController(nullptr)
@@ -47,6 +48,7 @@ struct FDeviceInfoSDL : FJoystickInformation
 		return PlatformUserId;
 	}
 
+	int DeviceIndex;
 	bool Connected;
 	SDL_Haptic* SDLHaptic;
 	SDL_Joystick* SDLJoystick;

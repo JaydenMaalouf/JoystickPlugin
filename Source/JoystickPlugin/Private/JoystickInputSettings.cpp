@@ -14,6 +14,10 @@
 UJoystickInputSettings::UJoystickInputSettings() : UseDeviceName(true),
                                                    IncludeDeviceIndex(false),
                                                    IgnoreGameControllers(false),
+                                                   AllowDuplicateHashedDevices(true),
+                                                   PrioritiseCollectionIndex(false),
+                                                   PrioritisationMethod(EJoystickPrioritisationType::Lowest),
+                                                   UseDeviceNameAsHardwareDeviceIdentifier(false),
                                                    ZeroBasedIndexing(true),
                                                    EnableLogs(true),
                                                    EnablePairedKeys(false)
@@ -50,9 +54,9 @@ bool UJoystickInputSettings::GetIgnoreGameControllers() const
 
 bool UJoystickInputSettings::SetIgnoreGameControllers(const bool NewIgnoreGameControllers)
 {
-	const bool OldIgnoreGameControllers = IgnoreGameControllers;
+	const bool Changed = IgnoreGameControllers != NewIgnoreGameControllers;
 	IgnoreGameControllers = NewIgnoreGameControllers;
-	return OldIgnoreGameControllers != NewIgnoreGameControllers;
+	return Changed;
 }
 
 FJoystickInputDeviceConfiguration* UJoystickInputSettings::GetDeviceConfiguration(const FJoystickInformation& Device)

@@ -62,6 +62,12 @@ public:
 	int GetConnectedJoystickCount() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure=false, Category="Joystick", meta=(ToolTip="The raw input state of the specified joystick."))
+	float GetAxisKeyValue(const FKey& Key) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure=false, Category="Joystick", meta=(ToolTip="The raw input state of the specified joystick."))
+	float GetAxisKeyMockValue(const FKey& Key, const FJoystickInputDeviceAxisProperties& AxisProperties) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure=false, Category="Joystick", meta=(ToolTip="The raw input state of the specified joystick."))
 	bool GetJoystickState(const FJoystickInstanceId& InstanceId, FJoystickDeviceState& JoystickDeviceState) const;
 
 	UFUNCTION(BlueprintCallable, Category="Joystick")
@@ -129,12 +135,14 @@ public:
 
 private:
 	static int HandleSDLEvent(void* UserData, SDL_Event* Event);
+	bool AddDeviceByIndex(int DeviceIndex);
 
-	bool AddDevice(const int DeviceIndex);
+	bool AddDevice(FDeviceInfoSDL& Device);
 	void AddHapticDevice(FDeviceInfoSDL& Device) const;
 	void AddSensorDevice(FDeviceInfoSDL& Device) const;
 	bool RemoveDevice(const FJoystickInstanceId& InstanceId);
 	bool RemoveDeviceByIndex(const int DeviceIndex);
+	void CloseDeviceHandles(FDeviceInfoSDL& Device) const;
 
 	bool FindExistingDevice(const FDeviceInfoSDL& Device, FJoystickInstanceId& PreviousJoystickInstanceId, FInputDeviceId& ExistingInputDeviceId, FPlatformUserId& ExistingPlatformUserId);
 
@@ -145,8 +153,10 @@ private:
 
 	void LoadGameControllerMappings() const;
 
+	bool BuildDeviceInfoForIndex(const int DeviceIndex, FDeviceInfoSDL& Device) const;
 	void ConvertSDLGuid(const SDL_JoystickGUID& SdlGuid, FGuid& OutGuid) const;
 	FString GenerateDeviceHash(const FDeviceInfoSDL& Device) const;
+	int CollectionIndexFromPath(const FString& Path) const;
 
 	TMap<FJoystickInstanceId, FDeviceInfoSDL> Devices;
 

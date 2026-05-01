@@ -309,11 +309,11 @@ void UJoystickInputSelector::SetTextBlockVisibility(const ESlateVisibility InVis
 	}
 }
 
-void UJoystickInputSelector::HandleIsSelectingChanged() const
+void UJoystickInputSelector::HandleIsSelectingChanged(const bool Selecting) const
 {
 	if (OnIsSelectingChanged.IsBound())
 	{
-		OnIsSelectingChanged.Broadcast();
+		OnIsSelectingChanged.Broadcast(Selecting);
 	}
 }
 

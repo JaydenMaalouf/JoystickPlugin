@@ -4,6 +4,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Blueprint/UserWidget.h"
 #include "UObject/ObjectMacros.h"
 #include "Framework/Commands/InputChord.h"
 #include "Fonts/SlateFontInfo.h"
@@ -20,11 +21,11 @@ struct FButtonStyle;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnKeySelected, FInputChord, SelectedKey);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnIsSelectingChanged);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnIsSelectingChanged, bool, Selecting);
 
 /** A widget for selecting a single key or a single key with a modifier. */
 UCLASS()
-class JOYSTICKPLUGIN_API UJoystickInputSelector : public UWidget
+class JOYSTICKPLUGIN_API UJoystickInputSelector : public UUserWidget
 {
 	GENERATED_BODY()
 
@@ -199,7 +200,7 @@ protected:
 
 private:
 	virtual void HandleKeySelected(const FInputChord& InSelectedKey);
-	void HandleIsSelectingChanged() const;
+	void HandleIsSelectingChanged(bool Selecting) const;
 
 	/** The input key selector widget managed by this object. */
 	TSharedPtr<SJoystickInputSelector> JoystickInputSelector;

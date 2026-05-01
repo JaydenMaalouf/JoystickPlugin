@@ -25,7 +25,7 @@ class JOYSTICKPLUGIN_API SJoystickInputSelector : public SCompoundWidget
 {
 public:
 	DECLARE_DELEGATE_OneParam(FOnKeySelected, const FInputChord&)
-	DECLARE_DELEGATE(FOnIsSelectingChanged)
+	DECLARE_DELEGATE_OneParam(FOnIsSelectingChanged, bool)
 
 	SLATE_BEGIN_ARGS(SJoystickInputSelector)
 			: _SelectedKey(FInputChord(EKeys::Invalid))
@@ -107,7 +107,7 @@ public:
 	void SetMargin(const TAttribute<FMargin>& InMargin);
 
 	/** Sets the style of the button which is used enter key selection mode. */
-	void SetButtonStyle(const FButtonStyle* ButtonStyle) const;
+	void SetButtonStyle(const FButtonStyle* InButtonStyle) const;
 
 	/** Sets the style of the text on the button which is used enter key selection mode. */
 	void SetTextStyle(const FTextBlockStyle* InTextStyle) const;

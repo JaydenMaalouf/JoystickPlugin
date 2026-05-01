@@ -6,6 +6,7 @@
 #include "Data/JoystickInformation.h"
 #include "Data/Settings/JoystickInputKeyConfiguration.h"
 #include "InputCoreTypes.h"
+#include "Data/Settings/JoystickPrioritisationType.h"
 
 #include "JoystickInputSettings.generated.h"
 
@@ -30,7 +31,23 @@ public:
 	UPROPERTY(config, EditAnywhere, Category="Joystick Settings", meta=(ToolTip="Useful if you want input for controllers (ie. XInput) to be handled by UE directly, instead of via this plugin.", ConfigRestartRequired=true))
 	bool IgnoreGameControllers;
 
-	UPROPERTY(config, EditAnywhere, Category="Joystick Settings", meta=(ToolTip="Key name indexes should start from 0 (if false, starts from 1)", ConfigRestartRequired=true))
+	UPROPERTY(config, EditAnywhere, Category="Joystick Settings|Advanced", meta=(ToolTip="If false, will not add a Joystick if a mapped device with the same hash exists.", ConfigRestartRequired=true))
+	bool AllowDuplicateHashedDevices;
+
+	UPROPERTY(config, EditAnywhere, Category="Joystick Settings|Advanced", DisplayName="Prioritise Devices by Collection Index",
+		meta=(ToolTip="If true, will skip devices with the same GUID based on the driver collection index prioritisation method. Useful for drivers that map multiple devices for the same GUID.",
+			EditConditionHides, ConfigRestartRequired=true))
+	bool PrioritiseCollectionIndex;
+
+	UPROPERTY(config, EditAnywhere, Category="Joystick Settings|Advanced",
+		meta=(ToolTip="The prioritisation method to use.", EditCondition="PrioritiseCollectionIndex", ConfigRestartRequired=true))
+	EJoystickPrioritisationType PrioritisationMethod;
+
+	UPROPERTY(config, EditAnywhere, Category="Joystick Settings|Advanced",
+		meta=(ToolTip="Use the device name as the hardware device identifier. Useful if you need specific hardware identification (ie. for icons).", ConfigRestartRequired=true))
+	bool UseDeviceNameAsHardwareDeviceIdentifier;
+
+	UPROPERTY(config, EditAnywhere, Category="Joystick Settings|Advanced", meta=(ToolTip="Key name indexes should start from 0 (if false, starts from 1)", ConfigRestartRequired=true))
 	bool ZeroBasedIndexing;
 
 	UPROPERTY(config, EditAnywhere, Category="Joystick Settings|Debugging", meta=(ToolTip="Enable debug logging from the plugin."))

@@ -39,8 +39,8 @@ struct JOYSTICKPLUGIN_API FAxisData
 		const float OffsetNormalizedValue = InvertedInput + AxisProperties.InputOffset;
 		if (AxisProperties.RerangeInput || AxisProperties.RerangeOutput)
 		{
-			const float MappedValue = FMath::GetMappedRangeValueClamped(FVector2D(InputRangeMin, InputRangeMax), FVector2D(OutputRangeMin, OutputRangeMax), OffsetNormalizedValue);
-			return InvertOutput ? -MappedValue : MappedValue;
+			const float MappedValue = FMath::GetMappedRangeValueClamped(FVector2D(AxisProperties.InputRangeMin, AxisProperties.InputRangeMax), FVector2D(AxisProperties.OutputRangeMin, AxisProperties.OutputRangeMax), OffsetNormalizedValue);
+			return AxisProperties.InvertOutput ? -MappedValue : MappedValue;
 		}
 		return AxisProperties.InvertOutput ? -OffsetNormalizedValue : OffsetNormalizedValue;
 	}
