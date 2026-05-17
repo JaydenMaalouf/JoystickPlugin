@@ -1,0 +1,255 @@
+name: Blueprint Category Check ✨
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+    paths:
+      - "**/*.h"
+
+jobs:
+  check-u-macro-categories:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify UPROPERTY and UFUNCTION categories
+        shell: pwsh
+        run: |
+          function Remove-CppCommentsPreservingLines {
+            param([string] $Text)
+
+            $builder = [System.Text.StringBuilder]::new()
+            $state = "Normal"
+            $escaped = $false
+
+            for ($i = 0; $i -lt $Text.Length; $i++) {
+              $char = $Text[$i]
+              $next = if ($i + 1 -lt $Text.Length) { $Text[$i + 1] } else { [char]0 }
+
+              switch ($state) {
+                "Normal" {
+                  if ($char -eq "/" -and $next -eq "/") {
+                    [void]$builder.Append("  ")
+                    $i++
+                    $state = "LineComment"
+                  }
+                  elseif ($char -eq "/" -and $next -eq "*") {
+                    [void]$builder.Append("  ")
+                    $i++
+                    $state = "BlockComment"
+                  }
+                  elseif ($char -eq '"') {
+                    [void]$builder.Append($char)
+                    $state = "DoubleQuote"
+                    $escaped = $false
+                  }
+                  elseif ($char -eq "'") {
+                    [void]$builder.Append($char)
+                    $state = "SingleQuote"
+                    $escaped = $false
+                  }
+                  else {
+                    [void]$builder.Append($char)
+                  }
+                }
+                "LineComment" {
+                  if ($char -eq "`r" -or $char -eq "`n") {
+                    [void]$builder.Append($char)
+                    $state = "Normal"
+                  }
+                  else {
+                    [void]$builder.Append(" ")
+                  }
+                }
+                "BlockComment" {
+                  if ($char -eq "*" -and $next -eq "/") {
+                    [void]$builder.Append("  ")
+                    $i++
+                    $state = "Normal"
+                  }
+                  elseif ($char -eq "`r" -or $char -eq "`n") {
+                    [void]$builder.Append($char)
+                  }
+                  else {
+                    [void]$builder.Append(" ")
+                  }
+                }
+                "DoubleQuote" {
+                  [void]$builder.Append($char)
+                  if ($escaped) {
+                    $escaped = $false
+                  }
+                  elseif ($char -eq "\") {
+                    $escaped = $true
+                  }
+                  elseif ($char -eq '"') {
+                    $state = "Normal"
+                  }
+                }
+                "SingleQuote" {
+                  [void]$builder.Append($char)
+                  if ($escaped) {
+                    $escaped = $false
+                  }
+                  elseif ($char -eq "\") {
+                    $escaped = $true
+                  }
+                  elseif ($char -eq "'") {
+                    $state = "Normal"
+                  }
+                }
+              }
+            }
+
+            return $builder.ToString()
+          }
+
+          function Get-ParenBalance {
+            param([string] $Text)
+
+            $balance = 0
+            $state = "Normal"
+            $escaped = $false
+
+            for ($i = 0; $i -lt $Text.Length; $i++) {
+              $char = $Text[$i]
+
+              switch ($state) {
+                "Normal" {
+                  if ($char -eq '"') {
+                    $state = "DoubleQuote"
+                    $escaped = $false
+                  }
+                  elseif ($char -eq "'") {
+                    $state = "SingleQuote"
+                    $escaped = $false
+                  }
+                  elseif ($char -eq "(") {
+                    $balance++
+                  }
+                  elseif ($char -eq ")") {
+                    $balance--
+                  }
+                }
+                "DoubleQuote" {
+                  if ($escaped) {
+                    $escaped = $false
+                  }
+                  elseif ($char -eq "\") {
+                    $escaped = $true
+                  }
+                  elseif ($char -eq '"') {
+                    $state = "Normal"
+                  }
+                }
+                "SingleQuote" {
+                  if ($escaped) {
+                    $escaped = $false
+                  }
+                  elseif ($char -eq "\") {
+                    $escaped = $true
+                  }
+                  elseif ($char -eq "'") {
+                    $state = "Normal"
+                  }
+                }
+              }
+            }
+
+            return $balance
+          }
+
+          function Get-AccessSpecifier {
+            param(
+              [string] $Line,
+              [string] $CurrentAccess
+            )
+
+            $accessMatch = [regex]::Match($Line, "^\s*(public|protected|private)\s*:")
+            if ($accessMatch.Success) {
+              return $accessMatch.Groups[1].Value
+            }
+
+            if ($Line -match "^\s*(UCLASS|USTRUCT)\b") {
+              return $CurrentAccess
+            }
+
+            if ($Line -match "\bclass\b.*\{") {
+              return "private"
+            }
+
+            if ($Line -match "\bstruct\b.*\{") {
+              return "public"
+            }
+
+            return $CurrentAccess
+          }
+
+          $files = git ls-files "*.h"
+          $violations = @()
+
+          foreach ($file in $files) {
+            $text = Get-Content -LiteralPath $file -Raw
+            $text = Remove-CppCommentsPreservingLines -Text $text
+            $lines = $text -split "`r?`n"
+            $currentAccess = "private"
+
+            for ($lineIndex = 0; $lineIndex -lt $lines.Count; $lineIndex++) {
+              $line = $lines[$lineIndex]
+              $currentAccess = Get-AccessSpecifier -Line $line -CurrentAccess $currentAccess
+              $match = [regex]::Match($line, "\b(UFUNCTION|UPROPERTY)\s*\(")
+
+              if (-not $match.Success) {
+                continue
+              }
+
+              $macroName = $match.Groups[1].Value
+              $startLine = $lineIndex + 1
+              $macroText = ""
+              $balance = 0
+
+              do {
+                $currentLine = $lines[$lineIndex]
+                $macroText += $currentLine + "`n"
+                $balance += Get-ParenBalance -Text $currentLine
+                $lineIndex++
+              } while ($lineIndex -lt $lines.Count -and $balance -gt 0)
+
+              $lineIndex--
+
+              if ($currentAccess -eq "private") {
+                continue
+              }
+
+              if ($macroName -eq "UFUNCTION" -and $macroText -match "(^|[,\s(])BlueprintNativeEvent([,\s)]|$)") {
+                continue
+              }
+
+              if ($macroText -notmatch "(^|[,\s(])Category\s*=") {
+                $violations += [pscustomobject]@{
+                  File = $file
+                  Line = $startLine
+                  Macro = $macroName
+                }
+              }
+            }
+          }
+
+          if ($violations.Count -gt 0) {
+            foreach ($violation in $violations) {
+              Write-Host "::error file=$($violation.File),line=$($violation.Line)::$($violation.Macro) is missing a Category specifier."
+            }
+
+            Write-Host ""
+            Write-Host "Found $($violations.Count) UPROPERTY/UFUNCTION macro(s) without Category."
+            exit 1
+          }
+
+          Write-Host "All UPROPERTY and UFUNCTION macros in .h files have Category specifiers."
