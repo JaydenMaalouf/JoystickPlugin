@@ -119,4 +119,5 @@ runs:
         make -j$(nproc)
 
         mkdir -p "$SDL_OUTPUT_DIR/Source/ThirdParty/SDL3/Linux"
-        install -Dm755 "$(readlink -f libSDL3.so)" "$SDL_OUTPUT_DIR/Source/ThirdParty/SDL3/Linux/libSDL3.so"
+        SDL_REAL_LIBRARY="$(readlink -f libSDL3.so)"
+        install -Dm755 "$SDL_REAL_LIBRARY" "$SDL_OUTPUT_DIR/Source/ThirdParty/SDL3/Linux/libSDL3.so.0"

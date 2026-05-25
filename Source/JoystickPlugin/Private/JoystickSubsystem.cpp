@@ -41,8 +41,7 @@ void UJoystickSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
-	UJoystickProfileManager* JoystickProfileManager = GetMutableDefault<UJoystickProfileManager>();
-	if (IsValid(JoystickProfileManager))
+	if (UJoystickProfileManager* JoystickProfileManager = GetMutableDefault<UJoystickProfileManager>())
 	{
 		JoystickProfileManager->LoadJoystickProfiles();
 	}

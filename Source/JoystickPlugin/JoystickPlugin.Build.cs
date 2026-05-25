@@ -66,10 +66,16 @@ public class JoystickPlugin : ModuleRules
 		else if (Target.Platform == UnrealTargetPlatform.Linux)
 		{
 			var LinuxPath = Path.Combine(SdlDirectory, "Linux");
-			var SdlSoPath = Path.Combine(LinuxPath, "libSDL3.so");
+			var SdlSoPath = Path.Combine(LinuxPath, "libSDL3.so.0");
+
+			if (!File.Exists(SdlSoPath))
+			{
+				throw new BuildException(
+					"SDL3 Linux binaries not found. Expected:\n" +
+					$"  {SdlSoPath}");
+			}
 
 			PublicAdditionalLibraries.Add(SdlSoPath);
-
 			RuntimeDependencies.Add(SdlSoPath, StagedFileType.NonUFS);
 		}
 		else if (Target.Platform == UnrealTargetPlatform.Mac)

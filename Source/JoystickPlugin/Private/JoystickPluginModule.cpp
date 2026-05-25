@@ -43,7 +43,7 @@ void FJoystickPluginModule::StartupModule()
 	FPlatformProcess::PopDllDirectory(*SdlDir);
 #elif PLATFORM_LINUX
 	const FString SdlDir = FPaths::Combine(PluginThirdPartyDirectory, TEXT("SDL3"), TEXT("Linux"));
-	const FString SdlSoPath = FPaths::Combine(SdlDir, "libSDL3.so");
+	const FString SdlSoPath = FPaths::Combine(SdlDir, "libSDL3.so.0");
 
 	SdlDllHandle = dlopen(TCHAR_TO_UTF8(*SdlSoPath), RTLD_LOCAL | RTLD_LAZY | RTLD_DEEPBIND);
 #elif PLATFORM_MAC
