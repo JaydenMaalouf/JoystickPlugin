@@ -66,7 +66,10 @@ runs:
 
         cmake .. \
           -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
-          -DCMAKE_OSX_DEPLOYMENT_TARGET=14.0
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=14.0 \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DSDL_TESTS=OFF \
+          -DSDL_EXAMPLES=OFF
 
         make -j$(sysctl -n hw.ncpu)
 
@@ -85,7 +88,9 @@ runs:
         New-Item -Path $buildDir -ItemType Directory -Force | Out-Null
         New-Item -Path $outputDir -ItemType Directory -Force | Out-Null
 
-        cmake -S $sourceRoot -B $buildDir -A x64
+        cmake -S $sourceRoot -B $buildDir -A x64 `
+          -DSDL_TESTS=OFF `
+          -DSDL_EXAMPLES=OFF
         cmake --build $buildDir --config Release --parallel
 
         Copy-Item -Path (Join-Path $buildDir 'Release/SDL3.dll') -Destination $outputDir -Force
@@ -102,7 +107,14 @@ runs:
         mkdir build
         cd build
 
-        cmake ..
+        cmake .. \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+          -DSDL_UNIX_CONSOLE_BUILD=ON \
+          -DSDL_SHARED=ON \
+          -DSDL_STATIC=OFF \
+          -DSDL_TESTS=OFF \
+          -DSDL_EXAMPLES=OFF
         make -j$(nproc)
 
         mkdir -p "$SDL_OUTPUT_DIR/Source/ThirdParty/SDL3/Linux"
