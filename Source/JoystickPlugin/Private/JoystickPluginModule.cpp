@@ -48,9 +48,9 @@ void FJoystickPluginModule::StartupModule()
 	SdlDllHandle = dlopen(TCHAR_TO_UTF8(*SdlSoPath), RTLD_LOCAL | RTLD_LAZY | RTLD_DEEPBIND);
 #elif PLATFORM_MAC
 	const FString SdlDir = FPaths::Combine(PluginThirdPartyDirectory, TEXT("SDL3"), TEXT("Mac"));
-	const FString SdlDylibPath = FPaths::Combine(SdlDir, "libSDL2-2.0.0.dylib");
+	const FString SdlDylibPath = FPaths::Combine(SdlDir, "libSDL3.0.dylib");
 
-	SdlDllHandle = dlopen(TCHAR_TO_UTF8(*SdlDylibPath), RTLD_LOCAL | RTLD_LAZY | RTLD_DEEPBIND);
+	SdlDllHandle = FPlatformProcess::GetDllHandle(*SdlDylibPath);
 #endif
 
 	IJoystickPlugin::StartupModule();
@@ -58,7 +58,7 @@ void FJoystickPluginModule::StartupModule()
 
 void FJoystickPluginModule::ShutdownModule()
 {
-#if PLATFORM_WINDOWS
+#if PLATFORM_WINDOWS || PLATFORM_MAC
 	FPlatformProcess::FreeDllHandle(SdlDllHandle);
 #endif
 

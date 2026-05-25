@@ -75,7 +75,7 @@ public class JoystickPlugin : ModuleRules
 		else if (Target.Platform == UnrealTargetPlatform.Mac)
 		{
 			var LinuxPath = Path.Combine(SdlDirectory, "Mac");
-			var SdlDylibPath = Path.Combine(LinuxPath, "libSDL2-2.0.0.dylib");
+			var SdlDylibPath = Path.Combine(LinuxPath, "libSDL3.0.dylib");
 
 			PublicAdditionalLibraries.Add(SdlDylibPath);
 

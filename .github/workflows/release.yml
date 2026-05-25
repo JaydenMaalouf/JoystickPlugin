@@ -11,8 +11,42 @@ on:
       - master
 
 jobs:
+  build-sdl:
+    name: Build SDL3 - ${{ matrix.platform }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: Win64
+            runner: windows-latest
+            includeHeaders: true
+          - platform: Mac
+            runner: macos-14
+            includeHeaders: false
+          - platform: Linux
+            runner: ubuntu-latest
+            includeHeaders: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build SDL3
+        uses: ./.github/actions/build-sdl
+        with:
+          platform: ${{ matrix.platform }}
+          sdlVersion: '3.4.8'
+          outputDirectory: ${{ runner.temp }}/sdl3-${{ matrix.platform }}
+          includeHeaders: ${{ matrix.includeHeaders }}
+      - name: Upload SDL3 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdl3-${{ matrix.platform }}
+          path: ${{ runner.temp }}/sdl3-${{ matrix.platform }}/Source/ThirdParty/SDL3
+          if-no-files-found: error
+
   release-plugin:
-    runs-on: self-hosted
+    runs-on: [self-hosted, Windows]
+    needs: build-sdl
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -22,12 +56,27 @@ jobs:
         uses: ./.github/actions/version
         with:
           prerelease: ${{ github.ref != 'refs/heads/master' }}
+      - name: Download SDL3 artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: sdl3-*
+          path: ${{ runner.temp }}/sdl3-artifacts
+      - name: Copy SDL3 artifacts to plugin
+        shell: pwsh
+        run: |
+          $artifactRoot = Join-Path $env:RUNNER_TEMP 'sdl3-artifacts'
+          $targetDir    = Join-Path '${{ github.workspace }}' 'Source/ThirdParty/SDL3'
+
+          New-Item -Path $targetDir -ItemType Directory -Force | Out-Null
+
+          Get-ChildItem -Path $artifactRoot -Directory | ForEach-Object {
+            Copy-Item -Path (Join-Path $_.FullName '*') -Destination $targetDir -Recurse -Force
+          }
       - name: Package Plugin - 5.4
         uses: ./.github/actions/package
         with:
           engineVersion: '5.4'
           releaseVersion: ${{ steps.gitversion.outputs.semVer }}
-          epicGamesDirectory: ${{ secrets.EPIC_GAMES_DIRECTORY }}
           launcherDirectory: ${{ secrets.LAUNCHER_DIRECTORY }}
           controllerDbUrl: ${{ vars.CONTROLLERDB_URL }}
       - name: Package Plugin - 5.5
@@ -35,7 +84,6 @@ jobs:
         with:
           engineVersion: '5.5'
           releaseVersion: ${{ steps.gitversion.outputs.semVer }}
-          epicGamesDirectory: ${{ secrets.EPIC_GAMES_DIRECTORY }}
           launcherDirectory: ${{ secrets.LAUNCHER_DIRECTORY }}
           controllerDbUrl: ${{ vars.CONTROLLERDB_URL }}
       - name: Package Plugin - 5.6
@@ -43,7 +91,6 @@ jobs:
         with:
           engineVersion: '5.6'
           releaseVersion: ${{ steps.gitversion.outputs.semVer }}
-          epicGamesDirectory: ${{ secrets.EPIC_GAMES_DIRECTORY }}
           launcherDirectory: ${{ secrets.LAUNCHER_DIRECTORY }}
           controllerDbUrl: ${{ vars.CONTROLLERDB_URL }}
       - name: Package Plugin - 5.7
@@ -51,7 +98,6 @@ jobs:
         with:
           engineVersion: '5.7'
           releaseVersion: ${{ steps.gitversion.outputs.semVer }}
-          epicGamesDirectory: ${{ secrets.EPIC_GAMES_DIRECTORY }}
           launcherDirectory: ${{ secrets.LAUNCHER_DIRECTORY }}
           controllerDbUrl: ${{ vars.CONTROLLERDB_URL }}
       - name: Create Release

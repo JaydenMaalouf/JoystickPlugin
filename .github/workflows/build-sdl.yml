@@ -1,0 +1,42 @@
+name: Build SDL3
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/actions/build-sdl/**'
+      - '.github/workflows/build-sdl.yml'
+
+jobs:
+  build-sdl:
+    name: Build SDL3 - ${{ matrix.platform }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: Win64
+            runner: windows-latest
+            includeHeaders: true
+          - platform: Mac
+            runner: macos-14
+            includeHeaders: false
+          - platform: Linux
+            runner: ubuntu-latest
+            includeHeaders: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build SDL3
+        uses: ./.github/actions/build-sdl
+        with:
+          platform: ${{ matrix.platform }}
+          sdlVersion: '3.4.8'
+          outputDirectory: ${{ runner.temp }}/sdl3-${{ matrix.platform }}
+          includeHeaders: ${{ matrix.includeHeaders }}
+      - name: Upload SDL3 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdl3-${{ matrix.platform }}
+          path: ${{ runner.temp }}/sdl3-${{ matrix.platform }}/Source/ThirdParty/SDL3
+          if-no-files-found: error
