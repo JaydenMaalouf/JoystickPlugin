@@ -29,16 +29,28 @@ TSharedPtr<IInputDevice> FJoystickPluginModule::CreateInputDevice(const TSharedR
 
 void FJoystickPluginModule::StartupModule()
 {
-	PluginDirectory = IPluginManager::Get().FindPlugin(PluginName)->GetBaseDir();
+	const FString BaseDirectory = IPluginManager::Get().FindPlugin(PluginName)->GetBaseDir();
+	PluginDirectory = FPaths::ConvertRelativePathToFull(BaseDirectory);
 	PluginSourceDirectory = FPaths::Combine(PluginDirectory, TEXT("Source"));
 	PluginThirdPartyDirectory = FPaths::Combine(PluginSourceDirectory, TEXT("ThirdParty"));
+
 #if PLATFORM_WINDOWS
-	const FString SdlDir = FPaths::Combine(*PluginThirdPartyDirectory, TEXT("SDL2"), TEXT("Win64"));
+	const FString SdlDir = FPaths::Combine(PluginThirdPartyDirectory, TEXT("SDL3"), TEXT("Win64"));
+	const FString SdlDllDir = FPaths::Combine(SdlDir, "SDL3.dll");
 
 	FPlatformProcess::PushDllDirectory(*SdlDir);
-	const FString SdlDllDir = FPaths::Combine(SdlDir, "SDL2.dll");
 	SdlDllHandle = FPlatformProcess::GetDllHandle(*SdlDllDir);
 	FPlatformProcess::PopDllDirectory(*SdlDir);
+#elif PLATFORM_LINUX
+	const FString SdlDir = FPaths::Combine(PluginThirdPartyDirectory, TEXT("SDL3"), TEXT("Linux"));
+	const FString SdlSoPath = FPaths::Combine(SdlDir, "libSDL3.so");
+
+	SdlDllHandle = dlopen(TCHAR_TO_UTF8(*SdlSoPath), RTLD_LOCAL | RTLD_LAZY | RTLD_DEEPBIND);
+#elif PLATFORM_MAC
+	const FString SdlDir = FPaths::Combine(PluginThirdPartyDirectory, TEXT("SDL3"), TEXT("Mac"));
+	const FString SdlDylibPath = FPaths::Combine(SdlDir, "libSDL2-2.0.0.dylib");
+
+	SdlDllHandle = dlopen(TCHAR_TO_UTF8(*SdlDylibPath), RTLD_LOCAL | RTLD_LAZY | RTLD_DEEPBIND);
 #endif
 
 	IJoystickPlugin::StartupModule();

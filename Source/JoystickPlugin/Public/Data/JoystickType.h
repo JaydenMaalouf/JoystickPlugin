@@ -9,7 +9,7 @@ UENUM(BlueprintType)
 enum class EJoystickType : uint8
 {
 	Unknown = 0,
-	GameController,
+	Gamepad,
 	Wheel,
 	ArcadeStick,
 	FlightStick,

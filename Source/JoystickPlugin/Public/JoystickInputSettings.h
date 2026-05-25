@@ -29,7 +29,7 @@ public:
 	bool IncludeDeviceIndex;
 
 	UPROPERTY(Config, EditAnywhere, Category="Joystick Settings", meta=(ToolTip="Useful if you want input for controllers (ie. XInput) to be handled by UE directly, instead of via this plugin.", ConfigRestartRequired=true))
-	bool IgnoreGameControllers;
+	bool IgnoreGamepads;
 
 	UPROPERTY(Config, EditAnywhere, Category="Joystick Settings|Advanced", meta=(ToolTip="If false, will not add a Joystick if a mapped device with the same hash exists.", ConfigRestartRequired=true))
 	bool AllowDuplicateHashedDevices;
@@ -87,8 +87,8 @@ public:
 
 	FString GetConnectedDeviceDisplayNameByConfiguration(const FJoystickInputDeviceConfiguration& DeviceConfiguration) const;
 
-	bool GetIgnoreGameControllers() const;
-	bool SetIgnoreGameControllers(const bool NewIgnoreGameControllers);
+	bool GetIgnoreGamepads() const;
+	bool SetIgnoreGamepads(const bool bIgnoreGamepads);
 
 	FJoystickInputDeviceConfiguration* GetDeviceConfiguration(const FJoystickInformation& Device);
 	FJoystickInputDeviceConfiguration* GetProfileConfiguration(const FJoystickInformation& Device);

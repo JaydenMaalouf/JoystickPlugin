@@ -100,17 +100,10 @@ void UForceFeedbackEffectBase::InitialiseEffect()
 	IsInitialised = true;
 
 	//Safety check to ensure we don't try calling BP during destruction
-#if ENGINE_MAJOR_VERSION == 5
 	if (IsValidChecked(this) == false || this->IsUnreachable())
 	{
 		return;
 	}
-#else
-	if (this->IsPendingKillOrUnreachable())
-	{
-		return;
-	}
-#endif
 
 	OnInitialisedEffect();
 	if (OnInitialisedEffectDelegate.IsBound())
@@ -131,7 +124,7 @@ void UForceFeedbackEffectBase::StartEffect()
 		return;
 	}
 
-	const int Status = GetEffectStatus();
+	const bool Status = GetEffectStatus();
 	if (Status == 1)
 	{
 		EffectRunning = true;
@@ -154,21 +147,14 @@ void UForceFeedbackEffectBase::StartEffect()
 	{
 		return;
 	}
-	StartTime = SDL_GetTicks64();
+	StartTime = SDL_GetTicks();
 	EffectRunning = true;
 
 	//Safety check to ensure we don't try calling BP during destruction
-#if ENGINE_MAJOR_VERSION == 5
 	if (IsValidChecked(this) == false || this->IsUnreachable())
 	{
 		return;
 	}
-#else
-	if (this->IsPendingKillOrUnreachable())
-	{
-		return;
-	}
-#endif
 
 	OnStartedEffect();
 	if (OnStartedEffectDelegate.IsBound())
@@ -199,17 +185,10 @@ void UForceFeedbackEffectBase::StopEffect()
 	EffectRunning = false;
 
 	//Safety check to ensure we don't try calling BP during destruction
-#if ENGINE_MAJOR_VERSION == 5
 	if (IsValidChecked(this) == false || this->IsUnreachable())
 	{
 		return;
 	}
-#else
-	if (this->IsPendingKillOrUnreachable())
-	{
-		return;
-	}
-#endif
 
 	OnStoppedEffect();
 	if (OnStoppedEffectDelegate.IsBound())
@@ -239,17 +218,10 @@ void UForceFeedbackEffectBase::DestroyEffect()
 	EffectRunning = false;
 
 	//Safety check to ensure we don't try calling BP during destruction
-#if ENGINE_MAJOR_VERSION == 5
 	if (IsValidChecked(this) == false || this->IsUnreachable())
 	{
 		return;
 	}
-#else
-	if (this->IsPendingKillOrUnreachable())
-	{
-		return;
-	}
-#endif
 
 	OnDestroyedEffect();
 	if (OnDestroyedEffectDelegate.IsBound())
@@ -274,17 +246,10 @@ void UForceFeedbackEffectBase::UpdateEffect()
 	}
 
 	//Safety check to ensure we don't try calling BP during destruction
-#if ENGINE_MAJOR_VERSION == 5
 	if (IsValidChecked(this) == false || this->IsUnreachable())
 	{
 		return;
 	}
-#else
-	if (this->IsPendingKillOrUnreachable())
-	{
-		return;
-	}
-#endif
 
 	OnUpdatedEffect();
 	if (OnUpdatedEffectDelegate.IsBound())
@@ -334,7 +299,7 @@ void UForceFeedbackEffectBase::TickEffect(const float DeltaTime)
 		if (CurrentTime - StartTime >= Duration)
 		{
 			// Effect should be finished but sometimes SDL2 doesn't handle the status correctly.
-			if (GetEffectStatus() == 0 || ForceStopAfterDurationLapsed)
+			if (GetEffectStatus() == true || ForceStopAfterDurationLapsed)
 			{
 				StopEffect();
 			}
@@ -346,12 +311,12 @@ void UForceFeedbackEffectBase::ReceivedTick_Implementation(const float DeltaTime
 {
 }
 
-int UForceFeedbackEffectBase::GetEffectStatus() const
+bool UForceFeedbackEffectBase::GetEffectStatus() const
 {
 	const UJoystickHapticDeviceManager* HapticDeviceManager = GetMutableDefault<UJoystickHapticDeviceManager>();
 	if (!IsValid(HapticDeviceManager))
 	{
-		return -1;
+		return false;
 	}
 
 	return HapticDeviceManager->GetEffectStatus(InstanceId, EffectId);

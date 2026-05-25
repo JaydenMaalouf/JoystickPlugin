@@ -1,6 +1,7 @@
 // JoystickPlugin is licensed under the MIT License.
 // Copyright Jayden Maalouf 2026. All Rights Reserved.
 
+using System;
 using System.IO;
 using System.Linq;
 using UnrealBuildTool;
@@ -12,51 +13,46 @@ public class JoystickPlugin : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new[]
 			{
+				"ApplicationCore",
+				"Chaos",
 				"Core",
 				"CoreUObject",
 				"Engine",
-				"SlateCore",
-				"Slate",
-				"ApplicationCore",
 				"InputCore",
 				"InputDevice",
-				"UMG",
+				"PhysicsCore",
 				"Projects",
-				"Chaos",
-				"PhysicsCore"
+				"Slate",
+				"SlateCore",
+				"UMG"
 			});
 
-		var PluginSdlPath = Path.Combine(PluginDirectory, "Source", "ThirdParty", "SDL2");
+		var ThirdPartyDirectory = Path.Combine(PluginDirectory, "Source", "ThirdParty");
+		var SdlDirectory = Path.Combine(ThirdPartyDirectory, "SDL3");
+		var SdlIncludeParentDirectory = Path.Combine(SdlDirectory, "include");
+		var SdlIncludeDirectory = Path.Combine(SdlIncludeParentDirectory, "SDL3");
 
-		var PluginIncludePath = Path.Combine(PluginSdlPath, "include");
-		var EngineIncludePath = Path.Combine(EngineDirectory, "Source", "ThirdParty", "SDL2", "SDL-gui-backend", "include");
-
-		var SdlIncludeDir =
-			Directory.Exists(EngineIncludePath) ? EngineIncludePath :
-			Directory.Exists(PluginIncludePath) ? PluginIncludePath :
-			null;
-
-		if (SdlIncludeDir == null)
+		if (!Directory.Exists(SdlIncludeDirectory))
 		{
 			throw new BuildException(
-				"SDL2 headers not found. Checked:\n" +
-				$"  Plugin: {PluginIncludePath}\n" +
-				$"  Engine: {EngineIncludePath}\n" +
-				"Ensure SDL2 is bundled in the plugin ThirdParty/SDL2/include or available in the Engine third-party path.");
+				"SDL headers not found. Checked:\n" +
+				$"  Plugin: {SdlIncludeDirectory}\n" +
+				"Ensure SDL3 is bundled in the plugin Source/ThirdParty/SDL3/include.");
 		}
 
-		PublicSystemIncludePaths.Add(SdlIncludeDir);
+		PublicSystemIncludePaths.Add(SdlIncludeDirectory);
+		PublicSystemIncludePaths.Add(SdlIncludeParentDirectory);
 
 		if (Target.Platform == UnrealTargetPlatform.Win64)
 		{
-			var Win64Path = Path.Combine(PluginSdlPath, "Win64");
-			var LibPath = Path.Combine(Win64Path, "SDL2.lib");
-			var DllPath = Path.Combine(Win64Path, "SDL2.dll");
+			var Win64Path = Path.Combine(SdlDirectory, "Win64");
+			var LibPath = Path.Combine(Win64Path, "SDL3.lib");
+			var DllPath = Path.Combine(Win64Path, "SDL3.dll");
 
 			if (!File.Exists(LibPath) || !File.Exists(DllPath))
 			{
 				throw new BuildException(
-					"SDL2 Win64 binaries not found. Expected:\n" +
+					"SDL3 Win64 binaries not found. Expected:\n" +
 					$"  {LibPath}\n" +
 					$"  {DllPath}");
 			}
@@ -65,11 +61,25 @@ public class JoystickPlugin : ModuleRules
 
 			RuntimeDependencies.Add(DllPath, StagedFileType.NonUFS);
 
-			PublicDelayLoadDLLs.Add("SDL2.dll");
+			PublicDelayLoadDLLs.Add("SDL3.dll");
 		}
 		else if (Target.Platform == UnrealTargetPlatform.Linux)
 		{
-			// SDL should be loaded as part of the engine
+			var LinuxPath = Path.Combine(SdlDirectory, "Linux");
+			var SdlSoPath = Path.Combine(LinuxPath, "libSDL3.so");
+
+			PublicAdditionalLibraries.Add(SdlSoPath);
+
+			RuntimeDependencies.Add(SdlSoPath, StagedFileType.NonUFS);
+		}
+		else if (Target.Platform == UnrealTargetPlatform.Mac)
+		{
+			var LinuxPath = Path.Combine(SdlDirectory, "Mac");
+			var SdlDylibPath = Path.Combine(LinuxPath, "libSDL2-2.0.0.dylib");
+
+			PublicAdditionalLibraries.Add(SdlDylibPath);
+
+			RuntimeDependencies.Add(SdlDylibPath, StagedFileType.NonUFS);
 		}
 
 		var ProfilesDirectory = Path.Combine(PluginDirectory, "Profiles");
@@ -80,11 +90,12 @@ public class JoystickPlugin : ModuleRules
 			RuntimeDependencies.Add(ProfileFiles);
 		}
 
-		var GameControllerDbFile = Path.Combine(PluginDirectory, "ThirdParty", "gamecontrollerdb.txt");
+		var GameControllerDbFile = Path.Combine(ThirdPartyDirectory, "gamecontrollerdb.txt");
 		if (File.Exists(GameControllerDbFile))
 		{
 			// Add gamecontrollerdb.txt to runtime deps
 			RuntimeDependencies.Add(GameControllerDbFile);
+			Console.WriteLine("Successfully loaded GameControllerDb");
 		}
 	}
 }

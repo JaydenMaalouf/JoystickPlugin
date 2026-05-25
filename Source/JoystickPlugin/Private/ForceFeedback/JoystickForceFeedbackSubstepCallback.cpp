@@ -20,6 +20,6 @@ void FJoystickForceFeedbackSubstepCallback::OnPreSimulate_Internal()
 
 FName FJoystickForceFeedbackSubstepCallback::GetFNameForStatId() const
 {
-	static const FLazyName StaticName(TEXT("FJoystickForceFeedbackSubstepCallback"));
+	static constexpr FLazyName StaticName(TEXT("FJoystickForceFeedbackSubstepCallback"));
 	return StaticName;
 }

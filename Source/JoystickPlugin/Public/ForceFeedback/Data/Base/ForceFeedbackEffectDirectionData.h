@@ -60,11 +60,7 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectDirectionData
 			break;
 		default:
 		case EForceFeedbackDirectionType::SteeringAxis:
-#if ENGINE_MAJOR_VERSION == 5
 			HapticDirection.type = SDL_HAPTIC_STEERING_AXIS;
-#else
-			HapticDirection.type = SDL_HAPTIC_FIRST_AXIS;
-#endif
 			HapticDirection.dir[0] = 0;
 			HapticDirection.dir[1] = 0;
 			HapticDirection.dir[2] = 0;

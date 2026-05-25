@@ -64,7 +64,7 @@ bool UJoystickHIDManager::OpenHIDSerialNumber(const int32 VendorId, const int32 
 
 bool UJoystickHIDManager::OpenHIDPath(const FString& DevicePath, const bool Exclusive, FDeviceHID& Device)
 {
-	SDL_hid_device* HIDDevice = SDL_hid_open_path(TCHAR_TO_UTF8(*DevicePath), Exclusive);
+	SDL_hid_device* HIDDevice = SDL_hid_open_path(TCHAR_TO_UTF8(*DevicePath));
 	if (!HIDDevice)
 	{
 		FJoystickLogManager::Get()->LogSDLError(TEXT("SDL_hid_open_path failed"));
