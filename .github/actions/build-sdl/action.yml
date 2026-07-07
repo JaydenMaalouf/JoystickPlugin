@@ -97,7 +97,13 @@ runs:
           -DSDL_STATIC=OFF \
           -DSDL_TESTS=OFF \
           -DSDL_TEST_LIBRARY=OFF \
-          -DSDL_EXAMPLES=OFF
+          -DSDL_EXAMPLES=OFF \
+          -DSDL_AUDIO=OFF \
+          -DSDL_VIDEO=OFF \
+          -DSDL_POWER=OFF \
+          -DSDL_SENSOR=OFF \
+          -DSDL_DIALOG=OFF \
+          -DSDL_TRAY=OFF
         cmake --build "$BUILD_DIR" --parallel "$(sysctl -n hw.ncpu)"
 
         DYLIB="$BUILD_DIR/SDL3-build/libJoystickSDL3.0.dylib"
@@ -124,7 +130,13 @@ runs:
           -DSDL_STATIC=OFF `
           -DSDL_TESTS=OFF `
           -DSDL_TEST_LIBRARY=OFF `
-          -DSDL_EXAMPLES=OFF
+          -DSDL_EXAMPLES=OFF `
+          -DSDL_AUDIO=OFF `
+          -DSDL_VIDEO=OFF `
+          -DSDL_POWER=OFF `
+          -DSDL_SENSOR=OFF `
+          -DSDL_DIALOG=OFF `
+          -DSDL_TRAY=OFF
         cmake --build $buildDir --config Release --parallel
 
         $dllPath = Join-Path $buildDir 'SDL3-build/Release/JoystickSDL3.dll'
@@ -154,7 +166,13 @@ runs:
           -DSDL_STATIC=OFF \
           -DSDL_TESTS=OFF \
           -DSDL_TEST_LIBRARY=OFF \
-          -DSDL_EXAMPLES=OFF
+          -DSDL_EXAMPLES=OFF \
+          -DSDL_AUDIO=OFF \
+          -DSDL_VIDEO=OFF \
+          -DSDL_POWER=OFF \
+          -DSDL_SENSOR=OFF \
+          -DSDL_DIALOG=OFF \
+          -DSDL_TRAY=OFF
         cmake --build "$BUILD_DIR" --parallel "$(nproc)"
 
         SDL_REAL_LIBRARY="$(readlink -f "$BUILD_DIR/SDL3-build/libJoystickSDL3.so")"

@@ -10,7 +10,7 @@ LIBRARY="$1"
 UNDERSCORE="$2"
 shift 2
 
-EXPORTS=$(nm "$@" "$LIBRARY" | awk '{print $3}')
+EXPORTS=$(nm "$@" "$LIBRARY" | awk '{print $3}' | sed 's/@@.*//')
 
 STOCK=$(grep "^${UNDERSCORE}SDL_" <<< "$EXPORTS" || true)
 if [ -n "$STOCK" ]; then

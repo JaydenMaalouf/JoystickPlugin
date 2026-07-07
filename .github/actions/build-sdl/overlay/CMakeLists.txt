@@ -18,6 +18,18 @@ endif()
 add_subdirectory("${SDL_ACTUAL_SOURCE_DIR}" SDL3-build)
 set_target_properties(SDL3-shared PROPERTIES OUTPUT_NAME "JoystickSDL3")
 
+# SDL's own CMakeLists.txt unconditionally precompiles src/SDL_internal.h for
+# this target. On MSVC, the PCH's own force-include is placed on the command
+# line ahead of ours (below), so declarations pulled in through SDL_internal.h
+# (SDL_SetError, SDL_CreateProcessWithProperties, ...) get baked into the .pch
+# under their original, unprefixed names, while call sites in each .c file are
+# still renamed to JSP_SDL_x - the two disagree and MSVC fails with
+# "undefined; assuming extern returning int" followed by redefinition errors.
+# Disabling PCH for this target forces every translation unit to reprocess
+# SDL_internal.h from source, so our rename header is seen consistently
+# everywhere, matching the guarantee -include already gives us on GCC/Clang.
+set_target_properties(SDL3-shared PROPERTIES DISABLE_PRECOMPILE_HEADERS ON)
+
 # Force-include the JSP_ rename header on every SDL3-shared source file.
 # Setting this via the CFLAGS/OBJCFLAGS environment variable (so it lands in
 # CMAKE_C_FLAGS) does NOT reliably reach this target's actual compile
