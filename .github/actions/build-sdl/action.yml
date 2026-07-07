@@ -84,19 +84,19 @@ runs:
       run: |
         set -euo pipefail
 
-        # Force-includes the JSP_ rename header (dynapi was patched off above).
-        export CFLAGS="-include $SDL_PREFIX_HEADER"
-        export OBJCFLAGS="$CFLAGS"
-
         BUILD_DIR="$RUNNER_TEMP/sdl-build"
         rm -rf "$BUILD_DIR"
 
         cmake -S "${{ github.action_path }}/overlay" -B "$BUILD_DIR" \
           -DSDL_ACTUAL_SOURCE_DIR="$SDL_SOURCE_DIR" \
+          -DSDL_PREFIX_HEADER="$SDL_PREFIX_HEADER" \
           -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
           -DCMAKE_OSX_DEPLOYMENT_TARGET=14.0 \
           -DCMAKE_BUILD_TYPE=Release \
+          -DSDL_SHARED=ON \
+          -DSDL_STATIC=OFF \
           -DSDL_TESTS=OFF \
+          -DSDL_TEST_LIBRARY=OFF \
           -DSDL_EXAMPLES=OFF
         cmake --build "$BUILD_DIR" --parallel "$(sysctl -n hw.ncpu)"
 
@@ -117,12 +117,13 @@ runs:
         Remove-Item -Path $buildDir -Recurse -Force -ErrorAction SilentlyContinue
         New-Item -Path $outputDir -ItemType Directory -Force | Out-Null
 
-        # Force-includes the JSP_ rename header (dynapi was patched off above).
-        $env:CFLAGS = "/FI$env:SDL_PREFIX_HEADER"
-
         cmake -S "${{ github.action_path }}/overlay" -B $buildDir -A x64 `
           -DSDL_ACTUAL_SOURCE_DIR="$sourceRoot" `
+          -DSDL_PREFIX_HEADER="$env:SDL_PREFIX_HEADER" `
+          -DSDL_SHARED=ON `
+          -DSDL_STATIC=OFF `
           -DSDL_TESTS=OFF `
+          -DSDL_TEST_LIBRARY=OFF `
           -DSDL_EXAMPLES=OFF
         cmake --build $buildDir --config Release --parallel
 
@@ -140,21 +141,19 @@ runs:
       run: |
         set -euo pipefail
 
-        # Force-includes the JSP_ rename header (dynapi was patched off above).
-        export CFLAGS="-include $SDL_PREFIX_HEADER"
-
         BUILD_DIR="$RUNNER_TEMP/sdl-build"
         rm -rf "$BUILD_DIR"
 
         cmake -S "${{ github.action_path }}/overlay" -B "$BUILD_DIR" \
           -DSDL_ACTUAL_SOURCE_DIR="$SDL_SOURCE_DIR" \
+          -DSDL_PREFIX_HEADER="$SDL_PREFIX_HEADER" \
           -DCMAKE_BUILD_TYPE=Release \
-          -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
           -DCMAKE_SHARED_LINKER_FLAGS="-Wl,-Bsymbolic" \
           -DSDL_UNIX_CONSOLE_BUILD=ON \
           -DSDL_SHARED=ON \
           -DSDL_STATIC=OFF \
           -DSDL_TESTS=OFF \
+          -DSDL_TEST_LIBRARY=OFF \
           -DSDL_EXAMPLES=OFF
         cmake --build "$BUILD_DIR" --parallel "$(nproc)"
 
