@@ -29,7 +29,7 @@ jobs:
             includeHeaders: false
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
       - name: Build SDL3
         uses: ./.github/actions/build-sdl
         with:
@@ -38,7 +38,7 @@ jobs:
           outputDirectory: ${{ runner.temp }}/sdl3-${{ matrix.platform }}
           includeHeaders: ${{ matrix.includeHeaders }}
       - name: Upload SDL3 artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: sdl3-${{ matrix.platform }}
           path: ${{ runner.temp }}/sdl3-${{ matrix.platform }}/Source/ThirdParty/SDL3
@@ -49,7 +49,7 @@ jobs:
     needs: build-sdl
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Setup Versioning
@@ -57,7 +57,7 @@ jobs:
         with:
           prerelease: ${{ github.ref != 'refs/heads/master' }}
       - name: Download SDL3 artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: sdl3-*
           path: ${{ runner.temp }}/sdl3-artifacts
@@ -101,7 +101,7 @@ jobs:
           launcherDirectory: ${{ secrets.LAUNCHER_DIRECTORY }}
           controllerDbUrl: ${{ vars.CONTROLLERDB_URL }}
       - name: Create Release
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@v1.21.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
