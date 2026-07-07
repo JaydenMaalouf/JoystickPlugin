@@ -9,7 +9,7 @@
 
 THIRD_PARTY_INCLUDES_START
 
-#include "SDL_joystick.h"
+#include "JoystickSDL.h"
 
 THIRD_PARTY_INCLUDES_END
 

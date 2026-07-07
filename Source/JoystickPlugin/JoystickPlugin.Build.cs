@@ -43,11 +43,18 @@ public class JoystickPlugin : ModuleRules
 		PublicSystemIncludePaths.Add(SdlIncludeDirectory);
 		PublicSystemIncludePaths.Add(SdlIncludeParentDirectory);
 
+		// Prefer the symbol-prefixed JoystickSDL3 binaries (built by the build-sdl action);
+		// fall back to stock SDL3 names so the plugin still builds against older artifacts.
 		if (Target.Platform == UnrealTargetPlatform.Win64)
 		{
 			var Win64Path = Path.Combine(SdlDirectory, "Win64");
-			var LibPath = Path.Combine(Win64Path, "SDL3.lib");
-			var DllPath = Path.Combine(Win64Path, "SDL3.dll");
+			var LibPath = Path.Combine(Win64Path, "JoystickSDL3.lib");
+			var DllPath = Path.Combine(Win64Path, "JoystickSDL3.dll");
+			if (!File.Exists(LibPath) || !File.Exists(DllPath))
+			{
+				LibPath = Path.Combine(Win64Path, "SDL3.lib");
+				DllPath = Path.Combine(Win64Path, "SDL3.dll");
+			}
 
 			if (!File.Exists(LibPath) || !File.Exists(DllPath))
 			{
@@ -61,12 +68,16 @@ public class JoystickPlugin : ModuleRules
 
 			RuntimeDependencies.Add(DllPath, StagedFileType.NonUFS);
 
-			PublicDelayLoadDLLs.Add("SDL3.dll");
+			PublicDelayLoadDLLs.Add(Path.GetFileName(DllPath));
 		}
 		else if (Target.Platform == UnrealTargetPlatform.Linux)
 		{
 			var LinuxPath = Path.Combine(SdlDirectory, "Linux");
-			var SdlSoPath = Path.Combine(LinuxPath, "libSDL3.so.0");
+			var SdlSoPath = Path.Combine(LinuxPath, "libJoystickSDL3.so");
+			if (!File.Exists(SdlSoPath))
+			{
+				SdlSoPath = Path.Combine(LinuxPath, "libSDL3.so.0");
+			}
 
 			if (!File.Exists(SdlSoPath))
 			{
@@ -76,12 +87,17 @@ public class JoystickPlugin : ModuleRules
 			}
 
 			PublicAdditionalLibraries.Add(SdlSoPath);
-			RuntimeDependencies.Add(SdlSoPath, StagedFileType.NonUFS);
+			// Stage next to the target binary so the ${ORIGIN} rpath resolves it in packaged builds.
+			RuntimeDependencies.Add(Path.Combine("$(BinaryOutputDir)", Path.GetFileName(SdlSoPath)), SdlSoPath, StagedFileType.NonUFS);
 		}
 		else if (Target.Platform == UnrealTargetPlatform.Mac)
 		{
-			var LinuxPath = Path.Combine(SdlDirectory, "Mac");
-			var SdlDylibPath = Path.Combine(LinuxPath, "libSDL3.0.dylib");
+			var MacPath = Path.Combine(SdlDirectory, "Mac");
+			var SdlDylibPath = Path.Combine(MacPath, "libJoystickSDL3.0.dylib");
+			if (!File.Exists(SdlDylibPath))
+			{
+				SdlDylibPath = Path.Combine(MacPath, "libSDL3.0.dylib");
+			}
 
 			PublicAdditionalLibraries.Add(SdlDylibPath);
 

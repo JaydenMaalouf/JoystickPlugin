@@ -10,7 +10,7 @@
 
 THIRD_PARTY_INCLUDES_START
 
-#include "SDL_hidapi.h"
+#include "JoystickSDL.h"
 
 THIRD_PARTY_INCLUDES_END
 

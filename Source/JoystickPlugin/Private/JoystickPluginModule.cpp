@@ -34,21 +34,28 @@ void FJoystickPluginModule::StartupModule()
 	PluginSourceDirectory = FPaths::Combine(PluginDirectory, TEXT("Source"));
 	PluginThirdPartyDirectory = FPaths::Combine(PluginSourceDirectory, TEXT("ThirdParty"));
 
+	// The bundled SDL carries a JoystickSDL3 identity and JSP_-prefixed symbols so it can
+	// never collide with an engine-bundled SDL; stock names are the pre-rename fallback.
+	// On Linux no manual load is needed: the module links libJoystickSDL3.so.0 directly
+	// and the dynamic linker resolves it via the module's rpath.
 #if PLATFORM_WINDOWS
 	const FString SdlDir = FPaths::Combine(PluginThirdPartyDirectory, TEXT("SDL3"), TEXT("Win64"));
-	const FString SdlDllDir = FPaths::Combine(SdlDir, "SDL3.dll");
+	FString SdlDllPath = FPaths::Combine(SdlDir, TEXT("JoystickSDL3.dll"));
+	if (!FPaths::FileExists(SdlDllPath))
+	{
+		SdlDllPath = FPaths::Combine(SdlDir, TEXT("SDL3.dll"));
+	}
 
 	FPlatformProcess::PushDllDirectory(*SdlDir);
-	SdlDllHandle = FPlatformProcess::GetDllHandle(*SdlDllDir);
+	SdlDllHandle = FPlatformProcess::GetDllHandle(*SdlDllPath);
 	FPlatformProcess::PopDllDirectory(*SdlDir);
-#elif PLATFORM_LINUX
-	const FString SdlDir = FPaths::Combine(PluginThirdPartyDirectory, TEXT("SDL3"), TEXT("Linux"));
-	const FString SdlSoPath = FPaths::Combine(SdlDir, "libSDL3.so.0");
-
-	SdlDllHandle = dlopen(TCHAR_TO_UTF8(*SdlSoPath), RTLD_LOCAL | RTLD_LAZY | RTLD_DEEPBIND);
 #elif PLATFORM_MAC
 	const FString SdlDir = FPaths::Combine(PluginThirdPartyDirectory, TEXT("SDL3"), TEXT("Mac"));
-	const FString SdlDylibPath = FPaths::Combine(SdlDir, "libSDL3.0.dylib");
+	FString SdlDylibPath = FPaths::Combine(SdlDir, TEXT("libJoystickSDL3.0.dylib"));
+	if (!FPaths::FileExists(SdlDylibPath))
+	{
+		SdlDylibPath = FPaths::Combine(SdlDir, TEXT("libSDL3.0.dylib"));
+	}
 
 	SdlDllHandle = FPlatformProcess::GetDllHandle(*SdlDylibPath);
 #endif

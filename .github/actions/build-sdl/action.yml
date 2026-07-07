@@ -1,5 +1,21 @@
 name: build-sdl
-description: 'Builds SDL3 and stages the plugin ThirdParty SDL3 folder.'
+description: 'Builds SDL3 with a JSP_ symbol prefix and JoystickSDL3 library identity, then stages the plugin ThirdParty SDL3 folder.'
+
+# Why the rename: UE 5.7+ statically links its own copy of SDL3 into several
+# engine modules (ApplicationCore, InputCore, Slate, ...). Those modules'
+# SDL_x symbols end up exported with default visibility regardless of how we
+# build our own copy, so if our SDL3 also exported plain SDL_x names, the two
+# would collide process-wide. To avoid that, every public SDL function is
+# renamed SDL_x -> JSP_SDL_x, and the library itself is renamed to
+# JoystickSDL3, so nothing this action ships can ever be mistaken for the
+# engine's own SDL.
+#
+# Pipeline: download pristine SDL source -> generate a JSP_ rename header
+# from SDL's own symbol table (scripts/generate-prefix-header.sh) -> patch
+# dynapi/version-script so the rename actually takes effect
+# (scripts/patch-dynapi.sh) -> build via the overlay/ CMake project, which
+# renames the output library -> verify no stock SDL_x symbol leaked out
+# (scripts/verify-exports.*) -> stage into ThirdParty/SDL3.
 
 inputs:
   platform:
@@ -43,6 +59,14 @@ runs:
         "SDL_SOURCE_DIR=$sourceRoot" | Out-File -FilePath $env:GITHUB_ENV -Append
         "SDL_OUTPUT_DIR=${{ inputs.outputDirectory }}" | Out-File -FilePath $env:GITHUB_ENV -Append
 
+    - name: Generate symbol prefix header
+      shell: bash
+      run: bash "${{ github.action_path }}/scripts/generate-prefix-header.sh" "${{ inputs.sdlVersion }}"
+
+    - name: Patch SDL source for prefixed build
+      shell: bash
+      run: bash "${{ github.action_path }}/scripts/patch-dynapi.sh"
+
     - name: Stage SDL3 headers
       if: inputs.includeHeaders
       shell: pwsh
@@ -52,6 +76,7 @@ runs:
 
         Remove-Item -Path (Join-Path $thirdPartyDir 'include') -Recurse -Force -ErrorAction SilentlyContinue
         Copy-Item -Path (Join-Path $sourceRoot 'include') -Destination $thirdPartyDir -Recurse -Force
+        Copy-Item -Path $env:SDL_PREFIX_HEADER -Destination (Join-Path $thirdPartyDir 'include') -Force
 
     - name: Build SDL3 for Mac
       if: inputs.platform == 'Mac'
@@ -59,22 +84,27 @@ runs:
       run: |
         set -euo pipefail
 
-        cd "$SDL_SOURCE_DIR"
-        rm -rf build
-        mkdir build
-        cd build
+        # Force-includes the JSP_ rename header (dynapi was patched off above).
+        export CFLAGS="-include $SDL_PREFIX_HEADER"
+        export OBJCFLAGS="$CFLAGS"
 
-        cmake .. \
+        BUILD_DIR="$RUNNER_TEMP/sdl-build"
+        rm -rf "$BUILD_DIR"
+
+        cmake -S "${{ github.action_path }}/overlay" -B "$BUILD_DIR" \
+          -DSDL_ACTUAL_SOURCE_DIR="$SDL_SOURCE_DIR" \
           -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
           -DCMAKE_OSX_DEPLOYMENT_TARGET=14.0 \
           -DCMAKE_BUILD_TYPE=Release \
           -DSDL_TESTS=OFF \
           -DSDL_EXAMPLES=OFF
+        cmake --build "$BUILD_DIR" --parallel "$(sysctl -n hw.ncpu)"
 
-        make -j$(sysctl -n hw.ncpu)
+        DYLIB="$BUILD_DIR/SDL3-build/libJoystickSDL3.0.dylib"
+        bash "${{ github.action_path }}/scripts/verify-exports.sh" "$DYLIB" "_" -gU
 
         mkdir -p "$SDL_OUTPUT_DIR/Source/ThirdParty/SDL3/Mac"
-        cp libSDL3.0.dylib "$SDL_OUTPUT_DIR/Source/ThirdParty/SDL3/Mac/"
+        cp "$DYLIB" "$SDL_OUTPUT_DIR/Source/ThirdParty/SDL3/Mac/"
 
     - name: Build SDL3 for Win64
       if: inputs.platform == 'Win64'
@@ -82,19 +112,27 @@ runs:
       run: |
         $sourceRoot = $env:SDL_SOURCE_DIR
         $outputDir  = Join-Path $env:SDL_OUTPUT_DIR 'Source/ThirdParty/SDL3/Win64'
-        $buildDir   = Join-Path $sourceRoot 'build'
+        $buildDir   = Join-Path $env:RUNNER_TEMP 'sdl-build'
 
         Remove-Item -Path $buildDir -Recurse -Force -ErrorAction SilentlyContinue
-        New-Item -Path $buildDir -ItemType Directory -Force | Out-Null
         New-Item -Path $outputDir -ItemType Directory -Force | Out-Null
 
-        cmake -S $sourceRoot -B $buildDir -A x64 `
+        # Force-includes the JSP_ rename header (dynapi was patched off above).
+        $env:CFLAGS = "/FI$env:SDL_PREFIX_HEADER"
+
+        cmake -S "${{ github.action_path }}/overlay" -B $buildDir -A x64 `
+          -DSDL_ACTUAL_SOURCE_DIR="$sourceRoot" `
           -DSDL_TESTS=OFF `
           -DSDL_EXAMPLES=OFF
         cmake --build $buildDir --config Release --parallel
 
-        Copy-Item -Path (Join-Path $buildDir 'Release/SDL3.dll') -Destination $outputDir -Force
-        Copy-Item -Path (Join-Path $buildDir 'Release/SDL3.lib') -Destination $outputDir -Force
+        $dllPath = Join-Path $buildDir 'SDL3-build/Release/JoystickSDL3.dll'
+        $libPath = Join-Path $buildDir 'SDL3-build/Release/JoystickSDL3.lib'
+
+        & "${{ github.action_path }}/scripts/verify-exports.ps1" -DllPath $dllPath
+
+        Copy-Item -Path $dllPath -Destination $outputDir -Force
+        Copy-Item -Path $libPath -Destination $outputDir -Force
 
     - name: Build SDL3 for Linux
       if: inputs.platform == 'Linux'
@@ -102,12 +140,14 @@ runs:
       run: |
         set -euo pipefail
 
-        cd "$SDL_SOURCE_DIR"
-        rm -rf build
-        mkdir build
-        cd build
+        # Force-includes the JSP_ rename header (dynapi was patched off above).
+        export CFLAGS="-include $SDL_PREFIX_HEADER"
 
-        cmake .. \
+        BUILD_DIR="$RUNNER_TEMP/sdl-build"
+        rm -rf "$BUILD_DIR"
+
+        cmake -S "${{ github.action_path }}/overlay" -B "$BUILD_DIR" \
+          -DSDL_ACTUAL_SOURCE_DIR="$SDL_SOURCE_DIR" \
           -DCMAKE_BUILD_TYPE=Release \
           -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
           -DCMAKE_SHARED_LINKER_FLAGS="-Wl,-Bsymbolic" \
@@ -116,8 +156,16 @@ runs:
           -DSDL_STATIC=OFF \
           -DSDL_TESTS=OFF \
           -DSDL_EXAMPLES=OFF
-        make -j$(nproc)
+        cmake --build "$BUILD_DIR" --parallel "$(nproc)"
 
-        mkdir -p "$SDL_OUTPUT_DIR/Source/ThirdParty/SDL3/Linux"
-        SDL_REAL_LIBRARY="$(readlink -f libSDL3.so)"
-        install -Dm755 "$SDL_REAL_LIBRARY" "$SDL_OUTPUT_DIR/Source/ThirdParty/SDL3/Linux/libSDL3.so.0"
+        SDL_REAL_LIBRARY="$(readlink -f "$BUILD_DIR/SDL3-build/libJoystickSDL3.so")"
+        bash "${{ github.action_path }}/scripts/verify-exports.sh" "$SDL_REAL_LIBRARY" "" -D --defined-only
+
+        # Sanity: soname must carry the renamed, unversioned identity.
+        readelf -d "$SDL_REAL_LIBRARY" | grep -q 'Library soname: \[libJoystickSDL3.so\]' || {
+          echo "ERROR: unexpected soname:" >&2
+          readelf -d "$SDL_REAL_LIBRARY" | grep soname >&2
+          exit 1
+        }
+
+        install -Dm755 "$SDL_REAL_LIBRARY" "$SDL_OUTPUT_DIR/Source/ThirdParty/SDL3/Linux/libJoystickSDL3.so"

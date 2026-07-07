@@ -9,9 +9,7 @@
 
 THIRD_PARTY_INCLUDES_START
 
-#include "SDL_haptic.h"
-#include "SDL_joystick.h"
-#include "SDL_gamepad.h"
+#include "JoystickSDL.h"
 
 THIRD_PARTY_INCLUDES_END
 
