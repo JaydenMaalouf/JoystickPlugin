@@ -21,7 +21,7 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectDirectionData
 
 	FForceFeedbackEffectDirectionData()
 		: DirectionType(EForceFeedbackDirectionType::Cartesian)
-		  , Direction(FVector::ZeroVector)
+		  , Direction(1.0f, 0.0f, 0.0f)
 	{
 	}
 

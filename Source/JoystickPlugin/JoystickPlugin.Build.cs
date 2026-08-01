@@ -87,8 +87,8 @@ public class JoystickPlugin : ModuleRules
 			}
 
 			PublicAdditionalLibraries.Add(SdlSoPath);
-			// Stage next to the target binary so the ${ORIGIN} rpath resolves it in packaged builds.
-			RuntimeDependencies.Add(Path.Combine("$(BinaryOutputDir)", Path.GetFileName(SdlSoPath)), SdlSoPath, StagedFileType.NonUFS);
+
+			RuntimeDependencies.Add(SdlSoPath, StagedFileType.NonUFS);
 		}
 		else if (Target.Platform == UnrealTargetPlatform.Mac)
 		{
@@ -97,6 +97,13 @@ public class JoystickPlugin : ModuleRules
 			if (!File.Exists(SdlDylibPath))
 			{
 				SdlDylibPath = Path.Combine(MacPath, "libSDL3.0.dylib");
+			}
+
+			if (!File.Exists(SdlDylibPath))
+			{
+				throw new BuildException(
+					"SDL3 Mac binaries not found. Expected:\n" +
+					$"  {SdlDylibPath}");
 			}
 
 			PublicAdditionalLibraries.Add(SdlDylibPath);
