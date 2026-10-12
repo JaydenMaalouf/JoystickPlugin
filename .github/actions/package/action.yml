@@ -76,13 +76,25 @@ runs:
         $runnerTemp    = $env:RUNNER_TEMP
 
         $buildDir    = Join-Path $runnerTemp ("build\UE_{0}" -f $engineVersion)
+        $stageDir    = Join-Path $runnerTemp ("stage\UE_{0}" -f $engineVersion)
         $outputDir   = Join-Path $runnerTemp 'output'
         $zipFilePath = Join-Path $outputDir ("JoystickPlugin-{0}.zip" -f $engineVersion)
 
         Remove-Item -Path (Join-Path $buildDir "Intermediate") -Recurse -Force -ErrorAction SilentlyContinue
 
+        # The release archive is Win64 only. Stage a copy without the SDL3 libraries for the other
+        # platforms so the build directory stays complete for the package-fab action.
+        Remove-Item -Path $stageDir -Recurse -Force -ErrorAction SilentlyContinue
+        New-Item -Path $stageDir -ItemType Directory -Force | Out-Null
+        Copy-Item -Path (Join-Path $buildDir '*') -Destination $stageDir -Recurse -Force
+
+        foreach ($otherPlatform in 'Mac', 'Linux') {
+          Remove-Item -Path (Join-Path $stageDir "Source\ThirdParty\SDL3\$otherPlatform") -Recurse -Force -ErrorAction SilentlyContinue
+        }
+
         if (-not (Test-Path $outputDir)) {
           New-Item -Path $outputDir -ItemType Directory -Force | Out-Null
         }
 
-        Compress-Archive -Path (Join-Path $buildDir '*') -DestinationPath $zipFilePath -Force
+        Compress-Archive -Path (Join-Path $stageDir '*') -DestinationPath $zipFilePath -Force
+        Remove-Item -Path $stageDir -Recurse -Force

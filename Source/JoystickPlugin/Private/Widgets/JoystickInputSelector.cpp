@@ -264,6 +264,8 @@ void UJoystickInputSelector::SynchronizeProperties()
 
 TSharedRef<SWidget> UJoystickInputSelector::RebuildWidget()
 {
+	Super::RebuildWidget();
+
 	JoystickInputSelector = SNew(SJoystickInputSelector)
 		.SelectedKey(SelectedKey)
 		.Margin(Margin)
