@@ -9,9 +9,9 @@
 // It must be included before any SDL header and must match the shipped binaries.
 // When it is absent, stock (unprefixed) SDL binaries are used instead.
 #if defined(__has_include)
-	#if __has_include("JoystickSDLPrefix.h")
-		#include "JoystickSDLPrefix.h"
-	#endif
+#if __has_include("JoystickSDLPrefix.h")
+#include "JoystickSDLPrefix.h"
+#endif
 #endif
 
 #include "SDL.h"

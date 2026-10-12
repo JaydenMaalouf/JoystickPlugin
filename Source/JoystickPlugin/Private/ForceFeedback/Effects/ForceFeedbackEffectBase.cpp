@@ -3,6 +3,7 @@
 
 #include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
 
+#include "Data/JoystickHapticInformation.h"
 #include "Data/JoystickInstanceId.h"
 #include "GameFramework/Actor.h"
 #include "Managers/JoystickHapticDeviceManager.h"
@@ -30,6 +31,7 @@ UForceFeedbackEffectBase::UForceFeedbackEffectBase(const FObjectInitializer& Obj
 	  , StartTime(-1)
 	  , TimeAccumulator(0)
 	  , EffectRunning(false)
+	  , ShouldStartWithComponent(true)
 {
 }
 
@@ -125,7 +127,7 @@ void UForceFeedbackEffectBase::StartEffect()
 	}
 
 	const bool Status = GetEffectStatus();
-	if (Status == 1)
+	if (Status == true)
 	{
 		EffectRunning = true;
 		return;
@@ -356,6 +358,45 @@ void UForceFeedbackEffectBase::SetTickableWhenPaused(const bool NewTickableWhenP
 AActor* UForceFeedbackEffectBase::GetOwningActor() const
 {
 	return GetOwningActor<AActor>();
+}
+
+bool UForceFeedbackEffectBase::IsSupportedByDevice(const FJoystickHapticInformation& HapticInformation)
+{
+	if (!IsInitialised)
+	{
+		CreateEffect();
+	}
+
+	switch (Effect.type)
+	{
+		case SDL_HAPTIC_CONSTANT:
+			return HapticInformation.Constant;
+		case SDL_HAPTIC_SINE:
+			return HapticInformation.Sine;
+		case SDL_HAPTIC_TRIANGLE:
+			return HapticInformation.Triangle;
+		case SDL_HAPTIC_SAWTOOTHUP:
+			return HapticInformation.SawToothUp;
+		case SDL_HAPTIC_SAWTOOTHDOWN:
+			return HapticInformation.SawToothDown;
+		case SDL_HAPTIC_RAMP:
+			return HapticInformation.Ramp;
+		case SDL_HAPTIC_SPRING:
+			return HapticInformation.Spring;
+		case SDL_HAPTIC_DAMPER:
+			return HapticInformation.Damper;
+		case SDL_HAPTIC_INERTIA:
+			return HapticInformation.Inertia;
+		case SDL_HAPTIC_FRICTION:
+			return HapticInformation.Friction;
+		case SDL_HAPTIC_LEFTRIGHT:
+			return HapticInformation.LeftRight;
+		case SDL_HAPTIC_CUSTOM:
+			return HapticInformation.Custom;
+		default:
+			// Not a type we track support for, let SDL decide when the effect is created.
+			return true;
+	}
 }
 
 void UForceFeedbackEffectBase::CreateEffect()

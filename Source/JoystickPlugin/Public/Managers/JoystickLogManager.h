@@ -108,20 +108,20 @@ private:
 	{
 		switch (Level)
 		{
-		case ELogVerbosity::Error: JOYSTICK_LOG(Error, Message);
-			break;
-		case ELogVerbosity::Warning: JOYSTICK_LOG(Warning, Message);
-			break;
-		case ELogVerbosity::Display: JOYSTICK_LOG(Display, Message);
-			break;
-		case ELogVerbosity::Verbose: JOYSTICK_LOG(Verbose, Message);
-			break;
-		case ELogVerbosity::VeryVerbose: JOYSTICK_LOG(VeryVerbose, Message);
-			break;
-		case ELogVerbosity::Fatal: JOYSTICK_LOG(Fatal, Message);
-			break;
-		default: JOYSTICK_LOG(Log, Message);
-			break;
+			case ELogVerbosity::Error: JOYSTICK_LOG(Error, Message);
+				break;
+			case ELogVerbosity::Warning: JOYSTICK_LOG(Warning, Message);
+				break;
+			case ELogVerbosity::Display: JOYSTICK_LOG(Display, Message);
+				break;
+			case ELogVerbosity::Verbose: JOYSTICK_LOG(Verbose, Message);
+				break;
+			case ELogVerbosity::VeryVerbose: JOYSTICK_LOG(VeryVerbose, Message);
+				break;
+			case ELogVerbosity::Fatal: JOYSTICK_LOG(Fatal, Message);
+				break;
+			default: JOYSTICK_LOG(Log, Message);
+				break;
 		}
 	}
 };

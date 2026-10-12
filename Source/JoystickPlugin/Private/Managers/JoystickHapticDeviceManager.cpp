@@ -115,7 +115,7 @@ bool UJoystickHapticDeviceManager::StopAllEffects(const FJoystickInstanceId& Ins
 	return true;
 }
 
-int UJoystickHapticDeviceManager::GetNumEffects(const FJoystickInstanceId& InstanceId) const
+int UJoystickHapticDeviceManager::GetMaxNumEffects(const FJoystickInstanceId& InstanceId) const
 {
 	auto [HapticDevice, HapticDeviceResult] = GetHapticDevice(InstanceId);
 	if (HapticDeviceResult.bSuccess == false || HapticDevice == nullptr)
@@ -133,7 +133,7 @@ int UJoystickHapticDeviceManager::GetNumEffects(const FJoystickInstanceId& Insta
 	return Result;
 }
 
-int UJoystickHapticDeviceManager::GetNumEffectsPlaying(const FJoystickInstanceId& InstanceId) const
+int UJoystickHapticDeviceManager::GetMaxNumEffectsPlaying(const FJoystickInstanceId& InstanceId) const
 {
 	auto [HapticDevice, HapticDeviceResult] = GetHapticDevice(InstanceId);
 	if (HapticDeviceResult.bSuccess == false || HapticDevice == nullptr)
@@ -172,14 +172,7 @@ bool UJoystickHapticDeviceManager::GetEffectStatus(const FJoystickInstanceId& In
 		return false;
 	}
 
-	const bool Result = SDL_GetHapticEffectStatus(HapticDevice, EffectId);
-	if (Result == false)
-	{
-		FJoystickLogManager::Get()->LogSDLError(TEXT("SDL_GetHapticEffectStatus failed"));
-		return false;
-	}
-
-	return Result;
+	return SDL_GetHapticEffectStatus(HapticDevice, EffectId);
 }
 
 bool UJoystickHapticDeviceManager::PlayRumble(const FJoystickInstanceId& InstanceId, const float LowFrequencyRumble, const float HighFrequencyRumble, const float Duration) const

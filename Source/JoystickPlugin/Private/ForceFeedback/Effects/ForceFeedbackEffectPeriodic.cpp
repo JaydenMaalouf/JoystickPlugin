@@ -10,32 +10,32 @@ void UForceFeedbackEffectPeriodic::UpdateEffectData()
 
 	switch (EffectData.EffectType)
 	{
-	case EForceFeedbackPeriodicEffectType::Sine:
-		{
-			Effect.type = SDL_HAPTIC_SINE;
-			break;
-		}
-	case EForceFeedbackPeriodicEffectType::Triangle:
-		{
-			Effect.type = SDL_HAPTIC_TRIANGLE;
-			break;
-		}
-	case EForceFeedbackPeriodicEffectType::SawtoothUp:
-		{
-			Effect.type = SDL_HAPTIC_SAWTOOTHUP;
-			break;
-		}
-	case EForceFeedbackPeriodicEffectType::SawtoothDown:
-		{
-			Effect.type = SDL_HAPTIC_SAWTOOTHDOWN;
-			break;
-		}
-	default:
-	case EForceFeedbackPeriodicEffectType::LeftRight:
-		{
-			Effect.type = SDL_HAPTIC_LEFTRIGHT;
-			break;
-		}
+		case EForceFeedbackPeriodicEffectType::Sine:
+			{
+				Effect.type = SDL_HAPTIC_SINE;
+				break;
+			}
+		case EForceFeedbackPeriodicEffectType::Triangle:
+			{
+				Effect.type = SDL_HAPTIC_TRIANGLE;
+				break;
+			}
+		case EForceFeedbackPeriodicEffectType::SawtoothUp:
+			{
+				Effect.type = SDL_HAPTIC_SAWTOOTHUP;
+				break;
+			}
+		case EForceFeedbackPeriodicEffectType::SawtoothDown:
+			{
+				Effect.type = SDL_HAPTIC_SAWTOOTHDOWN;
+				break;
+			}
+		default:
+		case EForceFeedbackPeriodicEffectType::LeftRight:
+			{
+				Effect.type = SDL_HAPTIC_LEFTRIGHT;
+				break;
+			}
 	}
 
 	Effect.periodic.direction = EffectData.DirectionData.ToSDLDirection();
