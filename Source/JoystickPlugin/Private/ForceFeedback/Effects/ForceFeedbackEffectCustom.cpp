@@ -11,24 +11,29 @@ void UForceFeedbackEffectCustom::UpdateEffectData()
 
 	Effect.custom.direction = EffectData.DirectionData.ToSDLDirection();
 	Effect.custom.length = GetEffectDuration();
-	Effect.custom.delay = FMath::Clamp<uint16>(EffectData.ReplayData.Delay * 1000.0f, 0, UINT16_MAX);
-	Effect.custom.interval = FMath::Clamp<uint16>(EffectData.ReplayData.RetriggerDelay * 1000.0f, 0, UINT16_MAX);
+	Effect.custom.delay = FForceFeedbackConversion::SecondsToMilliseconds(EffectData.ReplayData.Delay);
+	Effect.custom.interval = FForceFeedbackConversion::SecondsToMilliseconds(EffectData.ReplayData.RetriggerDelay);
 
-	Effect.custom.channels = FMath::Clamp<uint8>(EffectData.Channels, 0, UINT8_MAX);
-	Effect.custom.period = FMath::Clamp<uint16>(EffectData.Period * UINT16_MAX, 0, UINT16_MAX);
-	Effect.custom.samples = FMath::Clamp<uint16>(EffectData.Samples, 0, UINT16_MAX);
+	Effect.custom.channels = EffectData.Channels;
+	Effect.custom.period = FForceFeedbackConversion::SecondsToMilliseconds(EffectData.Period);
+	Effect.custom.samples = FForceFeedbackConversion::ToSampleCount(EffectData.Samples);
 
-	uint16* DataArray = new uint16[EffectData.Data.Num()]();
-	for (int i = 0; i < EffectData.Data.Num(); i++)
+	// SDL reads channels * samples entries, so size the buffer to that and leave anything Data doesn't cover at zero.
+	const int32 RequiredSamples = static_cast<int32>(Effect.custom.channels) * static_cast<int32>(Effect.custom.samples);
+	SampleData.Reset();
+	SampleData.SetNumZeroed(RequiredSamples);
+
+	const int32 SamplesToCopy = FMath::Min(EffectData.Data.Num(), RequiredSamples);
+	for (int32 i = 0; i < SamplesToCopy; i++)
 	{
-		DataArray[i] = FMath::Clamp<uint16>(EffectData.Data[i], 0, UINT16_MAX);
+		SampleData[i] = FForceFeedbackConversion::ToSample(EffectData.Data[i]);
 	}
-	Effect.custom.data = DataArray;
+	Effect.custom.data = SampleData.GetData();
 
-	Effect.custom.attack_length = FMath::Clamp<uint16>(EffectData.EnvelopeData.AttackDuration * 1000.0f, 0, UINT16_MAX);
-	Effect.custom.attack_level = FMath::Clamp<uint16>(EffectData.EnvelopeData.AttackLevel * UINT16_MAX, 0, UINT16_MAX);
-	Effect.custom.fade_length = FMath::Clamp<uint16>(EffectData.EnvelopeData.FadeDuration * 1000.0f, 0, UINT16_MAX);
-	Effect.custom.fade_level = FMath::Clamp<uint16>(EffectData.EnvelopeData.FadeLevel * UINT16_MAX, 0, UINT16_MAX);
+	Effect.custom.attack_length = FForceFeedbackConversion::SecondsToMilliseconds(EffectData.EnvelopeData.AttackDuration);
+	Effect.custom.attack_level = FForceFeedbackConversion::ToUnsignedLevel(EffectData.EnvelopeData.AttackLevel);
+	Effect.custom.fade_length = FForceFeedbackConversion::SecondsToMilliseconds(EffectData.EnvelopeData.FadeDuration);
+	Effect.custom.fade_level = FForceFeedbackConversion::ToUnsignedLevel(EffectData.EnvelopeData.FadeLevel);
 }
 
 uint32 UForceFeedbackEffectCustom::GetEffectDuration()

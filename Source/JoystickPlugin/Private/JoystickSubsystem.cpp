@@ -764,6 +764,7 @@ void UJoystickSubsystem::AddHapticDevice(FDeviceInfoSDL& Device) const
 	const unsigned int QueryResult = SDL_GetHapticFeatures(Device.SDLHaptic);
 	Device.Haptic.Constant = (QueryResult & SDL_HAPTIC_CONSTANT) != 0;
 	Device.Haptic.Sine = (QueryResult & SDL_HAPTIC_SINE) != 0;
+	Device.Haptic.Square = (QueryResult & SDL_HAPTIC_SQUARE) != 0;
 	Device.Haptic.LeftRight = (QueryResult & SDL_HAPTIC_LEFTRIGHT) != 0;
 	Device.Haptic.Triangle = (QueryResult & SDL_HAPTIC_TRIANGLE) != 0;
 	Device.Haptic.SawToothUp = (QueryResult & SDL_HAPTIC_SAWTOOTHUP) != 0;
@@ -781,6 +782,7 @@ void UJoystickSubsystem::AddHapticDevice(FDeviceInfoSDL& Device) const
 
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tSDL_HAPTIC_CONSTANT support: %s"), Device.Haptic.Constant ? TEXT("true") : TEXT("false"));
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tSDL_HAPTIC_SINE support: %s"), Device.Haptic.Sine ? TEXT("true") : TEXT("false"));
+	FJoystickLogManager::Get()->LogDebug(TEXT("\tSDL_HAPTIC_SQUARE support: %s"), Device.Haptic.Square ? TEXT("true") : TEXT("false"));
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tSDL_HAPTIC_LEFTRIGHT support: %s"), Device.Haptic.LeftRight ? TEXT("true") : TEXT("false"));
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tSDL_HAPTIC_TRIANGLE support: %s"), Device.Haptic.Triangle ? TEXT("true") : TEXT("false"));
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tSDL_HAPTIC_SAWTOOTHUP support: %s"), Device.Haptic.SawToothUp ? TEXT("true") : TEXT("false"));

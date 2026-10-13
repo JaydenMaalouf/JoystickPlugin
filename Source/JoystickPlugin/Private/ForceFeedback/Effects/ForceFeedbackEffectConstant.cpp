@@ -11,14 +11,14 @@ void UForceFeedbackEffectConstant::UpdateEffectData()
 
 	Effect.constant.direction = EffectData.DirectionData.ToSDLDirection();
 	Effect.constant.length = GetEffectDuration();
-	Effect.constant.delay = FMath::Clamp<uint16>(EffectData.ReplayData.Delay * 1000.0f, 0, UINT16_MAX);
-	Effect.constant.interval = FMath::Clamp<uint16>(EffectData.ReplayData.RetriggerDelay * 1000.0f, 0, UINT16_MAX);
+	Effect.constant.delay = FForceFeedbackConversion::SecondsToMilliseconds(EffectData.ReplayData.Delay);
+	Effect.constant.interval = FForceFeedbackConversion::SecondsToMilliseconds(EffectData.ReplayData.RetriggerDelay);
 
-	Effect.constant.level = FMath::Clamp<int16>(EffectData.EffectLevel * INT16_MAX, INT16_MIN, INT16_MAX);
-	Effect.constant.attack_length = FMath::Clamp<uint16>(EffectData.EnvelopeData.AttackDuration * 1000.0f, 0, UINT16_MAX);
-	Effect.constant.attack_level = FMath::Clamp<uint16>(EffectData.EnvelopeData.AttackLevel * UINT16_MAX, 0, UINT16_MAX);
-	Effect.constant.fade_length = FMath::Clamp<uint16>(EffectData.EnvelopeData.FadeDuration * 1000.0f, 0, UINT16_MAX);
-	Effect.constant.fade_level = FMath::Clamp<uint16>(EffectData.EnvelopeData.FadeLevel * UINT16_MAX, 0, UINT16_MAX);
+	Effect.constant.level = FForceFeedbackConversion::ToSignedLevel(EffectData.EffectLevel);
+	Effect.constant.attack_length = FForceFeedbackConversion::SecondsToMilliseconds(EffectData.EnvelopeData.AttackDuration);
+	Effect.constant.attack_level = FForceFeedbackConversion::ToUnsignedLevel(EffectData.EnvelopeData.AttackLevel);
+	Effect.constant.fade_length = FForceFeedbackConversion::SecondsToMilliseconds(EffectData.EnvelopeData.FadeDuration);
+	Effect.constant.fade_level = FForceFeedbackConversion::ToUnsignedLevel(EffectData.EnvelopeData.FadeLevel);
 }
 
 uint32 UForceFeedbackEffectConstant::GetEffectDuration()

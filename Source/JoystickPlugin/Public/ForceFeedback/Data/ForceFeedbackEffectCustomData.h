@@ -45,6 +45,6 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectCustomData
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|Custom", meta=(ClampMin="0", ClampMax="65535"))
 	int Samples;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|Custom", meta=(ClampMin="0", ClampMax="65535"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|Custom", meta=(ClampMin="0", ClampMax="32767"))
 	TArray<int> Data;
 };

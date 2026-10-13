@@ -46,10 +46,10 @@ public:
 	// End FTickableGameObject Interface.
 
 	UFUNCTION(BlueprintCallable, Category="Force Feedback")
-	void InitialiseEffect();
+	bool InitialiseEffect();
 
 	UFUNCTION(BlueprintCallable, Category="Force Feedback")
-	void StartEffect();
+	bool StartEffect();
 
 	UFUNCTION(BlueprintCallable, Category="Force Feedback")
 	void StopEffect();
@@ -182,12 +182,14 @@ public:
 	UPROPERTY(BlueprintAssignable, Category="Force Feedback|Delegates", meta=(DisplayName="OnDestroyedEffect"))
 	FOnDestroyedEffect OnDestroyedEffectDelegate;
 
+	// The length of a single iteration in milliseconds, or SDL_HAPTIC_INFINITY.
+	virtual uint32 GetEffectDuration();
+
 protected:
 	SDL_HapticEffect Effect;
 
 	virtual void CreateEffect();
 	virtual void UpdateEffectData();
-	virtual uint32 GetEffectDuration();
 
 private:
 	// The last frame number we were ticked.

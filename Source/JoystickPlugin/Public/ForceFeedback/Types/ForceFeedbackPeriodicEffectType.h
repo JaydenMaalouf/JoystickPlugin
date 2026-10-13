@@ -12,5 +12,5 @@ enum class EForceFeedbackPeriodicEffectType : uint8
 	Triangle,
 	SawtoothUp,
 	SawtoothDown,
-	LeftRight
+	Square
 };

@@ -21,41 +21,41 @@ void UForceFeedbackEffectCondition::UpdateEffectData()
 				Effect.type = SDL_HAPTIC_DAMPER;
 				break;
 			}
-		case EForceFeedbackConditionEffectType::Friction:
-			{
-				Effect.type = SDL_HAPTIC_FRICTION;
-				break;
-			}
 		case EForceFeedbackConditionEffectType::Inertia:
 			{
 				Effect.type = SDL_HAPTIC_INERTIA;
+				break;
+			}
+		case EForceFeedbackConditionEffectType::Friction:
+			{
+				Effect.type = SDL_HAPTIC_FRICTION;
 				break;
 			}
 	}
 
 	Effect.condition.direction = EffectData.DirectionData.ToSDLDirection();
 	Effect.condition.length = GetEffectDuration();
-	Effect.condition.delay = FMath::Clamp<uint16>(EffectData.ReplayData.Delay * 1000.0f, 0, UINT16_MAX);
-	Effect.condition.interval = FMath::Clamp<uint16>(EffectData.ReplayData.RetriggerDelay * 1000.0f, 0, UINT16_MAX);
+	Effect.condition.delay = FForceFeedbackConversion::SecondsToMilliseconds(EffectData.ReplayData.Delay);
+	Effect.condition.interval = FForceFeedbackConversion::SecondsToMilliseconds(EffectData.ReplayData.RetriggerDelay);
 
-	Effect.condition.right_sat[0] = FMath::Clamp<uint16>(EffectData.RightSat.X * UINT16_MAX, 0, UINT16_MAX);
-	Effect.condition.right_sat[1] = FMath::Clamp<uint16>(EffectData.RightSat.Y * UINT16_MAX, 0, UINT16_MAX);
-	Effect.condition.right_sat[2] = FMath::Clamp<uint16>(EffectData.RightSat.Z * UINT16_MAX, 0, UINT16_MAX);
-	Effect.condition.left_sat[0] = FMath::Clamp<uint16>(EffectData.LeftSat.X * UINT16_MAX, 0, UINT16_MAX);
-	Effect.condition.left_sat[1] = FMath::Clamp<uint16>(EffectData.LeftSat.Y * UINT16_MAX, 0, UINT16_MAX);
-	Effect.condition.left_sat[2] = FMath::Clamp<uint16>(EffectData.LeftSat.Z * UINT16_MAX, 0, UINT16_MAX);
-	Effect.condition.right_coeff[0] = FMath::Clamp<int16>(EffectData.RightCoefficient.X * INT16_MAX, INT16_MIN, INT16_MAX);
-	Effect.condition.right_coeff[1] = FMath::Clamp<int16>(EffectData.RightCoefficient.Y * INT16_MAX, INT16_MIN, INT16_MAX);
-	Effect.condition.right_coeff[2] = FMath::Clamp<int16>(EffectData.RightCoefficient.Z * INT16_MAX, INT16_MIN, INT16_MAX);
-	Effect.condition.left_coeff[0] = FMath::Clamp<int16>(EffectData.LeftCoefficient.X * INT16_MAX, INT16_MIN, INT16_MAX);
-	Effect.condition.left_coeff[1] = FMath::Clamp<int16>(EffectData.LeftCoefficient.Y * INT16_MAX, INT16_MIN, INT16_MAX);
-	Effect.condition.left_coeff[2] = FMath::Clamp<int16>(EffectData.LeftCoefficient.Z * INT16_MAX, INT16_MIN, INT16_MAX);
-	Effect.condition.deadband[0] = FMath::Clamp<uint16>(EffectData.DeadZone.X * UINT16_MAX, 0, UINT16_MAX);
-	Effect.condition.deadband[1] = FMath::Clamp<uint16>(EffectData.DeadZone.Y * UINT16_MAX, 0, UINT16_MAX);
-	Effect.condition.deadband[2] = FMath::Clamp<uint16>(EffectData.DeadZone.Z * UINT16_MAX, 0, UINT16_MAX);
-	Effect.condition.center[0] = FMath::Clamp<int16>(EffectData.Center.X * INT16_MAX, INT16_MIN, INT16_MAX);
-	Effect.condition.center[1] = FMath::Clamp<int16>(EffectData.Center.Y * INT16_MAX, INT16_MIN, INT16_MAX);
-	Effect.condition.center[2] = FMath::Clamp<int16>(EffectData.Center.Z * INT16_MAX, INT16_MIN, INT16_MAX);
+	Effect.condition.right_sat[0] = FForceFeedbackConversion::ToFullRangeLevel(EffectData.RightSat.X);
+	Effect.condition.right_sat[1] = FForceFeedbackConversion::ToFullRangeLevel(EffectData.RightSat.Y);
+	Effect.condition.right_sat[2] = FForceFeedbackConversion::ToFullRangeLevel(EffectData.RightSat.Z);
+	Effect.condition.left_sat[0] = FForceFeedbackConversion::ToFullRangeLevel(EffectData.LeftSat.X);
+	Effect.condition.left_sat[1] = FForceFeedbackConversion::ToFullRangeLevel(EffectData.LeftSat.Y);
+	Effect.condition.left_sat[2] = FForceFeedbackConversion::ToFullRangeLevel(EffectData.LeftSat.Z);
+	Effect.condition.right_coeff[0] = FForceFeedbackConversion::ToSignedLevel(EffectData.RightCoefficient.X);
+	Effect.condition.right_coeff[1] = FForceFeedbackConversion::ToSignedLevel(EffectData.RightCoefficient.Y);
+	Effect.condition.right_coeff[2] = FForceFeedbackConversion::ToSignedLevel(EffectData.RightCoefficient.Z);
+	Effect.condition.left_coeff[0] = FForceFeedbackConversion::ToSignedLevel(EffectData.LeftCoefficient.X);
+	Effect.condition.left_coeff[1] = FForceFeedbackConversion::ToSignedLevel(EffectData.LeftCoefficient.Y);
+	Effect.condition.left_coeff[2] = FForceFeedbackConversion::ToSignedLevel(EffectData.LeftCoefficient.Z);
+	Effect.condition.deadband[0] = FForceFeedbackConversion::ToFullRangeLevel(EffectData.DeadZone.X);
+	Effect.condition.deadband[1] = FForceFeedbackConversion::ToFullRangeLevel(EffectData.DeadZone.Y);
+	Effect.condition.deadband[2] = FForceFeedbackConversion::ToFullRangeLevel(EffectData.DeadZone.Z);
+	Effect.condition.center[0] = FForceFeedbackConversion::ToSignedLevel(EffectData.Center.X);
+	Effect.condition.center[1] = FForceFeedbackConversion::ToSignedLevel(EffectData.Center.Y);
+	Effect.condition.center[2] = FForceFeedbackConversion::ToSignedLevel(EffectData.Center.Z);
 }
 
 uint32 UForceFeedbackEffectCondition::GetEffectDuration()

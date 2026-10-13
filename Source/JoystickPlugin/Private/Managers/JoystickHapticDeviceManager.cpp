@@ -5,6 +5,7 @@
 
 #include "Data/DeviceInfoSDL.h"
 #include "Engine/Engine.h"
+#include "ForceFeedback/ForceFeedbackConversion.h"
 #include "Managers/JoystickLogManager.h"
 #include "JoystickSubsystem.h"
 #include "Runtime/Launch/Resources/Version.h"
@@ -29,7 +30,7 @@ bool UJoystickHapticDeviceManager::SetAutoCenter(const FJoystickInstanceId& Inst
 		return false;
 	}
 
-	const bool Result = SDL_SetHapticAutocenter(HapticDevice, FMath::Clamp(Center, 0, 100));
+	const bool Result = SDL_SetHapticAutocenter(HapticDevice, FForceFeedbackConversion::ToPercentage(Center));
 	if (Result == false)
 	{
 		FJoystickLogManager::Get()->LogSDLError(TEXT("SDL_SetHapticAutocenter failed"));
@@ -48,7 +49,7 @@ bool UJoystickHapticDeviceManager::SetGain(const FJoystickInstanceId& InstanceId
 		return false;
 	}
 
-	const bool Result = SDL_SetHapticGain(HapticDevice, FMath::Clamp(Gain, 0, 100));
+	const bool Result = SDL_SetHapticGain(HapticDevice, FForceFeedbackConversion::ToPercentage(Gain));
 	if (Result == false)
 	{
 		FJoystickLogManager::Get()->LogSDLError(TEXT("SDL_SetHapticGain failed"));
@@ -194,9 +195,9 @@ bool UJoystickHapticDeviceManager::PlayRumble(const FJoystickInstanceId& Instanc
 		return false;
 	}
 
-	const uint16 LowFrequency = FMath::Clamp<uint16>(LowFrequencyRumble * UINT16_MAX, 0, UINT16_MAX);
-	const uint16 HighFrequency = FMath::Clamp<uint16>(HighFrequencyRumble * UINT16_MAX, 0, UINT16_MAX);
-	const uint32 ClampedDuration = Duration == -1 ? SDL_HAPTIC_INFINITY : FMath::Clamp<uint32>(Duration * 1000.0f, 0, UINT32_MAX);
+	const uint16 LowFrequency = FForceFeedbackConversion::ToFullRangeLevel(LowFrequencyRumble);
+	const uint16 HighFrequency = FForceFeedbackConversion::ToFullRangeLevel(HighFrequencyRumble);
+	const uint32 ClampedDuration = Duration == -1 ? SDL_HAPTIC_INFINITY : FForceFeedbackConversion::SecondsToDuration(Duration);
 
 	const bool Result = SDL_RumbleJoystick(DeviceInfo->SDLJoystick, LowFrequency, HighFrequency, ClampedDuration);
 	if (Result == false)
@@ -227,9 +228,9 @@ bool UJoystickHapticDeviceManager::PlayRumbleTriggers(const FJoystickInstanceId&
 		return false;
 	}
 
-	const uint16 ClampedLeftRumble = FMath::Clamp<uint16>(LeftRumble * UINT16_MAX, 0, UINT16_MAX);
-	const uint16 ClampedRightRumble = FMath::Clamp<uint16>(RightRumble * UINT16_MAX, 0, UINT16_MAX);
-	const uint32 ClampedDuration = Duration == -1 ? SDL_HAPTIC_INFINITY : FMath::Clamp<uint32>(Duration * 1000.0f, 0, UINT32_MAX);
+	const uint16 ClampedLeftRumble = FForceFeedbackConversion::ToFullRangeLevel(LeftRumble);
+	const uint16 ClampedRightRumble = FForceFeedbackConversion::ToFullRangeLevel(RightRumble);
+	const uint32 ClampedDuration = Duration == -1 ? SDL_HAPTIC_INFINITY : FForceFeedbackConversion::SecondsToDuration(Duration);
 
 	const bool Result = SDL_RumbleJoystickTriggers(DeviceInfo->SDLJoystick, ClampedLeftRumble, ClampedRightRumble, ClampedDuration);
 	if (Result == false)
@@ -255,8 +256,8 @@ bool UJoystickHapticDeviceManager::PlayHapticRumble(const FJoystickInstanceId& I
 		return false;
 	}
 
-	const float ClampedStrength = FMath::Clamp<float>(Strength, 0, 1);
-	const uint32 ClampedDuration = Duration == -1 ? SDL_HAPTIC_INFINITY : FMath::Clamp<uint32>(Duration * 1000.0f, 0, UINT32_MAX);
+	const float ClampedStrength = FForceFeedbackConversion::ToStrength(Strength);
+	const uint32 ClampedDuration = Duration == -1 ? SDL_HAPTIC_INFINITY : FForceFeedbackConversion::SecondsToDuration(Duration);
 	const bool Result = SDL_PlayHapticRumble(DeviceInfo->SDLHaptic, ClampedStrength, ClampedDuration);
 	if (Result == false)
 	{

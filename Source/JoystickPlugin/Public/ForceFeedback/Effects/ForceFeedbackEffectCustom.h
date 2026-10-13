@@ -20,4 +20,8 @@ public:
 protected:
 	virtual void UpdateEffectData() override;
 	virtual uint32 GetEffectDuration() override;
+
+private:
+	// Backing storage for Effect.custom.data, always holds channels * samples entries.
+	TArray<uint16> SampleData;
 };

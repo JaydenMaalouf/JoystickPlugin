@@ -10,9 +10,15 @@ void UForceFeedbackEffectPeriodic::UpdateEffectData()
 
 	switch (EffectData.EffectType)
 	{
+		default:
 		case EForceFeedbackPeriodicEffectType::Sine:
 			{
 				Effect.type = SDL_HAPTIC_SINE;
+				break;
+			}
+		case EForceFeedbackPeriodicEffectType::Square:
+			{
+				Effect.type = SDL_HAPTIC_SQUARE;
 				break;
 			}
 		case EForceFeedbackPeriodicEffectType::Triangle:
@@ -30,28 +36,22 @@ void UForceFeedbackEffectPeriodic::UpdateEffectData()
 				Effect.type = SDL_HAPTIC_SAWTOOTHDOWN;
 				break;
 			}
-		default:
-		case EForceFeedbackPeriodicEffectType::LeftRight:
-			{
-				Effect.type = SDL_HAPTIC_LEFTRIGHT;
-				break;
-			}
 	}
 
 	Effect.periodic.direction = EffectData.DirectionData.ToSDLDirection();
 	Effect.periodic.length = GetEffectDuration();
-	Effect.periodic.delay = FMath::Clamp<uint16>(EffectData.ReplayData.Delay * 1000.0f, 0, UINT16_MAX);
-	Effect.periodic.interval = FMath::Clamp<uint16>(EffectData.ReplayData.RetriggerDelay * 1000.0f, 0, UINT16_MAX);
+	Effect.periodic.delay = FForceFeedbackConversion::SecondsToMilliseconds(EffectData.ReplayData.Delay);
+	Effect.periodic.interval = FForceFeedbackConversion::SecondsToMilliseconds(EffectData.ReplayData.RetriggerDelay);
 
-	Effect.periodic.period = FMath::Clamp<uint16>(EffectData.Period * 1000.0f, 0, UINT16_MAX);
-	Effect.periodic.magnitude = FMath::Clamp<int16>(EffectData.Magnitude * INT16_MAX, INT16_MIN, INT16_MAX);
-	Effect.periodic.offset = FMath::Clamp<int16>(EffectData.Offset * INT16_MAX, INT16_MIN, INT16_MAX);
-	Effect.periodic.phase = FMath::Clamp<uint16>(EffectData.Phase * 100.0f, 0, UINT16_MAX);
+	Effect.periodic.period = FForceFeedbackConversion::SecondsToMilliseconds(EffectData.Period);
+	Effect.periodic.magnitude = FForceFeedbackConversion::ToSignedLevel(EffectData.Magnitude);
+	Effect.periodic.offset = FForceFeedbackConversion::ToSignedLevel(EffectData.Offset);
+	Effect.periodic.phase = FForceFeedbackConversion::DegreesToPhase(EffectData.Phase);
 
-	Effect.periodic.attack_length = FMath::Clamp<uint16>(EffectData.EnvelopeData.AttackDuration * 1000.0f, 0, UINT16_MAX);
-	Effect.periodic.attack_level = FMath::Clamp<uint16>(EffectData.EnvelopeData.AttackLevel * UINT16_MAX, 0, UINT16_MAX);
-	Effect.periodic.fade_length = FMath::Clamp<uint16>(EffectData.EnvelopeData.FadeDuration * 1000.0f, 0, UINT16_MAX);
-	Effect.periodic.fade_level = FMath::Clamp<uint16>(EffectData.EnvelopeData.FadeLevel * UINT16_MAX, 0, UINT16_MAX);
+	Effect.periodic.attack_length = FForceFeedbackConversion::SecondsToMilliseconds(EffectData.EnvelopeData.AttackDuration);
+	Effect.periodic.attack_level = FForceFeedbackConversion::ToUnsignedLevel(EffectData.EnvelopeData.AttackLevel);
+	Effect.periodic.fade_length = FForceFeedbackConversion::SecondsToMilliseconds(EffectData.EnvelopeData.FadeDuration);
+	Effect.periodic.fade_level = FForceFeedbackConversion::ToUnsignedLevel(EffectData.EnvelopeData.FadeLevel);
 }
 
 uint32 UForceFeedbackEffectPeriodic::GetEffectDuration()

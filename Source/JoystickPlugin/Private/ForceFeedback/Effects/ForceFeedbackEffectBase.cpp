@@ -28,7 +28,7 @@ UForceFeedbackEffectBase::UForceFeedbackEffectBase(const FObjectInitializer& Obj
 	  , TickableWhenPaused(false)
 	  , ForceStopAfterDurationLapsed(false)
 	  , Effect()
-	  , StartTime(-1)
+	  , StartTime(UINT64_MAX)
 	  , TimeAccumulator(0)
 	  , EffectRunning(false)
 	  , ShouldStartWithComponent(true)
@@ -71,32 +71,32 @@ void UForceFeedbackEffectBase::Tick(const float DeltaTime)
 	}
 }
 
-void UForceFeedbackEffectBase::InitialiseEffect()
+bool UForceFeedbackEffectBase::InitialiseEffect()
 {
 	if (IsInitialised)
 	{
 		FJoystickLogManager::Get()->LogWarning(TEXT("UForceFeedbackEffectBase::InitialiseEffect: Effect is already initialised"));
-		return;
+		return true;
 	}
 
 	if (InstanceId == -1)
 	{
 		FJoystickLogManager::Get()->LogError(TEXT("UForceFeedbackEffectBase::InitialiseEffect: Effect InstanceId is not set"));
-		return;
+		return false;
 	}
 
 	const UJoystickHapticDeviceManager* HapticDeviceManager = GetDefault<UJoystickHapticDeviceManager>();
 	if (!IsValid(HapticDeviceManager))
 	{
 		FJoystickLogManager::Get()->LogError(TEXT("UForceFeedbackEffectBase::InitialiseEffect: HapticDeviceManager is invalid"));
-		return;
+		return false;
 	}
 
 	CreateEffect();
 	EffectId = HapticDeviceManager->CreateEffect(InstanceId, Effect);
 	if (EffectId == -1)
 	{
-		return;
+		return false;
 	}
 
 	IsInitialised = true;
@@ -104,7 +104,7 @@ void UForceFeedbackEffectBase::InitialiseEffect()
 	//Safety check to ensure we don't try calling BP during destruction
 	if (IsValidChecked(this) == false || this->IsUnreachable())
 	{
-		return;
+		return true;
 	}
 
 	OnInitialisedEffect();
@@ -117,26 +117,28 @@ void UForceFeedbackEffectBase::InitialiseEffect()
 	{
 		StartEffect();
 	}
+
+	return true;
 }
 
-void UForceFeedbackEffectBase::StartEffect()
+bool UForceFeedbackEffectBase::StartEffect()
 {
 	if (IsInitialised == false)
 	{
-		return;
+		return false;
 	}
 
 	const bool Status = GetEffectStatus();
 	if (Status == true)
 	{
 		EffectRunning = true;
-		return;
+		return true;
 	}
 
 	const UJoystickHapticDeviceManager* HapticDeviceManager = GetDefault<UJoystickHapticDeviceManager>();
 	if (!IsValid(HapticDeviceManager))
 	{
-		return;
+		return false;
 	}
 
 	if (InfiniteIterations)
@@ -147,7 +149,7 @@ void UForceFeedbackEffectBase::StartEffect()
 	const bool Result = HapticDeviceManager->RunEffect(InstanceId, EffectId, Iterations);
 	if (Result == false)
 	{
-		return;
+		return false;
 	}
 	StartTime = SDL_GetTicks();
 	EffectRunning = true;
@@ -155,7 +157,7 @@ void UForceFeedbackEffectBase::StartEffect()
 	//Safety check to ensure we don't try calling BP during destruction
 	if (IsValidChecked(this) == false || this->IsUnreachable())
 	{
-		return;
+		return false;
 	}
 
 	OnStartedEffect();
@@ -163,6 +165,8 @@ void UForceFeedbackEffectBase::StartEffect()
 	{
 		OnStartedEffectDelegate.Broadcast(this);
 	}
+
+	return true;
 }
 
 void UForceFeedbackEffectBase::StopEffect()
@@ -183,7 +187,7 @@ void UForceFeedbackEffectBase::StopEffect()
 	{
 		return;
 	}
-	StartTime = -1;
+	StartTime = UINT64_MAX;
 	EffectRunning = false;
 
 	//Safety check to ensure we don't try calling BP during destruction
@@ -216,7 +220,7 @@ void UForceFeedbackEffectBase::DestroyEffect()
 
 	IsInitialised = false;
 	EffectId = -1;
-	StartTime = -1;
+	StartTime = UINT64_MAX;
 	EffectRunning = false;
 
 	//Safety check to ensure we don't try calling BP during destruction
@@ -294,14 +298,23 @@ void UForceFeedbackEffectBase::TickEffect(const float DeltaTime)
 		UpdateEffect();
 	}
 
-	const uint32 Duration = GetEffectDuration();
-	if (EffectRunning && InfiniteIterations == false && StartTime != -1 && Duration != -1)
+	// Effect should be finished but sometimes SDL2 doesn't handle the status correctly.
+	if (ForceStopAfterDurationLapsed)
 	{
-		const uint64 CurrentTime = SDL_GetTicks();
-		if (CurrentTime - StartTime >= Duration)
+		const uint32 Duration = GetEffectDuration();
+
+		const bool ShouldCheck =
+			EffectRunning &&
+			InfiniteIterations == false &&
+			StartTime != UINT64_MAX &&
+			Duration != SDL_HAPTIC_INFINITY &&
+			Duration != 0;
+
+		if (ShouldCheck)
 		{
-			// Effect should be finished but sometimes SDL2 doesn't handle the status correctly.
-			if (GetEffectStatus() == true || ForceStopAfterDurationLapsed)
+			const uint64 CurrentTime = SDL_GetTicks();
+
+			if (CurrentTime - StartTime >= Duration && GetEffectStatus())
 			{
 				StopEffect();
 			}
