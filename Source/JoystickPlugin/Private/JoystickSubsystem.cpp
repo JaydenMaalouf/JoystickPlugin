@@ -296,24 +296,24 @@ bool UJoystickSubsystem::SetJoystickSensorEnabled(const FJoystickInstanceId& Ins
 
 	switch (SensorType)
 	{
-	case EJoystickSensorType::Gyro:
-		{
-			if (SDL_SetGamepadSensorEnabled(DeviceInfo->SDLGamepad, SDL_SENSOR_GYRO, Enabled))
+		case EJoystickSensorType::Gyro:
 			{
-				DeviceInfo->Gyro.Enabled = Enabled;
-				return true;
+				if (SDL_SetGamepadSensorEnabled(DeviceInfo->SDLGamepad, SDL_SENSOR_GYRO, Enabled))
+				{
+					DeviceInfo->Gyro.Enabled = Enabled;
+					return true;
+				}
+				break;
 			}
-			break;
-		}
-	case EJoystickSensorType::Accelerometer:
-		{
-			if (SDL_SetGamepadSensorEnabled(DeviceInfo->SDLGamepad, SDL_SENSOR_ACCEL, Enabled))
+		case EJoystickSensorType::Accelerometer:
 			{
-				DeviceInfo->Accelerometer.Enabled = Enabled;
-				return true;
+				if (SDL_SetGamepadSensorEnabled(DeviceInfo->SDLGamepad, SDL_SENSOR_ACCEL, Enabled))
+				{
+					DeviceInfo->Accelerometer.Enabled = Enabled;
+					return true;
+				}
+				break;
 			}
-			break;
-		}
 	}
 
 	return false;
@@ -524,63 +524,63 @@ bool UJoystickSubsystem::HandleSDLEvent(void* UserData, SDL_Event* Event)
 
 	switch (Event->type)
 	{
-	case SDL_EVENT_JOYSTICK_ADDED:
-		{
-			JoystickSubsystem.AddDeviceByInstanceId(Event->jdevice.which);
-			break;
-		}
-	case SDL_EVENT_JOYSTICK_REMOVED:
-		{
-			JoystickSubsystem.RemoveDevice(Event->jdevice.which);
-			break;
-		}
-	case SDL_EVENT_JOYSTICK_BUTTON_DOWN:
-	case SDL_EVENT_JOYSTICK_BUTTON_UP:
-		{
-			InputDevice->JoystickButton(Event->jbutton.which, Event->jbutton.button, Event->jbutton.type == SDL_EVENT_JOYSTICK_BUTTON_DOWN);
-			break;
-		}
-	case SDL_EVENT_JOYSTICK_AXIS_MOTION:
-		{
-			InputDevice->JoystickAxis(Event->jaxis.which, Event->jaxis.axis, UJoystickFunctionLibrary::NormalizeAxisRaw(Event->jaxis.value));
-			break;
-		}
-	case SDL_EVENT_JOYSTICK_HAT_MOTION:
-		{
-			InputDevice->JoystickHat(Event->jhat.which, Event->jhat.hat, UJoystickFunctionLibrary::HatValueToDirection(Event->jhat.value));
-			break;
-		}
-	case SDL_EVENT_JOYSTICK_BALL_MOTION:
-		{
-			InputDevice->JoystickBall(Event->jball.which, Event->jball.ball, FVector2D(Event->jball.xrel, Event->jball.yrel));
-			break;
-		}
-	case SDL_EVENT_JOYSTICK_BATTERY_UPDATED:
-		{
-			JoystickSubsystem.JoystickPowerInformationUpdated(Event->jdevice.which);
-			break;
-		}
-	case SDL_EVENT_GAMEPAD_SENSOR_UPDATE:
-		{
-			switch (static_cast<SDL_SensorType>(Event->gsensor.type))
+		case SDL_EVENT_JOYSTICK_ADDED:
 			{
-			case SDL_SENSOR_GYRO:
-				{
-					InputDevice->JoystickGyro(Event->gsensor.which, FVector(Event->gsensor.data[0], Event->gsensor.data[1], Event->gsensor.data[2]));
-					break;
-				}
-			case SDL_SENSOR_ACCEL:
-				{
-					InputDevice->JoystickAccelerometer(Event->gsensor.which, FVector(Event->gsensor.data[0], Event->gsensor.data[1], Event->gsensor.data[2]));
-					break;
-				}
-			default:
+				JoystickSubsystem.AddDeviceByInstanceId(Event->jdevice.which);
 				break;
 			}
+		case SDL_EVENT_JOYSTICK_REMOVED:
+			{
+				JoystickSubsystem.RemoveDevice(Event->jdevice.which);
+				break;
+			}
+		case SDL_EVENT_JOYSTICK_BUTTON_DOWN:
+		case SDL_EVENT_JOYSTICK_BUTTON_UP:
+			{
+				InputDevice->JoystickButton(Event->jbutton.which, Event->jbutton.button, Event->jbutton.type == SDL_EVENT_JOYSTICK_BUTTON_DOWN);
+				break;
+			}
+		case SDL_EVENT_JOYSTICK_AXIS_MOTION:
+			{
+				InputDevice->JoystickAxis(Event->jaxis.which, Event->jaxis.axis, UJoystickFunctionLibrary::NormalizeAxisRaw(Event->jaxis.value));
+				break;
+			}
+		case SDL_EVENT_JOYSTICK_HAT_MOTION:
+			{
+				InputDevice->JoystickHat(Event->jhat.which, Event->jhat.hat, UJoystickFunctionLibrary::HatValueToDirection(Event->jhat.value));
+				break;
+			}
+		case SDL_EVENT_JOYSTICK_BALL_MOTION:
+			{
+				InputDevice->JoystickBall(Event->jball.which, Event->jball.ball, FVector2D(Event->jball.xrel, Event->jball.yrel));
+				break;
+			}
+		case SDL_EVENT_JOYSTICK_BATTERY_UPDATED:
+			{
+				JoystickSubsystem.JoystickPowerInformationUpdated(Event->jdevice.which);
+				break;
+			}
+		case SDL_EVENT_GAMEPAD_SENSOR_UPDATE:
+			{
+				switch (static_cast<SDL_SensorType>(Event->gsensor.type))
+				{
+					case SDL_SENSOR_GYRO:
+						{
+							InputDevice->JoystickGyro(Event->gsensor.which, FVector(Event->gsensor.data[0], Event->gsensor.data[1], Event->gsensor.data[2]));
+							break;
+						}
+					case SDL_SENSOR_ACCEL:
+						{
+							InputDevice->JoystickAccelerometer(Event->gsensor.which, FVector(Event->gsensor.data[0], Event->gsensor.data[1], Event->gsensor.data[2]));
+							break;
+						}
+					default:
+						break;
+				}
+				break;
+			}
+		default:
 			break;
-		}
-	default:
-		break;
 	}
 
 	return true;
@@ -922,13 +922,13 @@ void UJoystickSubsystem::InitialiseExistingJoysticks()
 		bool HasCollectionPriority;
 		switch (JoystickInputSettings->PrioritisationMethod)
 		{
-		default:
-		case EJoystickPrioritisationType::Lowest:
-			HasCollectionPriority = Device.CollectionIndex < ExistingDevice->CollectionIndex;
-			break;
-		case EJoystickPrioritisationType::Highest:
-			HasCollectionPriority = Device.CollectionIndex > ExistingDevice->CollectionIndex;
-			break;
+			default:
+			case EJoystickPrioritisationType::Lowest:
+				HasCollectionPriority = Device.CollectionIndex < ExistingDevice->CollectionIndex;
+				break;
+			case EJoystickPrioritisationType::Highest:
+				HasCollectionPriority = Device.CollectionIndex > ExistingDevice->CollectionIndex;
+				break;
 		}
 
 		if (HasCollectionPriority)

@@ -1,0 +1,62 @@
+name: package-fab
+description: 'Creates the Fab submission archives from the plugin builds produced by the package action.'
+
+# The Fab archives carry the SDL3 libraries for every platform, but no binaries
+# or LICENSE. They are written to a private directory on the runner and are
+# never attached to the GitHub release.
+
+inputs:
+  releaseVersion:
+    description: 'The plugin release version, used as the name of the folder the archives are written to.'
+    required: true
+  outputDirectory:
+    description: 'Directory on the runner where the Fab archives are written. Defaults to JoystickPlugin-Fab on the desktop of the runner account.'
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Archive Plugin for Fab
+      shell: pwsh
+      run: |
+        $releaseVersion = '${{ inputs.releaseVersion }}'
+        $outputDir      = '${{ inputs.outputDirectory }}'
+        $runnerTemp     = $env:RUNNER_TEMP
+
+        $buildRoot = Join-Path $runnerTemp 'build'
+        $stageRoot = Join-Path $runnerTemp 'fab'
+
+        if (-not $outputDir) {
+          $outputDir = Join-Path ([Environment]::GetFolderPath('Desktop')) 'JoystickPlugin-Fab'
+        }
+
+        $versionDir = Join-Path $outputDir $releaseVersion
+        New-Item -Path $versionDir -ItemType Directory -Force | Out-Null
+
+        $buildDirs = @(Get-ChildItem -Path $buildRoot -Directory -Filter 'UE_*')
+        if ($buildDirs.Count -eq 0) {
+          throw "No plugin builds found in $buildRoot. Run the package action first."
+        }
+
+        foreach ($buildDir in $buildDirs) {
+          $engineVersion = $buildDir.Name -replace '^UE_', ''
+          $stageDir      = Join-Path $stageRoot $buildDir.Name
+          $zipFilePath   = Join-Path $versionDir ("JoystickPlugin-{0}.zip" -f $engineVersion)
+
+          Remove-Item -Path $stageDir -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -Path $stageDir -ItemType Directory -Force | Out-Null
+
+          Get-ChildItem -Path $buildDir.FullName |
+            Where-Object { $_.Name -notin 'Binaries', 'Intermediate', 'LICENSE' } |
+            Copy-Item -Destination $stageDir -Recurse -Force
+
+          $filterFile = Join-Path $stageDir 'Config\FilterPlugin.ini'
+          if (Test-Path $filterFile) {
+            (Get-Content $filterFile) | Where-Object { $_.Trim() -ne 'LICENSE' } | Set-Content $filterFile
+          }
+
+          Compress-Archive -Path (Join-Path $stageDir '*') -DestinationPath $zipFilePath -Force
+          Remove-Item -Path $stageDir -Recurse -Force
+
+          Write-Host "Fab archive: $zipFilePath"
+        }

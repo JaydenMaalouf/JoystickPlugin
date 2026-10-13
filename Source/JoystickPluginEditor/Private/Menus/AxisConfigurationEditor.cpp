@@ -835,29 +835,29 @@ void SAxisConfigurationEditor::ApplyWorkingRange()
 {
 	switch (SelectedInputRange)
 	{
-	case 0: // -1 to 0
-		CurrentProperties.RerangeInput = true;
-		CurrentProperties.InputRangeMin = -1.0f;
-		CurrentProperties.InputRangeMax = 0.0f;
-		break;
-	case 1: // -1 to 1
-		CurrentProperties.RerangeInput = true;
-		CurrentProperties.InputRangeMin = -1.0f;
-		CurrentProperties.InputRangeMax = 1.0f;
-		break;
-	case 2: // 0 to 1
-		CurrentProperties.RerangeInput = true;
-		CurrentProperties.InputRangeMin = 0.0f;
-		CurrentProperties.InputRangeMax = 1.0f;
-		break;
-	case 3: // custom
-		CurrentProperties.RerangeInput = true;
-		// Values are already set by the numeric entry boxes
-		break;
-	case -1:
-	default:
-		CurrentProperties.RerangeInput = false;
-		break;
+		case 0: // -1 to 0
+			CurrentProperties.RerangeInput = true;
+			CurrentProperties.InputRangeMin = -1.0f;
+			CurrentProperties.InputRangeMax = 0.0f;
+			break;
+		case 1: // -1 to 1
+			CurrentProperties.RerangeInput = true;
+			CurrentProperties.InputRangeMin = -1.0f;
+			CurrentProperties.InputRangeMax = 1.0f;
+			break;
+		case 2: // 0 to 1
+			CurrentProperties.RerangeInput = true;
+			CurrentProperties.InputRangeMin = 0.0f;
+			CurrentProperties.InputRangeMax = 1.0f;
+			break;
+		case 3: // custom
+			CurrentProperties.RerangeInput = true;
+			// Values are already set by the numeric entry boxes
+			break;
+		case -1:
+		default:
+			CurrentProperties.RerangeInput = false;
+			break;
 	}
 
 	CurrentProperties.RemappingEnabled = CurrentProperties.RerangeInput || CurrentProperties.RerangeOutput || CurrentProperties.InvertInput;
@@ -869,20 +869,20 @@ void SAxisConfigurationEditor::ApplyOutputRange()
 {
 	switch (SelectedOutputRange)
 	{
-	case 0:
-		CurrentProperties.RerangeOutput = true;
-		CurrentProperties.OutputRangeMin = 0.0f;
-		CurrentProperties.OutputRangeMax = 1.0f;
-		break;
-	case 1:
-		CurrentProperties.RerangeOutput = true;
-		CurrentProperties.OutputRangeMin = -1.0f;
-		CurrentProperties.OutputRangeMax = 1.0f;
-		break;
-	case -1:
-	default:
-		CurrentProperties.RerangeOutput = false;
-		break;
+		case 0:
+			CurrentProperties.RerangeOutput = true;
+			CurrentProperties.OutputRangeMin = 0.0f;
+			CurrentProperties.OutputRangeMax = 1.0f;
+			break;
+		case 1:
+			CurrentProperties.RerangeOutput = true;
+			CurrentProperties.OutputRangeMin = -1.0f;
+			CurrentProperties.OutputRangeMax = 1.0f;
+			break;
+		case -1:
+		default:
+			CurrentProperties.RerangeOutput = false;
+			break;
 	}
 
 	CurrentProperties.RemappingEnabled = CurrentProperties.RerangeInput || CurrentProperties.RerangeOutput || CurrentProperties.InvertInput;

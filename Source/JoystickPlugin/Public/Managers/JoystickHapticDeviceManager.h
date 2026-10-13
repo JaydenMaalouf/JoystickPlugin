@@ -41,10 +41,10 @@ public:
 	bool StopAllEffects(const FJoystickInstanceId& InstanceId) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Joystick|Force Feedback")
-	int GetNumEffects(const FJoystickInstanceId& InstanceId) const;
+	int GetMaxNumEffects(const FJoystickInstanceId& InstanceId) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Joystick|Force Feedback")
-	int GetNumEffectsPlaying(const FJoystickInstanceId& InstanceId) const;
+	int GetMaxNumEffectsPlaying(const FJoystickInstanceId& InstanceId) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Joystick|Force Feedback")
 	bool GetEffectStatus(const FJoystickInstanceId& InstanceId, const int EffectId) const;

@@ -18,6 +18,7 @@ public class JoystickPlugin : ModuleRules
 				"Core",
 				"CoreUObject",
 				"Engine",
+				"GameplayTags",
 				"InputCore",
 				"InputDevice",
 				"PhysicsCore",

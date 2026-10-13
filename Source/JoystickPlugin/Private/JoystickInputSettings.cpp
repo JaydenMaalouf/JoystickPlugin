@@ -139,11 +139,11 @@ bool UJoystickInputSettings::ConfigurationMatchesDevice(const FJoystickInputDevi
 {
 	switch (DeviceConfiguration.DeviceIdentifyMethod)
 	{
-	case EJoystickIdentifierType::Legacy:
-		return (IncludeEmptyGuids && !DeviceConfiguration.ProductGuid.IsValid()) || ConnectedDevice.ProductGuid == DeviceConfiguration.ProductGuid;
-	case EJoystickIdentifierType::Hashed:
-	default:
-		return (IncludeEmptyGuids && DeviceConfiguration.DeviceHash.IsEmpty()) || ConnectedDevice.DeviceHash == DeviceConfiguration.DeviceHash;
+		case EJoystickIdentifierType::Legacy:
+			return (IncludeEmptyGuids && !DeviceConfiguration.ProductGuid.IsValid()) || ConnectedDevice.ProductGuid == DeviceConfiguration.ProductGuid;
+		case EJoystickIdentifierType::Hashed:
+		default:
+			return (IncludeEmptyGuids && DeviceConfiguration.DeviceHash.IsEmpty()) || ConnectedDevice.DeviceHash == DeviceConfiguration.DeviceHash;
 	}
 }
 

@@ -28,7 +28,12 @@
 #include "Misc/CoreMiscDefines.h"
 #include "Runtime/Launch/Resources/Version.h"
 
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 8
+#include "GenericPlatform/InputDeviceRegistry.h"
+#endif
+
 const static FName JoystickCategory = "Joystick";
+static FName JoystickInputInterfaceName = FName("JoystickPluginInput");
 
 FJoystickInputDevice::FJoystickInputDevice(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler) : MessageHandler(InMessageHandler)
 {
@@ -474,6 +479,15 @@ void FJoystickInputDevice::JoystickPluggedIn(const FDeviceInfoSDL& Device)
 
 	UpdateDeviceProperties();
 
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 8
+	// FInputDeviceScope is deprecated in 5.8, hardware info is registered once on connection instead
+	FInputDeviceDescriptor DeviceDescriptor;
+	DeviceDescriptor.HardwareDeviceHandle = Device.GetInputDeviceId();
+	DeviceDescriptor.InputDeviceName = JoystickInputInterfaceName;
+	DeviceDescriptor.HardwareDeviceIdentifier = JoystickInputSettings->UseDeviceNameAsHardwareDeviceIdentifier ? FName(*Device.DeviceName) : FName("Joystick");
+	FInputDeviceRegistry::RegisterDevice(DeviceDescriptor);
+#endif
+
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
 	NotifyDeviceState(Device.GetInputDeviceId(), Device.GetPlatformUserId(), EInputDeviceConnectionState::Connected);
 #endif
@@ -648,8 +662,6 @@ const FKeyPair& FJoystickInputDevice::GetDeviceHatKey(const FJoystickInstanceId&
 	return DeviceHatAxisKeys[InstanceId][HatKeyIndex];
 }
 
-static FName JoystickInputInterfaceName = FName("JoystickPluginInput");
-
 void FJoystickInputDevice::SendControllerEvents()
 {
 	if (!IsValid(GEngine))
@@ -683,8 +695,10 @@ void FJoystickInputDevice::SendControllerEvents()
 			continue;
 		}
 
+#if !(ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 8)
 		const FString HardwareDeviceIdentifier = JoystickInputSettings->UseDeviceNameAsHardwareDeviceIdentifier ? DeviceInfo.DeviceName : "Joystick";
 		FInputDeviceScope InputScope(this, JoystickInputInterfaceName, InstanceId, HardwareDeviceIdentifier);
+#endif
 
 		// Axis
 		if (DeviceAxisKeys.Contains(InstanceId))

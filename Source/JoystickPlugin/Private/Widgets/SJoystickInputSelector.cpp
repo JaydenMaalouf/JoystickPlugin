@@ -191,56 +191,56 @@ FReply SJoystickInputSelector::OnAnalogValueChanged(const FGeometry& MyGeometry,
 
 		switch (SelectedKeyData.State)
 		{
-		case EAxisSelectState::Idle:
-			{
-				if (bHitMinEdge)
+			case EAxisSelectState::Idle:
 				{
-					SelectedKeyData.State = EAxisSelectState::FromMin;
-					SelectedKeyData.StartTimeSeconds = Now;
+					if (bHitMinEdge)
+					{
+						SelectedKeyData.State = EAxisSelectState::FromMin;
+						SelectedKeyData.StartTimeSeconds = Now;
+					}
+					else if (bHitMaxEdge)
+					{
+						SelectedKeyData.State = EAxisSelectState::FromMax;
+						SelectedKeyData.StartTimeSeconds = Now;
+					}
+					break;
 				}
-				else if (bHitMaxEdge)
-				{
-					SelectedKeyData.State = EAxisSelectState::FromMax;
-					SelectedKeyData.StartTimeSeconds = Now;
-				}
-				break;
-			}
 
-		case EAxisSelectState::FromMin:
-			{
-				if (bAtMax)
+			case EAxisSelectState::FromMin:
 				{
-					SelectedKeyData.Reset();
-					SelectedKeyData.bWasSelecting = true;
-					SelectKey(
-						AxisKey,
-						ModifierKey == EModifierKey::Shift,
-						ModifierKey == EModifierKey::Control,
-						ModifierKey == EModifierKey::Alt,
-						ModifierKey == EModifierKey::Command);
-					SetIsSelectingKey(false);
-					return FReply::Handled();
+					if (bAtMax)
+					{
+						SelectedKeyData.Reset();
+						SelectedKeyData.bWasSelecting = true;
+						SelectKey(
+							AxisKey,
+							ModifierKey == EModifierKey::Shift,
+							ModifierKey == EModifierKey::Control,
+							ModifierKey == EModifierKey::Alt,
+							ModifierKey == EModifierKey::Command);
+						SetIsSelectingKey(false);
+						return FReply::Handled();
+					}
+					break;
 				}
-				break;
-			}
 
-		case EAxisSelectState::FromMax:
-			{
-				if (bAtMin)
+			case EAxisSelectState::FromMax:
 				{
-					SelectedKeyData.Reset();
-					SelectedKeyData.bWasSelecting = true;
-					SelectKey(
-						AxisKey,
-						ModifierKey == EModifierKey::Shift,
-						ModifierKey == EModifierKey::Control,
-						ModifierKey == EModifierKey::Alt,
-						ModifierKey == EModifierKey::Command);
-					SetIsSelectingKey(false);
-					return FReply::Handled();
+					if (bAtMin)
+					{
+						SelectedKeyData.Reset();
+						SelectedKeyData.bWasSelecting = true;
+						SelectKey(
+							AxisKey,
+							ModifierKey == EModifierKey::Shift,
+							ModifierKey == EModifierKey::Control,
+							ModifierKey == EModifierKey::Alt,
+							ModifierKey == EModifierKey::Command);
+						SetIsSelectingKey(false);
+						return FReply::Handled();
+					}
+					break;
 				}
-				break;
-			}
 		}
 
 		// Update edge history AFTER processing

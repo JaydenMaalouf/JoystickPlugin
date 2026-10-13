@@ -10,27 +10,27 @@ void UForceFeedbackEffectCondition::UpdateEffectData()
 
 	switch (EffectData.EffectType)
 	{
-	default:
-	case EForceFeedbackConditionEffectType::Spring:
-		{
-			Effect.type = SDL_HAPTIC_SPRING;
-			break;
-		}
-	case EForceFeedbackConditionEffectType::Damper:
-		{
-			Effect.type = SDL_HAPTIC_DAMPER;
-			break;
-		}
-	case EForceFeedbackConditionEffectType::Friction:
-		{
-			Effect.type = SDL_HAPTIC_FRICTION;
-			break;
-		}
-	case EForceFeedbackConditionEffectType::Inertia:
-		{
-			Effect.type = SDL_HAPTIC_INERTIA;
-			break;
-		}
+		default:
+		case EForceFeedbackConditionEffectType::Spring:
+			{
+				Effect.type = SDL_HAPTIC_SPRING;
+				break;
+			}
+		case EForceFeedbackConditionEffectType::Damper:
+			{
+				Effect.type = SDL_HAPTIC_DAMPER;
+				break;
+			}
+		case EForceFeedbackConditionEffectType::Friction:
+			{
+				Effect.type = SDL_HAPTIC_FRICTION;
+				break;
+			}
+		case EForceFeedbackConditionEffectType::Inertia:
+			{
+				Effect.type = SDL_HAPTIC_INERTIA;
+				break;
+			}
 	}
 
 	Effect.condition.direction = EffectData.DirectionData.ToSDLDirection();

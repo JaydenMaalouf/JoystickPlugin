@@ -405,11 +405,11 @@ bool UJoystickProfileManager::CreateJoystickProfile(const FString& DeviceProfile
 	FConfigFile ProfileConfigFile;
 	switch (DeviceConfiguration.DeviceIdentifyMethod)
 	{
-	case EJoystickIdentifierType::Legacy:
-		ProfileConfigFile.SetString(*JoystickConfigurationSection, GET_MEMBER_NAME_STRING_CHECKED(FJoystickInputDeviceConfiguration, ProductGuid), *DeviceConfiguration.ProductGuid.ToString());
-	case EJoystickIdentifierType::Hashed:
-	default:
-		ProfileConfigFile.SetString(*JoystickConfigurationSection, GET_MEMBER_NAME_STRING_CHECKED(FJoystickInputDeviceConfiguration, DeviceHash), *DeviceConfiguration.DeviceHash);
+		case EJoystickIdentifierType::Legacy:
+			ProfileConfigFile.SetString(*JoystickConfigurationSection, GET_MEMBER_NAME_STRING_CHECKED(FJoystickInputDeviceConfiguration, ProductGuid), *DeviceConfiguration.ProductGuid.ToString());
+		case EJoystickIdentifierType::Hashed:
+		default:
+			ProfileConfigFile.SetString(*JoystickConfigurationSection, GET_MEMBER_NAME_STRING_CHECKED(FJoystickInputDeviceConfiguration, DeviceHash), *DeviceConfiguration.DeviceHash);
 	}
 
 	if (DeviceConfiguration.OverrideDeviceName)

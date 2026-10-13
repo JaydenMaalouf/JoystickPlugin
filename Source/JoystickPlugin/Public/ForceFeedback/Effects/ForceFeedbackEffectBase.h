@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "GameplayTagContainer.h"
 #include "Tickable.h"
 #include "Data/JoystickInstanceId.h"
 #include "ForceFeedback/JoystickForceFeedbackComponent.h"
@@ -24,7 +25,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdatedEffect, const UForceFeedba
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDestroyedEffect, const UForceFeedbackEffectBase*, Effect);
 
-UCLASS(BlueprintType)
+struct FJoystickHapticInformation;
+
+UCLASS(BlueprintType, EditInlineNew)
 class JOYSTICKPLUGIN_API UForceFeedbackEffectBase : public UObject, public FTickableGameObject
 {
 	GENERATED_BODY()
@@ -105,6 +108,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Force Feedback")
 	AActor* GetOwningActor() const;
 
+	// Builds the effect data to work out its type, then checks it against the effect types the device supports.
+	bool IsSupportedByDevice(const FJoystickHapticInformation& HapticInformation);
+
 	template <class T>
 	T* GetOwningActor() const
 	{
@@ -139,6 +145,15 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Force Feedback", meta=(ExposeOnSpawn=true))
 	bool InfiniteIterations;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Force Feedback", meta=(ToolTip="Name given to this effect by the effect group entry that spawned it."))
+	FName EffectName;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Force Feedback", meta=(ToolTip="Tag given to this effect by the effect group entry that spawned it."))
+	FGameplayTag EffectTag;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Force Feedback", meta=(ToolTip="Tag of the effect group that spawned this effect."))
+	FGameplayTag GroupTag;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Force Feedback|Tick")
 	bool Tickable;
@@ -182,6 +197,9 @@ private:
 	float TimeAccumulator;
 
 	bool EffectRunning;
+
+	// Set by the owning component from the effect group entry's AutoStart. When false the component leaves this effect stopped when it starts, so it is only started by name or tag.
+	bool ShouldStartWithComponent;
 
 	friend class UJoystickForceFeedbackComponent;
 };
