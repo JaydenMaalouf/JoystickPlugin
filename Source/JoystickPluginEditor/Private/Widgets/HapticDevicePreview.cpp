@@ -83,7 +83,7 @@ int32 SHapticDevicePreview::PaintWheel(const FGeometry& AllottedGeometry, FSlate
 
 	auto AddVertex = [&](const FVector2D& Point, const FColor& Color)
 	{
-		return static_cast<SlateIndex>(Vertices.Add(FSlateVertex::Make<ESlateVertexRounding::Disabled>(AccumulatedRenderTransform,FVector2f(Point), FVector2f(0.5f, 0.5f), Color)));
+		return static_cast<SlateIndex>(Vertices.Add(FSlateVertex::Make<ESlateVertexRounding::Disabled>(AccumulatedRenderTransform, FVector2f(Point), FVector2f(0.5f, 0.5f), Color)));
 	};
 
 	auto AddQuad = [&](const SlateIndex A, const SlateIndex B, const SlateIndex C, const SlateIndex D)
