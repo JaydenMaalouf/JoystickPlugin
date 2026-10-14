@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "CoreMinimal.h"
+
 THIRD_PARTY_INCLUDES_START
 
 #include "JoystickSDL.h"

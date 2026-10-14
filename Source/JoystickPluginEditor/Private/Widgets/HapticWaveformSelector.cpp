@@ -5,7 +5,6 @@
 
 #include "Styling/AppStyle.h"
 #include "Styling/CoreStyle.h"
-#include "Widgets/HapticEditorStyle.h"
 #include "Widgets/HapticWaveformIcon.h"
 #include "Widgets/SBoxPanel.h"
 #include "Widgets/Input/SButton.h"
@@ -15,6 +14,7 @@
 
 void SHapticWaveformSelector::Construct(const FArguments& InArgs)
 {
+	Style = InArgs._Style;
 	SelectedWaveform = InArgs._SelectedWaveform;
 	OnWaveformSelected = InArgs._OnWaveformSelected;
 	IsWaveformSupported = InArgs._IsWaveformSupported;
@@ -76,7 +76,7 @@ TSharedRef<SWidget> SHapticWaveformSelector::MakeWaveformButton(const EForceFeed
 			.Padding(FMargin(6.0f, 3.0f))
 			.BorderBackgroundColor_Lambda([this, WaveformType]
 			{
-				return FHapticEffectEditorColors::GetToggleBackgroundColor(IsWaveformSelected(WaveformType));
+				return FSlateColor(Style->GetBackgroundColor(IsWaveformSelected(WaveformType)));
 			})
 			[
 				SNew(SHapticWaveformIcon)
@@ -85,10 +85,10 @@ TSharedRef<SWidget> SHapticWaveformSelector::MakeWaveformButton(const EForceFeed
 				{
 					if (!IsSupported(WaveformType))
 					{
-						return FHapticEffectEditorColors::GetUnsupportedForegroundColor().GetSpecifiedColor();
+						return Style->UnsupportedForegroundColor;
 					}
 
-					return IsWaveformSelected(WaveformType) ? FLinearColor::White : FLinearColor(0.6f, 0.6f, 0.6f, 1.0f);
+					return IsWaveformSelected(WaveformType) ? Style->SelectedForegroundColor : Style->UnselectedIconColor;
 				})
 			]
 		];

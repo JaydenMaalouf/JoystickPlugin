@@ -3,15 +3,19 @@
 
 #pragma once
 
+#include "Styling/JoystickPluginEditorStyle.h"
+#include "Styling/JoystickPluginEditorWidgetStyles.h"
 #include "Widgets/SCompoundWidget.h"
 
 class SButtonBox final : public SCompoundWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SButtonBox)
+			: _Style(&FJoystickPluginEditorStyle::Get().GetWidgetStyle<FButtonBoxStyle>("ButtonBox"))
 		{
 		}
 
+		SLATE_STYLE_ARGUMENT(FButtonBoxStyle, Style)
 		SLATE_ATTRIBUTE(bool, Value)
 		SLATE_ATTRIBUTE(int, ButtonIndex)
 		SLATE_ATTRIBUTE(FText, DisplayName)
@@ -24,6 +28,7 @@ public:
 	void SetValue(const bool InValue);
 
 private:
+	const FButtonBoxStyle* Style = nullptr;
 	TAttribute<bool> Value;
 	TAttribute<int> ButtonIndex;
 	TAttribute<FText> DisplayName;

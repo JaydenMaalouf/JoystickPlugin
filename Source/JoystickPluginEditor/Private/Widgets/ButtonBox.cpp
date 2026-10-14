@@ -11,6 +11,7 @@
 
 void SButtonBox::Construct(const FArguments& InArgs)
 {
+	Style = InArgs._Style;
 	Value = InArgs._Value;
 	ButtonIndex = InArgs._ButtonIndex;
 	DisplayName = InArgs._DisplayName;
@@ -67,9 +68,7 @@ void SButtonBox::Construct(const FArguments& InArgs)
 							.AutoWrapText(true)
 							.ColorAndOpacity_Lambda([this]
 							{
-								return Value.Get()
-									       ? FSlateColor(FLinearColor::White)
-									       : FSlateColor(FLinearColor(0.7f, 0.7f, 0.7f, 1.0f));
+								return Value.Get() ? Style->PressedLabelColor : Style->ReleasedLabelColor;
 							})
 						]
 					]
@@ -91,13 +90,7 @@ void SButtonBox::SetValue(const bool InValue)
 
 FLinearColor SButtonBox::GetColor() const
 {
-	if (Value.Get())
-	{
-		// Bright green when pressed
-		return FLinearColor(0.2f, 0.9f, 0.3f, 1.0f);
-	}
-	// Dark gray when not pressed
-	return FLinearColor(0.25f, 0.25f, 0.25f, 1.0f);
+	return Value.Get() ? Style->PressedColor : Style->ReleasedColor;
 }
 
 FSlateColor SButtonBox::GetBackgroundColor() const

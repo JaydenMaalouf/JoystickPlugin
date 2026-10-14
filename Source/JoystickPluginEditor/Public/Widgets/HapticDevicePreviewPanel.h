@@ -32,6 +32,13 @@ public:
 	int32 GetPreviewAxisIndex() const;
 
 private:
+	// How far (in normalised -1..1 units) an axis must move during playback to be treated as the one the effect is driving.
+	static constexpr float AxisDetectionThreshold = 0.01f;
+
+	// User-entered degrees of rotation each way from centre, as no joystick API reports it.
+	static constexpr float MinRotationLimitDegrees = 45.0f;
+	static constexpr float MaxRotationLimitDegrees = 1440.0f;
+
 	void UpdatePreviewAxis();
 	float GetPreviewAxisDegrees() const;
 

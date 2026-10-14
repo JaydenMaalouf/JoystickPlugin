@@ -12,6 +12,7 @@
 
 void SAxisBar::Construct(const FArguments& InArgs)
 {
+	Style = InArgs._Style;
 	Value = FMath::Clamp(InArgs._Value, -1.f, 1.f);
 	AxisIndex = InArgs._AxisIndex;
 	DisplayName = InArgs._DisplayName;
@@ -47,7 +48,7 @@ void SAxisBar::Construct(const FArguments& InArgs)
 				[
 					SNew(SBorder)
 					.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
-					.BorderBackgroundColor(FLinearColor(0.1f, 0.1f, 0.1f, 1.0f))
+					.BorderBackgroundColor(Style->BorderColor)
 					.Padding(2.0f)
 				]
 
@@ -57,7 +58,7 @@ void SAxisBar::Construct(const FArguments& InArgs)
 				[
 					SNew(SBorder)
 					.BorderImage(FCoreStyle::Get().GetBrush("WhiteBrush"))
-					.BorderBackgroundColor(FLinearColor(0.15f, 0.15f, 0.15f, 1.0f))
+					.BorderBackgroundColor(Style->TrackColor)
 				]
 
 				// Center Line Indicator
@@ -71,7 +72,7 @@ void SAxisBar::Construct(const FArguments& InArgs)
 					[
 						SNew(SBorder)
 						.BorderImage(FCoreStyle::Get().GetBrush("WhiteBrush"))
-						.BorderBackgroundColor(FLinearColor(0.4f, 0.4f, 0.4f, 1.0f))
+						.BorderBackgroundColor(Style->CentreLineColor)
 					]
 				]
 
@@ -95,9 +96,7 @@ void SAxisBar::Construct(const FArguments& InArgs)
 						.BorderImage(FCoreStyle::Get().GetBrush("WhiteBrush"))
 						.BorderBackgroundColor_Lambda([this]
 						{
-							const float Val = FMath::Abs(Value.Get());
-							// Gradient from green to bright green based on value
-							return FLinearColor(0.2f, 0.8f + Val * 0.2f, 0.2f, 1.0f);
+							return FMath::Lerp(Style->PositiveFillColor, Style->PositiveFillPeakColor, FMath::Abs(Value.Get()));
 						})
 						.RenderTransform_Lambda([this]
 						{
@@ -127,9 +126,7 @@ void SAxisBar::Construct(const FArguments& InArgs)
 						.BorderImage(FCoreStyle::Get().GetBrush("WhiteBrush"))
 						.BorderBackgroundColor_Lambda([this]
 						{
-							const float Val = FMath::Abs(Value.Get());
-							// Gradient from red to bright red based on value
-							return FLinearColor(0.8f + Val * 0.2f, 0.2f, 0.2f, 1.0f);
+							return FMath::Lerp(Style->NegativeFillColor, Style->NegativeFillPeakColor, FMath::Abs(Value.Get()));
 						})
 						.RenderTransform_Lambda([this]
 						{
@@ -156,7 +153,7 @@ void SAxisBar::Construct(const FArguments& InArgs)
 						.RenderTransform(FSlateRenderTransform(FQuat2D(FMath::DegreesToRadians(-90.0f))))
 						.Justification(ETextJustify::Center)
 						.AutoWrapText(false)
-						.ColorAndOpacity(FLinearColor::White)
+						.ColorAndOpacity(Style->LabelColor)
 					]
 				]
 			]

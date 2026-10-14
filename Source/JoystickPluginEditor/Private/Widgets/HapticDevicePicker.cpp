@@ -7,6 +7,7 @@
 #include "Data/JoystickInformation.h"
 #include "Engine/Engine.h"
 #include "Styling/AppStyle.h"
+#include "Styling/JoystickPluginEditorStyle.h"
 #include "Widgets/SBoxPanel.h"
 #include "Widgets/Text/STextBlock.h"
 
@@ -37,8 +38,7 @@ void SHapticDevicePicker::Construct(const FArguments& InArgs)
 		[
 			SNew(STextBlock)
 			.Text(LOCTEXT("DeviceLabel", "DEVICE"))
-			.TextStyle(FAppStyle::Get(), "SmallText")
-			.ColorAndOpacity(FLinearColor(0.6f, 0.6f, 0.6f, 1.0f))
+			.TextStyle(FJoystickPluginEditorStyle::Get(), "CaptionText")
 		]
 		+ SHorizontalBox::Slot()
 		.FillWidth(1.0f)

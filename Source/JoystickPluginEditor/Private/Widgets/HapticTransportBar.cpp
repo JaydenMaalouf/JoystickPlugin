@@ -12,6 +12,7 @@
 
 void SHapticTransportBar::Construct(const FArguments& InArgs)
 {
+	Style = InArgs._Style;
 	HasDevice = InArgs._HasDevice;
 	IsPlaying = InArgs._IsPlaying;
 	IsLooping = InArgs._IsLooping;
@@ -42,7 +43,7 @@ void SHapticTransportBar::Construct(const FArguments& InArgs)
 			MakeIconButton(
 				"PlayWorld.PlayInViewport",
 				LOCTEXT("PlayTooltip", "Play"),
-				FSlateColor(FLinearColor(0.2f, 1.0f, 0.2f, 1.0f)),
+				FSlateColor(Style->PlayColor),
 				TAttribute<bool>::CreateLambda([this] { return HasDevice.Get() && !IsPlaying.Get(); }),
 				InArgs._OnPlayClicked)
 		]
@@ -52,7 +53,7 @@ void SHapticTransportBar::Construct(const FArguments& InArgs)
 			MakeIconButton(
 				"PlayWorld.StopPlaySession.Small",
 				LOCTEXT("StopTooltip", "Stop"),
-				FSlateColor(FLinearColor(0.9f, 0.3f, 0.3f, 1.0f)),
+				FSlateColor(Style->StopColor),
 				TAttribute<bool>::CreateLambda([this] { return IsPlaying.Get(); }),
 				InArgs._OnStopClicked)
 		]
@@ -64,7 +65,7 @@ void SHapticTransportBar::Construct(const FArguments& InArgs)
 				LOCTEXT("LoopTooltip", "Loop"),
 				TAttribute<FSlateColor>::CreateLambda([this]
 				{
-					return IsLooping.Get() ? FSlateColor(FLinearColor(0.2f, 1.0f, 0.2f, 1.0f)) : FSlateColor(FLinearColor(0.6f, 0.6f, 0.6f, 1.0f));
+					return FSlateColor(IsLooping.Get() ? Style->LoopOnColor : Style->LoopOffColor);
 				}),
 				TAttribute<bool>::CreateLambda([this] { return !IsPlaying.Get(); }),
 				InArgs._OnLoopClicked)

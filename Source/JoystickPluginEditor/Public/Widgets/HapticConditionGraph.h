@@ -4,6 +4,8 @@
 #pragma once
 
 #include "Misc/Optional.h"
+#include "Styling/JoystickPluginEditorStyle.h"
+#include "Styling/JoystickPluginEditorWidgetStyles.h"
 #include "Widgets/SLeafWidget.h"
 
 // The axis' state at an instant, normalised so position spans -1..1, velocity is in half-ranges per second and acceleration in half-ranges per second squared.
@@ -33,12 +35,14 @@ class SHapticConditionGraph : public SLeafWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SHapticConditionGraph)
-			: _Axis(EHapticConditionGraphAxis::Position)
+			: _Style(&FJoystickPluginEditorStyle::Get().GetWidgetStyle<FHapticGraphStyle>("HapticGraph"))
+			  , _Axis(EHapticConditionGraphAxis::Position)
 			  , _SweepRate(1.0f)
 			  , _FullScaleAcceleration(10.0f)
 		{
 		}
 
+		SLATE_STYLE_ARGUMENT(FHapticGraphStyle, Style)
 		SLATE_EVENT(FOnEvaluateHapticConditionMotion, OnEvaluate)
 		SLATE_ATTRIBUTE(EHapticConditionGraphAxis, Axis)
 
@@ -68,6 +72,20 @@ public:
 	virtual FVector2D ComputeDesiredSize(float) const override;
 
 private:
+	// Room left around the plot for the axis labels.
+	static constexpr float MarginX = 36.0f;
+	static constexpr float MarginTop = 24.0f;
+	static constexpr float MarginBottom = 40.0f;
+
+	// Samples per stroke, bunched towards the ends of the sweep where the velocity changes fastest.
+	static constexpr int32 MaxSamples = 256;
+
+	// The strokes are told apart (and the legend shown) only once they are this far apart somewhere, so a spring's single line doesn't get one.
+	static constexpr float MinLoopWidth = 0.005f;
+
+	// How long the live marker's trail lingers.
+	static constexpr double TrailSeconds = 0.6;
+
 	void PaintGrid(const FGeometry& AllottedGeometry, FSlateWindowElementList& OutDrawElements, int32 LayerId) const;
 	void PaintLoop(const FGeometry& AllottedGeometry, FSlateWindowElementList& OutDrawElements, int32 LayerId) const;
 	void PaintAccelerationResponse(const FGeometry& AllottedGeometry, FSlateWindowElementList& OutDrawElements, int32 LayerId) const;
@@ -92,6 +110,7 @@ private:
 
 	float Evaluate(const FHapticConditionMotion& Motion) const;
 
+	const FHapticGraphStyle* Style = nullptr;
 	FOnEvaluateHapticConditionMotion OnEvaluate;
 	TAttribute<EHapticConditionGraphAxis> Axis;
 	TAttribute<float> SweepRate;

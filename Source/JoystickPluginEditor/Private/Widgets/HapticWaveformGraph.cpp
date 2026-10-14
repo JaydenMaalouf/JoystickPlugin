@@ -8,19 +8,9 @@
 #include "Styling/AppStyle.h"
 #include "Styling/CoreStyle.h"
 
-// Matches the palette used by AxisBar/ButtonBox/HatSwitch/BallSwitch.
-struct FHapticWaveformGraphColors
-{
-	static constexpr FLinearColor MinorGridLine = FLinearColor(1.0f, 1.0f, 1.0f, 0.06f);
-	static constexpr FLinearColor ZeroLine = FLinearColor(0.4f, 0.4f, 0.4f, 1.0f);
-	static constexpr FLinearColor AxisLabel = FLinearColor(0.7f, 0.7f, 0.7f, 0.9f);
-	static constexpr FLinearColor CurveGlow = FLinearColor(0.2f, 0.9f, 0.3f, 0.22f);
-	static constexpr FLinearColor CurveBright = FLinearColor(0.2f, 0.9f, 0.3f, 1.0f);
-	static constexpr FLinearColor Playhead = FLinearColor(1.0f, 1.0f, 1.0f, 0.95f);
-};
-
 void SHapticWaveformGraph::Construct(const FArguments& InArgs)
 {
+	Style = InArgs._Style;
 	DurationSeconds = InArgs._DurationSeconds;
 	PlayheadTime = InArgs._PlayheadTime;
 	OnEvaluateEffect = InArgs._OnEvaluateEffect;
@@ -77,11 +67,11 @@ void SHapticWaveformGraph::PaintGrid(const FGeometry& AllottedGeometry, FSlateWi
 		FSlateDrawElement::MakeLines(
 			OutDrawElements, LayerId + 1, AllottedGeometry.ToPaintGeometry(),
 			HorizontalLinePoints,
-			ESlateDrawEffect::None, bIsZeroLine ? FHapticWaveformGraphColors::ZeroLine : FHapticWaveformGraphColors::MinorGridLine, true, bIsZeroLine ? 1.5f : 1.0f);
+			ESlateDrawEffect::None, bIsZeroLine ? Style->ZeroLineColor : Style->GridLineColor, true, bIsZeroLine ? 1.5f : 1.0f);
 
 		FSlateDrawElement::MakeText(
 			OutDrawElements, LayerId + 1, AllottedGeometry.ToOffsetPaintGeometry(FVector2D(4.0f, Y + 2.0f)),
-			FString::Printf(TEXT("%.1f"), Value), LabelFont, ESlateDrawEffect::None, FHapticWaveformGraphColors::AxisLabel);
+			FString::Printf(TEXT("%.1f"), Value), LabelFont, ESlateDrawEffect::None, Style->AxisLabelColor);
 	}
 
 	// Vertical time gridlines, quartered across the duration
@@ -95,13 +85,13 @@ void SHapticWaveformGraph::PaintGrid(const FGeometry& AllottedGeometry, FSlateWi
 		FSlateDrawElement::MakeLines(
 			OutDrawElements, LayerId + 1, AllottedGeometry.ToPaintGeometry(),
 			VerticalLinePoints,
-			ESlateDrawEffect::None, FHapticWaveformGraphColors::MinorGridLine, true, 1.0f);
+			ESlateDrawEffect::None, Style->GridLineColor, true, 1.0f);
 
 		const FString TimeLabel = FString::Printf(TEXT("%.2fs"), Alpha * Duration);
 		const float LabelX = Step == NumDivisions ? X - 32.0f : X + 4.0f;
 		FSlateDrawElement::MakeText(
 			OutDrawElements, LayerId + 1, AllottedGeometry.ToOffsetPaintGeometry(FVector2D(LabelX, Size.Y - 14.0f)),
-			TimeLabel, LabelFont, ESlateDrawEffect::None, FHapticWaveformGraphColors::AxisLabel);
+			TimeLabel, LabelFont, ESlateDrawEffect::None, Style->AxisLabelColor);
 	}
 }
 
@@ -131,11 +121,11 @@ void SHapticWaveformGraph::PaintCurve(const FGeometry& AllottedGeometry, FSlateW
 	// Two-pass glow: a soft wide underlay followed by a bright core line.
 	FSlateDrawElement::MakeLines(
 		OutDrawElements, LayerId, AllottedGeometry.ToPaintGeometry(),
-		CurvePoints, ESlateDrawEffect::None, FHapticWaveformGraphColors::CurveGlow, true, 6.0f);
+		CurvePoints, ESlateDrawEffect::None, Style->CurveGlowColor, true, 6.0f);
 
 	FSlateDrawElement::MakeLines(
 		OutDrawElements, LayerId + 1, AllottedGeometry.ToPaintGeometry(),
-		CurvePoints, ESlateDrawEffect::None, FHapticWaveformGraphColors::CurveBright, true, 2.0f);
+		CurvePoints, ESlateDrawEffect::None, Style->CurveColor, true, 2.0f);
 }
 
 void SHapticWaveformGraph::PaintPlayhead(const FGeometry& AllottedGeometry, FSlateWindowElementList& OutDrawElements, const int32 LayerId, const float Duration) const
@@ -154,7 +144,7 @@ void SHapticWaveformGraph::PaintPlayhead(const FGeometry& AllottedGeometry, FSla
 	FSlateDrawElement::MakeLines(
 		OutDrawElements, LayerId, AllottedGeometry.ToPaintGeometry(),
 		PlayheadLinePoints,
-		ESlateDrawEffect::None, FHapticWaveformGraphColors::Playhead, true, 1.5f);
+		ESlateDrawEffect::None, Style->MarkerColor, true, 1.5f);
 
 	const float ForceValue = OnEvaluateEffect.IsBound() ? FMath::Clamp(OnEvaluateEffect.Execute(TimeSeconds), -1.0f, 1.0f) : 0.0f;
 	const FString Readout = FString::Printf(TEXT("t=%.2fs  F=%.2f"), TimeSeconds, ForceValue);
@@ -163,7 +153,7 @@ void SHapticWaveformGraph::PaintPlayhead(const FGeometry& AllottedGeometry, FSla
 
 	FSlateDrawElement::MakeText(
 		OutDrawElements, LayerId + 1, AllottedGeometry.ToOffsetPaintGeometry(FVector2D(ReadoutX, 6.0f)),
-		Readout, ReadoutFont, ESlateDrawEffect::None, FHapticWaveformGraphColors::Playhead);
+		Readout, ReadoutFont, ESlateDrawEffect::None, Style->MarkerColor);
 }
 
 FReply SHapticWaveformGraph::OnMouseButtonDown(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)

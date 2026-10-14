@@ -5,6 +5,8 @@
 
 #include "CircleWidget.h"
 #include "Data/Input/HatDirection.h"
+#include "Styling/JoystickPluginEditorStyle.h"
+#include "Styling/JoystickPluginEditorWidgetStyles.h"
 #include "Widgets/SCompoundWidget.h"
 #include "Widgets/Layout/SConstraintCanvas.h"
 
@@ -12,9 +14,11 @@ class SHatSwitch : public SCompoundWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SHatSwitch)
+			: _Style(&FJoystickPluginEditorStyle::Get().GetWidgetStyle<FHatSwitchStyle>("HatSwitch"))
 		{
 		}
 
+		SLATE_STYLE_ARGUMENT(FHatSwitchStyle, Style)
 		SLATE_ATTRIBUTE(EHatDirection, Value)
 		SLATE_ATTRIBUTE(int, HatIndex)
 		SLATE_ATTRIBUTE(FText, DisplayName)
@@ -26,6 +30,7 @@ public:
 	void UpdateBallPosition() const;
 
 private:
+	const FHatSwitchStyle* Style = nullptr;
 	TAttribute<EHatDirection> Value;
 	TAttribute<int> HatIndex;
 	TAttribute<FText> DisplayName;

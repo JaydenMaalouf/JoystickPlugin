@@ -4,6 +4,8 @@
 #pragma once
 
 #include "Math/Range.h"
+#include "Styling/JoystickPluginEditorStyle.h"
+#include "Styling/JoystickPluginEditorWidgetStyles.h"
 #include "Widgets/SLeafWidget.h"
 
 DECLARE_DELEGATE_OneParam(FOnHapticGraphScrubbed, float /*TimeMilliseconds*/);
@@ -13,11 +15,13 @@ class SHapticTimelineScrubber : public SLeafWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SHapticTimelineScrubber)
-			: _Bounds(TRange<double>(0.0, 1000.0))
+			: _Style(&FJoystickPluginEditorStyle::Get().GetWidgetStyle<FHapticGraphStyle>("HapticGraph"))
+			  , _Bounds(TRange<double>(0.0, 1000.0))
 			  , _PlayheadTimeMilliseconds(-1)
 		{
 		}
 
+		SLATE_STYLE_ARGUMENT(FHapticGraphStyle, Style)
 		SLATE_ATTRIBUTE(TRange<double>, Bounds)
 		SLATE_ATTRIBUTE(int64, PlayheadTimeMilliseconds)
 		SLATE_EVENT(FOnHapticGraphScrubbed, OnScrubbed)
@@ -47,6 +51,7 @@ private:
 	void PaintBackground(const FGeometry& AllottedGeometry, FSlateWindowElementList& OutDrawElements, int32 LayerId) const;
 	void PaintPlayhead(const FGeometry& AllottedGeometry, FSlateWindowElementList& OutDrawElements, int32 LayerId) const;
 
+	const FHapticGraphStyle* Style = nullptr;
 	TAttribute<TRange<double>> Bounds;
 	TAttribute<int64> PlayheadTimeMilliseconds;
 	FOnHapticGraphScrubbed OnScrubbed;

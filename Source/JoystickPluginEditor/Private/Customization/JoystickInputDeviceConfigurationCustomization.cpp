@@ -10,6 +10,7 @@
 #include "JoystickInputSettings.h"
 #include "Managers/JoystickProfileManager.h"
 #include "Misc/MessageDialog.h"
+#include "Styling/JoystickPluginEditorStyle.h"
 #include "Widgets/Layout/SUniformGridPanel.h"
 
 #define LOCTEXT_NAMESPACE "JoystickInputDeviceConfigurationCustomization"
@@ -36,8 +37,7 @@ void FJoystickInputDeviceConfigurationCustomization::CustomizeHeader(const TShar
 				{
 					return GetConnectedDeviceDisplayName(StructPropertyHandle);
 				})
-				.ColorAndOpacity(FSlateColor(FLinearColor(0.45f, 0.45f, 0.45f, 1.0f)))
-				.TextStyle(FAppStyle::Get(), "SmallText")
+				.TextStyle(FJoystickPluginEditorStyle::Get(), "HintText")
 			]
 		]
 		.ValueContent()

@@ -4,6 +4,8 @@
 #pragma once
 
 #include "Math/Range.h"
+#include "Styling/JoystickPluginEditorStyle.h"
+#include "Styling/JoystickPluginEditorWidgetStyles.h"
 #include "Widgets/SLeafWidget.h"
 
 // Hit-test-invisible playhead line overlaid on the curve editor panel. ReferenceGeometry is the region the line should span.
@@ -12,11 +14,13 @@ class SHapticGraphPlayhead : public SLeafWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SHapticGraphPlayhead)
-			: _Bounds(TRange<double>(0.0, 1000.0))
+			: _Style(&FJoystickPluginEditorStyle::Get().GetWidgetStyle<FHapticGraphStyle>("HapticGraph"))
+			  , _Bounds(TRange<double>(0.0, 1000.0))
 			  , _PlayheadTimeMilliseconds(-1)
 		{
 		}
 
+		SLATE_STYLE_ARGUMENT(FHapticGraphStyle, Style)
 		SLATE_ATTRIBUTE(TRange<double>, Bounds)
 		SLATE_ATTRIBUTE(int64, PlayheadTimeMilliseconds)
 		SLATE_ATTRIBUTE(FGeometry, ReferenceGeometry)
@@ -37,6 +41,7 @@ public:
 	virtual FVector2D ComputeDesiredSize(float) const override;
 
 private:
+	const FHapticGraphStyle* Style = nullptr;
 	TAttribute<TRange<double>> Bounds;
 	TAttribute<int64> PlayheadTimeMilliseconds;
 	TAttribute<FGeometry> ReferenceGeometry;

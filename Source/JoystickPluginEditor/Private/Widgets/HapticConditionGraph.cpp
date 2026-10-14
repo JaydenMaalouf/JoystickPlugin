@@ -11,36 +11,9 @@
 
 #define LOCTEXT_NAMESPACE "HapticEffectEditor"
 
-// Matches the curve green of the time graph and the palette used by AxisBar/ButtonBox/HatSwitch/BallSwitch.
-struct FHapticConditionGraphStyle
-{
-	static constexpr FLinearColor MinorGridLine = FLinearColor(1.0f, 1.0f, 1.0f, 0.06f);
-	static constexpr FLinearColor ZeroLine = FLinearColor(0.4f, 0.4f, 0.4f, 1.0f);
-	static constexpr FLinearColor AxisLabel = FLinearColor(0.7f, 0.7f, 0.7f, 0.9f);
-	static constexpr FLinearColor LoopFill = FLinearColor(0.2f, 0.9f, 0.3f, 0.12f);
-	static constexpr FLinearColor PositiveStrokeGlow = FLinearColor(0.2f, 0.9f, 0.3f, 0.22f);
-	static constexpr FLinearColor PositiveStroke = FLinearColor(0.2f, 0.9f, 0.3f, 1.0f);
-	static constexpr FLinearColor NegativeStrokeGlow = FLinearColor(0.25f, 0.7f, 1.0f, 0.22f);
-	static constexpr FLinearColor NegativeStroke = FLinearColor(0.25f, 0.7f, 1.0f, 1.0f);
-	static constexpr FLinearColor LiveInput = FLinearColor(1.0f, 1.0f, 1.0f, 0.95f);
-
-	// Room left around the plot for the axis labels.
-	static constexpr float MarginX = 36.0f;
-	static constexpr float MarginTop = 24.0f;
-	static constexpr float MarginBottom = 40.0f;
-
-	// Samples per stroke, bunched towards the ends of the sweep where the velocity changes fastest.
-	static constexpr int32 MaxSamples = 256;
-
-	// The strokes are told apart (and the legend shown) only once they are this far apart somewhere, so a spring's single line doesn't get one.
-	static constexpr float MinLoopWidth = 0.005f;
-
-	// How long the live marker's trail lingers.
-	static constexpr double TrailSeconds = 0.6;
-};
-
 void SHapticConditionGraph::Construct(const FArguments& InArgs)
 {
+	Style = InArgs._Style;
 	OnEvaluate = InArgs._OnEvaluate;
 	Axis = InArgs._Axis;
 	SweepRate = InArgs._SweepRate;
@@ -88,7 +61,7 @@ void SHapticConditionGraph::Tick(const FGeometry& AllottedGeometry, const double
 
 	const int32 FirstFreshIndex = LiveTrail.IndexOfByPredicate([InCurrentTime](const TPair<double, FHapticConditionMotion>& Sample)
 	{
-		return InCurrentTime - Sample.Key <= FHapticConditionGraphStyle::TrailSeconds;
+		return InCurrentTime - Sample.Key <= TrailSeconds;
 	});
 	LiveTrail.RemoveAt(0, FirstFreshIndex == INDEX_NONE ? LiveTrail.Num() : FirstFreshIndex);
 }
@@ -100,12 +73,12 @@ FVector2D SHapticConditionGraph::ComputeDesiredSize(float) const
 
 FVector2D SHapticConditionGraph::ToLocal(const FVector2D& Size, const float Input, const float Force)
 {
-	const float PlotWidth = FMath::Max(Size.X - FHapticConditionGraphStyle::MarginX * 2.0f, 1.0f);
-	const float PlotHeight = FMath::Max(Size.Y - FHapticConditionGraphStyle::MarginTop - FHapticConditionGraphStyle::MarginBottom, 1.0f);
+	const float PlotWidth = FMath::Max(Size.X - MarginX * 2.0f, 1.0f);
+	const float PlotHeight = FMath::Max(Size.Y - MarginTop - MarginBottom, 1.0f);
 
 	return FVector2D(
-		FHapticConditionGraphStyle::MarginX + (Input + 1.0f) * 0.5f * PlotWidth,
-		FHapticConditionGraphStyle::MarginTop + (1.0f - Force) * 0.5f * PlotHeight);
+		MarginX + (Input + 1.0f) * 0.5f * PlotWidth,
+		MarginTop + (1.0f - Force) * 0.5f * PlotHeight);
 }
 
 bool SHapticConditionGraph::IsPlottingAcceleration() const
@@ -174,7 +147,7 @@ void SHapticConditionGraph::PaintGrid(const FGeometry& AllottedGeometry, FSlateW
 	{
 		const float Value = Step * 0.5f;
 		const bool bIsZeroLine = Step == 0;
-		const FLinearColor LineColor = bIsZeroLine ? FHapticConditionGraphStyle::ZeroLine : FHapticConditionGraphStyle::MinorGridLine;
+		const FLinearColor LineColor = bIsZeroLine ? Style->ZeroLineColor : Style->GridLineColor;
 		const float LineThickness = bIsZeroLine ? 1.5f : 1.0f;
 
 		const FVector2D ForceLineStart = ToLocal(Size, -1.0f, Value);
@@ -186,7 +159,7 @@ void SHapticConditionGraph::PaintGrid(const FGeometry& AllottedGeometry, FSlateW
 
 		FSlateDrawElement::MakeText(
 			OutDrawElements, LayerId + 1, AllottedGeometry.ToOffsetPaintGeometry(FVector2D(4.0f, ForceLineStart.Y - 6.0f)),
-			FString::Printf(TEXT("%+.1f"), Value), LabelFont, ESlateDrawEffect::None, FHapticConditionGraphStyle::AxisLabel);
+			FString::Printf(TEXT("%+.1f"), Value), LabelFont, ESlateDrawEffect::None, Style->AxisLabelColor);
 
 		const FVector2D InputLineTop = ToLocal(Size, Value, 1.0f);
 		const FVector2D InputLineBottom = ToLocal(Size, Value, -1.0f);
@@ -199,18 +172,18 @@ void SHapticConditionGraph::PaintGrid(const FGeometry& AllottedGeometry, FSlateW
 		const float InputValue = Value * InputRange;
 		FSlateDrawElement::MakeText(
 			OutDrawElements, LayerId + 1, AllottedGeometry.ToOffsetPaintGeometry(FVector2D(InputLineBottom.X - 10.0f, InputLineBottom.Y + 4.0f)),
-			InputRange < 1.0f ? FString::Printf(TEXT("%+.2f"), InputValue) : FString::Printf(TEXT("%+.1f"), InputValue), LabelFont, ESlateDrawEffect::None, FHapticConditionGraphStyle::AxisLabel);
+			InputRange < 1.0f ? FString::Printf(TEXT("%+.2f"), InputValue) : FString::Printf(TEXT("%+.1f"), InputValue), LabelFont, ESlateDrawEffect::None, Style->AxisLabelColor);
 	}
 
 	FSlateDrawElement::MakeText(
-		OutDrawElements, LayerId + 1, AllottedGeometry.ToOffsetPaintGeometry(FVector2D(FHapticConditionGraphStyle::MarginX, 4.0f)),
-		LOCTEXT("ConditionGraphForceLabel", "Force (+ pushes towards the positive side)").ToString(), LabelFont, ESlateDrawEffect::None, FHapticConditionGraphStyle::AxisLabel);
+		OutDrawElements, LayerId + 1, AllottedGeometry.ToOffsetPaintGeometry(FVector2D(MarginX, 4.0f)),
+		LOCTEXT("ConditionGraphForceLabel", "Force (+ pushes towards the positive side)").ToString(), LabelFont, ESlateDrawEffect::None, Style->AxisLabelColor);
 
 	const FVector2D InputLabelAnchor = ToLocal(Size, 0.0f, -1.0f);
 	const FText InputLabel = IsPlottingAcceleration() ? LOCTEXT("ConditionGraphAccelerationLabel", "Axis acceleration") : LOCTEXT("ConditionGraphPositionLabel", "Axis position");
 	FSlateDrawElement::MakeText(
 		OutDrawElements, LayerId + 1, AllottedGeometry.ToOffsetPaintGeometry(FVector2D(InputLabelAnchor.X - 36.0f, InputLabelAnchor.Y + 18.0f)),
-		InputLabel.ToString(), LabelFont, ESlateDrawEffect::None, FHapticConditionGraphStyle::AxisLabel);
+		InputLabel.ToString(), LabelFont, ESlateDrawEffect::None, Style->AxisLabelColor);
 }
 
 void SHapticConditionGraph::PaintLoop(const FGeometry& AllottedGeometry, FSlateWindowElementList& OutDrawElements, const int32 LayerId) const
@@ -222,7 +195,7 @@ void SHapticConditionGraph::PaintLoop(const FGeometry& AllottedGeometry, FSlateW
 
 	const FVector2D Size = AllottedGeometry.GetLocalSize();
 	const float Rate = FMath::Max(SweepRate.Get(), 0.0f);
-	const int32 NumSamples = FMath::Clamp(static_cast<int32>((Size.X - FHapticConditionGraphStyle::MarginX * 2.0f) * 0.5f), 2, FHapticConditionGraphStyle::MaxSamples);
+	const int32 NumSamples = FMath::Clamp(static_cast<int32>((Size.X - MarginX * 2.0f) * 0.5f), 2, MaxSamples);
 
 	// Both strokes are sampled at the same positions so the fill between them is a simple strip.
 	TArray<FVector2D> PositiveStroke;
@@ -242,11 +215,11 @@ void SHapticConditionGraph::PaintLoop(const FGeometry& AllottedGeometry, FSlateW
 		MaxLoopWidth = FMath::Max(MaxLoopWidth, FMath::Abs(PositiveForce - NegativeForce));
 	}
 
-	const bool bHasArea = MaxLoopWidth > FHapticConditionGraphStyle::MinLoopWidth;
+	const bool bHasArea = MaxLoopWidth > MinLoopWidth;
 	if (bHasArea)
 	{
 		const FSlateRenderTransform& GraphRenderTransform = AllottedGeometry.GetAccumulatedRenderTransform();
-		const FColor FillColor = FHapticConditionGraphStyle::LoopFill.ToFColor(true);
+		const FColor FillColor = Style->LoopFillColor.ToFColor(true);
 
 		TArray<FSlateVertex> FillVertices;
 		TArray<SlateIndex> FillIndices;
@@ -273,32 +246,32 @@ void SHapticConditionGraph::PaintLoop(const FGeometry& AllottedGeometry, FSlateW
 	// Two-pass glow per stroke: a soft wide underlay followed by a bright core line.
 	FSlateDrawElement::MakeLines(
 		OutDrawElements, LayerId + 1, AllottedGeometry.ToPaintGeometry(),
-		NegativeStroke, ESlateDrawEffect::None, FHapticConditionGraphStyle::NegativeStrokeGlow, true, 6.0f);
+		NegativeStroke, ESlateDrawEffect::None, Style->SecondaryCurveGlowColor, true, 6.0f);
 
 	FSlateDrawElement::MakeLines(
 		OutDrawElements, LayerId + 2, AllottedGeometry.ToPaintGeometry(),
-		NegativeStroke, ESlateDrawEffect::None, FHapticConditionGraphStyle::NegativeStroke, true, 2.0f);
+		NegativeStroke, ESlateDrawEffect::None, Style->SecondaryCurveColor, true, 2.0f);
 
 	FSlateDrawElement::MakeLines(
 		OutDrawElements, LayerId + 3, AllottedGeometry.ToPaintGeometry(),
-		PositiveStroke, ESlateDrawEffect::None, FHapticConditionGraphStyle::PositiveStrokeGlow, true, 6.0f);
+		PositiveStroke, ESlateDrawEffect::None, Style->CurveGlowColor, true, 6.0f);
 
 	FSlateDrawElement::MakeLines(
 		OutDrawElements, LayerId + 4, AllottedGeometry.ToPaintGeometry(),
-		PositiveStroke, ESlateDrawEffect::None, FHapticConditionGraphStyle::PositiveStroke, true, 2.0f);
+		PositiveStroke, ESlateDrawEffect::None, Style->CurveColor, true, 2.0f);
 
 	if (bHasArea)
 	{
 		const FSlateFontInfo LegendFont = FCoreStyle::GetDefaultFontStyle("Regular", 8);
-		const float LegendX = Size.X - FHapticConditionGraphStyle::MarginX - 190.0f;
+		const float LegendX = Size.X - MarginX - 190.0f;
 
 		FSlateDrawElement::MakeText(
 			OutDrawElements, LayerId + 4, AllottedGeometry.ToOffsetPaintGeometry(FVector2D(LegendX, 4.0f)),
-			LOCTEXT("ConditionGraphPositiveStroke", "→ moving positive").ToString(), LegendFont, ESlateDrawEffect::None, FHapticConditionGraphStyle::PositiveStroke);
+			LOCTEXT("ConditionGraphPositiveStroke", "→ moving positive").ToString(), LegendFont, ESlateDrawEffect::None, Style->CurveColor);
 
 		FSlateDrawElement::MakeText(
 			OutDrawElements, LayerId + 4, AllottedGeometry.ToOffsetPaintGeometry(FVector2D(LegendX + 100.0f, 4.0f)),
-			LOCTEXT("ConditionGraphNegativeStroke", "← moving negative").ToString(), LegendFont, ESlateDrawEffect::None, FHapticConditionGraphStyle::NegativeStroke);
+			LOCTEXT("ConditionGraphNegativeStroke", "← moving negative").ToString(), LegendFont, ESlateDrawEffect::None, Style->SecondaryCurveColor);
 	}
 }
 
@@ -311,7 +284,7 @@ void SHapticConditionGraph::PaintAccelerationResponse(const FGeometry& AllottedG
 
 	const FVector2D Size = AllottedGeometry.GetLocalSize();
 	const float InputRange = GetInputRange();
-	const int32 NumSamples = FMath::Clamp(static_cast<int32>(Size.X - FHapticConditionGraphStyle::MarginX * 2.0f), 2, FHapticConditionGraphStyle::MaxSamples);
+	const int32 NumSamples = FMath::Clamp(static_cast<int32>(Size.X - MarginX * 2.0f), 2, MaxSamples);
 
 	// Inertia only looks at acceleration, so position and velocity are left at zero.
 	TArray<FVector2D> CurvePoints;
@@ -328,11 +301,11 @@ void SHapticConditionGraph::PaintAccelerationResponse(const FGeometry& AllottedG
 	// Two-pass glow: a soft wide underlay followed by a bright core line.
 	FSlateDrawElement::MakeLines(
 		OutDrawElements, LayerId, AllottedGeometry.ToPaintGeometry(),
-		CurvePoints, ESlateDrawEffect::None, FHapticConditionGraphStyle::PositiveStrokeGlow, true, 6.0f);
+		CurvePoints, ESlateDrawEffect::None, Style->CurveGlowColor, true, 6.0f);
 
 	FSlateDrawElement::MakeLines(
 		OutDrawElements, LayerId + 1, AllottedGeometry.ToPaintGeometry(),
-		CurvePoints, ESlateDrawEffect::None, FHapticConditionGraphStyle::PositiveStroke, true, 2.0f);
+		CurvePoints, ESlateDrawEffect::None, Style->CurveColor, true, 2.0f);
 }
 
 void SHapticConditionGraph::PaintLiveMotion(const FGeometry& AllottedGeometry, FSlateWindowElementList& OutDrawElements, const int32 LayerId) const
@@ -353,7 +326,7 @@ void SHapticConditionGraph::PaintLiveMotion(const FGeometry& AllottedGeometry, F
 	FSlateDrawElement::MakeLines(
 		OutDrawElements, LayerId, AllottedGeometry.ToPaintGeometry(),
 		TArray<FVector2D>{LineTop, LineBottom},
-		ESlateDrawEffect::None, FHapticConditionGraphStyle::LiveInput.CopyWithNewOpacity(0.35f), true, 1.0f);
+		ESlateDrawEffect::None, Style->MarkerColor.CopyWithNewOpacity(0.35f), true, 1.0f);
 
 	// The trail fades in from its oldest sample, showing which way round the loop the axis is travelling.
 	if (LiveTrail.Num() >= 2)
@@ -366,7 +339,7 @@ void SHapticConditionGraph::PaintLiveMotion(const FGeometry& AllottedGeometry, F
 		{
 			const FHapticConditionMotion& Sample = LiveTrail[Index].Value;
 			TrailPoints.Add(ToLocal(Size, GetNormalisedInput(Sample), Evaluate(Sample)));
-			TrailColors.Add(FHapticConditionGraphStyle::LiveInput.CopyWithNewOpacity(0.8f * Index / (LiveTrail.Num() - 1)));
+			TrailColors.Add(Style->MarkerColor.CopyWithNewOpacity(0.8f * Index / (LiveTrail.Num() - 1)));
 		}
 
 		FSlateDrawElement::MakeLines(
@@ -380,14 +353,14 @@ void SHapticConditionGraph::PaintLiveMotion(const FGeometry& AllottedGeometry, F
 	FSlateDrawElement::MakeBox(
 		OutDrawElements, LayerId + 1,
 		AllottedGeometry.ToPaintGeometry(FVector2f(MarkerSize, MarkerSize), FSlateLayoutTransform(FVector2f(MarkerCentre - FVector2D(MarkerSize * 0.5f)))),
-		FCoreStyle::Get().GetBrush("WhiteBrush"), ESlateDrawEffect::None, FHapticConditionGraphStyle::LiveInput);
+		FCoreStyle::Get().GetBrush("WhiteBrush"), ESlateDrawEffect::None, Style->MarkerColor);
 
 	const FString Readout = FString::Printf(TEXT("x=%+.2f  v=%+.2f  a=%+.2f  F=%+.2f"), Motion.Position, Motion.Velocity, Motion.Acceleration, Force);
 	const FSlateFontInfo ReadoutFont = FCoreStyle::GetDefaultFontStyle("Bold", 9);
 	const float ReadoutX = FMath::Clamp(LineTop.X + 6.0f, 0.0f, FMath::Max(Size.X - 230.0f, 0.0f));
 	FSlateDrawElement::MakeText(
 		OutDrawElements, LayerId + 1, AllottedGeometry.ToOffsetPaintGeometry(FVector2D(ReadoutX, LineTop.Y + 2.0f)),
-		Readout, ReadoutFont, ESlateDrawEffect::None, FHapticConditionGraphStyle::LiveInput);
+		Readout, ReadoutFont, ESlateDrawEffect::None, Style->MarkerColor);
 }
 
 #undef LOCTEXT_NAMESPACE

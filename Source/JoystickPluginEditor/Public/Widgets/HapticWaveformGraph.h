@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "Styling/JoystickPluginEditorStyle.h"
+#include "Styling/JoystickPluginEditorWidgetStyles.h"
 #include "Widgets/SLeafWidget.h"
 
 DECLARE_DELEGATE_RetVal_OneParam(float, FOnEvaluateHapticEffect, float /*TimeSeconds*/);
@@ -13,11 +15,13 @@ class SHapticWaveformGraph : public SLeafWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SHapticWaveformGraph)
-			: _DurationSeconds(1.0f)
+			: _Style(&FJoystickPluginEditorStyle::Get().GetWidgetStyle<FHapticGraphStyle>("HapticGraph"))
+			  , _DurationSeconds(1.0f)
 			  , _PlayheadTime(-1.0f)
 		{
 		}
 
+		SLATE_STYLE_ARGUMENT(FHapticGraphStyle, Style)
 		SLATE_ATTRIBUTE(float, DurationSeconds)
 		SLATE_ATTRIBUTE(float, PlayheadTime)
 		SLATE_EVENT(FOnEvaluateHapticEffect, OnEvaluateEffect)
@@ -49,6 +53,7 @@ private:
 	void PaintCurve(const FGeometry& AllottedGeometry, FSlateWindowElementList& OutDrawElements, int32 LayerId, float Duration) const;
 	void PaintPlayhead(const FGeometry& AllottedGeometry, FSlateWindowElementList& OutDrawElements, int32 LayerId, float Duration) const;
 
+	const FHapticGraphStyle* Style = nullptr;
 	TAttribute<float> DurationSeconds;
 	TAttribute<float> PlayheadTime;
 	FOnEvaluateHapticEffect OnEvaluateEffect;

@@ -24,7 +24,7 @@
 #include "Widgets/SOverlay.h"
 #include "Framework/Application/SlateApplication.h"
 #include "Widgets/SWindow.h"
-#include "Styling/CoreStyle.h"
+#include "Styling/JoystickPluginEditorStyle.h"
 
 void SJoystickInputViewer::Construct(const FArguments& InArgs, const TSharedRef<SDockTab>& ConstructUnderMajorTab, const TSharedPtr<SWindow>& ConstructUnderWindow)
 {
@@ -659,8 +659,7 @@ void SJoystickInputViewer::Construct(const FArguments& InArgs, const TSharedRef<
 			.Visibility(EVisibility::Collapsed)
 			[
 				SNew(SBorder)
-				.BorderImage(FCoreStyle::Get().GetBrush("WhiteBrush"))
-				.BorderBackgroundColor(FLinearColor(0.0f, 0.0f, 0.0f, 0.3f))
+				.BorderImage(FJoystickPluginEditorStyle::Get().GetBrush("InputViewer.InputBlocker"))
 			]
 		]
 	];

@@ -7,6 +7,7 @@
 
 void SHapticGraphPlayhead::Construct(const FArguments& InArgs)
 {
+	Style = InArgs._Style;
 	Bounds = InArgs._Bounds;
 	PlayheadTimeMilliseconds = InArgs._PlayheadTimeMilliseconds;
 	ReferenceGeometry = InArgs._ReferenceGeometry;
@@ -57,7 +58,7 @@ int32 SHapticGraphPlayhead::OnPaint(
 	FSlateDrawElement::MakeLines(
 		OutDrawElements, LayerId, AllottedGeometry.ToPaintGeometry(),
 		PlayheadLinePoints,
-		ESlateDrawEffect::None, FLinearColor(1.0f, 1.0f, 1.0f, 0.95f), true, 1.5f);
+		ESlateDrawEffect::None, Style->MarkerColor, true, 1.5f);
 
 	return LayerId + 1;
 }

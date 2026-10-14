@@ -5,6 +5,8 @@
 
 #include "ForceFeedback/Types/ForceFeedbackConditionEffectType.h"
 #include "Misc/Optional.h"
+#include "Styling/JoystickPluginEditorStyle.h"
+#include "Styling/JoystickPluginEditorWidgetStyles.h"
 #include "Widgets/SCompoundWidget.h"
 
 DECLARE_DELEGATE_OneParam(FOnHapticConditionTypeSelected, EForceFeedbackConditionEffectType /*ConditionType*/);
@@ -16,9 +18,11 @@ class SHapticConditionTypeSelector : public SCompoundWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SHapticConditionTypeSelector)
+			: _Style(&FJoystickPluginEditorStyle::Get().GetWidgetStyle<FHapticToggleStyle>("HapticToggle"))
 		{
 		}
 
+		SLATE_STYLE_ARGUMENT(FHapticToggleStyle, Style)
 		SLATE_ATTRIBUTE(TOptional<EForceFeedbackConditionEffectType>, SelectedConditionType)
 		SLATE_EVENT(FOnHapticConditionTypeSelected, OnConditionTypeSelected)
 
@@ -33,6 +37,7 @@ private:
 	bool IsConditionTypeSelected(EForceFeedbackConditionEffectType ConditionType) const;
 	bool IsSupported(EForceFeedbackConditionEffectType ConditionType) const;
 
+	const FHapticToggleStyle* Style = nullptr;
 	TAttribute<TOptional<EForceFeedbackConditionEffectType>> SelectedConditionType;
 	FOnHapticConditionTypeSelected OnConditionTypeSelected;
 	FIsHapticConditionTypeSupported IsConditionTypeSupported;

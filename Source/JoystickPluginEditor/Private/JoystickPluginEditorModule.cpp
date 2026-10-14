@@ -20,6 +20,7 @@
 #include "Menus/HapticEffectEditor.h"
 #include "Menus/JoystickInputViewer.h"
 #include "Modules/ModuleManager.h"
+#include "Styling/JoystickPluginEditorStyle.h"
 
 #define LOCTEXT_NAMESPACE "JoystickPluginEditor"
 
@@ -41,6 +42,8 @@ static void EditAssetWithHapticEffectEditor(const FAssetData AssetData, const in
 
 void FJoystickPluginEditorModule::StartupModule()
 {
+	FJoystickPluginEditorStyle::Register();
+
 	RegisterSettings();
 	RegisterPropertyLayout();
 
@@ -103,6 +106,8 @@ void FJoystickPluginEditorModule::ShutdownModule()
 
 	UnregisterSettings();
 	UnregisterPropertyLayout();
+
+	FJoystickPluginEditorStyle::Unregister();
 
 	IModuleInterface::ShutdownModule();
 }

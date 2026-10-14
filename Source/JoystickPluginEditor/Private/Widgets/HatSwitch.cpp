@@ -10,6 +10,7 @@
 
 void SHatSwitch::Construct(const FArguments& InArgs)
 {
+	Style = InArgs._Style;
 	Value = InArgs._Value;
 	HatIndex = InArgs._HatIndex;
 	DisplayName = InArgs._DisplayName;
@@ -34,7 +35,7 @@ void SHatSwitch::Construct(const FArguments& InArgs)
 			.Text(DisplayName.Get())
 			.TextStyle(FAppStyle::Get(), "SmallText")
 			.Justification(ETextJustify::Center)
-			.ColorAndOpacity(FLinearColor::White)
+			.ColorAndOpacity(Style->LabelColor)
 		]
 		+ SVerticalBox::Slot()
 		.AutoHeight()
@@ -57,7 +58,7 @@ void SHatSwitch::Construct(const FArguments& InArgs)
 					[
 						SNew(SCircleWidget)
 						.Radius(56.0f)
-						.Color(FLinearColor(0.15f, 0.15f, 0.15f, 1.0f))
+						.Color(Style->BackgroundColor)
 						.Filled(true)
 					]
 
@@ -66,7 +67,7 @@ void SHatSwitch::Construct(const FArguments& InArgs)
 					[
 						SNew(SCircleWidget)
 						.Radius(50.0f)
-						.Color(FLinearColor(0.25f, 0.25f, 0.25f, 1.0f))
+						.Color(Style->TrackColor)
 						.Filled(true)
 					]
 
@@ -77,7 +78,7 @@ void SHatSwitch::Construct(const FArguments& InArgs)
 					[
 						SNew(SCircleWidget)
 						.Radius(3.0f)
-						.Color(FLinearColor(0.5f, 0.5f, 0.5f, 1.0f))
+						.Color(Style->CentreDotColor)
 						.Filled(true)
 					]
 
@@ -119,10 +120,7 @@ void SHatSwitch::SetValue(const EHatDirection InValue)
 
 FLinearColor SHatSwitch::GetBallColor() const
 {
-	const EHatDirection Direction = Value.Get();
-	return Direction != EHatDirection::None
-		       ? FLinearColor(0.2f, 0.9f, 0.3f, 1.0f) // Bright green when active
-		       : FLinearColor(0.4f, 0.4f, 0.4f, 1.0f); // Gray when centered
+	return Value.Get() != EHatDirection::None ? Style->ActiveBallColor : Style->CentredBallColor;
 }
 
 void SHatSwitch::UpdateBallPosition() const

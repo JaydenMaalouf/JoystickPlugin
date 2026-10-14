@@ -18,6 +18,7 @@
 #include "Widgets/Input/SButton.h"
 #include "Widgets/Notifications/SProgressBar.h"
 #include "Styling/AppStyle.h"
+#include "Styling/JoystickPluginEditorStyle.h"
 #include "Styling/SlateTypes.h"
 #include "Framework/Application/SlateApplication.h"
 #include "Widgets/AxisBar.h"
@@ -31,11 +32,7 @@ void SAxisConfigurationEditor::Construct(const FArguments& InArgs)
 	SelectedInputRange = -1;
 	SelectedOutputRange = -1;
 
-	// Copy the default progress bar style and disable animation
-	const FProgressBarStyle& DefaultProgressBarStyle = FAppStyle::Get().GetWidgetStyle<FProgressBarStyle>("ProgressBar");
-	ProgressBarStyle = DefaultProgressBarStyle;
-	ProgressBarStyle.SetEnableFillAnimation(false);
-	ProgressBarStyle.FillImage.TintColor = FLinearColor::White;
+	ProgressBarStyle = &FJoystickPluginEditorStyle::Get().GetWidgetStyle<FProgressBarStyle>("AxisConfiguration.ProgressBar");
 
 	// Initialize with default properties
 	CurrentProperties = FJoystickInputDeviceAxisProperties();
@@ -305,9 +302,8 @@ void SAxisConfigurationEditor::Construct(const FArguments& InArgs)
 						[
 							SNew(SProgressBar)
 							                  .Percent(0.5) // 0% to 50% = 50% full
-							                  .FillColorAndOpacity(FLinearColor(0.2f, 1.0f, 0.2f, 1.0f))
 							                  .IsEnabled_Lambda([this] { return SelectedInputRange == 0; })
-							                  .Style(&ProgressBarStyle)
+							                  .Style(ProgressBarStyle)
 						]
 					]
 					+ SVerticalBox::Slot()
@@ -348,9 +344,8 @@ void SAxisConfigurationEditor::Construct(const FArguments& InArgs)
 						[
 							SNew(SProgressBar)
 							                  .Percent(1.0f) // 0% to 100% = 100% full
-							                  .FillColorAndOpacity(FLinearColor(0.2f, 1.0f, 0.2f, 1.0f))
 							                  .IsEnabled_Lambda([this] { return SelectedInputRange == 1; })
-							                  .Style(&ProgressBarStyle)
+							                  .Style(ProgressBarStyle)
 						]
 					]
 					+ SVerticalBox::Slot()
@@ -392,9 +387,8 @@ void SAxisConfigurationEditor::Construct(const FArguments& InArgs)
 							SNew(SProgressBar)
 							                  .Percent(0.5f) // 0% to 100% = 100% full
 							                  .BarFillType(EProgressBarFillType::RightToLeft)
-							                  .FillColorAndOpacity(FLinearColor(0.2f, 1.0f, 0.2f, 1.0f))
 							                  .IsEnabled_Lambda([this] { return SelectedInputRange == 2; })
-							                  .Style(&ProgressBarStyle)
+							                  .Style(ProgressBarStyle)
 						]
 					]
 					+ SVerticalBox::Slot()
@@ -649,9 +643,8 @@ void SAxisConfigurationEditor::Construct(const FArguments& InArgs)
 							SNew(SProgressBar)
 							                  .Percent(0.5f) // 50% full (0% to 50% range)
 							                  .BarFillType(EProgressBarFillType::RightToLeft)
-							                  .FillColorAndOpacity(FLinearColor(0.2f, 1.0f, 0.2f, 1.0f))
 							                  .IsEnabled_Lambda([this] { return SelectedOutputRange == 0; })
-							                  .Style(&ProgressBarStyle)
+							                  .Style(ProgressBarStyle)
 						]
 					]
 					+ SVerticalBox::Slot()
@@ -692,9 +685,8 @@ void SAxisConfigurationEditor::Construct(const FArguments& InArgs)
 						[
 							SNew(SProgressBar)
 							                  .Percent(1.0f) // 100% full
-							                  .FillColorAndOpacity(FLinearColor(0.2f, 1.0f, 0.2f, 1.0f))
 							                  .IsEnabled_Lambda([this] { return SelectedOutputRange == 1; })
-							                  .Style(&ProgressBarStyle)
+							                  .Style(ProgressBarStyle)
 						]
 					]
 				]

@@ -11,6 +11,7 @@
 
 void SBallSwitch::Construct(const FArguments& InArgs)
 {
+	Style = InArgs._Style;
 	Value = InArgs._Value;
 	BallIndex = InArgs._BallIndex;
 	DisplayName = InArgs._DisplayName;
@@ -41,7 +42,7 @@ void SBallSwitch::Construct(const FArguments& InArgs)
 			})
 			.TextStyle(FAppStyle::Get(), "SmallText")
 			.Justification(ETextJustify::Center)
-			.ColorAndOpacity(FLinearColor::White)
+			.ColorAndOpacity(Style->LabelColor)
 		]
 		+ SVerticalBox::Slot()
 		.AutoHeight()
@@ -64,7 +65,7 @@ void SBallSwitch::Construct(const FArguments& InArgs)
 					[
 						SNew(SBorder)
 						.BorderImage(FCoreStyle::Get().GetBrush("WhiteBrush"))
-						.BorderBackgroundColor(FLinearColor(0.15f, 0.15f, 0.15f, 1.0f))
+						.BorderBackgroundColor(Style->BackgroundColor)
 					]
 
 					// Center Indicator
@@ -74,7 +75,7 @@ void SBallSwitch::Construct(const FArguments& InArgs)
 					[
 						SNew(SCircleWidget)
 						.Radius(2.0f)
-						.Color(FLinearColor(0.5f, 0.5f, 0.5f, 1.0f))
+						.Color(Style->CentreDotColor)
 						.Filled(true)
 					]
 
@@ -116,11 +117,7 @@ void SBallSwitch::SetValue(const FVector2D& InValue)
 
 FLinearColor SBallSwitch::GetBallColor() const
 {
-	const FVector2D Val = Value.Get();
-	const float Magnitude = Val.Size();
-	return Magnitude > 0.01f
-		       ? FLinearColor(0.2f, 0.9f, 0.3f, 1.0f) // Bright green when active
-		       : FLinearColor(0.4f, 0.4f, 0.4f, 1.0f); // Gray when centered
+	return Value.Get().Size() > 0.01f ? Style->ActiveBallColor : Style->CentredBallColor;
 }
 
 void SBallSwitch::UpdateBallPosition() const

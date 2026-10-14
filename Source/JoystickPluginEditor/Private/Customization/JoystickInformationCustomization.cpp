@@ -8,6 +8,7 @@
 #include "DetailWidgetRow.h"
 #include "IDetailChildrenBuilder.h"
 #include "JoystickInputSettings.h"
+#include "Styling/JoystickPluginEditorStyle.h"
 
 void FJoystickInformationCustomization::CustomizeHeader(const TSharedRef<IPropertyHandle> StructPropertyHandle, FDetailWidgetRow& HeaderRow, IPropertyTypeCustomizationUtils& StructCustomizationUtils)
 {
@@ -36,8 +37,7 @@ void FJoystickInformationCustomization::CustomizeHeader(const TSharedRef<IProper
 				{
 					return GetConnectedDeviceDisplayName(StructPropertyHandle);
 				})
-				.ColorAndOpacity(FSlateColor(FLinearColor(0.45f, 0.45f, 0.45f, 1.0f)))
-				.TextStyle(FAppStyle::Get(), "SmallText")
+				.TextStyle(FJoystickPluginEditorStyle::Get(), "HintText")
 			]
 		]
 		.ValueContent()

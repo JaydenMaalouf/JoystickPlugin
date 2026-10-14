@@ -5,6 +5,8 @@
 
 #include "ForceFeedback/Types/ForceFeedbackPeriodicEffectType.h"
 #include "Misc/Optional.h"
+#include "Styling/JoystickPluginEditorStyle.h"
+#include "Styling/JoystickPluginEditorWidgetStyles.h"
 #include "Widgets/SCompoundWidget.h"
 
 DECLARE_DELEGATE_OneParam(FOnHapticWaveformSelected, EForceFeedbackPeriodicEffectType /*WaveformType*/);
@@ -16,9 +18,11 @@ class SHapticWaveformSelector : public SCompoundWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SHapticWaveformSelector)
+			: _Style(&FJoystickPluginEditorStyle::Get().GetWidgetStyle<FHapticToggleStyle>("HapticToggle"))
 		{
 		}
 
+		SLATE_STYLE_ARGUMENT(FHapticToggleStyle, Style)
 		SLATE_ATTRIBUTE(TOptional<EForceFeedbackPeriodicEffectType>, SelectedWaveform)
 		SLATE_EVENT(FOnHapticWaveformSelected, OnWaveformSelected)
 
@@ -33,6 +37,7 @@ private:
 	bool IsWaveformSelected(EForceFeedbackPeriodicEffectType WaveformType) const;
 	bool IsSupported(EForceFeedbackPeriodicEffectType WaveformType) const;
 
+	const FHapticToggleStyle* Style = nullptr;
 	TAttribute<TOptional<EForceFeedbackPeriodicEffectType>> SelectedWaveform;
 	FOnHapticWaveformSelected OnWaveformSelected;
 	FIsHapticWaveformSupported IsWaveformSupported;

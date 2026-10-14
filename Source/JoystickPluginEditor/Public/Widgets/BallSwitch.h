@@ -4,6 +4,8 @@
 #pragma once
 
 #include "CircleWidget.h"
+#include "Styling/JoystickPluginEditorStyle.h"
+#include "Styling/JoystickPluginEditorWidgetStyles.h"
 #include "Widgets/SCompoundWidget.h"
 #include "Widgets/Layout/SConstraintCanvas.h"
 
@@ -11,9 +13,11 @@ class SBallSwitch : public SCompoundWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SBallSwitch)
+			: _Style(&FJoystickPluginEditorStyle::Get().GetWidgetStyle<FBallSwitchStyle>("BallSwitch"))
 		{
 		}
 
+		SLATE_STYLE_ARGUMENT(FBallSwitchStyle, Style)
 		SLATE_ATTRIBUTE(FVector2D, Value)
 		SLATE_ATTRIBUTE(int, BallIndex)
 		SLATE_ATTRIBUTE(FText, DisplayName)
@@ -25,6 +29,7 @@ public:
 	void UpdateBallPosition() const;
 
 private:
+	const FBallSwitchStyle* Style = nullptr;
 	TAttribute<FVector2D> Value;
 	TAttribute<int> BallIndex;
 	TAttribute<FText> DisplayName;

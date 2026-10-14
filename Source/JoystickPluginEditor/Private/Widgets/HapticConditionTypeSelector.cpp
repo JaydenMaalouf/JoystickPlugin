@@ -5,7 +5,6 @@
 
 #include "Styling/AppStyle.h"
 #include "Styling/CoreStyle.h"
-#include "Widgets/HapticEditorStyle.h"
 #include "Widgets/SBoxPanel.h"
 #include "Widgets/Input/SButton.h"
 #include "Widgets/Layout/SBorder.h"
@@ -15,6 +14,7 @@
 
 void SHapticConditionTypeSelector::Construct(const FArguments& InArgs)
 {
+	Style = InArgs._Style;
 	SelectedConditionType = InArgs._SelectedConditionType;
 	OnConditionTypeSelected = InArgs._OnConditionTypeSelected;
 	IsConditionTypeSupported = InArgs._IsConditionTypeSupported;
@@ -70,7 +70,7 @@ TSharedRef<SWidget> SHapticConditionTypeSelector::MakeConditionTypeButton(const 
 			.Padding(FMargin(6.0f, 3.0f))
 			.BorderBackgroundColor_Lambda([this, ConditionType]
 			{
-				return FHapticEffectEditorColors::GetToggleBackgroundColor(IsConditionTypeSelected(ConditionType));
+				return FSlateColor(Style->GetBackgroundColor(IsConditionTypeSelected(ConditionType)));
 			})
 			[
 				SNew(STextBlock)
@@ -78,7 +78,7 @@ TSharedRef<SWidget> SHapticConditionTypeSelector::MakeConditionTypeButton(const 
 				.TextStyle(FAppStyle::Get(), "NormalText")
 				.ColorAndOpacity_Lambda([this, ConditionType]
 				{
-					return IsSupported(ConditionType) ? FHapticEffectEditorColors::GetToggleForegroundColor(IsConditionTypeSelected(ConditionType)) : FHapticEffectEditorColors::GetUnsupportedForegroundColor();
+					return FSlateColor(IsSupported(ConditionType) ? Style->GetForegroundColor(IsConditionTypeSelected(ConditionType)) : Style->UnsupportedForegroundColor);
 				})
 			]
 		];

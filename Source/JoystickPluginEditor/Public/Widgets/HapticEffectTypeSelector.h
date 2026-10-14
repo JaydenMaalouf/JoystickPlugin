@@ -4,6 +4,8 @@
 #pragma once
 
 #include "Menus/HapticEffectEditorTypes.h"
+#include "Styling/JoystickPluginEditorStyle.h"
+#include "Styling/JoystickPluginEditorWidgetStyles.h"
 #include "Widgets/SCompoundWidget.h"
 
 DECLARE_DELEGATE_OneParam(FOnHapticEffectKindSelected, EHapticPreviewEffectKind /*Kind*/);
@@ -15,10 +17,12 @@ class SHapticEffectTypeSelector : public SCompoundWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SHapticEffectTypeSelector)
-			: _EffectKind(EHapticPreviewEffectKind::Periodic)
+			: _Style(&FJoystickPluginEditorStyle::Get().GetWidgetStyle<FHapticToggleStyle>("HapticToggle"))
+			  , _EffectKind(EHapticPreviewEffectKind::Periodic)
 		{
 		}
 
+		SLATE_STYLE_ARGUMENT(FHapticToggleStyle, Style)
 		SLATE_ATTRIBUTE(EHapticPreviewEffectKind, EffectKind)
 		SLATE_EVENT(FOnHapticEffectKindSelected, OnEffectKindSelected)
 
@@ -32,6 +36,7 @@ private:
 	TSharedRef<SWidget> MakeTypeButton(const FText& Label, EHapticPreviewEffectKind Kind);
 	bool IsKindSupported(EHapticPreviewEffectKind Kind) const;
 
+	const FHapticToggleStyle* Style = nullptr;
 	TAttribute<EHapticPreviewEffectKind> EffectKind;
 	FOnHapticEffectKindSelected OnEffectKindSelected;
 	FIsHapticEffectKindSupported IsEffectKindSupported;

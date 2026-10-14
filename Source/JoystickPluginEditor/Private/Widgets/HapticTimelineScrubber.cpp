@@ -7,14 +7,9 @@
 #include "Rendering/DrawElements.h"
 #include "Styling/AppStyle.h"
 
-// The background reuses the engine's own graph canvas brush, with a white playhead.
-struct FHapticTimelineScrubberColors
-{
-	static constexpr FLinearColor Playhead = FLinearColor(1.0f, 1.0f, 1.0f, 0.95f);
-};
-
 void SHapticTimelineScrubber::Construct(const FArguments& InArgs)
 {
+	Style = InArgs._Style;
 	Bounds = InArgs._Bounds;
 	PlayheadTimeMilliseconds = InArgs._PlayheadTimeMilliseconds;
 	OnScrubbed = InArgs._OnScrubbed;
@@ -76,7 +71,7 @@ void SHapticTimelineScrubber::PaintPlayhead(const FGeometry& AllottedGeometry, F
 	FSlateDrawElement::MakeLines(
 		OutDrawElements, LayerId, AllottedGeometry.ToPaintGeometry(),
 		PlayheadLinePoints,
-		ESlateDrawEffect::None, FHapticTimelineScrubberColors::Playhead, true, 1.5f);
+		ESlateDrawEffect::None, Style->MarkerColor, true, 1.5f);
 }
 
 FReply SHapticTimelineScrubber::OnMouseButtonDown(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)

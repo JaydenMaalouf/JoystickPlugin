@@ -55,7 +55,7 @@ private:
 	TSharedPtr<SCheckBox> OverrideDisplayNameCheckBox;
 	TSharedPtr<SEditableTextBox> DisplayNameTextBox;
 	TSharedPtr<SHorizontalBox> DisplayNameInputContainer;
-	FProgressBarStyle ProgressBarStyle;
+	const FProgressBarStyle* ProgressBarStyle = nullptr;
 
 	// Track original display name state for restart notification
 	FString OriginalDisplayName;

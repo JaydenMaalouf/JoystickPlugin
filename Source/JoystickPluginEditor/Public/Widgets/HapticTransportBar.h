@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "Styling/JoystickPluginEditorStyle.h"
+#include "Styling/JoystickPluginEditorWidgetStyles.h"
 #include "Widgets/SCompoundWidget.h"
 
 // The Haptic Effect Editor's Play/Stop/Loop buttons. Holds no playback state of its own.
@@ -10,12 +12,14 @@ class SHapticTransportBar : public SCompoundWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SHapticTransportBar)
-			: _HasDevice(false)
+			: _Style(&FJoystickPluginEditorStyle::Get().GetWidgetStyle<FHapticTransportBarStyle>("HapticTransportBar"))
+			  , _HasDevice(false)
 			  , _IsPlaying(false)
 			  , _IsLooping(false)
 		{
 		}
 
+		SLATE_STYLE_ARGUMENT(FHapticTransportBarStyle, Style)
 		SLATE_ATTRIBUTE(bool, HasDevice)
 		SLATE_ATTRIBUTE(bool, IsPlaying)
 		SLATE_ATTRIBUTE(bool, IsLooping)
@@ -27,6 +31,7 @@ public:
 	void Construct(const FArguments& InArgs);
 
 private:
+	const FHapticTransportBarStyle* Style = nullptr;
 	TAttribute<bool> HasDevice;
 	TAttribute<bool> IsPlaying;
 	TAttribute<bool> IsLooping;

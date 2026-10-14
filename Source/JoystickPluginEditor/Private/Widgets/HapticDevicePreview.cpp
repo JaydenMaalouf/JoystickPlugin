@@ -7,6 +7,7 @@
 
 void SHapticDevicePreview::Construct(const FArguments& InArgs)
 {
+	Style = InArgs._Style;
 	JoystickType = InArgs._JoystickType;
 	AxisValue = InArgs._AxisValue;
 	MaxRotationDegrees = InArgs._MaxRotationDegrees;
@@ -58,9 +59,9 @@ int32 SHapticDevicePreview::PaintWheel(const FGeometry& AllottedGeometry, FSlate
 	const float Value = FMath::Clamp(AxisValue.Get(0.0f), -1.0f, 1.0f);
 	const float Rotation = FMath::DegreesToRadians(Value * MaxRotationDegrees.Get(540.0f));
 
-	const FColor BodyColor = FLinearColor(0.7f, 0.7f, 0.7f, 1.0f).ToFColor(true);
-	const FColor ReferenceColor = FLinearColor(0.4f, 0.4f, 0.4f, 1.0f).ToFColor(true);
-	const FColor MarkerColor = FLinearColor(0.2f, 1.0f, 0.2f, 1.0f).ToFColor(true);
+	const FColor BodyColor = Style->BodyColor.ToFColor(true);
+	const FColor ReferenceColor = Style->ReferenceColor.ToFColor(true);
+	const FColor MarkerColor = Style->MarkerColor.ToFColor(true);
 
 	// Built as filled geometry with one-pixel feathered edges, as thick MakeLines strokes spike at the join and custom verts aren't antialiased.
 	const float Feather = 1.0f / FMath::Max(AllottedGeometry.Scale, KINDA_SMALL_NUMBER);

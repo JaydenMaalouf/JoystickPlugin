@@ -6,6 +6,7 @@
 #include "JoystickSubsystem.h"
 #include "Engine/Engine.h"
 #include "Styling/AppStyle.h"
+#include "Styling/JoystickPluginEditorStyle.h"
 #include "Widgets/HapticDevicePreview.h"
 #include "Widgets/SBoxPanel.h"
 #include "Widgets/Input/SSpinBox.h"
@@ -14,16 +15,6 @@
 #include "Widgets/Text/STextBlock.h"
 
 #define LOCTEXT_NAMESPACE "HapticEffectEditor"
-
-struct FHapticEffectEditorPreview
-{
-	// How far (in normalised -1..1 units) an axis must move during playback to be treated as the one the effect is driving.
-	static constexpr float AxisDetectionThreshold = 0.01f;
-
-	// User-entered degrees of rotation each way from centre, as no joystick API reports it.
-	static constexpr float MinRotationLimitDegrees = 45.0f;
-	static constexpr float MaxRotationLimitDegrees = 1440.0f;
-};
 
 void SHapticDevicePreviewPanel::Construct(const FArguments& InArgs)
 {
@@ -52,8 +43,7 @@ void SHapticDevicePreviewPanel::Construct(const FArguments& InArgs)
 				[
 					SNew(STextBlock)
 					.Text(LOCTEXT("DevicePreviewLabel", "DEVICE PREVIEW"))
-					.TextStyle(FAppStyle::Get(), "SmallText")
-					.ColorAndOpacity(FLinearColor(0.6f, 0.6f, 0.6f, 1.0f))
+					.TextStyle(FJoystickPluginEditorStyle::Get(), "CaptionText")
 				]
 				+ SHorizontalBox::Slot()
 				.FillWidth(1.0f)
@@ -104,8 +94,7 @@ void SHapticDevicePreviewPanel::Construct(const FArguments& InArgs)
 
 					return FText::Format(LOCTEXT("DevicePreviewUnsupported", "No preview for device type: {0}"), StaticEnum<EJoystickType>()->GetDisplayNameTextByValue(static_cast<int64>(PreviewJoystickType)));
 				})
-				.TextStyle(FAppStyle::Get(), "SmallText")
-				.ColorAndOpacity(FLinearColor(0.6f, 0.6f, 0.6f, 1.0f))
+				.TextStyle(FJoystickPluginEditorStyle::Get(), "CaptionText")
 			]
 			+ SVerticalBox::Slot()
 			.AutoHeight()
@@ -119,15 +108,14 @@ void SHapticDevicePreviewPanel::Construct(const FArguments& InArgs)
 				[
 					SNew(STextBlock)
 					.Text(LOCTEXT("RotationRangeLabel", "RANGE \u00B1"))
-					.TextStyle(FAppStyle::Get(), "SmallText")
-					.ColorAndOpacity(FLinearColor(0.6f, 0.6f, 0.6f, 1.0f))
+					.TextStyle(FJoystickPluginEditorStyle::Get(), "CaptionText")
 				]
 				+ SHorizontalBox::Slot()
 				.FillWidth(1.0f)
 				[
 					SNew(SSpinBox<float>)
-					.MinValue(FHapticEffectEditorPreview::MinRotationLimitDegrees)
-					.MaxValue(FHapticEffectEditorPreview::MaxRotationLimitDegrees)
+					.MinValue(MinRotationLimitDegrees)
+					.MaxValue(MaxRotationLimitDegrees)
 					.Delta(10.0f)
 					.MaxFractionalDigits(0)
 					.ToolTipText(LOCTEXT("RotationRangeTooltip",
@@ -195,7 +183,7 @@ void SHapticDevicePreviewPanel::UpdatePreviewAxis()
 
 		// Tracks each axis's furthest excursion, since a periodic effect swings the driven axis back through its start.
 		int32 MostMovedAxisIndex = INDEX_NONE;
-		float MostMovedDeviation = FHapticEffectEditorPreview::AxisDetectionThreshold;
+		float MostMovedDeviation = AxisDetectionThreshold;
 		for (int32 AxisIndex = 0; AxisIndex < Axes.Num(); ++AxisIndex)
 		{
 			PlayAxisDeviations[AxisIndex] = FMath::Max(PlayAxisDeviations[AxisIndex], FMath::Abs(Axes[AxisIndex].Value - PlayAxisBaselines[AxisIndex]));

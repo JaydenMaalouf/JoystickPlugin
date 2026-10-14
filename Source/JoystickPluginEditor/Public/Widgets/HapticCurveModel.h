@@ -53,6 +53,12 @@ public:
 	virtual FLinearColor GetColor() const override { return Color; }
 
 private:
+	// Hard ceiling on the pixel columns sampled per draw, so the cost is bounded by the panel rather than the effect.
+	static constexpr int32 MaxColumns = 4096;
+
+	// Sub-sample positions within a pixel column, deliberately uneven so they can't all land on the same phase of the waveform.
+	static constexpr double ColumnSampleOffsets[] = {0.0, 0.2023, 0.2795, 0.4818, 0.5590, 0.6363, 0.8385, 0.9158};
+
 	FOnEvaluateHapticEffect OnEvaluate;
 	TAttribute<int64> DurationMilliseconds;
 };

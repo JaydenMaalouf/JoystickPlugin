@@ -4,6 +4,7 @@
 #include "Widgets/HapticConditionPanel.h"
 
 #include "Styling/AppStyle.h"
+#include "Styling/JoystickPluginEditorStyle.h"
 #include "Widgets/SBoxPanel.h"
 #include "Widgets/Input/SSpinBox.h"
 #include "Widgets/Layout/SBorder.h"
@@ -37,8 +38,7 @@ void SHapticConditionPanel::Construct(const FArguments& InArgs)
 				[
 					SNew(STextBlock)
 					.Text_Lambda([this] { return IsInertiaCondition() ? LOCTEXT("FullScaleAccelerationLabel", "FULL SCALE") : LOCTEXT("SweepRateLabel", "PREVIEW SPEED"); })
-					.TextStyle(FAppStyle::Get(), "SmallText")
-					.ColorAndOpacity(FLinearColor(0.6f, 0.6f, 0.6f, 1.0f))
+					.TextStyle(FJoystickPluginEditorStyle::Get(), "CaptionText")
 				]
 				+ SHorizontalBox::Slot()
 				.AutoWidth()
@@ -81,8 +81,7 @@ void SHapticConditionPanel::Construct(const FArguments& InArgs)
 				[
 					SNew(STextBlock)
 					.Text_Lambda([this] { return GetSweepCaption(); })
-					.TextStyle(FAppStyle::Get(), "SmallText")
-					.ColorAndOpacity(FLinearColor(0.6f, 0.6f, 0.6f, 1.0f))
+					.TextStyle(FJoystickPluginEditorStyle::Get(), "CaptionText")
 					.AutoWrapText(true)
 				]
 			]

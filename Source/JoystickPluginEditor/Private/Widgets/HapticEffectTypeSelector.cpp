@@ -5,7 +5,6 @@
 
 #include "Styling/AppStyle.h"
 #include "Styling/CoreStyle.h"
-#include "Widgets/HapticEditorStyle.h"
 #include "Widgets/SBoxPanel.h"
 #include "Widgets/Input/SButton.h"
 #include "Widgets/Layout/SBorder.h"
@@ -15,6 +14,7 @@
 
 void SHapticEffectTypeSelector::Construct(const FArguments& InArgs)
 {
+	Style = InArgs._Style;
 	EffectKind = InArgs._EffectKind;
 	OnEffectKindSelected = InArgs._OnEffectKindSelected;
 	IsEffectKindSupported = InArgs._IsEffectKindSupported;
@@ -76,7 +76,7 @@ TSharedRef<SWidget> SHapticEffectTypeSelector::MakeTypeButton(const FText& Label
 			.Padding(FMargin(10.0f, 4.0f))
 			.BorderBackgroundColor_Lambda([this, Kind]
 			{
-				return FHapticEffectEditorColors::GetToggleBackgroundColor(EffectKind.Get() == Kind);
+				return FSlateColor(Style->GetBackgroundColor(EffectKind.Get() == Kind));
 			})
 			[
 				SNew(STextBlock)
@@ -84,7 +84,7 @@ TSharedRef<SWidget> SHapticEffectTypeSelector::MakeTypeButton(const FText& Label
 				.TextStyle(FAppStyle::Get(), "NormalText")
 				.ColorAndOpacity_Lambda([this, Kind]
 				{
-					return IsKindSupported(Kind) ? FHapticEffectEditorColors::GetToggleForegroundColor(EffectKind.Get() == Kind) : FHapticEffectEditorColors::GetUnsupportedForegroundColor();
+					return FSlateColor(IsKindSupported(Kind) ? Style->GetForegroundColor(EffectKind.Get() == Kind) : Style->UnsupportedForegroundColor);
 				})
 			]
 		];

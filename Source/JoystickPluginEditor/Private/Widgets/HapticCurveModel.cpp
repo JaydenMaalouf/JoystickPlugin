@@ -6,20 +6,12 @@
 #include "CurveEditorScreenSpace.h"
 #include "CurveDataAbstraction.h"
 #include "CurveDrawInfo.h"
-
-struct FHapticCurveModelSampling
-{
-	// Hard ceiling on the pixel columns sampled per draw, so the cost is bounded by the panel rather than the effect.
-	static constexpr int32 MaxColumns = 4096;
-
-	// Sub-sample positions within a pixel column, deliberately uneven so they can't all land on the same phase of the waveform.
-	static constexpr double ColumnSampleOffsets[] = {0.0, 0.2023, 0.2795, 0.4818, 0.5590, 0.6363, 0.8385, 0.9158};
-};
+#include "Styling/JoystickPluginEditorStyle.h"
+#include "Styling/JoystickPluginEditorWidgetStyles.h"
 
 FHapticCurveModel::FHapticCurveModel()
 {
-	// Matches the bright green the old SHapticWaveformGraph used for its curve.
-	SetColor(FLinearColor(0.2f, 0.9f, 0.3f, 1.0f));
+	SetColor(FJoystickPluginEditorStyle::Get().GetWidgetStyle<FHapticGraphStyle>("HapticGraph").CurveColor);
 }
 
 const void* FHapticCurveModel::GetCurve() const
@@ -46,7 +38,7 @@ void FHapticCurveModel::DrawCurve(const FCurveEditor& CurveEditor, const FCurveE
 	}
 
 	// Oscilloscope-style min/max decimation: each pixel column is sampled several times and contributes its lowest and highest value.
-	const int32 NumColumns = FMath::Clamp(FMath::CeilToInt32(ScreenSpace.GetPhysicalWidth()), 1, FHapticCurveModelSampling::MaxColumns);
+	const int32 NumColumns = FMath::Clamp(FMath::CeilToInt32(ScreenSpace.GetPhysicalWidth()), 1, MaxColumns);
 	const double ColumnSeconds = (EndTimeSeconds - StartTimeSeconds) / NumColumns;
 
 	InterpolatingPoints.Reserve(InterpolatingPoints.Num() + NumColumns * 2 + 1);
@@ -58,7 +50,7 @@ void FHapticCurveModel::DrawCurve(const FCurveEditor& CurveEditor, const FCurveE
 		TTuple<double, double> Lowest(0.0, TNumericLimits<double>::Max());
 		TTuple<double, double> Highest(0.0, TNumericLimits<double>::Lowest());
 
-		for (const double SampleOffset : FHapticCurveModelSampling::ColumnSampleOffsets)
+		for (const double SampleOffset : ColumnSampleOffsets)
 		{
 			const double SampleSeconds = ColumnStartSeconds + SampleOffset * ColumnSeconds;
 			const double Value = FMath::Clamp(OnEvaluate.Execute(static_cast<float>(SampleSeconds * 1000.0)), -1.0f, 1.0f);
