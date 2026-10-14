@@ -4,12 +4,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ForceFeedback/Types/ForceFeedbackConditionEffectType.h"
+#include "ForceFeedback/Types/ForceFeedbackPeriodicEffectType.h"
 #include "Menus/HapticEffectEditorTypes.h"
 
 class FProperty;
 class UClass;
 class UForceFeedbackEffectBase;
 struct FAssetData;
+struct FJoystickHapticInformation;
 
 // What the Haptic Effect Editor treats as the authored part of an effect, and which effect classes it can open.
 struct FHapticEffectEditorProperties
@@ -22,10 +25,16 @@ struct FHapticEffectEditorProperties
 
 	static bool AuthoredPropertiesIdentical(const UForceFeedbackEffectBase* A, const UForceFeedbackEffectBase* B, const UClass* EffectClass);
 
-	// The preview kind an effect class is edited as. Condition and custom effects have no kind and can't be opened.
+	// The preview kind an effect class is edited as. Custom effects have no kind and can't be opened.
 	static bool FindEffectKind(const UClass* EffectClass, EHapticPreviewEffectKind& OutKind);
 
 	static UClass* GetEffectKindClass(EHapticPreviewEffectKind Kind);
+
+	// Whether the device can play at least one effect type of the kind, as periodic and condition each cover several SDL types.
+	static bool IsEffectKindSupported(EHapticPreviewEffectKind Kind, const FJoystickHapticInformation& HapticInformation);
+
+	static bool IsWaveformSupported(EForceFeedbackPeriodicEffectType WaveformType, const FJoystickHapticInformation& HapticInformation);
+	static bool IsConditionTypeSupported(EForceFeedbackConditionEffectType ConditionType, const FJoystickHapticInformation& HapticInformation);
 
 	// Whether a Blueprint derives from an effect class the editor can open, read from asset registry tags without loading it.
 	static bool IsSupportedEffectBlueprint(const FAssetData& AssetData);

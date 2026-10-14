@@ -18,4 +18,10 @@ struct FHapticEffectEditorColors
 	{
 		return bIsActive ? FSlateColor(FLinearColor::White) : FSlateColor(FLinearColor(0.7f, 0.7f, 0.7f, 1.0f));
 	}
+
+	// For a toggle the selected device can't play, whether or not it is the active one.
+	static FSlateColor GetUnsupportedForegroundColor()
+	{
+		return FSlateColor(FLinearColor(0.25f, 0.25f, 0.25f, 1.0f));
+	}
 };

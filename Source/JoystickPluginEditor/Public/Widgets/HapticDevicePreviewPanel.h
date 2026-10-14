@@ -28,6 +28,9 @@ public:
 	// Starts axis detection afresh, for a new playback: the baselines are re-captured on the next Tick.
 	void ResetAxisDetection();
 
+	// The axis being previewed: axis 0 until playback shows another is the one the effect drives.
+	int32 GetPreviewAxisIndex() const;
+
 private:
 	void UpdatePreviewAxis();
 	float GetPreviewAxisDegrees() const;

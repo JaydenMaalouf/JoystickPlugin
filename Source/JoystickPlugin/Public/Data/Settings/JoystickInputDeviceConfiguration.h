@@ -5,6 +5,7 @@
 
 #include "JoystickInputDeviceAxisProperties.h"
 #include "JoystickInputDeviceButtonProperties.h"
+#include "JoystickInputDeviceForceFeedbackProperties.h"
 
 #include "Data/JoystickIdentifierType.h"
 
@@ -18,6 +19,7 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceConfiguration
 	FJoystickInputDeviceConfiguration()
 		: DeviceIdentifyMethod(EJoystickIdentifierType::Hashed)
 		  , OverrideDeviceName(false)
+		  , OverrideForceFeedbackProperties(false)
 	{
 	}
 
@@ -25,6 +27,7 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceConfiguration
 		: DeviceIdentifyMethod(EJoystickIdentifierType::Hashed)
 		  , ProductGuid(JoystickProductId)
 		  , OverrideDeviceName(false)
+		  , OverrideForceFeedbackProperties(false)
 	{
 	}
 
@@ -32,6 +35,7 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceConfiguration
 		: DeviceIdentifyMethod(EJoystickIdentifierType::Hashed)
 		  , DeviceHash(JoystickHash)
 		  , OverrideDeviceName(false)
+		  , OverrideForceFeedbackProperties(false)
 	{
 	}
 
@@ -57,6 +61,12 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceConfiguration
 
 	UPROPERTY(EditAnywhere, Category="Device Config", meta=(TitleProperty="ButtonIndex"))
 	TArray<FJoystickInputDeviceButtonProperties> ButtonProperties;
+
+	UPROPERTY(EditAnywhere, Category="Device Config", meta=(ToolTip="If enabled, these force feedback corrections replace any the device's profile ships with."))
+	bool OverrideForceFeedbackProperties;
+
+	UPROPERTY(EditAnywhere, Category="Device Config", meta=(EditCondition="OverrideForceFeedbackProperties", EditConditionHides))
+	FJoystickInputDeviceForceFeedbackProperties ForceFeedbackProperties;
 
 	FJoystickInputDeviceAxisProperties* GetAxisProperties(const int AxisIndex)
 	{
@@ -99,6 +109,13 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceConfiguration
 			}
 
 			ButtonProperty.UpdateProperties(*OtherButtonProperties);
+		}
+
+		// Only taken when set, so a configuration made just to rename axes or buttons doesn't clear a profile's corrections.
+		if (Other.OverrideForceFeedbackProperties)
+		{
+			OverrideForceFeedbackProperties = true;
+			ForceFeedbackProperties.UpdateProperties(Other.ForceFeedbackProperties);
 		}
 	}
 };

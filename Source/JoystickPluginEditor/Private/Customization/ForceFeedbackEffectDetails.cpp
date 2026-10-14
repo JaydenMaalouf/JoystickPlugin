@@ -54,7 +54,7 @@ void FForceFeedbackEffectDetails::CustomizeDetails(IDetailLayoutBuilder& DetailB
 	IterationsRow->IsEnabled(TAttribute<bool>::CreateSP(this, &FForceFeedbackEffectDetails::HasFiniteDuration));
 
 	IterationsRow->CustomWidget()
-		.NameContent()
+	             .NameContent()
 		[
 			IterationsHandle->CreatePropertyNameWidget()
 		]

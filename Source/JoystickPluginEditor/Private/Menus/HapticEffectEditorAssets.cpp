@@ -36,7 +36,7 @@
 
 static void NotifyNothingToOpen(const FAssetData& AssetData)
 {
-	FNotificationInfo Info(FText::Format(LOCTEXT("NothingToOpen", "{0} has no periodic, constant, ramp or left/right effect to open."), FText::FromName(AssetData.AssetName)));
+	FNotificationInfo Info(FText::Format(LOCTEXT("NothingToOpen", "{0} has no periodic, constant, ramp, condition or left/right effect to open."), FText::FromName(AssetData.AssetName)));
 	Info.ExpireDuration = 4.0f;
 	FSlateNotificationManager::Get().AddNotification(Info);
 }
@@ -222,6 +222,9 @@ void SHapticEffectEditor::SaveAsNewAsset(const EHapticEffectAssetType AssetType)
 			break;
 		case EHapticPreviewEffectKind::Ramp:
 			DefaultAssetName = TEXT("FFB_Ramp");
+			break;
+		case EHapticPreviewEffectKind::Condition:
+			DefaultAssetName = TEXT("FFB_Condition");
 			break;
 		case EHapticPreviewEffectKind::LeftRight:
 			DefaultAssetName = TEXT("FFB_LeftRight");

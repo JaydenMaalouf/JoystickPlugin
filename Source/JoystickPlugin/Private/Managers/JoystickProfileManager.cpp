@@ -320,6 +320,39 @@ void UJoystickProfileManager::LoadJoystickProfiles()
 
 					DeviceConfiguration.ButtonProperties.Add(ButtonProperties);
 				}
+				else if (ConfigSection.Key.Equals(ForceFeedbackPropertiesSection, ESearchCase::IgnoreCase))
+				{
+					DeviceConfiguration.OverrideForceFeedbackProperties = true;
+					FJoystickInputDeviceForceFeedbackProperties& ForceFeedbackProperties = DeviceConfiguration.ForceFeedbackProperties;
+
+					for (const TTuple<FName, FConfigValue>& Pair : ConfigSection.Value)
+					{
+						const FName Key = Pair.Key;
+						const FConfigValue& Value = Pair.Value;
+						FString ValueString = Value.GetSavedValue().TrimStartAndEnd();
+
+						if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceForceFeedbackProperties, InvertConditions))
+						{
+							ForceFeedbackProperties.InvertConditions = AsBoolean(ValueString);
+						}
+						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceForceFeedbackProperties, InvertSpring))
+						{
+							ForceFeedbackProperties.InvertSpring = AsBoolean(ValueString);
+						}
+						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceForceFeedbackProperties, InvertDamper))
+						{
+							ForceFeedbackProperties.InvertDamper = AsBoolean(ValueString);
+						}
+						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceForceFeedbackProperties, InvertInertia))
+						{
+							ForceFeedbackProperties.InvertInertia = AsBoolean(ValueString);
+						}
+						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceForceFeedbackProperties, InvertFriction))
+						{
+							ForceFeedbackProperties.InvertFriction = AsBoolean(ValueString);
+						}
+					}
+				}
 			}
 
 			JoystickInputSettings->AddProfileConfiguration(DeviceConfiguration);
@@ -428,6 +461,10 @@ bool UJoystickProfileManager::CreateJoystickProfile(const FString& DeviceProfile
 		const FJoystickInputDeviceButtonProperties& ButtonProperties = DeviceConfiguration.ButtonProperties[ButtonPropertyIndex];
 		const FString ButtonSection = FString::Printf(TEXT("%s%d"), *ButtonPropertiesSection, ButtonProperties.ButtonIndex);
 		WriteChangedStructPropsToProfile(ProfileConfigFile, FJoystickInputDeviceButtonProperties::StaticStruct(), &ButtonProperties, ButtonSection);
+	}
+	if (DeviceConfiguration.OverrideForceFeedbackProperties)
+	{
+		WriteChangedStructPropsToProfile(ProfileConfigFile, FJoystickInputDeviceForceFeedbackProperties::StaticStruct(), &DeviceConfiguration.ForceFeedbackProperties, ForceFeedbackPropertiesSection);
 	}
 	const bool Result = ProfileConfigFile.Write(DeviceProfile);
 	if (Result)
@@ -599,3 +636,5 @@ FString UJoystickProfileManager::JoystickConfigurationSection("Joystick");
 FString UJoystickProfileManager::AxisPropertiesSection("AxisProperties_");
 
 FString UJoystickProfileManager::ButtonPropertiesSection("ButtonProperties_");
+
+FString UJoystickProfileManager::ForceFeedbackPropertiesSection("ForceFeedbackProperties");

@@ -5,6 +5,7 @@
 
 #include "BallData.generated.h"
 
+// A trackball's state.
 USTRUCT(BlueprintType)
 struct JOYSTICKPLUGIN_API FBallData
 {
@@ -13,6 +14,7 @@ struct JOYSTICKPLUGIN_API FBallData
 	FBallData()
 		: Direction(FVector2D::ZeroVector)
 		  , PreviousDirection(FVector2D::ZeroVector)
+		  , Timestamp(0)
 	{
 	}
 
@@ -26,20 +28,28 @@ struct JOYSTICKPLUGIN_API FBallData
 		return PreviousDirection;
 	}
 
-	void Update(const FVector2D& InValue)
+	void Update(const FVector2D& InValue, const int64 InTimestamp)
 	{
 		PreviousDirection = Direction;
 		Direction = InValue;
+		Timestamp = InTimestamp;
 	}
 
+	// Marks the current value as handled, so it no longer reads as changed from the previous one.
 	void Processed()
 	{
 		PreviousDirection = Direction;
 	}
 
+	// How far the ball moved in its last report, in the device's own units.
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Ball")
 	FVector2D Direction;
 
+	// The movement before the last update.
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Ball")
 	FVector2D PreviousDirection;
+
+	// When SDL read the current value, in nanoseconds on UJoystickFunctionLibrary::GetTicksNS()'s clock.
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Ball")
+	int64 Timestamp;
 };

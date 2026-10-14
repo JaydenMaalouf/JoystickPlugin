@@ -6,6 +6,7 @@
 
 #include "AxisData.generated.h"
 
+// An analog axis' state, with the remapping its configuration applies on read.
 USTRUCT(BlueprintType)
 struct JOYSTICKPLUGIN_API FAxisData
 {
@@ -22,6 +23,7 @@ struct JOYSTICKPLUGIN_API FAxisData
 		  , OutputRangeMin(0.0f)
 		  , OutputRangeMax(1.0f)
 		  , InvertOutput(false)
+		  , Timestamp(0)
 	{
 	}
 
@@ -33,6 +35,7 @@ struct JOYSTICKPLUGIN_API FAxisData
 		return InvertOutput ? -MappedValue : MappedValue;
 	}
 
+	// Maps with the given properties rather than the ones stored here, for previewing a configuration before it is applied.
 	float MapValue(const FJoystickInputDeviceAxisProperties& AxisProperties, const float Input) const
 	{
 		const float InvertedInput = AxisProperties.InvertInput ? -Input : Input;
@@ -54,6 +57,7 @@ struct JOYSTICKPLUGIN_API FAxisData
 		return Value;
 	}
 
+	// The current value as the given properties would remap it. See MapValue.
 	float GetMockValue(const FJoystickInputDeviceAxisProperties& AxisProperties) const
 	{
 		if (AxisProperties.RemappingEnabled)
@@ -73,54 +77,60 @@ struct JOYSTICKPLUGIN_API FAxisData
 		return PreviousValue;
 	}
 
-	void Update(const float& InValue)
+	void Update(const float& InValue, const int64 InTimestamp)
 	{
 		PreviousValue = Value;
 		Value = InValue;
+		Timestamp = InTimestamp;
 	}
 
+	// Marks the current value as handled, so it no longer reads as changed from the previous one.
 	void Processed()
 	{
 		PreviousValue = Value;
 	}
 
-	/* Current analog value */
+	// The current raw value, in -1..1.
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Axis")
 	float Value;
 
-	/* Last analog value */
+	// The raw value before the last update, in -1..1.
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Axis")
 	float PreviousValue;
 
-	/* Should remap ranges */
+	// Whether GetValue() and GetPreviousValue() apply the remapping below.
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Axis")
 	bool RemappingEnabled;
 
-	/* Offset to apply to analog value */
+	// Added to the value after the input inversion.
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Axis")
 	float InputOffset;
 
-	/* Invert input */
+	// Inverts the value before it is offset and remapped.
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Axis")
 	bool InvertInput;
 
-	/* Input min analog value */
+	// The input range's minimum, mapped to OutputRangeMin.
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Axis")
 	float InputRangeMin;
 
-	/* Input max analog value */
+	// The input range's maximum, mapped to OutputRangeMax.
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Axis")
 	float InputRangeMax;
 
-	/* Output min analog value */
+	// The output range's minimum.
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Axis")
 	float OutputRangeMin;
 
-	/* Output max analog value */
+	// The output range's maximum.
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Axis")
 	float OutputRangeMax;
 
-	/* Invert the processed output */
+	// Inverts the value after it is remapped.
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Axis")
 	bool InvertOutput;
+
+	// When SDL read the current value, in nanoseconds on UJoystickFunctionLibrary::GetTicksNS()'s clock.
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Axis")
+	int64 Timestamp;
 };

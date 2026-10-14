@@ -6,6 +6,7 @@
 #include "InputCoreTypes.h"
 #include "KeyPair.generated.h"
 
+// The keys for a two-dimensional input's X and Y, indexable as 0 and 1.
 USTRUCT()
 struct FKeyPair
 {

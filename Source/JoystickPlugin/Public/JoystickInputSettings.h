@@ -25,7 +25,7 @@ public:
 		meta=(ToolTip="When creating the input keys for devices, use the device name in the key. Default will prefix the key with \"Joystick\" instead.", ConfigRestartRequired=true))
 	bool UseDeviceName;
 
-	UPROPERTY(Config, EditAnywhere, Category="Joystick Settings", meta=(ToolTip="Include Device Index in Key names. Disable this if SDL2 is not guaranteeing the same index for your device.", ConfigRestartRequired=true))
+	UPROPERTY(Config, EditAnywhere, Category="Joystick Settings", meta=(ToolTip="Include Device Index in Key names. Disable this if SDL is not guaranteeing the same index for your device.", ConfigRestartRequired=true))
 	bool IncludeDeviceIndex;
 
 	UPROPERTY(Config, EditAnywhere, Category="Joystick Settings", meta=(ToolTip="Useful if you want input for controllers (ie. XInput) to be handled by UE directly, instead of via this plugin.", ConfigRestartRequired=true))

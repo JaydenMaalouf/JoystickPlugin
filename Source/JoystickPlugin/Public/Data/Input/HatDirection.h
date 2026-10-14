@@ -5,6 +5,7 @@
 
 #include "HatDirection.generated.h"
 
+// A hat switch's direction, as flags so a set of directions can be matched at once.
 UENUM(BlueprintType, meta=(Bitflags, UseEnumValuesAsMaskValuesInEditor="true"))
 enum class EHatDirection : uint8
 {

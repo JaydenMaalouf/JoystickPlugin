@@ -7,6 +7,7 @@
 #include "Engine/Engine.h"
 #include "ForceFeedback/ForceFeedbackConversion.h"
 #include "Managers/JoystickLogManager.h"
+#include "Managers/JoystickProfileManager.h"
 #include "JoystickSubsystem.h"
 #include "Runtime/Launch/Resources/Version.h"
 
@@ -326,14 +327,16 @@ bool UJoystickHapticDeviceManager::StopHapticRumble(const FJoystickInstanceId& I
 
 int UJoystickHapticDeviceManager::CreateEffect(const FJoystickInstanceId& InstanceId, SDL_HapticEffect& Effect) const
 {
-	auto [HapticDevice, Result] = GetHapticDevice(InstanceId);
-	if (HapticDevice == nullptr || Result.bSuccess == false)
+	auto [DeviceInfo, Result] = GetDeviceInfo(InstanceId);
+	if (DeviceInfo == nullptr || DeviceInfo->SDLHaptic == nullptr || Result.bSuccess == false)
 	{
 		FJoystickLogManager::Get()->LogError(Result);
 		return -1;
 	}
 
-	const int EffectId = SDL_CreateHapticEffect(HapticDevice, &Effect);
+	SDL_HapticEffect DeviceEffect = Effect;
+	ApplyForceFeedbackProperties(*DeviceInfo, DeviceEffect);
+	const int EffectId = SDL_CreateHapticEffect(DeviceInfo->SDLHaptic, &DeviceEffect);
 	if (EffectId == -1)
 	{
 		FJoystickLogManager::Get()->LogSDLError(TEXT("SDL_CreateHapticEffect failed"));
@@ -344,14 +347,16 @@ int UJoystickHapticDeviceManager::CreateEffect(const FJoystickInstanceId& Instan
 
 bool UJoystickHapticDeviceManager::UpdateEffect(const FJoystickInstanceId& InstanceId, const int EffectId, SDL_HapticEffect& Effect) const
 {
-	auto [HapticDevice, HapticDeviceResult] = GetHapticDevice(InstanceId);
-	if (HapticDeviceResult.bSuccess == false || HapticDevice == nullptr)
+	auto [DeviceInfo, DeviceInfoResult] = GetDeviceInfo(InstanceId);
+	if (DeviceInfoResult.bSuccess == false || DeviceInfo == nullptr || DeviceInfo->SDLHaptic == nullptr)
 	{
-		FJoystickLogManager::Get()->LogError(HapticDeviceResult);
+		FJoystickLogManager::Get()->LogError(DeviceInfoResult);
 		return false;
 	}
 
-	const bool Result = SDL_UpdateHapticEffect(HapticDevice, EffectId, &Effect);
+	SDL_HapticEffect DeviceEffect = Effect;
+	ApplyForceFeedbackProperties(*DeviceInfo, DeviceEffect);
+	const bool Result = SDL_UpdateHapticEffect(DeviceInfo->SDLHaptic, EffectId, &DeviceEffect);
 	if (Result == false)
 	{
 		FJoystickLogManager::Get()->LogSDLError(TEXT("SDL_UpdateHapticEffect failed"));
@@ -409,6 +414,57 @@ void UJoystickHapticDeviceManager::DestroyEffect(const FJoystickInstanceId& Inst
 	}
 
 	SDL_DestroyHapticEffect(HapticDevice, EffectId);
+}
+
+void UJoystickHapticDeviceManager::ApplyForceFeedbackProperties(const FDeviceInfoSDL& DeviceInfo, SDL_HapticEffect& Effect)
+{
+	UJoystickProfileManager* JoystickProfileManager = GetMutableDefault<UJoystickProfileManager>();
+	if (!IsValid(JoystickProfileManager))
+	{
+		return;
+	}
+
+	const FJoystickInputDeviceConfiguration* DeviceConfiguration = JoystickProfileManager->GetInputDeviceConfiguration(DeviceInfo);
+	if (DeviceConfiguration == nullptr || DeviceConfiguration->OverrideForceFeedbackProperties == false)
+	{
+		return;
+	}
+
+	const FJoystickInputDeviceForceFeedbackProperties& ForceFeedbackProperties = DeviceConfiguration->ForceFeedbackProperties;
+	switch (Effect.type)
+	{
+		case SDL_HAPTIC_SPRING:
+			ApplyConditionProperties(ForceFeedbackProperties, EForceFeedbackConditionEffectType::Spring, Effect.condition);
+			break;
+		case SDL_HAPTIC_DAMPER:
+			ApplyConditionProperties(ForceFeedbackProperties, EForceFeedbackConditionEffectType::Damper, Effect.condition);
+			break;
+		case SDL_HAPTIC_INERTIA:
+			ApplyConditionProperties(ForceFeedbackProperties, EForceFeedbackConditionEffectType::Inertia, Effect.condition);
+			break;
+		case SDL_HAPTIC_FRICTION:
+			ApplyConditionProperties(ForceFeedbackProperties, EForceFeedbackConditionEffectType::Friction, Effect.condition);
+			break;
+		default:
+			break;
+	}
+}
+
+void UJoystickHapticDeviceManager::ApplyConditionProperties(const FJoystickInputDeviceForceFeedbackProperties& ForceFeedbackProperties, const EForceFeedbackConditionEffectType ConditionType, SDL_HapticCondition& Condition)
+{
+	if (!ForceFeedbackProperties.IsInverted(ConditionType))
+	{
+		return;
+	}
+
+	for (int AxisIndex = 0; AxisIndex < 3; AxisIndex++)
+	{
+		Swap(Condition.right_sat[AxisIndex], Condition.left_sat[AxisIndex]);
+		Swap(Condition.right_coeff[AxisIndex], Condition.left_coeff[AxisIndex]);
+
+		// Negated in int32, as -32768 has no positive int16.
+		Condition.center[AxisIndex] = static_cast<Sint16>(FMath::Clamp(-static_cast<int32>(Condition.center[AxisIndex]), -32768, 32767));
+	}
 }
 
 TTuple<SDL_Haptic*, FInternalResultMessage> UJoystickHapticDeviceManager::GetHapticDevice(const FJoystickInstanceId& InstanceId) const

@@ -11,7 +11,7 @@ struct FForceFeedbackConversion
 	// Seconds to a Uint32 length in milliseconds.
 	static uint32 SecondsToDuration(const double Seconds)
 	{
-		return static_cast<uint32>(FMath::RoundToInt32(Seconds * 1000.0));
+		return static_cast<uint32>(FMath::Clamp(FMath::RoundToDouble(Seconds * 1000.0), 0.0, static_cast<double>(SDL_HAPTIC_INFINITY)));
 	}
 
 	// Seconds to a Uint16 time in milliseconds (delay, interval, period, attack and fade length), capped at 32.767 seconds.

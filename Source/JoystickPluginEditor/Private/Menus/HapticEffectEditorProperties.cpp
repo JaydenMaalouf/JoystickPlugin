@@ -4,8 +4,10 @@
 #include "Menus/HapticEffectEditorProperties.h"
 
 #include "AssetRegistry/AssetData.h"
+#include "Data/JoystickHapticInformation.h"
 #include "Engine/Blueprint.h"
 #include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
+#include "ForceFeedback/Effects/ForceFeedbackEffectCondition.h"
 #include "ForceFeedback/Effects/ForceFeedbackEffectConstant.h"
 #include "ForceFeedback/Effects/ForceFeedbackEffectLeftRight.h"
 #include "ForceFeedback/Effects/ForceFeedbackEffectPeriodic.h"
@@ -77,6 +79,12 @@ bool FHapticEffectEditorProperties::FindEffectKind(const UClass* EffectClass, EH
 		return true;
 	}
 
+	if (EffectClass->IsChildOf(UForceFeedbackEffectCondition::StaticClass()))
+	{
+		OutKind = EHapticPreviewEffectKind::Condition;
+		return true;
+	}
+
 	if (EffectClass->IsChildOf(UForceFeedbackEffectLeftRight::StaticClass()))
 	{
 		OutKind = EHapticPreviewEffectKind::LeftRight;
@@ -96,11 +104,68 @@ UClass* FHapticEffectEditorProperties::GetEffectKindClass(const EHapticPreviewEf
 			return UForceFeedbackEffectConstant::StaticClass();
 		case EHapticPreviewEffectKind::Ramp:
 			return UForceFeedbackEffectRamp::StaticClass();
+		case EHapticPreviewEffectKind::Condition:
+			return UForceFeedbackEffectCondition::StaticClass();
 		case EHapticPreviewEffectKind::LeftRight:
 			return UForceFeedbackEffectLeftRight::StaticClass();
 	}
 
 	return nullptr;
+}
+
+bool FHapticEffectEditorProperties::IsEffectKindSupported(const EHapticPreviewEffectKind Kind, const FJoystickHapticInformation& HapticInformation)
+{
+	switch (Kind)
+	{
+		case EHapticPreviewEffectKind::Periodic:
+			return HapticInformation.Sine || HapticInformation.Triangle || HapticInformation.SawToothUp || HapticInformation.SawToothDown || HapticInformation.Square;
+		case EHapticPreviewEffectKind::Constant:
+			return HapticInformation.Constant;
+		case EHapticPreviewEffectKind::Ramp:
+			return HapticInformation.Ramp;
+		case EHapticPreviewEffectKind::Condition:
+			return HapticInformation.Spring || HapticInformation.Damper || HapticInformation.Inertia || HapticInformation.Friction;
+		case EHapticPreviewEffectKind::LeftRight:
+			return HapticInformation.LeftRight;
+	}
+
+	return false;
+}
+
+bool FHapticEffectEditorProperties::IsWaveformSupported(const EForceFeedbackPeriodicEffectType WaveformType, const FJoystickHapticInformation& HapticInformation)
+{
+	switch (WaveformType)
+	{
+		case EForceFeedbackPeriodicEffectType::Sine:
+			return HapticInformation.Sine;
+		case EForceFeedbackPeriodicEffectType::Triangle:
+			return HapticInformation.Triangle;
+		case EForceFeedbackPeriodicEffectType::SawtoothUp:
+			return HapticInformation.SawToothUp;
+		case EForceFeedbackPeriodicEffectType::SawtoothDown:
+			return HapticInformation.SawToothDown;
+		case EForceFeedbackPeriodicEffectType::Square:
+			return HapticInformation.Square;
+	}
+
+	return false;
+}
+
+bool FHapticEffectEditorProperties::IsConditionTypeSupported(const EForceFeedbackConditionEffectType ConditionType, const FJoystickHapticInformation& HapticInformation)
+{
+	switch (ConditionType)
+	{
+		case EForceFeedbackConditionEffectType::Spring:
+			return HapticInformation.Spring;
+		case EForceFeedbackConditionEffectType::Damper:
+			return HapticInformation.Damper;
+		case EForceFeedbackConditionEffectType::Inertia:
+			return HapticInformation.Inertia;
+		case EForceFeedbackConditionEffectType::Friction:
+			return HapticInformation.Friction;
+	}
+
+	return false;
 }
 
 bool FHapticEffectEditorProperties::IsSupportedEffectBlueprint(const FAssetData& AssetData)

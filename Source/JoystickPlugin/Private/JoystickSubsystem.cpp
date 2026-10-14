@@ -488,7 +488,7 @@ FJoystickDeviceState UJoystickSubsystem::CreateInitialDeviceState(const FJoystic
 			CurrentValue = SDL_GetJoystickAxis(DeviceInfo->SDLJoystick, AxisIndex);
 		}
 
-		DeviceState.Axes[AxisIndex].Update(UJoystickFunctionLibrary::NormalizeAxisRaw(CurrentValue));
+		DeviceState.Axes[AxisIndex].Update(UJoystickFunctionLibrary::NormalizeAxisRaw(CurrentValue), static_cast<int64>(UJoystickFunctionLibrary::GetTicksNS()));
 	}
 
 	DeviceState.Buttons.SetNumZeroed(ButtonCount);
@@ -537,22 +537,22 @@ bool UJoystickSubsystem::HandleSDLEvent(void* UserData, SDL_Event* Event)
 		case SDL_EVENT_JOYSTICK_BUTTON_DOWN:
 		case SDL_EVENT_JOYSTICK_BUTTON_UP:
 			{
-				InputDevice->JoystickButton(Event->jbutton.which, Event->jbutton.button, Event->jbutton.type == SDL_EVENT_JOYSTICK_BUTTON_DOWN);
+				InputDevice->JoystickButton(Event->jbutton.which, Event->jbutton.button, Event->jbutton.type == SDL_EVENT_JOYSTICK_BUTTON_DOWN, static_cast<int64>(Event->jbutton.timestamp));
 				break;
 			}
 		case SDL_EVENT_JOYSTICK_AXIS_MOTION:
 			{
-				InputDevice->JoystickAxis(Event->jaxis.which, Event->jaxis.axis, UJoystickFunctionLibrary::NormalizeAxisRaw(Event->jaxis.value));
+				InputDevice->JoystickAxis(Event->jaxis.which, Event->jaxis.axis, UJoystickFunctionLibrary::NormalizeAxisRaw(Event->jaxis.value), static_cast<int64>(Event->jaxis.timestamp));
 				break;
 			}
 		case SDL_EVENT_JOYSTICK_HAT_MOTION:
 			{
-				InputDevice->JoystickHat(Event->jhat.which, Event->jhat.hat, UJoystickFunctionLibrary::HatValueToDirection(Event->jhat.value));
+				InputDevice->JoystickHat(Event->jhat.which, Event->jhat.hat, UJoystickFunctionLibrary::HatValueToDirection(Event->jhat.value), static_cast<int64>(Event->jhat.timestamp));
 				break;
 			}
 		case SDL_EVENT_JOYSTICK_BALL_MOTION:
 			{
-				InputDevice->JoystickBall(Event->jball.which, Event->jball.ball, FVector2D(Event->jball.xrel, Event->jball.yrel));
+				InputDevice->JoystickBall(Event->jball.which, Event->jball.ball, FVector2D(Event->jball.xrel, Event->jball.yrel), static_cast<int64>(Event->jball.timestamp));
 				break;
 			}
 		case SDL_EVENT_JOYSTICK_BATTERY_UPDATED:
@@ -566,12 +566,12 @@ bool UJoystickSubsystem::HandleSDLEvent(void* UserData, SDL_Event* Event)
 				{
 					case SDL_SENSOR_GYRO:
 						{
-							InputDevice->JoystickGyro(Event->gsensor.which, FVector(Event->gsensor.data[0], Event->gsensor.data[1], Event->gsensor.data[2]));
+							InputDevice->JoystickGyro(Event->gsensor.which, FVector(Event->gsensor.data[0], Event->gsensor.data[1], Event->gsensor.data[2]), static_cast<int64>(Event->gsensor.timestamp));
 							break;
 						}
 					case SDL_SENSOR_ACCEL:
 						{
-							InputDevice->JoystickAccelerometer(Event->gsensor.which, FVector(Event->gsensor.data[0], Event->gsensor.data[1], Event->gsensor.data[2]));
+							InputDevice->JoystickAccelerometer(Event->gsensor.which, FVector(Event->gsensor.data[0], Event->gsensor.data[1], Event->gsensor.data[2]), static_cast<int64>(Event->gsensor.timestamp));
 							break;
 						}
 					default:

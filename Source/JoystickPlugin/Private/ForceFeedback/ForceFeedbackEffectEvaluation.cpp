@@ -96,6 +96,62 @@ float FForceFeedbackEffectEvaluation::EvaluateRamp(const FForceFeedbackEffectRam
 	return FMath::Clamp(Value * Envelope, -1.0f, 1.0f);
 }
 
+float FForceFeedbackEffectEvaluation::EvaluateConditionResponse(const FForceFeedbackEffectConditionData& EffectData, const float Input)
+{
+	// Only the first axis, as that is the one a wheel steers with. The dead zone is a half-width either side of the centre, as SDL describes it (full range at 1).
+	const float Center = FMath::Clamp(static_cast<float>(EffectData.Center.X), -1.0f, 1.0f);
+	const float DeadZone = FMath::Clamp(static_cast<float>(EffectData.DeadZone.X), 0.0f, 1.0f);
+
+	// SDL's right_* fields are the positive side and left_* the negative side, which UpdateEffectData fills from Right* and Left* respectively.
+	// The force builds from the edge of the dead zone, so it is continuous across it.
+	float Coefficient = 0.0f;
+	float Saturation = 0.0f;
+	float Displacement = 0.0f;
+	if (Input > Center + DeadZone)
+	{
+		Coefficient = EffectData.RightCoefficient.X;
+		Saturation = EffectData.RightSat.X;
+		Displacement = Input - (Center + DeadZone);
+	}
+	else if (Input < Center - DeadZone)
+	{
+		Coefficient = EffectData.LeftCoefficient.X;
+		Saturation = EffectData.LeftSat.X;
+		Displacement = Input - (Center - DeadZone);
+	}
+	else
+	{
+		return 0.0f;
+	}
+
+	// Saturation caps the magnitude of the push in either direction.
+	Saturation = FMath::Clamp(Saturation, 0.0f, 1.0f);
+
+	// Friction is a constant drag against the direction of motion (Coulomb friction), so its strength doesn't grow with speed the way a damper's does.
+	if (EffectData.EffectType == EForceFeedbackConditionEffectType::Friction)
+	{
+		return -FMath::Sign(Displacement) * FMath::Clamp(Coefficient, -Saturation, Saturation);
+	}
+
+	return -FMath::Clamp(Coefficient * Displacement, -Saturation, Saturation);
+}
+
+float FForceFeedbackEffectEvaluation::EvaluateConditionMotion(const FForceFeedbackEffectConditionData& EffectData, const float Position, const float Velocity, const float Acceleration)
+{
+	switch (EffectData.EffectType)
+	{
+		case EForceFeedbackConditionEffectType::Spring:
+			return EvaluateConditionResponse(EffectData, Position);
+		case EForceFeedbackConditionEffectType::Damper:
+		case EForceFeedbackConditionEffectType::Friction:
+			return EvaluateConditionResponse(EffectData, Velocity);
+		case EForceFeedbackConditionEffectType::Inertia:
+			return EvaluateConditionResponse(EffectData, Acceleration);
+	}
+
+	return 0.0f;
+}
+
 float FForceFeedbackEffectEvaluation::EvaluateLeftRight(const FForceFeedbackEffectLeftRightData& EffectData, const float TimeSeconds)
 {
 	if (TimeSeconds < 0.0f || (!EffectData.DurationData.InfiniteDuration && TimeSeconds > EffectData.DurationData.Duration))

@@ -10,6 +10,7 @@ enum class EHapticPreviewEffectKind : uint8
 	Periodic,
 	Constant,
 	Ramp,
+	Condition,
 	LeftRight
 };
 

@@ -17,6 +17,7 @@ void SHapticWaveformSelector::Construct(const FArguments& InArgs)
 {
 	SelectedWaveform = InArgs._SelectedWaveform;
 	OnWaveformSelected = InArgs._OnWaveformSelected;
+	IsWaveformSupported = InArgs._IsWaveformSupported;
 
 	ChildSlot
 	[
@@ -59,7 +60,11 @@ TSharedRef<SWidget> SHapticWaveformSelector::MakeWaveformButton(const EForceFeed
 		.ButtonStyle(FAppStyle::Get(), "NoBorder")
 		.ContentPadding(0.0f)
 		.IsFocusable(false)
-		.ToolTipText(Tooltip)
+		.IsEnabled_Lambda([this, WaveformType] { return IsSupported(WaveformType); })
+		.ToolTipText_Lambda([this, WaveformType, Tooltip]
+		{
+			return IsSupported(WaveformType) ? Tooltip : FText::Format(LOCTEXT("UnsupportedWaveformTooltip", "{0} (not supported by the selected device)"), Tooltip);
+		})
 		.OnClicked_Lambda([this, WaveformType]
 		{
 			OnWaveformSelected.ExecuteIfBound(WaveformType);
@@ -78,6 +83,11 @@ TSharedRef<SWidget> SHapticWaveformSelector::MakeWaveformButton(const EForceFeed
 				.WaveformType(WaveformType)
 				.Color_Lambda([this, WaveformType]
 				{
+					if (!IsSupported(WaveformType))
+					{
+						return FHapticEffectEditorColors::GetUnsupportedForegroundColor().GetSpecifiedColor();
+					}
+
 					return IsWaveformSelected(WaveformType) ? FLinearColor::White : FLinearColor(0.6f, 0.6f, 0.6f, 1.0f);
 				})
 			]
@@ -88,6 +98,11 @@ bool SHapticWaveformSelector::IsWaveformSelected(const EForceFeedbackPeriodicEff
 {
 	const TOptional<EForceFeedbackPeriodicEffectType> Selected = SelectedWaveform.Get();
 	return Selected.IsSet() && Selected.GetValue() == WaveformType;
+}
+
+bool SHapticWaveformSelector::IsSupported(const EForceFeedbackPeriodicEffectType WaveformType) const
+{
+	return !IsWaveformSupported.IsBound() || IsWaveformSupported.Execute(WaveformType);
 }
 
 #undef LOCTEXT_NAMESPACE

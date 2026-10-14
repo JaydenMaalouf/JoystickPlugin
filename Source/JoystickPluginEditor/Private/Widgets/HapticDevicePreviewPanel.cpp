@@ -218,6 +218,11 @@ void SHapticDevicePreviewPanel::UpdatePreviewAxis()
 	}
 }
 
+int32 SHapticDevicePreviewPanel::GetPreviewAxisIndex() const
+{
+	return PreviewAxisIndex;
+}
+
 float SHapticDevicePreviewPanel::GetPreviewAxisDegrees() const
 {
 	return PreviewAxisValue * PreviewMaxRotationDegrees;

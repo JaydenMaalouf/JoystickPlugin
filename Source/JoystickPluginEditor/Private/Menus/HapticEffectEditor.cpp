@@ -6,48 +6,40 @@
 #include "DetailsViewArgs.h"
 #include "Editor.h"
 #include "IDetailsView.h"
+#include "JoystickFunctionLibrary.h"
+#include "JoystickSubsystem.h"
 #include "PropertyEditorDelegates.h"
 #include "PropertyEditorModule.h"
 #include "ScopedTransaction.h"
-#include "Fonts/FontMeasure.h"
+#include "Data/JoystickInformation.h"
 #include "ForceFeedback/ForceFeedbackEffectEvaluation.h"
 #include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
+#include "ForceFeedback/Effects/ForceFeedbackEffectCondition.h"
 #include "ForceFeedback/Effects/ForceFeedbackEffectConstant.h"
 #include "ForceFeedback/Effects/ForceFeedbackEffectLeftRight.h"
 #include "ForceFeedback/Effects/ForceFeedbackEffectPeriodic.h"
 #include "ForceFeedback/Effects/ForceFeedbackEffectRamp.h"
-#include "Framework/Application/SlateApplication.h"
 #include "Menus/HapticEffectEditorProperties.h"
 #include "Misc/ITransaction.h"
 #include "Misc/TransactionObjectEvent.h"
 #include "Modules/ModuleManager.h"
-#include "Styling/AppStyle.h"
 #include "UObject/Package.h"
+#include "Widgets/HapticConditionPanel.h"
+#include "Widgets/HapticConditionTypeSelector.h"
 #include "Widgets/HapticDevicePicker.h"
 #include "Widgets/HapticDevicePreviewPanel.h"
 #include "Widgets/HapticEffectGraph.h"
 #include "Widgets/HapticEffectTypeSelector.h"
+#include "Widgets/HapticStatusChip.h"
+#include "Widgets/HapticToolbarPill.h"
 #include "Widgets/HapticTransportBar.h"
 #include "Widgets/HapticWaveformSelector.h"
 #include "Widgets/SBoxPanel.h"
-#include "Widgets/Layout/SBorder.h"
-#include "Widgets/Layout/SBox.h"
+#include "Widgets/SOverlay.h"
 #include "Widgets/Layout/SSpacer.h"
 #include "Widgets/Layout/SSplitter.h"
-#include "Widgets/Text/STextBlock.h"
 
 #define LOCTEXT_NAMESPACE "HapticEffectEditor"
-
-// Wraps a toolbar control in a bordered "pill" container.
-static TSharedRef<SWidget> WrapInPill(const TSharedRef<SWidget>& Content)
-{
-	return SNew(SBorder)
-		.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
-		.Padding(FMargin(8.0f, 6.0f))
-		[
-			Content
-		];
-}
 
 void SHapticEffectEditor::Construct(const FArguments& InArgs)
 {
@@ -74,6 +66,7 @@ void SHapticEffectEditor::Construct(const FArguments& InArgs)
 	DevicePicker = SNew(SHapticDevicePicker)
 		.OnDeviceChanged(this, &SHapticEffectEditor::OnDeviceChanged);
 
+	UpdateSelectedHapticInformation();
 	RebuildPreviewEffect();
 
 	ChildSlot
@@ -90,48 +83,66 @@ void SHapticEffectEditor::Construct(const FArguments& InArgs)
 			.VAlign(VAlign_Center)
 			.Padding(0, 0, 8, 0)
 			[
-				WrapInPill(DevicePicker.ToSharedRef())
+				SNew(SHapticToolbarPill)
+				[
+					DevicePicker.ToSharedRef()
+				]
 			]
 			+ SHorizontalBox::Slot()
 			.AutoWidth()
 			.VAlign(VAlign_Center)
 			.Padding(0, 0, 8, 0)
 			[
-				WrapInPill(
+				SNew(SHapticToolbarPill)
+				[
 					SNew(SHapticTransportBar)
-					.HasDevice_Lambda([this] { return GetSelectedJoystick().IsValid(); })
+					.HasDevice_Lambda([this] { return GetSelectedJoystick().IsValid() && IsPreviewEffectSupported(); })
 					.IsPlaying_Lambda([this] { return bIsPlaying; })
 					.IsLooping_Lambda([this] { return bLoop; })
 					.OnPlayClicked(this, &SHapticEffectEditor::OnPlayClicked)
 					.OnStopClicked(this, &SHapticEffectEditor::OnStopClicked)
-					.OnLoopClicked(this, &SHapticEffectEditor::OnLoopClicked))
+					.OnLoopClicked(this, &SHapticEffectEditor::OnLoopClicked)
+				]
 			]
 			+ SHorizontalBox::Slot()
 			.AutoWidth()
 			.VAlign(VAlign_Center)
 			.Padding(0, 0, 8, 0)
 			[
-				WrapInPill(
+				SNew(SHapticToolbarPill)
+				[
 					SNew(SHapticEffectTypeSelector)
 					.EffectKind_Lambda([this] { return EffectKind; })
-					.OnEffectKindSelected(this, &SHapticEffectEditor::SetEffectKind))
+					.OnEffectKindSelected(this, &SHapticEffectEditor::SetEffectKind)
+					.IsEffectKindSupported(this, &SHapticEffectEditor::IsEffectKindSupported)
+				]
 			]
 			+ SHorizontalBox::Slot()
 			.AutoWidth()
 			.VAlign(VAlign_Center)
 			.Padding(0, 0, 8, 0)
 			[
-				SNew(SBorder)
-				.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
-				.Padding(FMargin(8.0f, 6.0f))
-				.Visibility_Lambda([this]
-				{
-					return EffectKind == EHapticPreviewEffectKind::Periodic ? EVisibility::Visible : EVisibility::Collapsed;
-				})
+				SNew(SHapticToolbarPill)
+				.Visibility_Lambda([this] { return EffectKind == EHapticPreviewEffectKind::Periodic ? EVisibility::Visible : EVisibility::Collapsed; })
 				[
 					SNew(SHapticWaveformSelector)
 					.SelectedWaveform_Lambda([this] { return GetPeriodicWaveform(); })
 					.OnWaveformSelected(this, &SHapticEffectEditor::SetPeriodicWaveform)
+					.IsWaveformSupported(this, &SHapticEffectEditor::IsWaveformSupported)
+				]
+			]
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.VAlign(VAlign_Center)
+			.Padding(0, 0, 8, 0)
+			[
+				SNew(SHapticToolbarPill)
+				.Visibility_Lambda([this] { return EffectKind == EHapticPreviewEffectKind::Condition ? EVisibility::Visible : EVisibility::Collapsed; })
+				[
+					SNew(SHapticConditionTypeSelector)
+					.SelectedConditionType_Lambda([this] { return GetConditionType(); })
+					.OnConditionTypeSelected(this, &SHapticEffectEditor::SetConditionType)
+					.IsConditionTypeSupported(this, &SHapticEffectEditor::IsConditionTypeSupported)
 				]
 			]
 			+ SHorizontalBox::Slot()
@@ -144,13 +155,24 @@ void SHapticEffectEditor::Construct(const FArguments& InArgs)
 			.VAlign(VAlign_Center)
 			.Padding(0, 0, 8, 0)
 			[
-				WrapInPill(BuildAssetBar())
+				SNew(SHapticToolbarPill)
+				[
+					BuildAssetBar()
+				]
 			]
 			+ SHorizontalBox::Slot()
 			.AutoWidth()
 			.VAlign(VAlign_Center)
 			[
-				WrapInPill(BuildStatusChip())
+				SNew(SHapticToolbarPill)
+				[
+					SNew(SHapticStatusChip)
+					.PlayheadTimeMilliseconds_Lambda([this] { return PlayheadTimeMilliseconds; })
+					.ElapsedTimeMilliseconds_Lambda([this] { return ElapsedTimeMilliseconds; })
+					.Force_Lambda([this] { return EvaluatePreviewEffect(static_cast<float>(PlayheadTimeMilliseconds)); })
+					.Iteration_Lambda([this] { return CurrentIteration; })
+					.Iterations_Lambda([this] { return GetPreviewIterations(); })
+				]
 			]
 		]
 
@@ -163,11 +185,25 @@ void SHapticEffectEditor::Construct(const FArguments& InArgs)
 			+ SSplitter::Slot()
 			.Value(0.7f)
 			[
-				SAssignNew(EffectGraph, SHapticEffectGraph)
-				.OnEvaluate(FOnEvaluateHapticEffect::CreateSP(this, &SHapticEffectEditor::EvaluatePreviewEffect))
-				.DurationMilliseconds_Lambda([this] { return GetPreviewTimelineMilliseconds(); })
-				.PlayheadTimeMilliseconds_Lambda([this] { return PlayheadTimeMilliseconds; })
-				.OnScrubbed(this, &SHapticEffectEditor::OnGraphScrubbed)
+				SNew(SOverlay)
+				+ SOverlay::Slot()
+				[
+					SAssignNew(EffectGraph, SHapticEffectGraph)
+					.Visibility_Lambda([this] { return EffectKind == EHapticPreviewEffectKind::Condition ? EVisibility::Collapsed : EVisibility::Visible; })
+					.OnEvaluate(FOnEvaluateHapticEffect::CreateSP(this, &SHapticEffectEditor::EvaluatePreviewEffect))
+					.DurationMilliseconds_Lambda([this] { return GetPreviewTimelineMilliseconds(); })
+					.PlayheadTimeMilliseconds_Lambda([this] { return PlayheadTimeMilliseconds; })
+					.OnScrubbed(this, &SHapticEffectEditor::OnGraphScrubbed)
+				]
+				+ SOverlay::Slot()
+				[
+					// A condition's force follows the axis rather than time, so it is graphed against the axis instead of the timeline.
+					SNew(SHapticConditionPanel)
+					.Visibility_Lambda([this] { return EffectKind == EHapticPreviewEffectKind::Condition ? EVisibility::Visible : EVisibility::Collapsed; })
+					.OnEvaluate(FOnEvaluateHapticConditionMotion::CreateSP(this, &SHapticEffectEditor::EvaluateConditionMotion))
+					.ConditionType_Lambda([this] { return GetConditionType(); })
+					.LiveMotion_Lambda([this] { return ConditionLiveMotion; })
+				]
 			]
 			+ SSplitter::Slot()
 			.Value(0.3f)
@@ -204,6 +240,8 @@ SHapticEffectEditor::~SHapticEffectEditor()
 void SHapticEffectEditor::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
+
+	UpdateConditionLiveMotion();
 
 	if (!bIsPlaying || !PreviewEffect.IsValid() || !DeviceEffect.IsValid())
 	{
@@ -311,65 +349,6 @@ FReply SHapticEffectEditor::OnKeyDown(const FGeometry& MyGeometry, const FKeyEve
 	return SCompoundWidget::OnKeyDown(MyGeometry, InKeyEvent);
 }
 
-TSharedRef<SWidget> SHapticEffectEditor::BuildStatusChip()
-{
-	const FSlateFontInfo& Font = FAppStyle::Get().GetWidgetStyle<FTextBlockStyle>("NormalText").Font;
-	const TSharedRef<FSlateFontMeasure> FontMeasure = FSlateApplication::Get().GetRenderer()->GetFontMeasureService();
-
-	// Each readout sits in a box sized for its widest expected value, so the chip doesn't resize as the numbers change during playback.
-	auto MakeReadout = [&Font, &FontMeasure](const TCHAR* WidestValue, const TAttribute<FText>& Text)
-	{
-		return SNew(SBox)
-			.MinDesiredWidth(FontMeasure->Measure(WidestValue, Font).X)
-			[
-				SNew(STextBlock)
-				.Text(Text)
-				.TextStyle(FAppStyle::Get(), "NormalText")
-			];
-	};
-
-	return SNew(SHorizontalBox)
-		+ SHorizontalBox::Slot()
-		.AutoWidth()
-		.Padding(0, 0, 12, 0)
-		[
-			MakeReadout(TEXT("t = 000.00s"), TAttribute<FText>::CreateLambda([this]
-			{
-				return FText::FromString(FString::Printf(TEXT("t = %.2fs"), PlayheadTimeMilliseconds / 1000.0));
-			}))
-		]
-		+ SHorizontalBox::Slot()
-		.AutoWidth()
-		.Padding(0, 0, 12, 0)
-		[
-			MakeReadout(TEXT("elapsed = 0000.00s"), TAttribute<FText>::CreateLambda([this]
-			{
-				return FText::FromString(FString::Printf(TEXT("elapsed = %.2fs"), ElapsedTimeMilliseconds / 1000.0));
-			}))
-		]
-		+ SHorizontalBox::Slot()
-		.AutoWidth()
-		.Padding(0, 0, 12, 0)
-		[
-			MakeReadout(TEXT("F = -0.00"), TAttribute<FText>::CreateLambda([this]
-			{
-				return FText::FromString(FString::Printf(TEXT("F = %.2f"), EvaluatePreviewEffect(static_cast<float>(PlayheadTimeMilliseconds))));
-			}))
-		]
-		+ SHorizontalBox::Slot()
-		.AutoWidth()
-		[
-			MakeReadout(TEXT("i = 000/000"), TAttribute<FText>::CreateLambda([this]
-			{
-				// Looping has no last iteration to count towards, so it shows an infinity sign instead. So does an authored count of SDL_HAPTIC_INFINITY, which the device runs forever.
-				const int64 Iterations = PreviewEffect.IsValid() ? PreviewEffect->GetRunIterations() : 0;
-				const FString IterationCount = bLoop || Iterations == SDL_HAPTIC_INFINITY ? FString::Chr(static_cast<TCHAR>(0x221E)) : FString::Printf(TEXT("%lld"), Iterations);
-
-				return FText::FromString(FString::Printf(TEXT("i = %lld/%s"), CurrentIteration, *IterationCount));
-			}))
-		];
-}
-
 TSharedPtr<FJoystickInstanceId> SHapticEffectEditor::GetSelectedJoystick() const
 {
 	return DevicePicker.IsValid() ? DevicePicker->GetSelectedJoystick() : nullptr;
@@ -377,8 +356,49 @@ TSharedPtr<FJoystickInstanceId> SHapticEffectEditor::GetSelectedJoystick() const
 
 void SHapticEffectEditor::OnDeviceChanged()
 {
+	UpdateSelectedHapticInformation();
+
 	// Carries the edits over to an effect built against the newly selected device.
 	RebuildPreviewEffect(PreviewEffect.Get());
+}
+
+void SHapticEffectEditor::UpdateSelectedHapticInformation()
+{
+	SelectedHapticInformation.Reset();
+
+	const TSharedPtr<FJoystickInstanceId> SelectedJoystick = GetSelectedJoystick();
+	UJoystickSubsystem* JoystickSubsystem = GEngine ? GEngine->GetEngineSubsystem<UJoystickSubsystem>() : nullptr;
+	if (!SelectedJoystick.IsValid() || !JoystickSubsystem)
+	{
+		return;
+	}
+
+	FJoystickInformation JoystickInfo;
+	if (JoystickSubsystem->GetJoystickInfo(*SelectedJoystick, JoystickInfo))
+	{
+		SelectedHapticInformation = JoystickInfo.Haptic;
+	}
+}
+
+bool SHapticEffectEditor::IsEffectKindSupported(const EHapticPreviewEffectKind Kind) const
+{
+	return !SelectedHapticInformation.IsSet() || FHapticEffectEditorProperties::IsEffectKindSupported(Kind, SelectedHapticInformation.GetValue());
+}
+
+bool SHapticEffectEditor::IsWaveformSupported(const EForceFeedbackPeriodicEffectType WaveformType) const
+{
+	return !SelectedHapticInformation.IsSet() || FHapticEffectEditorProperties::IsWaveformSupported(WaveformType, SelectedHapticInformation.GetValue());
+}
+
+bool SHapticEffectEditor::IsConditionTypeSupported(const EForceFeedbackConditionEffectType ConditionType) const
+{
+	return !SelectedHapticInformation.IsSet() || FHapticEffectEditorProperties::IsConditionTypeSupported(ConditionType, SelectedHapticInformation.GetValue());
+}
+
+bool SHapticEffectEditor::IsPreviewEffectSupported() const
+{
+	// Checked against the authored effect rather than its kind, so an unsupported waveform or condition type also counts.
+	return !SelectedHapticInformation.IsSet() || !PreviewEffect.IsValid() || PreviewEffect->IsSupportedByDevice(SelectedHapticInformation.GetValue());
 }
 
 void SHapticEffectEditor::SetEffectKind(const EHapticPreviewEffectKind NewKind)
@@ -421,6 +441,7 @@ void SHapticEffectEditor::RebuildPreviewEffect(const UForceFeedbackEffectBase* I
 
 	DeviceEffect = TStrongObjectPtr<UForceFeedbackEffectBase>(NewObject<UForceFeedbackEffectBase>(GetTransientPackage(), EffectClass, NAME_None, RF_Transient));
 	DeviceEffect->Configuration.AutoStartOnInitialisation = false;
+	DeviceEffect->Configuration.AutoUpdatePostTick = false;
 	DeviceEffect->SetTickableInEditor(true);
 
 	if (const TSharedPtr<FJoystickInstanceId> SelectedJoystick = GetSelectedJoystick())
@@ -691,6 +712,11 @@ float SHapticEffectEditor::EvaluatePreviewEffect(const float TimeMilliseconds) c
 				return FForceFeedbackEffectEvaluation::EvaluateRamp(Ramp->EffectData, TimeSeconds);
 			}
 			break;
+		case EHapticPreviewEffectKind::Condition:
+			{
+				// Time doesn't drive a condition, so this is the force for the device's current motion, the same at every time.
+				return ConditionLiveMotion.IsSet() ? EvaluateConditionMotion(ConditionLiveMotion.GetValue()) : 0.0f;
+			}
 		case EHapticPreviewEffectKind::LeftRight:
 			if (const UForceFeedbackEffectLeftRight* LeftRight = Cast<UForceFeedbackEffectLeftRight>(PreviewEffect.Get()))
 			{
@@ -702,9 +728,133 @@ float SHapticEffectEditor::EvaluatePreviewEffect(const float TimeMilliseconds) c
 	return 0.0f;
 }
 
+float SHapticEffectEditor::EvaluateConditionMotion(const FHapticConditionMotion& Motion) const
+{
+	if (const UForceFeedbackEffectCondition* Condition = Cast<UForceFeedbackEffectCondition>(PreviewEffect.Get()))
+	{
+		return FForceFeedbackEffectEvaluation::EvaluateConditionMotion(Condition->EffectData, Motion.Position, Motion.Velocity, Motion.Acceleration);
+	}
+
+	return 0.0f;
+}
+
+TOptional<FAxisData> SHapticEffectEditor::GetPreviewAxis() const
+{
+	if (!IsValid(GEngine))
+	{
+		return TOptional<FAxisData>();
+	}
+
+	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
+	const TSharedPtr<FJoystickInstanceId> SelectedJoystick = GetSelectedJoystick();
+	if (!IsValid(JoystickSubsystem) || !SelectedJoystick.IsValid() || !DevicePreviewPanel.IsValid())
+	{
+		return TOptional<FAxisData>();
+	}
+
+	const int32 AxisIndex = DevicePreviewPanel->GetPreviewAxisIndex();
+	FJoystickDeviceState JoystickState;
+	if (!JoystickSubsystem->GetJoystickState(*SelectedJoystick, JoystickState) || !JoystickState.Axes.IsValidIndex(AxisIndex))
+	{
+		return TOptional<FAxisData>();
+	}
+
+	return JoystickState.Axes[AxisIndex];
+}
+
+void SHapticEffectEditor::UpdateConditionLiveMotion()
+{
+	// Read from the device here rather than taken from the preview panel, which ticks after this widget and would still hold last frame's position.
+	const TOptional<FAxisData> Axis = EffectKind == EHapticPreviewEffectKind::Condition ? GetPreviewAxis() : TOptional<FAxisData>();
+	if (!Axis.IsSet())
+	{
+		ConditionPositionHistory.Reset();
+		ConditionLastReadTimestamp = 0;
+		ConditionLiveMotion.Reset();
+		return;
+	}
+
+	// Each position is fitted at the time SDL read it rather than when this widget ticks. The rest of the editor's frame runs between the two, and its few
+	// milliseconds of jitter put every sample off the motion's curve by enough to flip the fitted acceleration's sign many times a second.
+	// SDL only reports an axis when it changes, so no new read means the axis has held still since the last one, and its position is sampled again now.
+	// Without that a stopped axis would keep the motion it last had until its final reads left the window.
+	// Raw Value rather than GetValue(), the same as the device preview, to follow where the hardware physically is.
+	constexpr double NanosecondsToSeconds = 1.0e-9;
+	const double CurrentTime = UJoystickFunctionLibrary::GetTicksNS() * NanosecondsToSeconds;
+	const bool bIsNewRead = Axis->Timestamp != ConditionLastReadTimestamp;
+	ConditionLastReadTimestamp = Axis->Timestamp;
+	ConditionPositionHistory.Emplace(bIsNewRead ? Axis->Timestamp * NanosecondsToSeconds : CurrentTime, Axis->Value);
+	ConditionPositionHistory.RemoveAll([CurrentTime](const TPair<double, float>& Sample)
+	{
+		return CurrentTime - Sample.Key > ConditionMotionFitWindowSeconds;
+	});
+
+	// Differencing frame to frame divides the axis' quantisation and its uneven updates by a frame's time twice over, which swamps the acceleration with noise.
+	// A least-squares quadratic over the last moment, x(t) = c0 + c1 t + c2 t^2 with t = 0 now, gives the velocity (c1) and acceleration (2 c2) of the motion's overall shape instead.
+	double S0 = 0.0, S1 = 0.0, S2 = 0.0, S3 = 0.0, S4 = 0.0;
+	double Y0 = 0.0, Y1 = 0.0, Y2 = 0.0;
+	float MinPosition = Axis->Value;
+	float MaxPosition = Axis->Value;
+	for (const TPair<double, float>& Sample : ConditionPositionHistory)
+	{
+		MinPosition = FMath::Min(MinPosition, Sample.Value);
+		MaxPosition = FMath::Max(MaxPosition, Sample.Value);
+
+		const double T = Sample.Key - CurrentTime;
+		const double T2 = T * T;
+		const double X = Sample.Value;
+		S0 += 1.0;
+		S1 += T;
+		S2 += T2;
+		S3 += T2 * T;
+		S4 += T2 * T2;
+		Y0 += X;
+		Y1 += T * X;
+		Y2 += T2 * X;
+	}
+
+	FHapticConditionMotion Motion;
+	Motion.Position = Axis->Value;
+
+	// Solved by Cramer's rule. Too few samples, too short a span (an editor that has only just started ticking), or positions within the axis' noise leave the axis treated as still.
+	const double Determinant = S0 * (S2 * S4 - S3 * S3) - S1 * (S1 * S4 - S3 * S2) + S2 * (S1 * S3 - S2 * S2);
+	const bool bIsStill = MaxPosition - MinPosition <= ConditionStillPositionSpan;
+	if (!bIsStill && ConditionPositionHistory.Num() >= 3 && FMath::Abs(Determinant) > UE_DOUBLE_SMALL_NUMBER)
+	{
+		const double C1 = (S0 * (Y1 * S4 - S3 * Y2) - Y0 * (S1 * S4 - S3 * S2) + S2 * (S1 * Y2 - Y1 * S2)) / Determinant;
+		const double C2 = (S0 * (S2 * Y2 - Y1 * S3) - S1 * (S1 * Y2 - Y1 * S2) + Y0 * (S1 * S3 - S2 * S2)) / Determinant;
+		Motion.Velocity = static_cast<float>(C1);
+		Motion.Acceleration = static_cast<float>(2.0 * C2);
+	}
+
+	ConditionLiveMotion = Motion;
+}
+
 bool SHapticEffectEditor::IsPreviewDurationInfinite() const
 {
 	return PreviewEffect.IsValid() && PreviewEffect->GetEffectDuration() == SDL_HAPTIC_INFINITY;
+}
+
+TOptional<int64> SHapticEffectEditor::GetPreviewIterations() const
+{
+	// Looping has no last iteration to count towards. Nor does an authored count of SDL_HAPTIC_INFINITY, which the device runs forever.
+	if (bLoop)
+	{
+		return TOptional<int64>();
+	}
+
+	if (!PreviewEffect.IsValid())
+	{
+		return 0;
+	}
+
+	const int64 Iterations = PreviewEffect->GetRunIterations();
+	if (Iterations == SDL_HAPTIC_INFINITY)
+	{
+		return TOptional<int64>();
+	}
+
+	return Iterations;
 }
 
 int64 SHapticEffectEditor::GetPreviewDelayMilliseconds() const
@@ -756,6 +906,28 @@ void SHapticEffectEditor::SetPeriodicWaveform(const EForceFeedbackPeriodicEffect
 		const FScopedTransaction Transaction(LOCTEXT("SetWaveformTransaction", "Set Haptic Effect Waveform"));
 		Periodic->Modify();
 		Periodic->EffectData.EffectType = WaveformType;
+		RecreateDeviceEffect();
+	}
+}
+
+TOptional<EForceFeedbackConditionEffectType> SHapticEffectEditor::GetConditionType() const
+{
+	if (const UForceFeedbackEffectCondition* Condition = Cast<UForceFeedbackEffectCondition>(PreviewEffect.Get()))
+	{
+		return Condition->EffectData.EffectType;
+	}
+
+	return TOptional<EForceFeedbackConditionEffectType>();
+}
+
+void SHapticEffectEditor::SetConditionType(const EForceFeedbackConditionEffectType ConditionType)
+{
+	if (UForceFeedbackEffectCondition* Condition = Cast<UForceFeedbackEffectCondition>(PreviewEffect.Get()))
+	{
+		// Like a waveform change, SDL can't change an uploaded effect's type in place, so the device effect is rebuilt.
+		const FScopedTransaction Transaction(LOCTEXT("SetConditionTypeTransaction", "Set Haptic Effect Condition Type"));
+		Condition->Modify();
+		Condition->EffectData.EffectType = ConditionType;
 		RecreateDeviceEffect();
 	}
 }

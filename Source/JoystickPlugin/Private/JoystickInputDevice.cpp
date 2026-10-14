@@ -530,7 +530,7 @@ void FJoystickInputDevice::RemoveDeviceKeys(const FJoystickInstanceId& InstanceI
 	DeviceKeys.Remove(InstanceId);
 }
 
-void FJoystickInputDevice::JoystickButton(const FJoystickInstanceId& InstanceId, const int Button, const bool Pressed)
+void FJoystickInputDevice::JoystickButton(const FJoystickInstanceId& InstanceId, const int Button, const bool Pressed, const int64 Timestamp)
 {
 	if (!JoystickDeviceState.Contains(InstanceId))
 	{
@@ -544,12 +544,12 @@ void FJoystickInputDevice::JoystickButton(const FJoystickInstanceId& InstanceId,
 	}
 
 	FButtonData& State = DeviceData.Buttons[Button];
-	State.Update(Pressed);
+	State.Update(Pressed, Timestamp);
 
 	FJoystickLogManager::Get()->LogDebug(TEXT("Event JoystickButton Device=%d Button=%d State=%d"), InstanceId.Value, Button, State.GetValue());
 }
 
-void FJoystickInputDevice::JoystickAxis(const FJoystickInstanceId& InstanceId, const int Axis, const float Value)
+void FJoystickInputDevice::JoystickAxis(const FJoystickInstanceId& InstanceId, const int Axis, const float Value, const int64 Timestamp)
 {
 	auto [DeviceState, Result] = GetDeviceState(InstanceId);
 	if (!DeviceState || Result.bSuccess == false)
@@ -564,10 +564,10 @@ void FJoystickInputDevice::JoystickAxis(const FJoystickInstanceId& InstanceId, c
 	}
 
 	FAxisData& State = DeviceState->Axes[Axis];
-	State.Update(Value);
+	State.Update(Value, Timestamp);
 }
 
-void FJoystickInputDevice::JoystickHat(const FJoystickInstanceId& InstanceId, const int Hat, const EHatDirection Value)
+void FJoystickInputDevice::JoystickHat(const FJoystickInstanceId& InstanceId, const int Hat, const EHatDirection Value, const int64 Timestamp)
 {
 	auto [DeviceState, Result] = GetDeviceState(InstanceId);
 	if (!DeviceState || Result.bSuccess == false)
@@ -582,10 +582,10 @@ void FJoystickInputDevice::JoystickHat(const FJoystickInstanceId& InstanceId, co
 	}
 
 	FHatData& State = DeviceState->Hats[Hat];
-	State.Update(Value);
+	State.Update(Value, Timestamp);
 }
 
-void FJoystickInputDevice::JoystickBall(const FJoystickInstanceId& InstanceId, const int Ball, const FVector2D& Value)
+void FJoystickInputDevice::JoystickBall(const FJoystickInstanceId& InstanceId, const int Ball, const FVector2D& Value, const int64 Timestamp)
 {
 	auto [DeviceState, Result] = GetDeviceState(InstanceId);
 	if (!DeviceState || Result.bSuccess == false)
@@ -600,10 +600,10 @@ void FJoystickInputDevice::JoystickBall(const FJoystickInstanceId& InstanceId, c
 	}
 
 	FBallData& State = DeviceState->Balls[Ball];
-	State.Update(Value);
+	State.Update(Value, Timestamp);
 }
 
-void FJoystickInputDevice::JoystickGyro(const FJoystickInstanceId& InstanceId, const FVector& Value)
+void FJoystickInputDevice::JoystickGyro(const FJoystickInstanceId& InstanceId, const FVector& Value, const int64 Timestamp)
 {
 	auto [DeviceState, Result] = GetDeviceState(InstanceId);
 	if (!DeviceState || Result.bSuccess == false)
@@ -612,10 +612,10 @@ void FJoystickInputDevice::JoystickGyro(const FJoystickInstanceId& InstanceId, c
 		return;
 	}
 
-	DeviceState->Motion.UpdateGyro(Value);
+	DeviceState->Motion.UpdateGyro(Value, Timestamp);
 }
 
-void FJoystickInputDevice::JoystickAccelerometer(const FJoystickInstanceId& InstanceId, const FVector& Value)
+void FJoystickInputDevice::JoystickAccelerometer(const FJoystickInstanceId& InstanceId, const FVector& Value, const int64 Timestamp)
 {
 	auto [DeviceState, Result] = GetDeviceState(InstanceId);
 	if (!DeviceState || Result.bSuccess == false)
@@ -624,7 +624,7 @@ void FJoystickInputDevice::JoystickAccelerometer(const FJoystickInstanceId& Inst
 		return;
 	}
 
-	DeviceState->Motion.UpdateAccelerometer(Value);
+	DeviceState->Motion.UpdateAccelerometer(Value, Timestamp);
 }
 
 TTuple<FJoystickDeviceState*, FInternalResultMessage> FJoystickInputDevice::GetDeviceState(const FJoystickInstanceId& InstanceId)

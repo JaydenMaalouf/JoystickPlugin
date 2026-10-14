@@ -6,6 +6,7 @@
 #include "Data/JoystickHapticInformation.h"
 #include "Data/JoystickInstanceId.h"
 #include "GameFramework/Actor.h"
+#include "JoystickFunctionLibrary.h"
 #include "Managers/JoystickHapticDeviceManager.h"
 #include "Managers/JoystickLogManager.h"
 #include "Runtime/Launch/Resources/Version.h"
@@ -168,7 +169,7 @@ bool UForceFeedbackEffectBase::StartEffect()
 	{
 		return false;
 	}
-	StartTime = SDL_GetTicks();
+	StartTime = UJoystickFunctionLibrary::GetTicks();
 	EffectRunning = true;
 
 	//Safety check to ensure we don't try calling BP during destruction
@@ -315,7 +316,7 @@ void UForceFeedbackEffectBase::TickEffect(const float DeltaTime)
 		UpdateEffect();
 	}
 
-	// Effect should be finished but sometimes SDL2 doesn't handle the status correctly.
+	// Effect should be finished but sometimes SDL doesn't handle the status correctly.
 	if (ForceStopAfterDurationLapsed)
 	{
 		const uint32 Duration = GetEffectDuration();
@@ -331,7 +332,7 @@ void UForceFeedbackEffectBase::TickEffect(const float DeltaTime)
 
 		if (ShouldCheck)
 		{
-			const uint64 CurrentTime = SDL_GetTicks();
+			const uint64 CurrentTime = UJoystickFunctionLibrary::GetTicks();
 
 			// The effect waits out its delay, then runs once per iteration, so it only lapses after the last one.
 			// Both operands are 32-bit, so the duration is widened first to keep a long total from wrapping.
@@ -375,7 +376,7 @@ uint64 UForceFeedbackEffectBase::GetElapsedTimeMilliseconds() const
 		return 0;
 	}
 
-	return SDL_GetTicks() - StartTime;
+	return UJoystickFunctionLibrary::GetTicks() - StartTime;
 }
 
 void UForceFeedbackEffectBase::SetInstanceId(const FJoystickInstanceId& NewInstanceId)

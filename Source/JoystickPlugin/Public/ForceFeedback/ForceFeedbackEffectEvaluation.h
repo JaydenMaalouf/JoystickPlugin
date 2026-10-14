@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "ForceFeedback/Data/ForceFeedbackEffectConditionData.h"
 #include "ForceFeedback/Data/ForceFeedbackEffectConstantData.h"
 #include "ForceFeedback/Data/ForceFeedbackEffectLeftRightData.h"
 #include "ForceFeedback/Data/ForceFeedbackEffectPeriodicData.h"
@@ -16,4 +17,7 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectEvaluation
 	static float EvaluateConstant(const FForceFeedbackEffectConstantData& EffectData, float TimeSeconds);
 	static float EvaluateRamp(const FForceFeedbackEffectRampData& EffectData, float TimeSeconds);
 	static float EvaluateLeftRight(const FForceFeedbackEffectLeftRightData& EffectData, float TimeSeconds);
+
+	static float EvaluateConditionResponse(const FForceFeedbackEffectConditionData& EffectData, float Input);
+	static float EvaluateConditionMotion(const FForceFeedbackEffectConditionData& EffectData, float Position, float Velocity, float Acceleration);
 };

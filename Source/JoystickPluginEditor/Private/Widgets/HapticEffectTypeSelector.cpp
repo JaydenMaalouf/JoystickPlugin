@@ -17,6 +17,7 @@ void SHapticEffectTypeSelector::Construct(const FArguments& InArgs)
 {
 	EffectKind = InArgs._EffectKind;
 	OnEffectKindSelected = InArgs._OnEffectKindSelected;
+	IsEffectKindSupported = InArgs._IsEffectKindSupported;
 
 	ChildSlot
 	[
@@ -41,6 +42,12 @@ void SHapticEffectTypeSelector::Construct(const FArguments& InArgs)
 		]
 		+ SHorizontalBox::Slot()
 		.AutoWidth()
+		.Padding(0, 0, 4, 0)
+		[
+			MakeTypeButton(LOCTEXT("ConditionType", "Condition"), EHapticPreviewEffectKind::Condition)
+		]
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
 		[
 			MakeTypeButton(LOCTEXT("LeftRightType", "Left/Right"), EHapticPreviewEffectKind::LeftRight)
 		]
@@ -53,6 +60,11 @@ TSharedRef<SWidget> SHapticEffectTypeSelector::MakeTypeButton(const FText& Label
 		.ButtonStyle(FAppStyle::Get(), "NoBorder")
 		.ContentPadding(0.0f)
 		.IsFocusable(false)
+		.IsEnabled_Lambda([this, Kind] { return IsKindSupported(Kind); })
+		.ToolTipText_Lambda([this, Kind]
+		{
+			return IsKindSupported(Kind) ? FText::GetEmpty() : LOCTEXT("UnsupportedTypeTooltip", "The selected device doesn't support this effect type.");
+		})
 		.OnClicked_Lambda([this, Kind]
 		{
 			OnEffectKindSelected.ExecuteIfBound(Kind);
@@ -72,10 +84,15 @@ TSharedRef<SWidget> SHapticEffectTypeSelector::MakeTypeButton(const FText& Label
 				.TextStyle(FAppStyle::Get(), "NormalText")
 				.ColorAndOpacity_Lambda([this, Kind]
 				{
-					return FHapticEffectEditorColors::GetToggleForegroundColor(EffectKind.Get() == Kind);
+					return IsKindSupported(Kind) ? FHapticEffectEditorColors::GetToggleForegroundColor(EffectKind.Get() == Kind) : FHapticEffectEditorColors::GetUnsupportedForegroundColor();
 				})
 			]
 		];
+}
+
+bool SHapticEffectTypeSelector::IsKindSupported(const EHapticPreviewEffectKind Kind) const
+{
+	return !IsEffectKindSupported.IsBound() || IsEffectKindSupported.Execute(Kind);
 }
 
 #undef LOCTEXT_NAMESPACE

@@ -59,4 +59,5 @@ private:
 	static FString JoystickConfigurationSection;
 	static FString AxisPropertiesSection;
 	static FString ButtonPropertiesSection;
+	static FString ForceFeedbackPropertiesSection;
 };

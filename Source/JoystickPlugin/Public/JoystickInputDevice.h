@@ -33,12 +33,12 @@ public:
 
 	void JoystickPluggedIn(const FDeviceInfoSDL& Device);
 	void JoystickUnplugged(const FJoystickInstanceId& InstanceId, const FInputDeviceId& InputDeviceId);
-	void JoystickButton(const FJoystickInstanceId& InstanceId, const int Button, const bool Pressed);
-	void JoystickAxis(const FJoystickInstanceId& InstanceId, const int Axis, const float Value);
-	void JoystickHat(const FJoystickInstanceId& InstanceId, const int Hat, const EHatDirection Value);
-	void JoystickBall(const FJoystickInstanceId& InstanceId, const int Ball, const FVector2D& Value);
-	void JoystickGyro(const FJoystickInstanceId& InstanceId, const FVector& Value);
-	void JoystickAccelerometer(const FJoystickInstanceId& InstanceId, const FVector& Value);
+	void JoystickButton(const FJoystickInstanceId& InstanceId, const int Button, const bool Pressed, const int64 Timestamp);
+	void JoystickAxis(const FJoystickInstanceId& InstanceId, const int Axis, const float Value, const int64 Timestamp);
+	void JoystickHat(const FJoystickInstanceId& InstanceId, const int Hat, const EHatDirection Value, const int64 Timestamp);
+	void JoystickBall(const FJoystickInstanceId& InstanceId, const int Ball, const FVector2D& Value, const int64 Timestamp);
+	void JoystickGyro(const FJoystickInstanceId& InstanceId, const FVector& Value, const int64 Timestamp);
+	void JoystickAccelerometer(const FJoystickInstanceId& InstanceId, const FVector& Value, const int64 Timestamp);
 
 	TTuple<FJoystickDeviceState*, FInternalResultMessage> GetDeviceState(const FJoystickInstanceId& InstanceId);
 	void GetDeviceKeys(const FJoystickInstanceId& InstanceId, TArray<FKey>& Keys);

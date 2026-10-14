@@ -47,6 +47,16 @@ float UJoystickFunctionLibrary::NormalizeAxisRaw(const int16 Value)
 		       : static_cast<float>(Value) / 32767.0f;
 }
 
+uint64 UJoystickFunctionLibrary::GetTicksNS()
+{
+	return SDL_GetTicksNS();
+}
+
+uint64 UJoystickFunctionLibrary::GetTicks()
+{
+	return SDL_GetTicks();
+}
+
 EHatDirection UJoystickFunctionLibrary::HatValueToDirection(const int8 Value)
 {
 	switch (Value)

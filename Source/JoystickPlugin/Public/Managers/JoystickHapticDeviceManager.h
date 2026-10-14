@@ -15,6 +15,8 @@ THIRD_PARTY_INCLUDES_END
 #include "JoystickHapticDeviceManager.generated.h"
 
 struct FDeviceInfoSDL;
+struct FJoystickInputDeviceForceFeedbackProperties;
+enum class EForceFeedbackConditionEffectType : uint8;
 
 UCLASS(BlueprintType)
 class JOYSTICKPLUGIN_API UJoystickHapticDeviceManager final : public UObject
@@ -76,6 +78,9 @@ public:
 	void DestroyEffect(const FJoystickInstanceId& InstanceId, const int EffectId) const;
 
 private:
+	static void ApplyForceFeedbackProperties(const FDeviceInfoSDL& DeviceInfo, SDL_HapticEffect& Effect);
+	static void ApplyConditionProperties(const FJoystickInputDeviceForceFeedbackProperties& ForceFeedbackProperties, EForceFeedbackConditionEffectType ConditionType, SDL_HapticCondition& Condition);
+
 	TTuple<SDL_Haptic*, FInternalResultMessage> GetHapticDevice(const FJoystickInstanceId& InstanceId) const;
 	TTuple<FDeviceInfoSDL*, FInternalResultMessage> GetDeviceInfo(const FJoystickInstanceId& InstanceId) const;
 };

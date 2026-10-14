@@ -6,11 +6,15 @@
 #include "EditorUndoClient.h"
 #include "Widgets/SCompoundWidget.h"
 #include "Widgets/Input/SComboBox.h"
+#include "Data/JoystickHapticInformation.h"
+#include "Data/Input/AxisData.h"
 #include "Data/JoystickInstanceId.h"
+#include "ForceFeedback/Types/ForceFeedbackConditionEffectType.h"
 #include "ForceFeedback/Types/ForceFeedbackPeriodicEffectType.h"
 #include "Menus/HapticEffectEditorTypes.h"
 #include "Misc/Optional.h"
 #include "UObject/StrongObjectPtr.h"
+#include "Widgets/HapticConditionGraph.h"
 
 class IDetailsView;
 class SHapticDevicePicker;
@@ -66,10 +70,16 @@ private:
 	TSharedRef<SWidget> BuildOpenButton();
 	TSharedRef<SWidget> BuildSourceEntryPicker();
 	TSharedRef<SWidget> BuildSaveButton();
-	TSharedRef<SWidget> BuildStatusChip();
 
 	TSharedPtr<FJoystickInstanceId> GetSelectedJoystick() const;
 	void OnDeviceChanged();
+	void UpdateSelectedHapticInformation();
+
+	// Each is true while no device is selected, as there is nothing to judge support against.
+	bool IsEffectKindSupported(EHapticPreviewEffectKind Kind) const;
+	bool IsWaveformSupported(EForceFeedbackPeriodicEffectType WaveformType) const;
+	bool IsConditionTypeSupported(EForceFeedbackConditionEffectType ConditionType) const;
+	bool IsPreviewEffectSupported() const;
 
 	void SetEffectKind(EHapticPreviewEffectKind NewKind);
 	void RebuildPreviewEffect(const UForceFeedbackEffectBase* InitialValues = nullptr);
@@ -99,7 +109,20 @@ private:
 
 	// Takes a fractional time, as the graph samples the curve more finely than a millisecond when zoomed in.
 	float EvaluatePreviewEffect(float TimeMilliseconds) const;
+
+	// The condition's force for the axis in the given motion.
+	float EvaluateConditionMotion(const FHapticConditionMotion& Motion) const;
+
+	// Follows the device's axis, fitting its recent positions for a velocity and acceleration. Cleared while there is no device or no condition effect.
+	void UpdateConditionLiveMotion();
+
+	// The previewed axis as the device reports it now, with its raw position in -1..1 and when SDL read it, or unset while no device is selected.
+	TOptional<FAxisData> GetPreviewAxis() const;
+
 	bool IsPreviewDurationInfinite() const;
+
+	// The authored iteration count, or unset while there is no last iteration to count towards.
+	TOptional<int64> GetPreviewIterations() const;
 
 	// The wait before the first iteration plays.
 	int64 GetPreviewDelayMilliseconds() const;
@@ -113,12 +136,35 @@ private:
 	TOptional<EForceFeedbackPeriodicEffectType> GetPeriodicWaveform() const;
 	void SetPeriodicWaveform(EForceFeedbackPeriodicEffectType WaveformType);
 
+	TOptional<EForceFeedbackConditionEffectType> GetConditionType() const;
+	void SetConditionType(EForceFeedbackConditionEffectType ConditionType);
+
 	TSharedPtr<SHapticDevicePicker> DevicePicker;
 	TSharedPtr<SHapticEffectGraph> EffectGraph;
 	TSharedPtr<SHapticDevicePreviewPanel> DevicePreviewPanel;
 	TSharedPtr<IDetailsView> DetailsView;
 
+	// The selected device's supported effect types, read once per device change rather than on every paint. Unset while no device is selected.
+	TOptional<FJoystickHapticInformation> SelectedHapticInformation;
+
 	EHapticPreviewEffectKind EffectKind = EHapticPreviewEffectKind::Periodic;
+
+	// How much of the axis' recent movement the live velocity and acceleration are fitted to. Longer is steadier but lags further behind the wheel.
+	// Acceleration is the most sensitive: a hand's speed naturally wobbles by 10-15% a few times a second, which a 0.1s window reads as +/-3 even through a
+	// steady turn. This window smooths that out, at the cost of a quick flick (speeding up then slowing down within ~0.2-0.3s) partly cancelling itself out.
+	static constexpr double ConditionMotionFitWindowSeconds = 0.15;
+
+	// A still axis still jitters by its quantisation, and the fit's rounding never cancels to exactly zero. Friction's force flips on the velocity's sign alone,
+	// so a window whose positions all sit within this span reads as still rather than as a tiny motion either way. ~0.1% of the half range.
+	static constexpr float ConditionStillPositionSpan = 0.002f;
+
+	TOptional<FHapticConditionMotion> ConditionLiveMotion;
+
+	// The axis' recent positions with the time each was read, in seconds on SDL's clock.
+	TArray<TPair<double, float>> ConditionPositionHistory;
+
+	// The timestamp of the last axis read added to the history, to tell a new read from one already fitted.
+	int64 ConditionLastReadTimestamp = 0;
 
 	// PreviewEffect is the authored effect. DeviceEffect is the copy uploaded to the device.
 	TStrongObjectPtr<UForceFeedbackEffectBase> PreviewEffect;
