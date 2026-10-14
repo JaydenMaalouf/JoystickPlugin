@@ -245,7 +245,7 @@ void SHapticConditionGraph::PaintLoop(const FGeometry& AllottedGeometry, FSlateW
 	const bool bHasArea = MaxLoopWidth > FHapticConditionGraphStyle::MinLoopWidth;
 	if (bHasArea)
 	{
-		const FSlateRenderTransform& RenderTransform = AllottedGeometry.GetAccumulatedRenderTransform();
+		const FSlateRenderTransform& GraphRenderTransform = AllottedGeometry.GetAccumulatedRenderTransform();
 		const FColor FillColor = FHapticConditionGraphStyle::LoopFill.ToFColor(true);
 
 		TArray<FSlateVertex> FillVertices;
@@ -254,8 +254,8 @@ void SHapticConditionGraph::PaintLoop(const FGeometry& AllottedGeometry, FSlateW
 		FillIndices.Reserve((NumSamples - 1) * 6);
 		for (int32 Index = 0; Index < NumSamples; ++Index)
 		{
-			FillVertices.Add(FSlateVertex::Make<ESlateVertexRounding::Disabled>(RenderTransform, FVector2f(PositiveStroke[Index]), FVector2f::ZeroVector, FillColor));
-			FillVertices.Add(FSlateVertex::Make<ESlateVertexRounding::Disabled>(RenderTransform, FVector2f(NegativeStroke[Index]), FVector2f::ZeroVector, FillColor));
+			FillVertices.Add(FSlateVertex::Make<ESlateVertexRounding::Disabled>(GraphRenderTransform, FVector2f(PositiveStroke[Index]), FVector2f::ZeroVector, FillColor));
+			FillVertices.Add(FSlateVertex::Make<ESlateVertexRounding::Disabled>(GraphRenderTransform, FVector2f(NegativeStroke[Index]), FVector2f::ZeroVector, FillColor));
 
 			if (Index > 0)
 			{

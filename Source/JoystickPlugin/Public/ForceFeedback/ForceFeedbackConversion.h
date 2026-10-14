@@ -3,7 +3,11 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+THIRD_PARTY_INCLUDES_START
+
+#include "JoystickSDL.h"
+
+THIRD_PARTY_INCLUDES_END
 
 // Conversions from user facing units to the integer ranges SDL expects, clamped so out of range values saturate instead of wrapping.
 struct FForceFeedbackConversion
