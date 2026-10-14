@@ -8,25 +8,17 @@
 #include "Misc/Attribute.h"
 #include "Runtime/Launch/Resources/Version.h"
 
-DECLARE_DELEGATE_RetVal_OneParam(float, FOnEvaluateHapticEffect, float /*TimeSeconds*/);
+DECLARE_DELEGATE_RetVal_OneParam(float, FOnEvaluateHapticEffect, float /*TimeMilliseconds*/);
 
-// Adapts a JoystickPlugin force feedback effect's pure evaluation function (see
-// ForceFeedbackEffectEvaluation.h) to UE's Curve Editor instead of baking it to an FRichCurve.
-// DrawCurve samples per pixel column of whatever time range is actually visible/zoomed and keeps
-// each column's min/max, rather than a fixed sample count spread across the whole effect duration -
-// the latter is what caused the old hand-rolled SHapticWaveformGraph to alias into a beat pattern on
-// long, high-frequency periodic effects. The cost is set by the panel's width, never by the effect's
-// duration or iteration count.
-// Read-only: nothing here is authored by dragging points, that's still the details panel's job for
-// the built-in Sine/Triangle/Square/etc waveforms. A future custom/point-drawn effect kind would add
-// a second, editable FCurveModel and host it through the same panel.
+// Read-only curve model that draws an effect's evaluation function (see ForceFeedbackEffectEvaluation.h) in UE's Curve Editor.
+// The Curve Editor's time axis is in seconds, so the model converts to and from the editor's milliseconds.
 class FHapticCurveModel : public FCurveModel
 {
 public:
 	FHapticCurveModel();
 
 	void BindEvaluate(FOnEvaluateHapticEffect InOnEvaluate) { OnEvaluate = MoveTemp(InOnEvaluate); }
-	void SetDurationAttribute(TAttribute<float> InDurationSeconds) { DurationSeconds = MoveTemp(InDurationSeconds); }
+	void SetDurationAttribute(TAttribute<int64> InDurationMilliseconds) { DurationMilliseconds = MoveTemp(InDurationMilliseconds); }
 
 	virtual const void* GetCurve() const override;
 	virtual void Modify() override;
@@ -57,12 +49,10 @@ public:
 
 	virtual bool IsReadOnly() const override { return true; }
 
-	// FCurveModel::GetColor() desaturates Color by default when IsReadOnly() is true (dimming
-	// "can't drag keys" curves), but that's not the intent here - this is a live oscilloscope-style
-	// preview, not a disabled/inactive control, so it should stay at full vibrancy.
+	// FCurveModel dims read-only curves by default, but this is a live preview and should stay at full colour.
 	virtual FLinearColor GetColor() const override { return Color; }
 
 private:
 	FOnEvaluateHapticEffect OnEvaluate;
-	TAttribute<float> DurationSeconds;
+	TAttribute<int64> DurationMilliseconds;
 };

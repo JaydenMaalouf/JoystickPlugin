@@ -31,8 +31,7 @@ void SAxisConfigurationEditor::Construct(const FArguments& InArgs)
 	SelectedInputRange = -1;
 	SelectedOutputRange = -1;
 
-	// Get the default progress bar style and disable animation
-	// Make sure we get a complete copy of the style with all brushes
+	// Copy the default progress bar style and disable animation
 	const FProgressBarStyle& DefaultProgressBarStyle = FAppStyle::Get().GetWidgetStyle<FProgressBarStyle>("ProgressBar");
 	ProgressBarStyle = DefaultProgressBarStyle;
 	ProgressBarStyle.SetEnableFillAnimation(false);

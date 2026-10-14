@@ -8,10 +8,7 @@
 DECLARE_DELEGATE_RetVal_OneParam(float, FOnEvaluateHapticEffect, float /*TimeSeconds*/);
 DECLARE_DELEGATE_OneParam(FOnHapticGraphScrubbed, float /*TimeSeconds*/);
 
-// Oscilloscope-style preview of a force feedback effect's output over time. Never evaluates the
-// waveform itself - every sample comes from the OnEvaluateEffect delegate so the curve always
-// matches whatever pure evaluation function (see ForceFeedbackEffectEvaluation.h) is driving the
-// real device upload.
+// Oscilloscope-style preview of an effect's output over time, sampled through the OnEvaluateEffect delegate.
 class SHapticWaveformGraph : public SLeafWidget
 {
 public:

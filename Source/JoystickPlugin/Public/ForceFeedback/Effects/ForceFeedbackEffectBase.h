@@ -37,6 +37,10 @@ public:
 
 	virtual void BeginDestroy() override;
 
+#if WITH_EDITOR
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
+
 	// Begin FTickableGameObject Interface.
 	virtual void Tick(float DeltaTime) final override;
 	virtual bool IsTickable() const override { return Tickable && IsInitialised; }
@@ -90,6 +94,17 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Force Feedback")
 	bool GetEffectStatus() const;
 
+	// Whether the effect was started and hasn't been stopped since. Unlike GetEffectStatus this doesn't query the device.
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Force Feedback")
+	bool IsEffectRunning() const;
+
+	// Seconds since the effect was last started, across all of its iterations. Zero while it isn't running.
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Force Feedback")
+	float GetElapsedTime() const;
+
+	// GetElapsedTime in whole milliseconds, read straight off the SDL tick counter the effect is timed against.
+	uint64 GetElapsedTimeMilliseconds() const;
+
 	UFUNCTION(BlueprintCallable, Category="Force Feedback")
 	void SetInstanceId(const FJoystickInstanceId& NewInstanceId);
 
@@ -140,8 +155,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Force Feedback", meta=(ExposeOnSpawn=true))
 	FForceFeedbackEffectConfiguration Configuration;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Force Feedback", meta=(ExposeOnSpawn=true, EditCondition="!InfiniteIterations", UIMin="0", ClampMin="0"))
-	int Iterations;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Force Feedback", meta=(ExposeOnSpawn=true, EditCondition="!InfiniteIterations", UIMin="1", UIMax = "4294967295", ClampMin="1", ClampMax = "4294967295"))
+	int64 Iterations;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Force Feedback", meta=(ExposeOnSpawn=true))
 	bool InfiniteIterations;
@@ -184,6 +199,18 @@ public:
 
 	// The length of a single iteration in milliseconds, or SDL_HAPTIC_INFINITY.
 	virtual uint32 GetEffectDuration();
+
+	// The wait in milliseconds between starting the effect and its first iteration playing. Zero for effects with no replay data.
+	virtual uint32 GetEffectDelay();
+
+	// The number of iterations the device is asked to run, or SDL_HAPTIC_INFINITY. Lower than Iterations where the platform limits the total play time.
+	uint32 GetRunIterations();
+
+	// The most iterations the platform can play at this effect's duration, or SDL_HAPTIC_INFINITY where it sets no limit.
+	uint32 GetPlatformMaxIterations();
+
+	// The most iterations worth setting. Only one at an infinite duration, since its first iteration never ends.
+	uint32 GetMaxIterations();
 
 protected:
 	SDL_HapticEffect Effect;

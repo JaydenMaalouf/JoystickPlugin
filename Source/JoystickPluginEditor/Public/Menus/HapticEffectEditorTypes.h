@@ -13,9 +13,7 @@ enum class EHapticPreviewEffectKind : uint8
 	LeftRight
 };
 
-// The two forms the plugin can consume an authored effect in: a Blueprint subclass of the effect
-// (for a component's EffectType, or to spawn directly), or an effect group data asset holding it as
-// an entry.
+// The forms an authored effect can be saved as: a Blueprint subclass, or an entry in an effect group data asset.
 enum class EHapticEffectAssetType : uint8
 {
 	BlueprintClass,

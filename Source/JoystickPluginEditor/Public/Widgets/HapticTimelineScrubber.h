@@ -6,25 +6,20 @@
 #include "Math/Range.h"
 #include "Widgets/SLeafWidget.h"
 
-DECLARE_DELEGATE_OneParam(FOnHapticGraphScrubbed, float /*TimeSeconds*/);
+DECLARE_DELEGATE_OneParam(FOnHapticGraphScrubbed, float /*TimeMilliseconds*/);
 
-// Slim scrub strip rendered below the Haptic Effect Editor's curve view: draws the playhead and lets
-// the user click/drag to seek PlayheadTime. Curve and grid rendering now live in the Curve Editor
-// (see HapticCurveModel.h) - this widget only needs to know the *currently visible* time range (the
-// Bounds attribute, read from the curve editor's live view) so its mouse-to-time mapping stays
-// correct after the user pans or zooms the curve view, rather than always assuming the full effect
-// duration is on screen.
+// Slim scrub strip below the curve view: draws the playhead and seeks it within the currently visible time range (Bounds, in milliseconds).
 class SHapticTimelineScrubber : public SLeafWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SHapticTimelineScrubber)
-			: _Bounds(TRange<double>(0.0, 1.0))
-			  , _PlayheadTime(-1.0f)
+			: _Bounds(TRange<double>(0.0, 1000.0))
+			  , _PlayheadTimeMilliseconds(-1)
 		{
 		}
 
 		SLATE_ATTRIBUTE(TRange<double>, Bounds)
-		SLATE_ATTRIBUTE(float, PlayheadTime)
+		SLATE_ATTRIBUTE(int64, PlayheadTimeMilliseconds)
 		SLATE_EVENT(FOnHapticGraphScrubbed, OnScrubbed)
 	SLATE_END_ARGS()
 
@@ -53,7 +48,7 @@ private:
 	void PaintPlayhead(const FGeometry& AllottedGeometry, FSlateWindowElementList& OutDrawElements, int32 LayerId) const;
 
 	TAttribute<TRange<double>> Bounds;
-	TAttribute<float> PlayheadTime;
+	TAttribute<int64> PlayheadTimeMilliseconds;
 	FOnHapticGraphScrubbed OnScrubbed;
 	bool bIsDragging = false;
 };

@@ -6,9 +6,7 @@
 #include "Menus/HapticEffectEditorTypes.h"
 #include "Misc/Optional.h"
 
-// Modal prompt for which kind of asset a new effect should be saved as. Laid out like the engine's
-// class picker ("Pick Class For Data Asset Instance"): a list to pick from, confirmed with Select or
-// a double-click.
+// Modal prompt for which kind of asset a new effect should be saved as, laid out like the engine's class picker.
 class FHapticEffectAssetTypeDialog
 {
 public:

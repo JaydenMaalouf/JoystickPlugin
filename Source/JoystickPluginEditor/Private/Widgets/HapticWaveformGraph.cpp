@@ -8,10 +8,7 @@
 #include "Styling/AppStyle.h"
 #include "Styling/CoreStyle.h"
 
-// Matches the palette already established by AxisBar/ButtonBox/HatSwitch/BallSwitch: mid-gray
-// (0.4,0.4,0.4) neutral/center indicators, bright green (0.2,0.9,0.3) for the active/highlight
-// accent, and white primary text. The background reuses the engine's own graph canvas brush
-// instead of a hand-picked flat tint.
+// Matches the palette used by AxisBar/ButtonBox/HatSwitch/BallSwitch.
 struct FHapticWaveformGraphColors
 {
 	static constexpr FLinearColor MinorGridLine = FLinearColor(1.0f, 1.0f, 1.0f, 0.06f);

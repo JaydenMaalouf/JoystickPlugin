@@ -7,8 +7,7 @@
 #include "Rendering/DrawElements.h"
 #include "Styling/AppStyle.h"
 
-// Matches the palette SHapticWaveformGraph used to establish before the curve rendering moved to the
-// Curve Editor: the background reuses the engine's own graph canvas brush, white for the playhead.
+// The background reuses the engine's own graph canvas brush, with a white playhead.
 struct FHapticTimelineScrubberColors
 {
 	static constexpr FLinearColor Playhead = FLinearColor(1.0f, 1.0f, 1.0f, 0.95f);
@@ -17,7 +16,7 @@ struct FHapticTimelineScrubberColors
 void SHapticTimelineScrubber::Construct(const FArguments& InArgs)
 {
 	Bounds = InArgs._Bounds;
-	PlayheadTime = InArgs._PlayheadTime;
+	PlayheadTimeMilliseconds = InArgs._PlayheadTimeMilliseconds;
 	OnScrubbed = InArgs._OnScrubbed;
 }
 
@@ -56,13 +55,13 @@ void SHapticTimelineScrubber::PaintBackground(const FGeometry& AllottedGeometry,
 
 void SHapticTimelineScrubber::PaintPlayhead(const FGeometry& AllottedGeometry, FSlateWindowElementList& OutDrawElements, const int32 LayerId) const
 {
-	const float TimeSeconds = PlayheadTime.Get(-1.0f);
-	if (TimeSeconds < 0.0f)
+	const int64 TimeMilliseconds = PlayheadTimeMilliseconds.Get(-1);
+	if (TimeMilliseconds < 0)
 	{
 		return;
 	}
 
-	const TRange<double> CurrentBounds = Bounds.Get(TRange<double>(0.0, 1.0));
+	const TRange<double> CurrentBounds = Bounds.Get(TRange<double>(0.0, 1000.0));
 	const double RangeSize = CurrentBounds.Size<double>();
 	if (RangeSize <= 0.0)
 	{
@@ -70,7 +69,7 @@ void SHapticTimelineScrubber::PaintPlayhead(const FGeometry& AllottedGeometry, F
 	}
 
 	const FVector2D Size = AllottedGeometry.GetLocalSize();
-	const double Alpha = FMath::Clamp((static_cast<double>(TimeSeconds) - CurrentBounds.GetLowerBoundValue()) / RangeSize, 0.0, 1.0);
+	const double Alpha = FMath::Clamp((static_cast<double>(TimeMilliseconds) - CurrentBounds.GetLowerBoundValue()) / RangeSize, 0.0, 1.0);
 	const float X = static_cast<float>(Alpha) * Size.X;
 
 	const TArray<FVector2D> PlayheadLinePoints = {FVector2D(X, 0.0f), FVector2D(X, Size.Y)};
@@ -130,7 +129,7 @@ void SHapticTimelineScrubber::ScrubToLocalPosition(const FGeometry& MyGeometry, 
 		return;
 	}
 
-	const TRange<double> CurrentBounds = Bounds.Get(TRange<double>(0.0, 1.0));
+	const TRange<double> CurrentBounds = Bounds.Get(TRange<double>(0.0, 1000.0));
 	const FVector2D LocalPosition = MyGeometry.AbsoluteToLocal(ScreenSpacePosition);
 	const double Alpha = FMath::Clamp(LocalPosition.X / Width, 0.0, 1.0);
 

@@ -7,10 +7,7 @@
 #include "Widgets/SCompoundWidget.h"
 #include "Widgets/Input/SComboBox.h"
 
-// The Haptic Effect Editor's device dropdown. Keeps its own list of connected joysticks up to date
-// as they are plugged in and unplugged, selecting the first one whenever nothing is selected.
-// OnDeviceChanged fires whenever the selected joystick changes, whether the user picked another or
-// the selected one was unplugged.
+// The Haptic Effect Editor's device dropdown, kept up to date as joysticks are plugged in and unplugged.
 class SHapticDevicePicker : public SCompoundWidget
 {
 public:

@@ -37,7 +37,9 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectDirectionData
 
 	SDL_HapticDirection ToSDLDirection() const
 	{
+		// Zeroed including its padding, so effects holding the same direction compare as equal
 		SDL_HapticDirection HapticDirection;
+		SDL_zero(HapticDirection);
 
 		switch (DirectionType)
 		{

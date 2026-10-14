@@ -10,6 +10,7 @@
 #include "PropertyEditorDelegates.h"
 #include "PropertyEditorModule.h"
 #include "ToolMenus.h"
+#include "Customization/ForceFeedbackEffectDetails.h"
 #include "Customization/JoystickInformationCustomization.h"
 #include "Customization/JoystickInputDeviceConfigurationCustomization.h"
 #include "Customization/JoystickInstanceIdCustomization.h"
@@ -131,9 +132,7 @@ void FJoystickPluginEditorModule::RegisterMenus() const
 		}))
 	);
 
-	// "Edit with Haptic Effect Editor" on the content browser's right-click menu for the assets the
-	// editor can open. Added to the common asset menu as a dynamic entry, since Blueprints have to be
-	// told apart by their parent class rather than by the asset's own class.
+	// Adds "Edit with Haptic Effect Editor" to the content browser's asset context menu.
 	UToolMenu* AssetContextMenu = UToolMenus::Get()->ExtendMenu("ContentBrowser.AssetContextMenu");
 	FToolMenuSection& AssetActionsSection = AssetContextMenu->FindOrAddSection("GetAssetActions");
 	AssetActionsSection.AddDynamicEntry("EditWithHapticEffectEditor", FNewToolMenuSectionDelegate::CreateLambda([](FToolMenuSection& InSection)
@@ -160,8 +159,7 @@ void FJoystickPluginEditorModule::RegisterMenus() const
 			return;
 		}
 
-		// A group holds several effects and the editor works on one at a time, so the entry is picked
-		// here. The group is only loaded once the submenu is opened, not on every right-click.
+		// A group holds several effects, so the entry is picked from a submenu (the group only loads once it is opened).
 		InSection.AddSubMenu(
 			"EditWithHapticEffectEditor",
 			Label,
@@ -221,6 +219,7 @@ void FJoystickPluginEditorModule::RegisterPropertyLayout() const
 	if (FPropertyEditorModule* PropertyModule = FModuleManager::GetModulePtr<FPropertyEditorModule>("PropertyEditor"))
 	{
 		PropertyModule->RegisterCustomClassLayout(UJoystickInputSettings::StaticClass()->GetFName(), FOnGetDetailCustomizationInstance::CreateStatic(&FJoystickPluginSettingsDetails::MakeInstance));
+		PropertyModule->RegisterCustomClassLayout(UForceFeedbackEffectBase::StaticClass()->GetFName(), FOnGetDetailCustomizationInstance::CreateStatic(&FForceFeedbackEffectDetails::MakeInstance));
 		PropertyModule->RegisterCustomPropertyTypeLayout(FJoystickInputDeviceConfiguration::StaticStruct()->GetFName(), FOnGetPropertyTypeCustomizationInstance::CreateStatic(&FJoystickInputDeviceConfigurationCustomization::MakeInstance));
 		PropertyModule->RegisterCustomPropertyTypeLayout(FJoystickInformation::StaticStruct()->GetFName(), FOnGetPropertyTypeCustomizationInstance::CreateStatic(&FJoystickInformationCustomization::MakeInstance));
 		PropertyModule->RegisterCustomPropertyTypeLayout(FJoystickInstanceId::StaticStruct()->GetFName(), FOnGetPropertyTypeCustomizationInstance::CreateStatic(&FJoystickInstanceIdCustomization::MakeInstance));
@@ -240,6 +239,7 @@ void FJoystickPluginEditorModule::UnregisterPropertyLayout() const
 	if (FPropertyEditorModule* PropertyModule = FModuleManager::GetModulePtr<FPropertyEditorModule>("PropertyEditor"))
 	{
 		PropertyModule->UnregisterCustomClassLayout(UJoystickInputSettings::StaticClass()->GetFName());
+		PropertyModule->UnregisterCustomClassLayout(UForceFeedbackEffectBase::StaticClass()->GetFName());
 		PropertyModule->UnregisterCustomPropertyTypeLayout(FJoystickInputDeviceConfiguration::StaticStruct()->GetFName());
 		PropertyModule->UnregisterCustomPropertyTypeLayout(FJoystickInformation::StaticStruct()->GetFName());
 		PropertyModule->UnregisterCustomPropertyTypeLayout(FJoystickInstanceId::StaticStruct()->GetFName());

@@ -9,12 +9,14 @@
 #include "PropertyEditorDelegates.h"
 #include "PropertyEditorModule.h"
 #include "ScopedTransaction.h"
+#include "Fonts/FontMeasure.h"
 #include "ForceFeedback/ForceFeedbackEffectEvaluation.h"
 #include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
 #include "ForceFeedback/Effects/ForceFeedbackEffectConstant.h"
 #include "ForceFeedback/Effects/ForceFeedbackEffectLeftRight.h"
 #include "ForceFeedback/Effects/ForceFeedbackEffectPeriodic.h"
 #include "ForceFeedback/Effects/ForceFeedbackEffectRamp.h"
+#include "Framework/Application/SlateApplication.h"
 #include "Menus/HapticEffectEditorProperties.h"
 #include "Misc/ITransaction.h"
 #include "Misc/TransactionObjectEvent.h"
@@ -29,14 +31,14 @@
 #include "Widgets/HapticWaveformSelector.h"
 #include "Widgets/SBoxPanel.h"
 #include "Widgets/Layout/SBorder.h"
+#include "Widgets/Layout/SBox.h"
 #include "Widgets/Layout/SSpacer.h"
 #include "Widgets/Layout/SSplitter.h"
 #include "Widgets/Text/STextBlock.h"
 
 #define LOCTEXT_NAMESPACE "HapticEffectEditor"
 
-// Groups a toolbar control into the mockup's "pill container" look: a bordered box distinct from
-// its neighbours, replacing what used to be a row of identically-styled flat buttons.
+// Wraps a toolbar control in a bordered "pill" container.
 static TSharedRef<SWidget> WrapInPill(const TSharedRef<SWidget>& Content)
 {
 	return SNew(SBorder)
@@ -163,8 +165,8 @@ void SHapticEffectEditor::Construct(const FArguments& InArgs)
 			[
 				SAssignNew(EffectGraph, SHapticEffectGraph)
 				.OnEvaluate(FOnEvaluateHapticEffect::CreateSP(this, &SHapticEffectEditor::EvaluatePreviewEffect))
-				.DurationSeconds_Lambda([this] { return GetPreviewDurationSeconds(); })
-				.PlayheadTime_Lambda([this] { return PlayheadTime; })
+				.DurationMilliseconds_Lambda([this] { return GetPreviewTimelineMilliseconds(); })
+				.PlayheadTimeMilliseconds_Lambda([this] { return PlayheadTimeMilliseconds; })
 				.OnScrubbed(this, &SHapticEffectEditor::OnGraphScrubbed)
 			]
 			+ SSplitter::Slot()
@@ -203,21 +205,23 @@ void SHapticEffectEditor::Tick(const FGeometry& AllottedGeometry, const double I
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
 
-	if (!bIsPlaying || !PreviewEffect.IsValid())
+	if (!bIsPlaying || !PreviewEffect.IsValid() || !DeviceEffect.IsValid())
 	{
 		return;
 	}
 
-	const float PreviousPlayheadTime = PlayheadTime;
-	PlayheadTime += InDeltaTime;
+	// Read from the device effect's own start time, so the playhead stays on the same clock as the device.
+	const int64 ElapsedTime = static_cast<int64>(DeviceEffect->GetElapsedTimeMilliseconds());
+	const int64 PreviousPlayheadTime = PlayheadTimeMilliseconds;
 
-	// An infinite effect has no end to stop or wrap at - it runs on the device until Stop is pressed,
-	// so the playhead just keeps counting and the view pages along with it. Paging only as the
-	// playhead crosses the right edge leaves alone a view the user has deliberately panned elsewhere.
+	// An infinite effect never ends, so the view pages along as the playhead crosses the right edge.
 	if (IsPreviewDurationInfinite())
 	{
+		PlayheadTimeMilliseconds = ElapsedTime;
+		ElapsedTimeMilliseconds = ElapsedTime;
+
 		const TRange<double> ViewBounds = EffectGraph->GetViewBounds();
-		if (PreviousPlayheadTime <= ViewBounds.GetUpperBoundValue() && PlayheadTime > ViewBounds.GetUpperBoundValue())
+		if (PreviousPlayheadTime <= ViewBounds.GetUpperBoundValue() && PlayheadTimeMilliseconds > ViewBounds.GetUpperBoundValue())
 		{
 			EffectGraph->PageTimeWindowTo(ViewBounds.GetUpperBoundValue());
 		}
@@ -225,35 +229,49 @@ void SHapticEffectEditor::Tick(const FGeometry& AllottedGeometry, const double I
 		return;
 	}
 
-	const float Duration = GetPreviewDurationSeconds();
-	if (PlayheadTime >= Duration)
+	const int64 Delay = GetPreviewDelayMilliseconds();
+	const int64 Duration = GetPreviewDurationMilliseconds();
+
+	// A zero-length effect has no pass to sweep, and would divide by zero below.
+	if (Duration <= 0)
 	{
-		if (bLoop)
-		{
-			PlayheadTime = FMath::Fmod(PlayheadTime, Duration);
-		}
-		else
-		{
-			PlayheadTime = Duration;
-			bIsPlaying = false;
-		}
+		PlayheadTimeMilliseconds = 0;
+		ElapsedTimeMilliseconds = ElapsedTime;
+		bIsPlaying = bLoop;
+		return;
 	}
+
+	// The graph shows the delay then a single pass, so the playhead crosses the delay once, sweeps the pass once per iteration and stops after the last one.
+	const int64 ActiveTime = FMath::Max<int64>(ElapsedTime - Delay, 0);
+	const int64 Iterations = DeviceEffect->GetRunIterations();
+	const int64 ElapsedIteration = ActiveTime / Duration + 1;
+	if (!bLoop && (!DeviceEffect->IsEffectRunning() || ElapsedIteration > Iterations))
+	{
+		// A stopped device effect reports no elapsed time, so the last ticked value stands unless every iteration ran.
+		if (ElapsedIteration > Iterations)
+		{
+			ElapsedTimeMilliseconds = Delay + Duration * Iterations;
+		}
+
+		PlayheadTimeMilliseconds = Delay + Duration;
+		bIsPlaying = false;
+		return;
+	}
+
+	PlayheadTimeMilliseconds = FMath::Min(ElapsedTime, Delay) + ActiveTime % Duration;
+	ElapsedTimeMilliseconds = ElapsedTime;
+	CurrentIteration = ElapsedIteration;
 }
 
 bool SHapticEffectEditor::SupportsKeyboardFocus() const
 {
-	// Lets a click on the panel's background or one of its (non-focusable) toolbar buttons land
-	// keyboard focus here, so the spacebar shortcut works without first clicking into the graph.
+	// Lets a click on the panel take keyboard focus, so the spacebar shortcut works without clicking the graph first.
 	return true;
 }
 
 FReply SHapticEffectEditor::OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent)
 {
-	// Key events bubble up from whichever child has focus, so this only sees a spacebar press the
-	// focused widget didn't want - a text field being typed into keeps its spaces.
-	// Ctrl+S saves the effect, as it does in the engine's own asset editors: back to the opened asset,
-	// or as a new one if there isn't one. It is always swallowed, changed or not, so it never falls
-	// through to saving the level instead.
+	// Ctrl+S saves the effect and is always swallowed, so it never falls through to saving the level.
 	if (InKeyEvent.GetKey() == EKeys::S && InKeyEvent.IsControlDown() && !InKeyEvent.IsAltDown() && !InKeyEvent.IsShiftDown())
 	{
 		if (!InKeyEvent.IsRepeat())
@@ -283,18 +301,73 @@ FReply SHapticEffectEditor::OnKeyDown(const FGeometry& MyGeometry, const FKeyEve
 		return FReply::Handled();
 	}
 
+	// Escape only stops playback, and is left to bubble while idle so it keeps its usual editor behaviour.
+	if (InKeyEvent.GetKey() == EKeys::Escape && !bHasModifier && bIsPlaying)
+	{
+		OnStopClicked();
+		return FReply::Handled();
+	}
+
 	return SCompoundWidget::OnKeyDown(MyGeometry, InKeyEvent);
 }
 
 TSharedRef<SWidget> SHapticEffectEditor::BuildStatusChip()
 {
-	return SNew(STextBlock)
-		.Text_Lambda([this]
-		{
-			const float ForceValue = EvaluatePreviewEffect(PlayheadTime);
-			return FText::FromString(FString::Printf(TEXT("t = %.2fs   F = %.2f"), PlayheadTime, ForceValue));
-		})
-		.TextStyle(FAppStyle::Get(), "NormalText");
+	const FSlateFontInfo& Font = FAppStyle::Get().GetWidgetStyle<FTextBlockStyle>("NormalText").Font;
+	const TSharedRef<FSlateFontMeasure> FontMeasure = FSlateApplication::Get().GetRenderer()->GetFontMeasureService();
+
+	// Each readout sits in a box sized for its widest expected value, so the chip doesn't resize as the numbers change during playback.
+	auto MakeReadout = [&Font, &FontMeasure](const TCHAR* WidestValue, const TAttribute<FText>& Text)
+	{
+		return SNew(SBox)
+			.MinDesiredWidth(FontMeasure->Measure(WidestValue, Font).X)
+			[
+				SNew(STextBlock)
+				.Text(Text)
+				.TextStyle(FAppStyle::Get(), "NormalText")
+			];
+	};
+
+	return SNew(SHorizontalBox)
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		.Padding(0, 0, 12, 0)
+		[
+			MakeReadout(TEXT("t = 000.00s"), TAttribute<FText>::CreateLambda([this]
+			{
+				return FText::FromString(FString::Printf(TEXT("t = %.2fs"), PlayheadTimeMilliseconds / 1000.0));
+			}))
+		]
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		.Padding(0, 0, 12, 0)
+		[
+			MakeReadout(TEXT("elapsed = 0000.00s"), TAttribute<FText>::CreateLambda([this]
+			{
+				return FText::FromString(FString::Printf(TEXT("elapsed = %.2fs"), ElapsedTimeMilliseconds / 1000.0));
+			}))
+		]
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		.Padding(0, 0, 12, 0)
+		[
+			MakeReadout(TEXT("F = -0.00"), TAttribute<FText>::CreateLambda([this]
+			{
+				return FText::FromString(FString::Printf(TEXT("F = %.2f"), EvaluatePreviewEffect(static_cast<float>(PlayheadTimeMilliseconds))));
+			}))
+		]
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		[
+			MakeReadout(TEXT("i = 000/000"), TAttribute<FText>::CreateLambda([this]
+			{
+				// Looping has no last iteration to count towards, so it shows an infinity sign instead. So does an authored count of SDL_HAPTIC_INFINITY, which the device runs forever.
+				const int64 Iterations = PreviewEffect.IsValid() ? PreviewEffect->GetRunIterations() : 0;
+				const FString IterationCount = bLoop || Iterations == SDL_HAPTIC_INFINITY ? FString::Chr(static_cast<TCHAR>(0x221E)) : FString::Printf(TEXT("%lld"), Iterations);
+
+				return FText::FromString(FString::Printf(TEXT("i = %lld/%s"), CurrentIteration, *IterationCount));
+			}))
+		];
 }
 
 TSharedPtr<FJoystickInstanceId> SHapticEffectEditor::GetSelectedJoystick() const
@@ -329,13 +402,11 @@ void SHapticEffectEditor::SetEffectKind(const EHapticPreviewEffectKind NewKind)
 
 void SHapticEffectEditor::RebuildPreviewEffect(const UForceFeedbackEffectBase* InitialValues)
 {
-	// InitialValues may be the outgoing preview effect itself (a device change carrying the edits
-	// over), so it is kept alive until its values have been copied out.
+	// InitialValues may be the outgoing preview effect itself, so keep it alive until its values are copied out.
 	const TStrongObjectPtr<UForceFeedbackEffectBase> PreviousEffect = PreviewEffect;
 	DestroyPreviewEffect();
 
-	// Always one of the plugin's own effect classes, even when InitialValues is a subclass of one: a
-	// subclass's tick logic expects to be running on a component in a game world, not in this panel.
+	// Always one of the plugin's own effect classes, as a subclass's tick logic expects a component in a game world.
 	UClass* EffectClass = FHapticEffectEditorProperties::GetEffectKindClass(EffectKind);
 
 	// Transactional, so the details panel's edits are recorded for undo/redo like any other object's.
@@ -362,8 +433,7 @@ void SHapticEffectEditor::RebuildPreviewEffect(const UForceFeedbackEffectBase* I
 		DetailsView->SetObject(PreviewEffect.Get());
 	}
 
-	// New effect/kind/device: start the view back at a consistent [0, DefaultVisibleWindowSeconds]
-	// window rather than leaving it wherever the previous effect's pan/zoom happened to land.
+	// Reset the view to the default window rather than keeping the previous effect's pan/zoom.
 	if (EffectGraph.IsValid())
 	{
 		EffectGraph->ResetTimeWindow();
@@ -381,7 +451,9 @@ void SHapticEffectEditor::DestroyPreviewEffect()
 	DeviceEffect.Reset();
 	PreviewEffect.Reset();
 	bIsPlaying = false;
-	PlayheadTime = 0.0f;
+	PlayheadTimeMilliseconds = 0;
+	ElapsedTimeMilliseconds = 0;
+	CurrentIteration = 1;
 }
 
 void SHapticEffectEditor::OnPropertiesChanged(const FPropertyChangedEvent& PropertyChangedEvent)
@@ -391,9 +463,7 @@ void SHapticEffectEditor::OnPropertiesChanged(const FPropertyChangedEvent& Prope
 		return;
 	}
 
-	// SDL can't change an already-uploaded effect's fundamental type in place (Sine and Triangle
-	// are distinct SDL_HAPTIC_* constants even though they share the same struct shape), so an
-	// EffectType edit has to tear down and reinitialise the device effect rather than update it.
+	// SDL can't change an uploaded effect's type in place, so an EffectType edit reinitialises the device effect.
 	static const FName EffectTypePropertyName(GET_MEMBER_NAME_CHECKED(FForceFeedbackEffectPeriodicData, EffectType));
 	if (PropertyChangedEvent.GetPropertyName() == EffectTypePropertyName)
 	{
@@ -401,9 +471,7 @@ void SHapticEffectEditor::OnPropertiesChanged(const FPropertyChangedEvent& Prope
 		return;
 	}
 
-	// InfiniteIterations and the transport bar's Loop button are the same setting, so an edit here
-	// has to carry over to the button. The iteration count only reaches the device when an effect is
-	// started, so one that is already playing is restarted to pick it up.
+	// InfiniteIterations mirrors the Loop button and only reaches the device on start, so a playing effect is restarted.
 	static const FName InfiniteIterationsPropertyName(GET_MEMBER_NAME_CHECKED(UForceFeedbackEffectBase, InfiniteIterations));
 	if (PropertyChangedEvent.GetPropertyName() == InfiniteIterationsPropertyName)
 	{
@@ -458,21 +526,14 @@ void SHapticEffectEditor::SyncDeviceEffect()
 
 bool SHapticEffectEditor::StartPreviewEffect()
 {
-	// The preview plays a single pass unless looping, whatever iteration count has been authored.
-	// StartEffect also overwrites Iterations itself when InfiniteIterations is set - both land on the
-	// device effect only, so neither shows up in the details panel or a saved or exported asset.
+	// The preview plays the authored number of iterations unless looping.
 	DeviceEffect->InfiniteIterations = bLoop;
-	if (!bLoop)
-	{
-		DeviceEffect->Iterations = 1;
-	}
+	CurrentIteration = 1;
 
 	return DeviceEffect->StartEffect();
 }
 
-// The authored effect can't be told apart from the rest of an undone transaction's contents by the
-// base class, and without this any undo in the editor - a moved actor, say - would count as a change
-// to the effect.
+// Limits undo handling to transactions that touch the authored effect.
 bool SHapticEffectEditor::MatchesContext(const FTransactionContext& InContext, const TArray<TPair<UObject*, FTransactionObjectEvent>>& TransactionObjectContexts) const
 {
 	return TransactionObjectContexts.ContainsByPredicate([this](const TPair<UObject*, FTransactionObjectEvent>& TransactionObjectContext)
@@ -488,9 +549,7 @@ void SHapticEffectEditor::PostUndo(const bool bSuccess)
 		return;
 	}
 
-	// Which property the transaction touched isn't known here, so this covers everything a details
-	// panel edit can: the Loop button's mirror of InfiniteIterations, and a playing effect is started
-	// over, which uploads whatever the values now are.
+	// The changed property isn't known here, so resync Loop and restart a playing effect.
 	bLoop = PreviewEffect->InfiniteIterations;
 
 	if (bIsPlaying)
@@ -529,10 +588,7 @@ FReply SHapticEffectEditor::OnPlayClicked()
 		return FReply::Handled();
 	}
 
-	// Always upload a fresh effect rather than reusing an existing SDL effect handle via
-	// UpdateEffect(): SDL only documents "dynamic" in-place updates as reliable for non-direction
-	// changes, so a full recreate is the surest way to guarantee the current EffectData - envelope
-	// included - actually reaches the device on Play.
+	// Always upload a fresh effect, as SDL's in-place updates aren't reliable for every change.
 	if (DeviceEffect->IsInitialised)
 	{
 		DeviceEffect->StopEffect();
@@ -546,11 +602,11 @@ FReply SHapticEffectEditor::OnPlayClicked()
 		return FReply::Handled();
 	}
 
-	PlayheadTime = 0.0f;
+	PlayheadTimeMilliseconds = 0;
+	ElapsedTimeMilliseconds = 0;
 	bIsPlaying = StartPreviewEffect();
 
-	// A previous infinite playback may have paged the view well past zero, which would leave the
-	// restarted playhead pinned off-screen until it caught up.
+	// Infinite playback may have paged the view past zero, leaving the restarted playhead off-screen.
 	if (bIsPlaying && IsPreviewDurationInfinite() && !EffectGraph->GetViewBounds().Contains(0.0))
 	{
 		EffectGraph->PageTimeWindowTo(0.0);
@@ -589,27 +645,31 @@ FReply SHapticEffectEditor::OnLoopClicked()
 	return FReply::Handled();
 }
 
-void SHapticEffectEditor::OnGraphScrubbed(const float TimeSeconds)
+void SHapticEffectEditor::OnGraphScrubbed(const float TimeMilliseconds)
 {
-	// Scrubbing is a graph-only preview seek; it does not push an instantaneous force to the
-	// device since SDL_Haptic has no API for sampling an uploaded effect at an arbitrary time.
-	// Scrubbing ends playback, so the device effect has to be stopped along with it: a finite effect
-	// would run out by itself, but an infinite one would carry on with the Stop button disabled.
+	// Scrubbing only seeks the graph (SDL can't sample an effect at an arbitrary time) and ends playback, so stop the device effect too.
 	if (bIsPlaying)
 	{
 		OnStopClicked();
 	}
 
 	// An infinite effect has no end to clamp to, so any point at or after its start is valid.
-	PlayheadTime = IsPreviewDurationInfinite() ? FMath::Max(TimeSeconds, 0.0f) : FMath::Clamp(TimeSeconds, 0.0f, GetPreviewDurationSeconds());
+	const int64 ScrubbedTime = FMath::RoundToInt64(TimeMilliseconds);
+	PlayheadTimeMilliseconds = IsPreviewDurationInfinite() ? FMath::Max<int64>(ScrubbedTime, 0) : FMath::Clamp<int64>(ScrubbedTime, 0, GetPreviewTimelineMilliseconds());
+	ElapsedTimeMilliseconds = PlayheadTimeMilliseconds;
+	CurrentIteration = 1;
 }
 
-float SHapticEffectEditor::EvaluatePreviewEffect(const float TimeSeconds) const
+float SHapticEffectEditor::EvaluatePreviewEffect(const float TimeMilliseconds) const
 {
 	if (!PreviewEffect.IsValid())
 	{
 		return 0.0f;
 	}
+
+	// The effect data is authored in seconds, so the evaluation functions take seconds too.
+	// They are timed from the effect's first sample, which the device only plays once the delay has passed, and are zero before it.
+	const float TimeSeconds = (TimeMilliseconds - static_cast<float>(GetPreviewDelayMilliseconds())) / 1000.0f;
 
 	switch (EffectKind)
 	{
@@ -647,22 +707,36 @@ bool SHapticEffectEditor::IsPreviewDurationInfinite() const
 	return PreviewEffect.IsValid() && PreviewEffect->GetEffectDuration() == SDL_HAPTIC_INFINITY;
 }
 
-// For an infinite effect this is only a nominal length for the curve model's time range (what
-// zoom-to-fit frames) - playback and scrubbing check IsPreviewDurationInfinite() instead of treating
-// it as an end point.
-float SHapticEffectEditor::GetPreviewDurationSeconds() const
+int64 SHapticEffectEditor::GetPreviewDelayMilliseconds() const
+{
+	return PreviewEffect.IsValid() ? PreviewEffect->GetEffectDelay() : 0;
+}
+
+// For an infinite effect this is only a nominal length for the curve model's time range, not an end point.
+int64 SHapticEffectEditor::GetPreviewDurationMilliseconds() const
 {
 	if (!PreviewEffect.IsValid())
 	{
-		return 1.0f;
+		return 1000;
 	}
 
 	if (IsPreviewDurationInfinite())
 	{
-		return SHapticEffectGraph::DefaultVisibleWindowSeconds;
+		return SHapticEffectGraph::DefaultVisibleWindowMilliseconds;
 	}
 
-	return FMath::Max(PreviewEffect->GetEffectDuration() / 1000.0f, 0.05f);
+	return PreviewEffect->GetEffectDuration();
+}
+
+int64 SHapticEffectEditor::GetPreviewTimelineMilliseconds() const
+{
+	// An infinite effect's nominal length already stands in for the whole timeline.
+	if (IsPreviewDurationInfinite())
+	{
+		return GetPreviewDurationMilliseconds();
+	}
+
+	return GetPreviewDelayMilliseconds() + GetPreviewDurationMilliseconds();
 }
 
 TOptional<EForceFeedbackPeriodicEffectType> SHapticEffectEditor::GetPeriodicWaveform() const

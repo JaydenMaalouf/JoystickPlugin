@@ -1,9 +1,7 @@
 // JoystickPlugin is licensed under the MIT License.
 // Copyright Jayden Maalouf 2026. All Rights Reserved.
 
-// The half of SHapticEffectEditor that deals with assets: the Open/entry/Save controls, opening an
-// effect Blueprint or effect group entry as the working copy, and saving it back or as a new asset.
-// Everything else lives in HapticEffectEditor.cpp.
+// The asset half of SHapticEffectEditor: opening and saving effect Blueprints and effect group entries.
 
 #include "Menus/HapticEffectEditor.h"
 
@@ -84,8 +82,7 @@ TSharedRef<SWidget> SHapticEffectEditor::BuildOpenButton()
 			AssetPickerConfig.OnAssetSelected = FOnAssetSelected::CreateSP(this, &SHapticEffectEditor::OnSourceAssetPicked);
 			AssetPickerConfig.OnShouldFilterAsset = FOnShouldFilterAsset::CreateLambda([](const FAssetData& AssetData)
 			{
-				// Effect groups are all listed: whether one holds an effect that can be opened isn't
-				// known until it is loaded.
+				// Effect groups are always listed, as their entries aren't known until loaded.
 				return !CanEditAsset(AssetData);
 			});
 
@@ -192,8 +189,7 @@ TSharedRef<SWidget> SHapticEffectEditor::BuildSaveButton()
 
 void SHapticEffectEditor::PromptSaveAsNewAsset()
 {
-	// A new effect has no asset to save to yet, and can be saved in either of the two forms the plugin
-	// consumes - which one is wanted depends on how the user means to use it, so it is asked for.
+	// A new effect can be saved as either asset type, so ask which.
 	const TOptional<EHapticEffectAssetType> AssetType = FHapticEffectAssetTypeDialog::Open();
 	if (AssetType.IsSet())
 	{
@@ -278,8 +274,7 @@ void SHapticEffectEditor::SaveAsNewAsset(const EHapticEffectAssetType AssetType)
 	FAssetRegistryModule::AssetCreated(ExportedAsset);
 	ExportedAsset->MarkPackageDirty();
 
-	// The new asset is what is being edited from here on. The working copy is kept as it is rather
-	// than reloaded from the asset - they hold the same values - so its undo history carries on.
+	// Edit the new asset from here on, keeping the working copy so its undo history carries on.
 	SourceAsset = ExportedAsset;
 	SourceEntryIndex = bExportBlueprint ? INDEX_NONE : 0;
 	SourceEntryOptions.Reset();
@@ -315,14 +310,12 @@ FReply SHapticEffectEditor::OnSaveClicked()
 		return FReply::Handled();
 	}
 
-	// Not a transaction of its own: a save isn't something to undo, and undoing the edits that led up
-	// to it still works on the working copy afterwards.
+	// Not a transaction of its own, as a save isn't something to undo.
 	SourceEffect->Modify();
 	FHapticEffectEditorProperties::CopyAuthoredProperties(PreviewEffect.Get(), SourceEffect, PreviewEffect->GetClass());
 	SourceAsset->MarkPackageDirty();
 
-	// Then on to disk, as saving in an asset editor does. If that is cancelled or fails the values are
-	// still in the asset, which is left marked as modified for the editor's own save prompts to catch.
+	// Then save to disk. If that is cancelled or fails the asset is left marked as modified.
 	FEditorFileUtils::PromptForCheckoutAndSave({SourceAsset->GetPackage()}, false, false);
 
 	return FReply::Handled();
@@ -496,8 +489,7 @@ void SHapticEffectEditor::CloseSource()
 	}
 }
 
-// Looked up afresh on every use rather than cached: recompiling a Blueprint replaces its class
-// default object, and a group's entries can be edited or removed in its own asset editor meanwhile.
+// Looked up on every use rather than cached, as a Blueprint recompile or group edit can replace it.
 UForceFeedbackEffectBase* SHapticEffectEditor::ResolveSourceEffect() const
 {
 	UObject* Asset = SourceAsset.Get();
@@ -517,10 +509,7 @@ UForceFeedbackEffectBase* SHapticEffectEditor::ResolveSourceEffect() const
 
 bool SHapticEffectEditor::CanSaveToSource() const
 {
-	// Unsaved changes are worked out by comparing the working copy against the asset rather than
-	// tracked with a flag, so undoing back to the saved values (or redoing forward to them) reads as
-	// clean again without the undo history having to be followed.
-	// The class check covers a group entry that has since been swapped for a different kind of effect.
+	// Compared against the asset rather than tracked with a flag, so undoing back to the saved values reads as clean. The class check covers a swapped group entry.
 	const UForceFeedbackEffectBase* SourceEffect = ResolveSourceEffect();
 	return PreviewEffect.IsValid() && SourceEffect && SourceEffect->IsA(PreviewEffect->GetClass())
 		&& !FHapticEffectEditorProperties::AuthoredPropertiesIdentical(PreviewEffect.Get(), SourceEffect, PreviewEffect->GetClass());

@@ -163,7 +163,7 @@ bool UJoystickHapticDeviceManager::GetEffectStatus(const FJoystickInstanceId& In
 
 	if (DeviceInfo->Haptic.Status == false)
 	{
-		FJoystickLogManager::Get()->LogError(TEXT("Cannot check effect status. Device does not support effect status queries"));
+		FJoystickLogManager::Get()->LogDebug(TEXT("Cannot check effect status. Device does not support effect status queries"));
 		return false;
 	}
 
@@ -361,7 +361,7 @@ bool UJoystickHapticDeviceManager::UpdateEffect(const FJoystickInstanceId& Insta
 	return true;
 }
 
-bool UJoystickHapticDeviceManager::RunEffect(const FJoystickInstanceId& InstanceId, const int EffectId, const int Iterations) const
+bool UJoystickHapticDeviceManager::RunEffect(const FJoystickInstanceId& InstanceId, const int EffectId, const uint32 Iterations) const
 {
 	auto [HapticDevice, HapticDeviceResult] = GetHapticDevice(InstanceId);
 	if (HapticDeviceResult.bSuccess == false || HapticDevice == nullptr)

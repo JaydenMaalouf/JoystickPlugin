@@ -17,13 +17,10 @@
 
 struct FHapticEffectEditorPreview
 {
-	// How far (in normalised -1..1 axis units) an axis has to stray from where it sat when playback
-	// started before it is treated as the one the effect is driving - enough to ignore an idle
-	// axis's sensor jitter, small enough to catch a wheel that an effect only nudges a few degrees.
+	// How far (in normalised -1..1 units) an axis must move during playback to be treated as the one the effect is driving.
 	static constexpr float AxisDetectionThreshold = 0.01f;
 
-	// No joystick API reports how far a wheel turns, so it is a user-entered value: the degrees of
-	// rotation each way from centre (540 = -540..+540).
+	// User-entered degrees of rotation each way from centre, as no joystick API reports it.
 	static constexpr float MinRotationLimitDegrees = 45.0f;
 	static constexpr float MaxRotationLimitDegrees = 1440.0f;
 };
@@ -180,8 +177,7 @@ void SHapticDevicePreviewPanel::UpdatePreviewAxis()
 		return;
 	}
 
-	// Raw Value rather than GetValue(): the preview shows where the hardware physically is, not what
-	// the axis's remapping settings turn that into for gameplay.
+	// Raw Value rather than GetValue(), to show where the hardware physically is before any remapping.
 	const TArray<FAxisData>& Axes = JoystickState.Axes;
 
 	if (IsPlaying.Get())
@@ -197,10 +193,7 @@ void SHapticDevicePreviewPanel::UpdatePreviewAxis()
 			PlayAxisDeviations.Init(0.0f, Axes.Num());
 		}
 
-		// Tracks each axis's furthest excursion rather than its current offset, since a periodic
-		// effect swings the driven axis back through its starting point every cycle. The detected
-		// axis is kept after playback stops, and only replaced once another play moves a different
-		// axis past the threshold.
+		// Tracks each axis's furthest excursion, since a periodic effect swings the driven axis back through its start.
 		int32 MostMovedAxisIndex = INDEX_NONE;
 		float MostMovedDeviation = FHapticEffectEditorPreview::AxisDetectionThreshold;
 		for (int32 AxisIndex = 0; AxisIndex < Axes.Num(); ++AxisIndex)

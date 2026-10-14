@@ -28,21 +28,18 @@ void SHapticEffectGraph::Construct(const FArguments& InArgs)
 	CurveEditor->InitCurveEditor(CurveEditorInitParams);
 
 	TUniquePtr<FStaticCurveEditorBounds> InitialCurveEditorBounds = MakeUnique<FStaticCurveEditorBounds>();
-	InitialCurveEditorBounds->SetInputBounds(0.0, DefaultVisibleWindowSeconds);
+	InitialCurveEditorBounds->SetInputBounds(0.0, DefaultVisibleWindowMilliseconds / 1000.0);
 	CurveEditor->SetBounds(MoveTemp(InitialCurveEditorBounds));
 
 	TUniquePtr<FHapticCurveModel> HapticCurveModel = MakeUnique<FHapticCurveModel>();
 	HapticCurveModel->BindEvaluate(InArgs._OnEvaluate);
-	HapticCurveModel->SetDurationAttribute(InArgs._DurationSeconds);
+	HapticCurveModel->SetDurationAttribute(InArgs._DurationMilliseconds);
 	HapticCurveModelID = CurveEditor->AddCurve(MoveTemp(HapticCurveModel));
 	CurveEditor->PinCurve(HapticCurveModelID);
 
 	CurveEditorPanel = SNew(SCurveEditorPanel, CurveEditor.ToSharedRef());
 
-	// The haptic curve is read-only and evaluated procedurally, so key selection and curve filters
-	// have nothing to act on. The context menu is built by the engine with no hook to drop entries,
-	// so rebind those commands on the panel's command list to actions that report themselves as not
-	// visible instead.
+	// The curve is read-only, so hide the key selection and filter commands the engine's context menu would otherwise show.
 	if (const TSharedPtr<FUICommandList> PanelCommands = CurveEditorPanel->GetCommands())
 	{
 		const auto HideCommand = [&PanelCommands](const TSharedPtr<const FUICommandInfo>& Command)
@@ -57,8 +54,7 @@ void SHapticEffectGraph::Construct(const FArguments& InArgs)
 
 		HideCommand(FCurveEditorCommands::Get().OpenUserImplementableFilterWindow);
 
-		// Bound on the curve editor's own list rather than the panel's, but the panel's binding is
-		// looked up first so this still takes precedence. The curve has no keys to select anyway.
+		// Bound on the curve editor's own list, but the panel's binding is looked up first.
 		HideCommand(FCurveEditorCommands::Get().SelectAllKeys);
 
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6
@@ -92,7 +88,7 @@ void SHapticEffectGraph::Construct(const FArguments& InArgs)
 					SNew(SHapticGraphPlayhead)
 					.Visibility(EVisibility::HitTestInvisible)
 					.Bounds_Lambda([this] { return GetViewBounds(); })
-					.PlayheadTime(InArgs._PlayheadTime)
+					.PlayheadTimeMilliseconds(InArgs._PlayheadTimeMilliseconds)
 					.ReferenceGeometry_Lambda([this] { return GetViewGeometry(); })
 				]
 			]
@@ -102,7 +98,7 @@ void SHapticEffectGraph::Construct(const FArguments& InArgs)
 			[
 				SNew(SHapticTimelineScrubber)
 				.Bounds_Lambda([this] { return GetViewBounds(); })
-				.PlayheadTime(InArgs._PlayheadTime)
+				.PlayheadTimeMilliseconds(InArgs._PlayheadTimeMilliseconds)
 				.OnScrubbed(InArgs._OnScrubbed)
 			]
 		]
@@ -124,11 +120,11 @@ void SHapticEffectGraph::ResetTimeWindow() const
 	}
 
 	TUniquePtr<FStaticCurveEditorBounds> Bounds = MakeUnique<FStaticCurveEditorBounds>();
-	Bounds->SetInputBounds(0.0, DefaultVisibleWindowSeconds);
+	Bounds->SetInputBounds(0.0, DefaultVisibleWindowMilliseconds / 1000.0);
 	CurveEditor->SetBounds(MoveTemp(Bounds));
 }
 
-void SHapticEffectGraph::PageTimeWindowTo(const double StartSeconds) const
+void SHapticEffectGraph::PageTimeWindowTo(const double StartMilliseconds) const
 {
 	if (!CurveEditor.IsValid())
 	{
@@ -137,28 +133,25 @@ void SHapticEffectGraph::PageTimeWindowTo(const double StartSeconds) const
 
 	// Moves the window without resizing it, so whatever zoom level the user picked survives.
 	const TRange<double> ViewBounds = GetViewBounds();
-	CurveEditor->GetBounds().SetInputBounds(StartSeconds, StartSeconds + ViewBounds.Size<double>());
+	CurveEditor->GetBounds().SetInputBounds(StartMilliseconds / 1000.0, (StartMilliseconds + ViewBounds.Size<double>()) / 1000.0);
 }
 
 TRange<double> SHapticEffectGraph::GetViewBounds() const
 {
 	if (!CurveEditor.IsValid())
 	{
-		return TRange<double>(0.0, 1.0);
+		return TRange<double>(0.0, 1000.0);
 	}
 
+	// The Curve Editor keeps its input bounds in seconds.
 	double MinBounds, MaxBounds;
 	CurveEditor->GetBounds().GetInputBounds(MinBounds, MaxBounds);
-	return TRange<double>(MinBounds, MaxBounds);
+	return TRange<double>(MinBounds * 1000.0, MaxBounds * 1000.0);
 }
 
 FGeometry SHapticEffectGraph::GetViewGeometry() const
 {
-	// SCurveEditorPanel::GetViewContainerGeometry() is the outer scroll/container area, which isn't
-	// necessarily flush with the individual view's own geometry (e.g. internal padding), and the
-	// curve itself is drawn relative to the view's *own* GetCachedGeometry() (see
-	// SCurveEditorView::GetViewSpace()) - using the container here was producing a small but visible
-	// horizontal offset between the graph overlay's playhead and the actual curve.
+	// Use the view's own cached geometry, as the panel's container geometry isn't flush with where the curve is drawn.
 	if (CurveEditorPanel.IsValid())
 	{
 		FCurveModelID CurveModelID = HapticCurveModelID;
@@ -179,13 +172,7 @@ void SHapticEffectGraph::RecenterCurveViewYAxis() const
 		return;
 	}
 
-	// Force values are always normalized around zero, so the zero line should never drift off-center
-	// vertically - the user can zoom in/out (changing how much of the range is visible) but shouldn't
-	// be able to pan vertically. The engine's built-in zoom/pan gestures don't distinguish "zoom" from
-	// "pan" cleanly enough to block only the latter, so instead we let them run and, every tick,
-	// collapse whatever output bounds they produced back to a symmetric range of the same span - the
-	// zoom level survives, any off-center drift doesn't. Since this runs before this frame's Paint,
-	// the correction is never visible as a jump.
+	// Re-centre the output bounds on zero every tick, so the user can zoom vertically but never pan.
 	FCurveModelID CurveModelID = HapticCurveModelID;
 	for (auto It = CurveEditorPanel->FindViews(CurveModelID); It; ++It)
 	{

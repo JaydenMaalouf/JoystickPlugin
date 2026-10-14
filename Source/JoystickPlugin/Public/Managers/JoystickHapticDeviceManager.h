@@ -71,7 +71,7 @@ public:
 
 	int CreateEffect(const FJoystickInstanceId& InstanceId, SDL_HapticEffect& Effect) const;
 	bool UpdateEffect(const FJoystickInstanceId& InstanceId, const int EffectId, SDL_HapticEffect& Effect) const;
-	bool RunEffect(const FJoystickInstanceId& InstanceId, const int EffectId, const int Iterations) const;
+	bool RunEffect(const FJoystickInstanceId& InstanceId, const int EffectId, const uint32 Iterations) const;
 	bool StopEffect(const FJoystickInstanceId& InstanceId, const int EffectId) const;
 	void DestroyEffect(const FJoystickInstanceId& InstanceId, const int EffectId) const;
 

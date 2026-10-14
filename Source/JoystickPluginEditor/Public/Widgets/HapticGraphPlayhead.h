@@ -6,28 +6,19 @@
 #include "Math/Range.h"
 #include "Widgets/SLeafWidget.h"
 
-// Purely visual vertical playhead line drawn as a sibling overlay on top of the Haptic Effect
-// Editor's SCurveEditorPanel, so the current preview/scrub position is visible directly on the
-// waveform rather than only on the SHapticTimelineScrubber strip below it. Always
-// HitTestInvisible - it must never intercept the curve editor's own pan/zoom/selection gestures
-// underneath it.
-//
-// ReferenceGeometry must be the geometry of the region the line should span - in practice
-// SCurveEditorPanel::GetViewContainerGeometry(), not this widget's own AllottedGeometry, since the
-// panel reserves internal space (toolbar, tree column) that this overlay sits on top of as a sibling
-// spanning the *whole* panel. The line is placed by converting through absolute screen space, so it
-// stays aligned with the curve underneath regardless of that internal layout.
+// Hit-test-invisible playhead line overlaid on the curve editor panel. ReferenceGeometry is the region the line should span.
+// Bounds is the visible time range in milliseconds.
 class SHapticGraphPlayhead : public SLeafWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SHapticGraphPlayhead)
-			: _Bounds(TRange<double>(0.0, 1.0))
-			  , _PlayheadTime(-1.0f)
+			: _Bounds(TRange<double>(0.0, 1000.0))
+			  , _PlayheadTimeMilliseconds(-1)
 		{
 		}
 
 		SLATE_ATTRIBUTE(TRange<double>, Bounds)
-		SLATE_ATTRIBUTE(float, PlayheadTime)
+		SLATE_ATTRIBUTE(int64, PlayheadTimeMilliseconds)
 		SLATE_ATTRIBUTE(FGeometry, ReferenceGeometry)
 	SLATE_END_ARGS()
 
@@ -47,6 +38,6 @@ public:
 
 private:
 	TAttribute<TRange<double>> Bounds;
-	TAttribute<float> PlayheadTime;
+	TAttribute<int64> PlayheadTimeMilliseconds;
 	TAttribute<FGeometry> ReferenceGeometry;
 };

@@ -103,7 +103,6 @@ float FForceFeedbackEffectEvaluation::EvaluateLeftRight(const FForceFeedbackEffe
 		return 0.0f;
 	}
 
-	// SDL_HAPTIC_LEFTRIGHT drives two independent motors with no shared waveform, envelope, or offset;
-	// average the pair so the single-line graph still shows the effect running at some output level.
+	// Left/right drives two independent motors with no shared waveform, so average the pair for the graph.
 	return FMath::Clamp((EffectData.LargeMagnitude + EffectData.SmallMagnitude) * 0.5f, 0.0f, 1.0f);
 }

@@ -5,17 +5,13 @@
 
 #include "CoreMinimal.h"
 
-// Conversions from the user facing units (seconds, degrees, 0..1 and -1..1) to the integer ranges SDL expects.
-// Every conversion clamps before casting, so out of range values saturate instead of wrapping around.
+// Conversions from user facing units to the integer ranges SDL expects, clamped so out of range values saturate instead of wrapping.
 struct FForceFeedbackConversion
 {
-	// SDL takes the length in milliseconds, but its DirectInput backend converts it to microseconds in a 32 bit value, so anything longer wraps around.
-	static constexpr double MaxDurationSeconds = 4294.967;
-
 	// Seconds to a Uint32 length in milliseconds.
 	static uint32 SecondsToDuration(const double Seconds)
 	{
-		return static_cast<uint32>(FMath::RoundToInt32(FMath::Clamp(Seconds, 0.0, MaxDurationSeconds) * 1000.0));
+		return static_cast<uint32>(FMath::RoundToInt32(Seconds * 1000.0));
 	}
 
 	// Seconds to a Uint16 time in milliseconds (delay, interval, period, attack and fade length), capped at 32.767 seconds.

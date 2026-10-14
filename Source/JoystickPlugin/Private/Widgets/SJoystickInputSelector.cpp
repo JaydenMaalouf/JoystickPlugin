@@ -282,8 +282,7 @@ FReply SJoystickInputSelector::OnKeyUp(const FGeometry& MyGeometry, const FKeyEv
 
 	const bool bAllowModifierKeys = (KeySelectorTypes & static_cast<int32>(EKeySelectorTypes::Modifier)) != 0;
 
-	// Skip if it's a modifier key and either modifiers aren't allowed, or other modifiers are pressed
-	// (Don't allow chords consisting of just modifier keys)
+	// Skip modifier keys if they aren't allowed or other modifiers are pressed (no modifier-only chords)
 	const bool bShouldSkipModifierKey = KeyUp.IsModifierKey() && (!bAllowModifierKeys || ModifierKey != EModifierKey::None);
 
 	if (bIsSelectingKey &&
@@ -322,8 +321,7 @@ FReply SJoystickInputSelector::OnPreviewKeyDown(const FGeometry& MyGeometry, con
 
 	if (bIsSelectingKey && ShouldProcessInputKey(InKeyEvent.GetKey()))
 	{
-		// While selecting keys handle all key downs to prevent contained controls from
-		// interfering with key selection.
+		// While selecting keys handle all key downs, so contained controls can't interfere.
 		return FReply::Handled();
 	}
 	return SCompoundWidget::OnPreviewKeyDown(MyGeometry, InKeyEvent);
@@ -462,8 +460,7 @@ bool SJoystickInputSelector::ShouldProcessInputKey(const FKey& InKey) const
 	const bool bAllowAxisKeys = (KeySelectorTypes & static_cast<int32>(EKeySelectorTypes::Axis)) != 0;
 	const bool bAllowButtonKeys = (KeySelectorTypes & static_cast<int32>(EKeySelectorTypes::Button)) != 0;
 
-	// Check if key type (Axis/Button) is allowed
-	// Modifier keys are handled separately in the calling functions, so skip them here
+	// Check if key type (Axis/Button) is allowed. Modifier keys are handled by the callers.
 	const bool bIsAxisKey = InKey.IsAnalog();
 	const bool bIsButtonKey = InKey.IsDigital();
 
@@ -478,8 +475,7 @@ bool SJoystickInputSelector::ShouldProcessInputKey(const FKey& InKey) const
 		return false;
 	}
 
-	// Check joystick keys FIRST (since they are a subset of gamepad keys)
-	// This allows joystick keys to be evaluated separately from regular gamepad keys
+	// Check joystick keys first, since they are a subset of gamepad keys
 	if (UJoystickFunctionLibrary::IsJoystickKey(InKey))
 	{
 		return bAllowJoystickKeys;

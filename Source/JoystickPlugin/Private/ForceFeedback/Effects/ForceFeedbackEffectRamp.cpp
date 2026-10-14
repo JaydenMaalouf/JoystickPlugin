@@ -26,3 +26,8 @@ uint32 UForceFeedbackEffectRamp::GetEffectDuration()
 {
 	return EffectData.DurationData.GetEffectDuration();
 }
+
+uint32 UForceFeedbackEffectRamp::GetEffectDelay()
+{
+	return FForceFeedbackConversion::SecondsToMilliseconds(EffectData.ReplayData.Delay);
+}

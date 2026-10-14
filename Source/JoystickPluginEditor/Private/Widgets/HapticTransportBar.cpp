@@ -16,13 +16,7 @@ void SHapticTransportBar::Construct(const FArguments& InArgs)
 	IsPlaying = InArgs._IsPlaying;
 	IsLooping = InArgs._IsLooping;
 
-	// Icon-only buttons: Play/Stop/Loop are momentary/mode controls, not selection state, so they
-	// stay visually distinct from the Periodic/Constant/Ramp and waveform "active" pill fills -
-	// tinting the icon itself rather than filling a background avoids the two concepts looking
-	// like the same kind of toggle.
-	// None of the toolbar's buttons take keyboard focus: a focused SButton treats the spacebar as a
-	// click on itself, which would hijack the play/stop shortcut (see SHapticEffectEditor::OnKeyDown)
-	// after a mouse click.
+	// Icon-only buttons that never take keyboard focus, as a focused SButton would hijack the spacebar play/stop shortcut.
 	auto MakeIconButton = [](const FName IconName, const FText& Tooltip, const TAttribute<FSlateColor>& IconColor, const TAttribute<bool>& IsEnabledAttribute, const FOnClicked& OnClickedDelegate)
 	{
 		return SNew(SButton)

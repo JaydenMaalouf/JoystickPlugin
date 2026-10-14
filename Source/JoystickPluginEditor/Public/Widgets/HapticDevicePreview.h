@@ -6,14 +6,7 @@
 #include "Data/JoystickType.h"
 #include "Widgets/SLeafWidget.h"
 
-// 2D top-down representation of the selected device, posed from a live axis value so the Haptic
-// Effect Editor shows what the hardware is physically doing while an effect plays. Only
-// EJoystickType::Wheel has a drawing so far - other types paint nothing (see SupportsType), leaving
-// the owner to show its own placeholder.
-//
-// AxisValue is the normalised -1..1 axis reading; for a wheel it is spread across
-// MaxRotationDegrees each way from centre, so +1 is MaxRotationDegrees clockwise and -1 the same
-// anticlockwise.
+// 2D top-down drawing of the selected device, posed from a normalised -1..1 axis value. Only wheels are drawn so far (see SupportsType).
 class SHapticDevicePreview : public SLeafWidget
 {
 public:

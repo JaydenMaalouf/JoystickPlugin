@@ -6,14 +6,7 @@
 #include "Math/Color.h"
 #include "Styling/SlateColor.h"
 
-// Reuses the same active/inactive tint convention as AxisBar/ButtonBox/HatSwitch/BallSwitch: the
-// same bright green (0.2,1.0,0.2) AxisBar uses for its full-strength positive fill for the
-// active/highlighted state, dimmed (0.7,0.7,0.7) text otherwise. The inactive background is
-// transparent rather than a flat gray box, since segments now sit inside a shared pill container
-// that already provides their background.
-// Uses SButton+SBorder(WhiteBrush) rather than SCheckBox's ToggleButtonCheckbox style, since that
-// style's checked/unchecked brushes have their own baked-in accent color that BorderBackgroundColor
-// only tints rather than replaces.
+// Active/inactive toggle tints, matching AxisBar/ButtonBox/HatSwitch/BallSwitch.
 struct FHapticEffectEditorColors
 {
 	static FSlateColor GetToggleBackgroundColor(const bool bIsActive)

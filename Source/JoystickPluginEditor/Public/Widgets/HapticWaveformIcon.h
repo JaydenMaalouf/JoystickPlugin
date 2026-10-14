@@ -6,9 +6,7 @@
 #include "Widgets/SLeafWidget.h"
 #include "ForceFeedback/Types/ForceFeedbackPeriodicEffectType.h"
 
-// Small fixed-shape glyph showing two cycles of a periodic waveform type, used so the waveform
-// picker reads by shape rather than by label text. Always draws a canonical shape independent of
-// the effect's actual live Period/Magnitude/Phase - it is an icon, not a data preview.
+// Small fixed-shape glyph showing two cycles of a periodic waveform type. An icon, not a data preview.
 class SHapticWaveformIcon : public SLeafWidget
 {
 public:

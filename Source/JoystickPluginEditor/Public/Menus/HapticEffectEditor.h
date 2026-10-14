@@ -22,15 +22,7 @@ struct FAssetData;
 struct FPropertyAndParent;
 struct FPropertyChangedEvent;
 
-// Editor tool for authoring/previewing JoystickPlugin force feedback effects: a details view bound
-// to a live effect UObject, an oscilloscope-style graph of its shape, and playback controls that
-// run a copy of that UObject against a connected device, through the same effect class the game
-// uses, so the preview never drifts from what the effect actually does at runtime.
-//
-// The toolbar and side panel are built from their own widgets (see the Haptic* headers under
-// Widgets/), and the implementation is split in two: HapticEffectEditor.cpp holds the layout,
-// preview effect and playback, HapticEffectEditorAssets.cpp everything to do with opening and
-// saving assets.
+// Editor tool for authoring and previewing force feedback effects against a connected device.
 class JOYSTICKPLUGINEDITOR_API SHapticEffectEditor final : public SCompoundWidget, public FEditorUndoClient
 {
 public:
@@ -53,28 +45,20 @@ public:
 	virtual void PostRedo(bool bSuccess) override;
 	// End FEditorUndoClient Interface.
 
-	// Whether the asset is an effect Blueprint or effect group this editor could open, judged from
-	// its asset registry data so a content browser menu can ask without loading it. A group still
-	// has to be loaded to find out whether any of its entries can be edited (see GetEditableEntries).
+	// Whether the asset is an effect Blueprint or effect group this editor could open, judged without loading it.
 	static bool CanEditAsset(const FAssetData& AssetData);
 
 	// The indices of the group's entries that hold an effect this editor can open.
 	static void GetEditableEntries(const UForceFeedbackEffectGroup& EffectGroup, TArray<int32>& OutEntryIndices);
 	static FText GetEntryLabel(const UForceFeedbackEffectGroup& EffectGroup, int32 EntryIndex);
 
-	// Loads an effect Blueprint, or one entry of an effect group, as the working copy being edited.
-	// With no EntryIndex a group opens on its first editable entry. Returns false, leaving the editor
-	// as it was, if the asset has nothing this editor can open. Cancelling the prompt to save the
-	// current working copy also leaves the editor as it was, but isn't a failure and returns true.
+	// Opens an effect Blueprint, or one entry of an effect group, as the working copy. Returns false only if the asset has nothing this editor can open.
 	bool EditAsset(UObject* Asset, int32 EntryIndex = INDEX_NONE);
 
-	// Called before anything that would throw the working copy away (closing the tab, opening another
-	// asset or entry, starting a new effect). If it has unsaved changes the user is asked whether to
-	// save them, and can cancel - false means cancelled, so whatever was about to happen shouldn't.
+	// Asks to save unsaved changes before the working copy is discarded. Returns false if the user cancelled.
 	bool PromptToSaveChanges();
 
-	// The name of the opened asset, with a trailing asterisk while it has unsaved changes, or the
-	// editor's own name while authoring a new effect.
+	// The opened asset's name (with an asterisk while unsaved), or the editor's own name for a new effect.
 	FText GetTabLabel() const;
 
 private:
@@ -111,11 +95,21 @@ private:
 	FText GetSourceEntryLabel(int32 EntryIndex) const;
 	void SyncDeviceEffect();
 	bool StartPreviewEffect();
-	void OnGraphScrubbed(float TimeSeconds);
+	void OnGraphScrubbed(float TimeMilliseconds);
 
-	float EvaluatePreviewEffect(float TimeSeconds) const;
+	// Takes a fractional time, as the graph samples the curve more finely than a millisecond when zoomed in.
+	float EvaluatePreviewEffect(float TimeMilliseconds) const;
 	bool IsPreviewDurationInfinite() const;
-	float GetPreviewDurationSeconds() const;
+
+	// The wait before the first iteration plays.
+	int64 GetPreviewDelayMilliseconds() const;
+
+	// The length of a single iteration, without the delay.
+	int64 GetPreviewDurationMilliseconds() const;
+
+	// The length the graph covers: the delay followed by a single iteration.
+	int64 GetPreviewTimelineMilliseconds() const;
+
 	TOptional<EForceFeedbackPeriodicEffectType> GetPeriodicWaveform() const;
 	void SetPeriodicWaveform(EForceFeedbackPeriodicEffectType WaveformType);
 
@@ -126,23 +120,23 @@ private:
 
 	EHapticPreviewEffectKind EffectKind = EHapticPreviewEffectKind::Periodic;
 
-	// PreviewEffect is what is being authored: the details view edits it, the graph is drawn from it,
-	// and it is what gets saved or exported. It never touches a device - DeviceEffect, a copy brought
-	// up to date whenever it is uploaded, does. Keeping them apart means undoing an edit can only ever
-	// rewind authored values, never the device effect's handle or whether it is initialised.
+	// PreviewEffect is the authored effect. DeviceEffect is the copy uploaded to the device.
 	TStrongObjectPtr<UForceFeedbackEffectBase> PreviewEffect;
 	TStrongObjectPtr<UForceFeedbackEffectBase> DeviceEffect;
 
-	// The existing asset the preview effect was loaded from and Save writes back to: an effect
-	// Blueprint, or an effect group along with which of its entries is being edited. Unset while
-	// authoring a new effect. The preview stays a separate transient working copy either way, so
-	// nothing reaches the asset until Save - CanSaveToSource is whether it has anything to write.
+	// The asset (and group entry) Save writes back to. Unset while authoring a new effect.
 	TWeakObjectPtr<UObject> SourceAsset;
 	int32 SourceEntryIndex = INDEX_NONE;
 	TArray<TSharedPtr<int32>> SourceEntryOptions;
 	TSharedPtr<SComboBox<TSharedPtr<int32>>> SourceEntryComboBox;
 
-	float PlayheadTime = 0.0f;
+	int64 PlayheadTimeMilliseconds = 0;
+
+	// Time since playback started, across every iteration, where PlayheadTimeMilliseconds is only the position within the current pass.
+	int64 ElapsedTimeMilliseconds = 0;
+
+	// The pass the playhead is on, counted from one.
+	int64 CurrentIteration = 1;
 	bool bIsPlaying = false;
 	bool bLoop = false;
 };

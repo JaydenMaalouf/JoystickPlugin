@@ -42,6 +42,16 @@ void UForceFeedbackEffectBase::BeginDestroy()
 	Super::BeginDestroy();
 }
 
+#if WITH_EDITOR
+void UForceFeedbackEffectBase::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+
+	// The limit follows the duration, so editing it can leave Iterations above what can play.
+	Iterations = FMath::Clamp<int64>(Iterations, 1, GetMaxIterations());
+}
+#endif
+
 void UForceFeedbackEffectBase::Tick(const float DeltaTime)
 {
 	if (Configuration.UseEffectRate)
@@ -141,12 +151,19 @@ bool UForceFeedbackEffectBase::StartEffect()
 		return false;
 	}
 
-	if (InfiniteIterations)
+	if (Configuration.AutoUpdateOnStart)
 	{
-		Iterations = SDL_HAPTIC_INFINITY;
+		// Starting only replays what the device last received, so send anything that has changed since
+		UpdateEffect();
 	}
 
-	const bool Result = HapticDeviceManager->RunEffect(InstanceId, EffectId, Iterations);
+	const uint32 RunIterations = GetRunIterations();
+	if (InfiniteIterations == false && RunIterations < Iterations)
+	{
+		FJoystickLogManager::Get()->LogWarning(TEXT("UForceFeedbackEffectBase::StartEffect: %lld iterations exceeds the longest playable time, clamping to %u iterations"), Iterations, RunIterations);
+	}
+
+	const bool Result = HapticDeviceManager->RunEffect(InstanceId, EffectId, RunIterations);
 	if (Result == false)
 	{
 		return false;
@@ -302,10 +319,12 @@ void UForceFeedbackEffectBase::TickEffect(const float DeltaTime)
 	if (ForceStopAfterDurationLapsed)
 	{
 		const uint32 Duration = GetEffectDuration();
+		const uint32 RunIterations = GetRunIterations();
 
 		const bool ShouldCheck =
 			EffectRunning &&
 			InfiniteIterations == false &&
+			RunIterations != SDL_HAPTIC_INFINITY &&
 			StartTime != UINT64_MAX &&
 			Duration != SDL_HAPTIC_INFINITY &&
 			Duration != 0;
@@ -314,7 +333,9 @@ void UForceFeedbackEffectBase::TickEffect(const float DeltaTime)
 		{
 			const uint64 CurrentTime = SDL_GetTicks();
 
-			if (CurrentTime - StartTime >= Duration && GetEffectStatus())
+			// The effect waits out its delay, then runs once per iteration, so it only lapses after the last one.
+			// Both operands are 32-bit, so the duration is widened first to keep a long total from wrapping.
+			if (CurrentTime - StartTime >= GetEffectDelay() + static_cast<uint64>(Duration) * RunIterations && GetEffectStatus())
 			{
 				StopEffect();
 			}
@@ -335,6 +356,26 @@ bool UForceFeedbackEffectBase::GetEffectStatus() const
 	}
 
 	return HapticDeviceManager->GetEffectStatus(InstanceId, EffectId);
+}
+
+bool UForceFeedbackEffectBase::IsEffectRunning() const
+{
+	return EffectRunning;
+}
+
+float UForceFeedbackEffectBase::GetElapsedTime() const
+{
+	return GetElapsedTimeMilliseconds() / 1000.0f;
+}
+
+uint64 UForceFeedbackEffectBase::GetElapsedTimeMilliseconds() const
+{
+	if (!EffectRunning || StartTime == UINT64_MAX)
+	{
+		return 0;
+	}
+
+	return SDL_GetTicks() - StartTime;
 }
 
 void UForceFeedbackEffectBase::SetInstanceId(const FJoystickInstanceId& NewInstanceId)
@@ -412,6 +453,42 @@ bool UForceFeedbackEffectBase::IsSupportedByDevice(const FJoystickHapticInformat
 	}
 }
 
+uint32 UForceFeedbackEffectBase::GetEffectDuration()
+{
+	return -1;
+}
+
+uint32 UForceFeedbackEffectBase::GetEffectDelay()
+{
+	return 0;
+}
+
+uint32 UForceFeedbackEffectBase::GetRunIterations()
+{
+	if (InfiniteIterations)
+	{
+		return SDL_HAPTIC_INFINITY;
+	}
+
+	const uint32 RunIterations = static_cast<uint32>(FMath::Clamp<int64>(Iterations, 0, SDL_HAPTIC_INFINITY));
+	if (RunIterations == SDL_HAPTIC_INFINITY)
+	{
+		return RunIterations;
+	}
+
+	return FMath::Min(RunIterations, GetPlatformMaxIterations());
+}
+
+uint32 UForceFeedbackEffectBase::GetPlatformMaxIterations()
+{
+	return SDL_HAPTIC_INFINITY;
+}
+
+uint32 UForceFeedbackEffectBase::GetMaxIterations()
+{
+	return GetEffectDuration() == SDL_HAPTIC_INFINITY ? 1 : GetPlatformMaxIterations();
+}
+
 void UForceFeedbackEffectBase::CreateEffect()
 {
 	SDL_memset(&Effect, 0, sizeof(SDL_HapticEffect));
@@ -420,9 +497,4 @@ void UForceFeedbackEffectBase::CreateEffect()
 
 void UForceFeedbackEffectBase::UpdateEffectData()
 {
-}
-
-uint32 UForceFeedbackEffectBase::GetEffectDuration()
-{
-	return -1;
 }

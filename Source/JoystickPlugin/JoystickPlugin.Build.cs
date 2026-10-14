@@ -44,8 +44,7 @@ public class JoystickPlugin : ModuleRules
 		PublicSystemIncludePaths.Add(SdlIncludeDirectory);
 		PublicSystemIncludePaths.Add(SdlIncludeParentDirectory);
 
-		// Prefer the symbol-prefixed JoystickSDL3 binaries (built by the build-sdl action);
-		// fall back to stock SDL3 names so the plugin still builds against older artifacts.
+		// Prefer the symbol-prefixed JoystickSDL3 binaries, falling back to stock SDL3 names for older artifacts.
 		if (Target.Platform == UnrealTargetPlatform.Win64)
 		{
 			var Win64Path = Path.Combine(SdlDirectory, "Win64");

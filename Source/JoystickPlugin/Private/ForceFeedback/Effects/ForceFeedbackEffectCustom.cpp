@@ -40,3 +40,8 @@ uint32 UForceFeedbackEffectCustom::GetEffectDuration()
 {
 	return EffectData.DurationData.GetEffectDuration();
 }
+
+uint32 UForceFeedbackEffectCustom::GetEffectDelay()
+{
+	return FForceFeedbackConversion::SecondsToMilliseconds(EffectData.ReplayData.Delay);
+}

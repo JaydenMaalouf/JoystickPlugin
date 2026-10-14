@@ -30,9 +30,7 @@ FVector2D SHapticWaveformIcon::ComputeDesiredSize(float) const
 
 TArray<FVector2D> SHapticWaveformIcon::BuildWaveformPoints(const FVector2D& Size) const
 {
-	// Mirrors the shape formulas in ForceFeedbackEffectEvaluation.cpp's EvaluatePeriodic, but fixed
-	// to a canonical two-cycle/full-magnitude shape rather than the live effect data - this is a
-	// decorative glyph for shape recognition, not a data-accurate preview.
+	// A canonical two-cycle shape mirroring EvaluatePeriodic's formulas. A decorative glyph, not a data-accurate preview.
 	const EForceFeedbackPeriodicEffectType Type = WaveformType.Get(EForceFeedbackPeriodicEffectType::Sine);
 
 	constexpr int32 NumSamples = 24;

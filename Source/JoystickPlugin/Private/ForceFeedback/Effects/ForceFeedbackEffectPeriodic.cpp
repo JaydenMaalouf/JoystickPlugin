@@ -58,3 +58,8 @@ uint32 UForceFeedbackEffectPeriodic::GetEffectDuration()
 {
 	return EffectData.DurationData.GetEffectDuration();
 }
+
+uint32 UForceFeedbackEffectPeriodic::GetEffectDelay()
+{
+	return FForceFeedbackConversion::SecondsToMilliseconds(EffectData.ReplayData.Delay);
+}

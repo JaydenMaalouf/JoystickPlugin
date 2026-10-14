@@ -54,8 +54,7 @@ int32 SHapticDevicePreview::PaintWheel(const FGeometry& AllottedGeometry, FSlate
 	const float HubOuterRadius = OuterRadius * 0.24f + SpokeThickness * 0.5f;
 	const float HubInnerRadius = HubOuterRadius - SpokeThickness;
 
-	// Slate's Y axis points down, so a positive angle here already reads as clockwise on screen -
-	// matching a positive (turned right) axis value with no sign flip.
+	// Slate's Y axis points down, so a positive angle already reads as clockwise with no sign flip.
 	const float Value = FMath::Clamp(AxisValue.Get(0.0f), -1.0f, 1.0f);
 	const float Rotation = FMath::DegreesToRadians(Value * MaxRotationDegrees.Get(540.0f));
 
@@ -63,12 +62,7 @@ int32 SHapticDevicePreview::PaintWheel(const FGeometry& AllottedGeometry, FSlate
 	const FColor ReferenceColor = FLinearColor(0.4f, 0.4f, 0.4f, 1.0f).ToFColor(true);
 	const FColor MarkerColor = FLinearColor(0.2f, 1.0f, 0.2f, 1.0f).ToFColor(true);
 
-	// Built as filled geometry rather than thick MakeLines strokes: a thick closed polyline leaves a
-	// visible spike across the wheel where its first and last segments meet.
-	//
-	// Custom verts get no antialiasing from Slate, so every shape carries its own: each edge is a
-	// one-pixel-wide strip fading from the shape's colour to fully transparent, centred on where the
-	// hard edge would have been. Feather is that pixel expressed in local units.
+	// Built as filled geometry with one-pixel feathered edges, as thick MakeLines strokes spike at the join and custom verts aren't antialiased.
 	const float Feather = 1.0f / FMath::Max(AllottedGeometry.Scale, KINDA_SMALL_NUMBER);
 	const float HalfFeather = Feather * 0.5f;
 
@@ -93,8 +87,7 @@ int32 SHapticDevicePreview::PaintWheel(const FGeometry& AllottedGeometry, FSlate
 
 	auto AddRing = [&](const float InnerRadius, const float InOuterRadius, const FColor& Color)
 	{
-		// Four concentric loops: transparent, opaque, opaque, transparent - the middle band is the
-		// solid ring and the bands either side of it are the feathered edges.
+		// Four concentric loops: the middle band is the solid ring, the bands either side are the feathered edges.
 		constexpr int32 NumLoops = 4;
 		const float LoopRadii[NumLoops] = {InnerRadius - HalfFeather, InnerRadius + HalfFeather, InOuterRadius - HalfFeather, InOuterRadius + HalfFeather};
 		const FColor LoopColors[NumLoops] = {Color.WithAlpha(0), Color, Color, Color.WithAlpha(0)};
@@ -126,8 +119,7 @@ int32 SHapticDevicePreview::PaintWheel(const FGeometry& AllottedGeometry, FSlate
 		const FVector2D Along(FMath::Cos(Angle), FMath::Sin(Angle));
 		const FVector2D Across(-Along.Y, Along.X);
 
-		// A solid rectangle inset by half the feather, then the same rectangle outset by half the
-		// feather and transparent, with the gap between the two filled by the fading strips.
+		// A solid rectangle inset by half the feather, with a transparent outset copy to fade the edges.
 		auto AddCorners = [&](const float Inset, const FColor& CornerColor)
 		{
 			const FVector2D Inner = Center + Along * (InnerDistance + Inset);
@@ -153,23 +145,19 @@ int32 SHapticDevicePreview::PaintWheel(const FGeometry& AllottedGeometry, FSlate
 		}
 	};
 
-	// Fixed (non-rotating) notch marking straight-ahead, so the wheel's own marker has something to
-	// be read against.
+	// Fixed notch marking straight-ahead, for the wheel's marker to be read against.
 	AddRadialBar(-HALF_PI, OuterRadius + 3.0f, OuterRadius + OuterMargin - 1.0f, 2.0f, ReferenceColor);
 
 	AddRing(RimInnerRadius, OuterRadius, BodyColor);
 	AddRing(HubInnerRadius, HubOuterRadius, BodyColor);
 
-	// Three spokes: left, right and down when centred. They start and end slightly inside the hub
-	// and rim so no gap shows where a flat bar end meets a curved edge.
+	// Three spokes (left, right, down), slightly overlapping the hub and rim so no gap shows.
 	for (const float SpokeAngle : {0.0f, PI, HALF_PI})
 	{
 		AddRadialBar(SpokeAngle + Rotation, HubOuterRadius - 1.0f, RimInnerRadius + 1.0f, SpokeThickness, BodyColor);
 	}
 
-	// Top-centre stripe on the rim - the only part of the drawing that isn't rotationally symmetric
-	// enough to lose track of, so it is what actually shows the wheel's position. Added last so it
-	// draws over the rim.
+	// Top-centre stripe showing the wheel's rotation, added last so it draws over the rim.
 	AddRadialBar(-HALF_PI + Rotation, RimInnerRadius, OuterRadius, SpokeThickness, MarkerColor);
 
 	const FSlateResourceHandle Handle; // No texture

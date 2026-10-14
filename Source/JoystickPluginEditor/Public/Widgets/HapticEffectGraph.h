@@ -12,27 +12,23 @@
 class FCurveEditor;
 class SCurveEditorPanel;
 
-// The Haptic Effect Editor's oscilloscope-style graph: a read-only Curve Editor panel drawing the
-// effect's shape (see HapticCurveModel.h), with a playhead line over it and a scrub strip below.
-// The curve is evaluated through OnEvaluate rather than held here, so it always shows whatever the
-// owner's effect currently is.
+// The Haptic Effect Editor's graph: a read-only Curve Editor panel with a playhead line over it and a scrub strip below.
+// Every time this widget takes or returns is in milliseconds. Only the Curve Editor's own axis is in seconds.
 class SHapticEffectGraph : public SCompoundWidget
 {
 public:
-	// The curve view always opens on this many seconds of the effect regardless of its Duration, so
-	// effects render at a consistent time-per-pixel scale instead of being auto-fit/squashed to the
-	// panel width - the user can pan/zoom from there to see the rest of a longer effect.
-	static constexpr double DefaultVisibleWindowSeconds = 2.0;
+	// The view always opens on this many milliseconds, so effects render at a consistent scale regardless of Duration.
+	static constexpr int64 DefaultVisibleWindowMilliseconds = 2000;
 
 	SLATE_BEGIN_ARGS(SHapticEffectGraph)
-			: _DurationSeconds(1.0f)
-			  , _PlayheadTime(-1.0f)
+			: _DurationMilliseconds(1000)
+			  , _PlayheadTimeMilliseconds(-1)
 		{
 		}
 
 		SLATE_EVENT(FOnEvaluateHapticEffect, OnEvaluate)
-		SLATE_ATTRIBUTE(float, DurationSeconds)
-		SLATE_ATTRIBUTE(float, PlayheadTime)
+		SLATE_ATTRIBUTE(int64, DurationMilliseconds)
+		SLATE_ATTRIBUTE(int64, PlayheadTimeMilliseconds)
 		SLATE_EVENT(FOnHapticGraphScrubbed, OnScrubbed)
 	SLATE_END_ARGS()
 
@@ -41,7 +37,7 @@ public:
 	virtual void Tick(const FGeometry& AllottedGeometry, double InCurrentTime, float InDeltaTime) override;
 
 	void ResetTimeWindow() const;
-	void PageTimeWindowTo(double StartSeconds) const;
+	void PageTimeWindowTo(double StartMilliseconds) const;
 	TRange<double> GetViewBounds() const;
 
 private:

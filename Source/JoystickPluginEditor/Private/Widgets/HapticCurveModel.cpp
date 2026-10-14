@@ -9,15 +9,10 @@
 
 struct FHapticCurveModelSampling
 {
-	// Hard ceiling on the pixel columns sampled per draw, so the work stays bounded by the panel
-	// rather than by the effect (an infinite effect, or a view zoomed out over hours, costs the same
-	// as a one second one).
+	// Hard ceiling on the pixel columns sampled per draw, so the cost is bounded by the panel rather than the effect.
 	static constexpr int32 MaxColumns = 4096;
 
-	// Where inside a pixel column each sub-sample is taken, as a fraction of the column's width.
-	// Deliberately uneven (stratified by the golden ratio): evenly spaced samples all land on the
-	// same phase whenever their spacing is a multiple of half the waveform's period, which flattens
-	// the curve to a straight line at that particular zoom level.
+	// Sub-sample positions within a pixel column, deliberately uneven so they can't all land on the same phase of the waveform.
 	static constexpr double ColumnSampleOffsets[] = {0.0, 0.2023, 0.2795, 0.4818, 0.5590, 0.6363, 0.8385, 0.9158};
 };
 
@@ -50,13 +45,7 @@ void FHapticCurveModel::DrawCurve(const FCurveEditor& CurveEditor, const FCurveE
 		return;
 	}
 
-	// Oscilloscope-style min/max decimation: every pixel column across the visible range is sampled
-	// several times and contributes its lowest and highest value, in the order they occur. Zoomed in,
-	// that traces the waveform to a fraction of a pixel; zoomed out past the point where a cycle fits
-	// in a column, it fills the band between the true peaks rather than aliasing.
-	// This replaces a port of FRichCurveEditorModel's bisecting refine, which only works when seeded
-	// with a curve's keys - seeded with just the two view edges, its three probes per segment could
-	// all land on zero crossings of a periodic effect and declare the whole window a straight line.
+	// Oscilloscope-style min/max decimation: each pixel column is sampled several times and contributes its lowest and highest value.
 	const int32 NumColumns = FMath::Clamp(FMath::CeilToInt32(ScreenSpace.GetPhysicalWidth()), 1, FHapticCurveModelSampling::MaxColumns);
 	const double ColumnSeconds = (EndTimeSeconds - StartTimeSeconds) / NumColumns;
 
@@ -72,7 +61,7 @@ void FHapticCurveModel::DrawCurve(const FCurveEditor& CurveEditor, const FCurveE
 		for (const double SampleOffset : FHapticCurveModelSampling::ColumnSampleOffsets)
 		{
 			const double SampleSeconds = ColumnStartSeconds + SampleOffset * ColumnSeconds;
-			const double Value = FMath::Clamp(OnEvaluate.Execute(static_cast<float>(SampleSeconds)), -1.0f, 1.0f);
+			const double Value = FMath::Clamp(OnEvaluate.Execute(static_cast<float>(SampleSeconds * 1000.0)), -1.0f, 1.0f);
 
 			if (Value < Lowest.Get<1>())
 			{
@@ -101,7 +90,7 @@ void FHapticCurveModel::DrawCurve(const FCurveEditor& CurveEditor, const FCurveE
 		}
 	}
 
-	InterpolatingPoints.Add(MakeTuple(EndTimeSeconds, static_cast<double>(FMath::Clamp(OnEvaluate.Execute(static_cast<float>(EndTimeSeconds)), -1.0f, 1.0f))));
+	InterpolatingPoints.Add(MakeTuple(EndTimeSeconds, static_cast<double>(FMath::Clamp(OnEvaluate.Execute(static_cast<float>(EndTimeSeconds * 1000.0)), -1.0f, 1.0f))));
 }
 
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 5
@@ -140,7 +129,7 @@ void FHapticCurveModel::GetKeyDrawInfo(ECurvePointType PointType, const FKeyHand
 void FHapticCurveModel::GetTimeRange(double& MinTime, double& MaxTime) const
 {
 	MinTime = 0.0;
-	MaxTime = DurationSeconds.Get(1.0f);
+	MaxTime = DurationMilliseconds.Get(1000) / 1000.0;
 }
 
 void FHapticCurveModel::GetValueRange(double& MinValue, double& MaxValue) const
@@ -168,6 +157,6 @@ bool FHapticCurveModel::Evaluate(double InTime, double& OutValue) const
 		return false;
 	}
 
-	OutValue = FMath::Clamp(OnEvaluate.Execute(static_cast<float>(InTime)), -1.0f, 1.0f);
+	OutValue = FMath::Clamp(OnEvaluate.Execute(static_cast<float>(InTime * 1000.0)), -1.0f, 1.0f);
 	return true;
 }

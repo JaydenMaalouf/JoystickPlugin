@@ -8,8 +8,7 @@
 
 DECLARE_DELEGATE_OneParam(FOnHapticEffectKindSelected, EHapticPreviewEffectKind /*Kind*/);
 
-// The Haptic Effect Editor's row of Periodic/Constant/Ramp/Left-Right segments. EffectKind is which
-// one is lit - picking one only reports it, leaving the owner to decide whether the kind changes.
+// The Haptic Effect Editor's row of Periodic/Constant/Ramp/Left-Right segments. Picking one only reports it to the owner.
 class SHapticEffectTypeSelector : public SCompoundWidget
 {
 public:

@@ -34,10 +34,7 @@ void FJoystickPluginModule::StartupModule()
 	PluginSourceDirectory = FPaths::Combine(PluginDirectory, TEXT("Source"));
 	PluginThirdPartyDirectory = FPaths::Combine(PluginSourceDirectory, TEXT("ThirdParty"));
 
-	// The bundled SDL carries a JoystickSDL3 identity and JSP_-prefixed symbols so it can
-	// never collide with an engine-bundled SDL; stock names are the pre-rename fallback.
-	// On Linux no manual load is needed: the module links libJoystickSDL3.so.0 directly
-	// and the dynamic linker resolves it via the module's rpath.
+	// Prefer the symbol-prefixed JoystickSDL3 binary, falling back to stock SDL3 names. Linux links it directly, so needs no manual load.
 #if PLATFORM_WINDOWS
 	const FString SdlDir = FPaths::Combine(PluginThirdPartyDirectory, TEXT("SDL3"), TEXT("Win64"));
 	FString SdlDllPath = FPaths::Combine(SdlDir, TEXT("JoystickSDL3.dll"));

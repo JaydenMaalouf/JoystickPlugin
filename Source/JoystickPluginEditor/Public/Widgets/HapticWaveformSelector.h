@@ -9,8 +9,7 @@
 
 DECLARE_DELEGATE_OneParam(FOnHapticWaveformSelected, EForceFeedbackPeriodicEffectType /*WaveformType*/);
 
-// The Haptic Effect Editor's row of waveform glyphs for a periodic effect. SelectedWaveform is which
-// one is lit, unset when the effect being edited isn't periodic.
+// The Haptic Effect Editor's row of waveform glyphs. SelectedWaveform is unset when the effect isn't periodic.
 class SHapticWaveformSelector : public SCompoundWidget
 {
 public:

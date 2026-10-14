@@ -5,8 +5,7 @@
 
 #include "Widgets/SCompoundWidget.h"
 
-// The Haptic Effect Editor's Play/Stop/Loop buttons. Holds no playback state of its own: what is
-// enabled and how Loop is tinted come from the attributes, and the clicks go back to the owner.
+// The Haptic Effect Editor's Play/Stop/Loop buttons. Holds no playback state of its own.
 class SHapticTransportBar : public SCompoundWidget
 {
 public:
