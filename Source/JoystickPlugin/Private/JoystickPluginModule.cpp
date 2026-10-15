@@ -58,10 +58,18 @@ void FJoystickPluginModule::StartupModule()
 #endif
 
 	IJoystickPlugin::StartupModule();
+
+#if !UE_BUILD_SHIPPING
+	ForceFeedbackDebugOverlay.Register();
+#endif
 }
 
 void FJoystickPluginModule::ShutdownModule()
 {
+#if !UE_BUILD_SHIPPING
+	ForceFeedbackDebugOverlay.Unregister();
+#endif
+
 #if PLATFORM_WINDOWS || PLATFORM_MAC
 	FPlatformProcess::FreeDllHandle(SdlDllHandle);
 #endif

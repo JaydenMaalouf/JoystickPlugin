@@ -3,6 +3,17 @@
 
 #include "ForceFeedback/Effects/ForceFeedbackEffectRamp.h"
 
+#include "ForceFeedback/ForceFeedbackEffectEvaluation.h"
+
+void UForceFeedbackEffectRamp::DescribeEffect(FForceFeedbackEffectDebugInfo& OutInfo) const
+{
+	Super::DescribeEffect(OutInfo);
+
+	OutInfo.Kind = TEXT("Ramp");
+	OutInfo.Level = EffectData.RampStart;
+	OutInfo.EvaluatedLevel = FForceFeedbackEffectEvaluation::EvaluateRamp(EffectData, GetEvaluationTime());
+}
+
 void UForceFeedbackEffectRamp::UpdateEffectData()
 {
 	Super::UpdateEffectData();
@@ -22,12 +33,12 @@ void UForceFeedbackEffectRamp::UpdateEffectData()
 	Effect.ramp.fade_level = FForceFeedbackConversion::ToUnsignedLevel(EffectData.EnvelopeData.FadeLevel);
 }
 
-uint32 UForceFeedbackEffectRamp::GetEffectDuration()
+uint32 UForceFeedbackEffectRamp::GetEffectDuration() const
 {
 	return EffectData.DurationData.GetEffectDuration();
 }
 
-uint32 UForceFeedbackEffectRamp::GetEffectDelay()
+uint32 UForceFeedbackEffectRamp::GetEffectDelay() const
 {
 	return FForceFeedbackConversion::SecondsToMilliseconds(EffectData.ReplayData.Delay);
 }

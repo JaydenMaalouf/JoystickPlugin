@@ -3,6 +3,14 @@
 
 #include "ForceFeedback/Effects/ForceFeedbackEffectCustom.h"
 
+void UForceFeedbackEffectCustom::DescribeEffect(FForceFeedbackEffectDebugInfo& OutInfo) const
+{
+	Super::DescribeEffect(OutInfo);
+
+	OutInfo.Kind = TEXT("Custom");
+	OutInfo.FrequencyHz = EffectData.Period > 0.0f ? 1.0f / EffectData.Period : 0.0f;
+}
+
 void UForceFeedbackEffectCustom::UpdateEffectData()
 {
 	Super::UpdateEffectData();
@@ -36,12 +44,12 @@ void UForceFeedbackEffectCustom::UpdateEffectData()
 	Effect.custom.fade_level = FForceFeedbackConversion::ToUnsignedLevel(EffectData.EnvelopeData.FadeLevel);
 }
 
-uint32 UForceFeedbackEffectCustom::GetEffectDuration()
+uint32 UForceFeedbackEffectCustom::GetEffectDuration() const
 {
 	return EffectData.DurationData.GetEffectDuration();
 }
 
-uint32 UForceFeedbackEffectCustom::GetEffectDelay()
+uint32 UForceFeedbackEffectCustom::GetEffectDelay() const
 {
 	return FForceFeedbackConversion::SecondsToMilliseconds(EffectData.ReplayData.Delay);
 }

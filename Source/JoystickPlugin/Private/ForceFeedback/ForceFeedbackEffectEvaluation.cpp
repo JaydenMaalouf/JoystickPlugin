@@ -152,6 +152,14 @@ float FForceFeedbackEffectEvaluation::EvaluateConditionMotion(const FForceFeedba
 	return 0.0f;
 }
 
+bool FForceFeedbackEffectEvaluation::GetIterationProgress(const int64 ElapsedMilliseconds, const int64 DelayMilliseconds, const int64 DurationMilliseconds, const int64 Iterations, int64& OutIteration, int64& OutPassMilliseconds)
+{
+	const int64 ActiveTime = FMath::Max<int64>(ElapsedMilliseconds - DelayMilliseconds, 0);
+	OutIteration = ActiveTime / DurationMilliseconds + 1;
+	OutPassMilliseconds = ActiveTime % DurationMilliseconds;
+	return OutIteration <= Iterations;
+}
+
 float FForceFeedbackEffectEvaluation::EvaluateLeftRight(const FForceFeedbackEffectLeftRightData& EffectData, const float TimeSeconds)
 {
 	if (TimeSeconds < 0.0f || (!EffectData.DurationData.InfiniteDuration && TimeSeconds > EffectData.DurationData.Duration))

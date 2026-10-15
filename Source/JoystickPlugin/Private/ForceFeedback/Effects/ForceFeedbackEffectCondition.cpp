@@ -4,6 +4,16 @@
 #include "ForceFeedback/Effects/ForceFeedbackEffectCondition.h"
 #include "ForceFeedback/Types/ForceFeedbackConditionEffectType.h"
 
+void UForceFeedbackEffectCondition::DescribeEffect(FForceFeedbackEffectDebugInfo& OutInfo) const
+{
+	Super::DescribeEffect(OutInfo);
+
+	OutInfo.Kind = FName(*StaticEnum<EForceFeedbackConditionEffectType>()->GetNameStringByValue(static_cast<int64>(EffectData.EffectType)));
+	OutInfo.IsCondition = true;
+	OutInfo.Values.Emplace(TEXT("left"), EffectData.LeftCoefficient.X);
+	OutInfo.Values.Emplace(TEXT("right"), EffectData.RightCoefficient.X);
+}
+
 void UForceFeedbackEffectCondition::UpdateEffectData()
 {
 	Super::UpdateEffectData();
@@ -58,12 +68,12 @@ void UForceFeedbackEffectCondition::UpdateEffectData()
 	Effect.condition.center[2] = FForceFeedbackConversion::ToSignedLevel(EffectData.Center.Z);
 }
 
-uint32 UForceFeedbackEffectCondition::GetEffectDuration()
+uint32 UForceFeedbackEffectCondition::GetEffectDuration() const
 {
 	return EffectData.DurationData.GetEffectDuration();
 }
 
-uint32 UForceFeedbackEffectCondition::GetEffectDelay()
+uint32 UForceFeedbackEffectCondition::GetEffectDelay() const
 {
 	return FForceFeedbackConversion::SecondsToMilliseconds(EffectData.ReplayData.Delay);
 }

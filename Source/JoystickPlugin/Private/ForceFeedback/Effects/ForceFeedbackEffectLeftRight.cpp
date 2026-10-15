@@ -3,6 +3,17 @@
 
 #include "ForceFeedback/Effects/ForceFeedbackEffectLeftRight.h"
 
+#include "ForceFeedback/ForceFeedbackEffectEvaluation.h"
+
+void UForceFeedbackEffectLeftRight::DescribeEffect(FForceFeedbackEffectDebugInfo& OutInfo) const
+{
+	Super::DescribeEffect(OutInfo);
+
+	OutInfo.Kind = TEXT("LeftRight");
+	OutInfo.Level = FMath::Max(EffectData.LargeMagnitude, EffectData.SmallMagnitude);
+	OutInfo.EvaluatedLevel = FForceFeedbackEffectEvaluation::EvaluateLeftRight(EffectData, GetEvaluationTime());
+}
+
 void UForceFeedbackEffectLeftRight::UpdateEffectData()
 {
 	Super::UpdateEffectData();
@@ -15,7 +26,7 @@ void UForceFeedbackEffectLeftRight::UpdateEffectData()
 	Effect.leftright.small_magnitude = FForceFeedbackConversion::ToUnsignedLevel(EffectData.SmallMagnitude);
 }
 
-uint32 UForceFeedbackEffectLeftRight::GetEffectDuration()
+uint32 UForceFeedbackEffectLeftRight::GetEffectDuration() const
 {
 	return EffectData.DurationData.GetEffectDuration();
 }

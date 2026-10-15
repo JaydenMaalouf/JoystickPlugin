@@ -280,13 +280,14 @@ void SHapticEffectEditor::Tick(const FGeometry& AllottedGeometry, const double I
 	}
 
 	// The graph shows the delay then a single pass, so the playhead crosses the delay once, sweeps the pass once per iteration and stops after the last one.
-	const int64 ActiveTime = FMath::Max<int64>(ElapsedTime - Delay, 0);
 	const int64 Iterations = DeviceEffect->GetRunIterations();
-	const int64 ElapsedIteration = ActiveTime / Duration + 1;
-	if (!bLoop && (!DeviceEffect->IsEffectRunning() || ElapsedIteration > Iterations))
+	int64 ElapsedIteration;
+	int64 PassTime;
+	const bool IsIterationPlaying = FForceFeedbackEffectEvaluation::GetIterationProgress(ElapsedTime, Delay, Duration, Iterations, ElapsedIteration, PassTime);
+	if (!bLoop && (!DeviceEffect->IsEffectRunning() || !IsIterationPlaying))
 	{
 		// A stopped device effect reports no elapsed time, so the last ticked value stands unless every iteration ran.
-		if (ElapsedIteration > Iterations)
+		if (!IsIterationPlaying)
 		{
 			ElapsedTimeMilliseconds = Delay + Duration * Iterations;
 		}
@@ -296,7 +297,7 @@ void SHapticEffectEditor::Tick(const FGeometry& AllottedGeometry, const double I
 		return;
 	}
 
-	PlayheadTimeMilliseconds = FMath::Min(ElapsedTime, Delay) + ActiveTime % Duration;
+	PlayheadTimeMilliseconds = FMath::Min(ElapsedTime, Delay) + PassTime;
 	ElapsedTimeMilliseconds = ElapsedTime;
 	CurrentIteration = ElapsedIteration;
 }

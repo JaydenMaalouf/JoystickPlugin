@@ -17,10 +17,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Force Feedback")
 	FForceFeedbackEffectCustomData EffectData;
 
+	virtual void DescribeEffect(FForceFeedbackEffectDebugInfo& OutInfo) const override;
+	virtual uint32 GetEffectDuration() const override;
+	virtual uint32 GetEffectDelay() const override;
+
 protected:
 	virtual void UpdateEffectData() override;
-	virtual uint32 GetEffectDuration() override;
-	virtual uint32 GetEffectDelay() override;
 
 private:
 	// Backing storage for Effect.custom.data, always holds channels * samples entries.

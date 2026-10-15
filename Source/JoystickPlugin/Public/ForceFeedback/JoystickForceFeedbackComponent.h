@@ -17,6 +17,7 @@
 class UForceFeedbackEffectBase;
 class UForceFeedbackEffectGroup;
 class FJoystickForceFeedbackSubstepCallback;
+struct FForceFeedbackEffectDebugInfo;
 struct FForceFeedbackEffectGroupEntry;
 struct FJoystickHapticInformation;
 
@@ -86,6 +87,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Joystick|Force Feedback Component")
 	void StopEffectByTag(const FGameplayTag EffectTag);
+
+	// Describes every initialised effect under the effects lock, so it is safe while the effects tick on the physics thread.
+	void DescribeEffects(TArray<FForceFeedbackEffectDebugInfo>& OutInfos) const;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Force Feedback", meta=(ToolTip="InstanceId of the Joystick to apply the effect to. Set to -1 to apply to all devices that support this effect type"))
 	FJoystickInstanceId InstanceId;

@@ -2,7 +2,19 @@
 // Copyright Jayden Maalouf 2026. All Rights Reserved.
 
 #include "ForceFeedback/Effects/ForceFeedbackEffectPeriodic.h"
+
+#include "ForceFeedback/ForceFeedbackEffectEvaluation.h"
 #include "ForceFeedback/Types/ForceFeedbackPeriodicEffectType.h"
+
+void UForceFeedbackEffectPeriodic::DescribeEffect(FForceFeedbackEffectDebugInfo& OutInfo) const
+{
+	Super::DescribeEffect(OutInfo);
+
+	OutInfo.Kind = FName(*StaticEnum<EForceFeedbackPeriodicEffectType>()->GetNameStringByValue(static_cast<int64>(EffectData.EffectType)));
+	OutInfo.Level = EffectData.Magnitude;
+	OutInfo.FrequencyHz = EffectData.Period > 0.0f ? 1.0f / EffectData.Period : 0.0f;
+	OutInfo.EvaluatedLevel = FForceFeedbackEffectEvaluation::EvaluatePeriodic(EffectData, GetEvaluationTime());
+}
 
 void UForceFeedbackEffectPeriodic::UpdateEffectData()
 {
@@ -54,12 +66,12 @@ void UForceFeedbackEffectPeriodic::UpdateEffectData()
 	Effect.periodic.fade_level = FForceFeedbackConversion::ToUnsignedLevel(EffectData.EnvelopeData.FadeLevel);
 }
 
-uint32 UForceFeedbackEffectPeriodic::GetEffectDuration()
+uint32 UForceFeedbackEffectPeriodic::GetEffectDuration() const
 {
 	return EffectData.DurationData.GetEffectDuration();
 }
 
-uint32 UForceFeedbackEffectPeriodic::GetEffectDelay()
+uint32 UForceFeedbackEffectPeriodic::GetEffectDelay() const
 {
 	return FForceFeedbackConversion::SecondsToMilliseconds(EffectData.ReplayData.Delay);
 }

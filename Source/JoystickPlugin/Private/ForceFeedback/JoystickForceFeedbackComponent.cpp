@@ -682,6 +682,20 @@ void UJoystickForceFeedbackComponent::StopEffectByTag(const FGameplayTag EffectT
 	}
 }
 
+void UJoystickForceFeedbackComponent::DescribeEffects(TArray<FForceFeedbackEffectDebugInfo>& OutInfos) const
+{
+	FScopeLock EffectsLock(&EffectsCriticalSection);
+	for (const UForceFeedbackEffectBase* Effect : Effects)
+	{
+		if (!IsValid(Effect) || !Effect->IsInitialised)
+		{
+			continue;
+		}
+
+		Effect->DescribeEffect(OutInfos.AddDefaulted_GetRef());
+	}
+}
+
 void UJoystickForceFeedbackComponent::JoystickPluggedIn(const FJoystickInstanceId& JoystickInstanceId)
 {
 	CreateInstanceEffect(JoystickInstanceId);

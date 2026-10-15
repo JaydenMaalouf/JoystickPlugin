@@ -8,6 +8,7 @@
 #include "Data/JoystickInstanceId.h"
 #include "ForceFeedback/JoystickForceFeedbackComponent.h"
 #include "ForceFeedback/Data/Configuration/ForceFeedbackEffectConfiguration.h"
+#include "ForceFeedback/Debug/ForceFeedbackEffectDebugInfo.h"
 
 THIRD_PARTY_INCLUDES_START
 #include "JoystickSDL.h"
@@ -128,6 +129,17 @@ public:
 
 	virtual bool IsEffectValid();
 
+	// Fills in what the debug overlay shows for this effect. Called by the overlay under the owning component's effects lock.
+	virtual void DescribeEffect(FForceFeedbackEffectDebugInfo& OutInfo) const;
+
+	// Shows a value on this effect's row in the debug overlay, replacing any earlier value with the same name.
+	UFUNCTION(BlueprintCallable, Category="Force Feedback|Debug", meta=(DevelopmentOnly))
+	void AddDebugValue(const FName Name, const float Value);
+
+	// Shows a piece of text, such as a surface name, on this effect's row in the debug overlay.
+	UFUNCTION(BlueprintCallable, Category="Force Feedback|Debug", meta=(DevelopmentOnly))
+	void AddDebugText(const FName Name, const FName Value);
+
 	template <class T>
 	T* GetOwningActor() const
 	{
@@ -200,25 +212,28 @@ public:
 	FOnDestroyedEffect OnDestroyedEffectDelegate;
 
 	// The length of a single iteration in milliseconds, or SDL_HAPTIC_INFINITY.
-	virtual uint32 GetEffectDuration();
+	virtual uint32 GetEffectDuration() const;
 
 	// The wait in milliseconds between starting the effect and its first iteration playing. Zero for effects with no replay data.
-	virtual uint32 GetEffectDelay();
+	virtual uint32 GetEffectDelay() const;
 
 	// The number of iterations the device is asked to run, or SDL_HAPTIC_INFINITY. Lower than Iterations where the platform limits the total play time.
-	uint32 GetRunIterations();
+	uint32 GetRunIterations() const;
 
 	// The most iterations the platform can play at this effect's duration, or SDL_HAPTIC_INFINITY where it sets no limit.
-	uint32 GetPlatformMaxIterations();
+	uint32 GetPlatformMaxIterations() const;
 
 	// The most iterations worth setting. Only one at an infinite duration, since its first iteration never ends.
-	uint32 GetMaxIterations();
+	uint32 GetMaxIterations() const;
 
 protected:
 	SDL_HapticEffect Effect;
 
 	virtual void CreateEffect();
 	virtual void UpdateEffectData();
+
+	// Seconds into the current iteration, past the start delay, for the FForceFeedbackEffectEvaluation functions. Negative while the effect isn't playing.
+	float GetEvaluationTime() const;
 
 private:
 	// The last frame number we were ticked.
@@ -233,4 +248,19 @@ private:
 	bool ShouldStartWithComponent;
 
 	friend class UJoystickForceFeedbackComponent;
+
+#if !UE_BUILD_SHIPPING
+	template <typename ListType, typename ValueType>
+	static void SetDebugValue(ListType& List, const FName Name, const ValueType& Value);
+
+	void UpdateDebugWriteRate(const float DeltaTime);
+
+	static constexpr float DebugWriteRateWindow = 0.5f;
+
+	FForceFeedbackEffectDebugInfo::FValueList DebugValues;
+	FForceFeedbackEffectDebugInfo::FTextValueList DebugTextValues;
+	uint32 DebugWriteCount;
+	float DebugWriteTime;
+	float DebugWritesPerSecond;
+#endif
 };

@@ -20,4 +20,8 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectEvaluation
 
 	static float EvaluateConditionResponse(const FForceFeedbackEffectConditionData& EffectData, float Input);
 	static float EvaluateConditionMotion(const FForceFeedbackEffectConditionData& EffectData, float Position, float Velocity, float Acceleration);
+
+	// Splits the time since an effect was started into its iteration (from 1) and the time into that iteration's pass, after the start delay.
+	// Returns false once every iteration has played. The duration must be above zero.
+	static bool GetIterationProgress(int64 ElapsedMilliseconds, int64 DelayMilliseconds, int64 DurationMilliseconds, int64 Iterations, int64& OutIteration, int64& OutPassMilliseconds);
 };

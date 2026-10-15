@@ -3,6 +3,17 @@
 
 #include "ForceFeedback/Effects/ForceFeedbackEffectConstant.h"
 
+#include "ForceFeedback/ForceFeedbackEffectEvaluation.h"
+
+void UForceFeedbackEffectConstant::DescribeEffect(FForceFeedbackEffectDebugInfo& OutInfo) const
+{
+	Super::DescribeEffect(OutInfo);
+
+	OutInfo.Kind = TEXT("Constant");
+	OutInfo.Level = EffectData.EffectLevel;
+	OutInfo.EvaluatedLevel = FForceFeedbackEffectEvaluation::EvaluateConstant(EffectData, GetEvaluationTime());
+}
+
 void UForceFeedbackEffectConstant::UpdateEffectData()
 {
 	Super::UpdateEffectData();
@@ -21,12 +32,12 @@ void UForceFeedbackEffectConstant::UpdateEffectData()
 	Effect.constant.fade_level = FForceFeedbackConversion::ToUnsignedLevel(EffectData.EnvelopeData.FadeLevel);
 }
 
-uint32 UForceFeedbackEffectConstant::GetEffectDuration()
+uint32 UForceFeedbackEffectConstant::GetEffectDuration() const
 {
 	return EffectData.DurationData.GetEffectDuration();
 }
 
-uint32 UForceFeedbackEffectConstant::GetEffectDelay()
+uint32 UForceFeedbackEffectConstant::GetEffectDelay() const
 {
 	return FForceFeedbackConversion::SecondsToMilliseconds(EffectData.ReplayData.Delay);
 }

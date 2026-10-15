@@ -5,6 +5,8 @@
 
 #include "Data/JoystickHapticInformation.h"
 #include "Data/JoystickInstanceId.h"
+#include "ForceFeedback/ForceFeedbackEffectEvaluation.h"
+#include "ForceFeedback/Debug/ForceFeedbackDebugOverlay.h"
 #include "GameFramework/Actor.h"
 #include "JoystickFunctionLibrary.h"
 #include "Managers/JoystickHapticDeviceManager.h"
@@ -33,6 +35,11 @@ UForceFeedbackEffectBase::UForceFeedbackEffectBase(const FObjectInitializer& Obj
 	  , TimeAccumulator(0)
 	  , EffectRunning(false)
 	  , ShouldStartWithComponent(true)
+#if !UE_BUILD_SHIPPING
+	  , DebugWriteCount(0)
+	  , DebugWriteTime(0.0f)
+	  , DebugWritesPerSecond(0.0f)
+#endif
 {
 }
 
@@ -275,6 +282,10 @@ void UForceFeedbackEffectBase::UpdateEffect()
 		return;
 	}
 
+#if !UE_BUILD_SHIPPING
+	DebugWriteCount++;
+#endif
+
 	//Safety check to ensure we don't try calling BP during destruction
 	if (IsValidChecked(this) == false || this->IsUnreachable())
 	{
@@ -321,6 +332,10 @@ void UForceFeedbackEffectBase::TickEffect(const float DeltaTime)
 	{
 		UpdateEffect();
 	}
+
+#if !UE_BUILD_SHIPPING
+	UpdateDebugWriteRate(DeltaTime);
+#endif
 
 	// Effect should be finished but sometimes SDL doesn't handle the status correctly.
 	if (ForceStopAfterDurationLapsed)
@@ -465,17 +480,85 @@ bool UForceFeedbackEffectBase::IsEffectValid()
 	return GetEffectDuration() != 0;
 }
 
-uint32 UForceFeedbackEffectBase::GetEffectDuration()
+void UForceFeedbackEffectBase::DescribeEffect(FForceFeedbackEffectDebugInfo& OutInfo) const
+{
+	OutInfo.Effect = FObjectKey(this);
+	OutInfo.Label = EffectName.IsNone() ? GetClass()->GetName() : EffectName.ToString();
+	if (GroupTag.IsValid())
+	{
+		OutInfo.Label = FString::Printf(TEXT("%s / %s"), *GroupTag.ToString(), *OutInfo.Label);
+	}
+	OutInfo.InstanceId = InstanceId;
+	OutInfo.IsRunning = EffectRunning;
+
+#if !UE_BUILD_SHIPPING
+	OutInfo.WritesPerSecond = DebugWritesPerSecond;
+	OutInfo.Values = DebugValues;
+	OutInfo.TextValues = DebugTextValues;
+#endif
+}
+
+void UForceFeedbackEffectBase::AddDebugValue(const FName Name, const float Value)
+{
+#if !UE_BUILD_SHIPPING
+	if (FForceFeedbackDebugOverlay::IsEnabled())
+	{
+		SetDebugValue(DebugValues, Name, Value);
+	}
+#endif
+}
+
+void UForceFeedbackEffectBase::AddDebugText(const FName Name, const FName Value)
+{
+#if !UE_BUILD_SHIPPING
+	if (FForceFeedbackDebugOverlay::IsEnabled())
+	{
+		SetDebugValue(DebugTextValues, Name, Value);
+	}
+#endif
+}
+
+#if !UE_BUILD_SHIPPING
+template <typename ListType, typename ValueType>
+void UForceFeedbackEffectBase::SetDebugValue(ListType& List, const FName Name, const ValueType& Value)
+{
+	for (TPair<FName, ValueType>& Entry : List)
+	{
+		if (Entry.Key == Name)
+		{
+			Entry.Value = Value;
+			return;
+		}
+	}
+
+	List.Emplace(Name, Value);
+}
+
+void UForceFeedbackEffectBase::UpdateDebugWriteRate(const float DeltaTime)
+{
+	DebugWriteTime += DeltaTime;
+	if (DebugWriteTime < DebugWriteRateWindow)
+	{
+		return;
+	}
+
+	DebugWritesPerSecond = DebugWriteCount / DebugWriteTime;
+	DebugWriteCount = 0;
+	DebugWriteTime = 0.0f;
+}
+#endif
+
+uint32 UForceFeedbackEffectBase::GetEffectDuration() const
 {
 	return -1;
 }
 
-uint32 UForceFeedbackEffectBase::GetEffectDelay()
+uint32 UForceFeedbackEffectBase::GetEffectDelay() const
 {
 	return 0;
 }
 
-uint32 UForceFeedbackEffectBase::GetRunIterations()
+uint32 UForceFeedbackEffectBase::GetRunIterations() const
 {
 	if (InfiniteIterations)
 	{
@@ -491,12 +574,12 @@ uint32 UForceFeedbackEffectBase::GetRunIterations()
 	return FMath::Min(RunIterations, GetPlatformMaxIterations());
 }
 
-uint32 UForceFeedbackEffectBase::GetPlatformMaxIterations()
+uint32 UForceFeedbackEffectBase::GetPlatformMaxIterations() const
 {
 	return SDL_HAPTIC_INFINITY;
 }
 
-uint32 UForceFeedbackEffectBase::GetMaxIterations()
+uint32 UForceFeedbackEffectBase::GetMaxIterations() const
 {
 	return GetEffectDuration() == SDL_HAPTIC_INFINITY ? 1 : GetPlatformMaxIterations();
 }
@@ -509,4 +592,29 @@ void UForceFeedbackEffectBase::CreateEffect()
 
 void UForceFeedbackEffectBase::UpdateEffectData()
 {
+}
+
+float UForceFeedbackEffectBase::GetEvaluationTime() const
+{
+	const int64 ElapsedTime = static_cast<int64>(GetElapsedTimeMilliseconds());
+	const int64 Delay = GetEffectDelay();
+	if (!EffectRunning || ElapsedTime < Delay)
+	{
+		return -1.0f;
+	}
+
+	const uint32 Duration = GetEffectDuration();
+	if (Duration == SDL_HAPTIC_INFINITY || Duration == 0)
+	{
+		return (ElapsedTime - Delay) / 1000.0f;
+	}
+
+	int64 Iteration;
+	int64 PassTime;
+	if (!FForceFeedbackEffectEvaluation::GetIterationProgress(ElapsedTime, Delay, Duration, GetRunIterations(), Iteration, PassTime))
+	{
+		return -1.0f;
+	}
+
+	return PassTime / 1000.0f;
 }
