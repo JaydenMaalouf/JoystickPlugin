@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "Misc/EnumRange.h"
+
 #include "ForceFeedbackPeriodicEffectType.generated.h"
 
 UENUM(BlueprintType)
@@ -14,3 +16,5 @@ enum class EForceFeedbackPeriodicEffectType : uint8
 	SawtoothDown,
 	Square
 };
+
+ENUM_RANGE_BY_FIRST_AND_LAST(EForceFeedbackPeriodicEffectType, EForceFeedbackPeriodicEffectType::Sine, EForceFeedbackPeriodicEffectType::Square);

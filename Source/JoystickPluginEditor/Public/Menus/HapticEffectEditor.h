@@ -47,6 +47,7 @@ public:
 	virtual bool MatchesContext(const FTransactionContext& InContext, const TArray<TPair<UObject*, FTransactionObjectEvent>>& TransactionObjectContexts) const override;
 	virtual void PostUndo(bool bSuccess) override;
 	virtual void PostRedo(bool bSuccess) override;
+	void PostEdit(bool bSuccess);
 	// End FEditorUndoClient Interface.
 
 	// Whether the asset is an effect Blueprint or effect group this editor could open, judged without loading it.
@@ -80,7 +81,7 @@ private:
 	bool IsWaveformSupported(EForceFeedbackPeriodicEffectType WaveformType) const;
 	bool IsConditionTypeSupported(EForceFeedbackConditionEffectType ConditionType) const;
 	bool IsPreviewEffectSupported() const;
-
+	void UpdatePreviewEffectSupported();
 	void SetEffectKind(EHapticPreviewEffectKind NewKind);
 	void RebuildPreviewEffect(const UForceFeedbackEffectBase* InitialValues = nullptr);
 	void DestroyPreviewEffect();
@@ -146,6 +147,14 @@ private:
 
 	// The selected device's supported effect types, read once per device change rather than on every paint. Unset while no device is selected.
 	TOptional<FJoystickHapticInformation> SelectedHapticInformation;
+
+	// What the selected device can't play, polled by the toolbar selectors every paint, so only rebuilt when the device changes. Empty while no device is selected.
+	TSet<EHapticPreviewEffectKind> UnsupportedEffectKinds;
+	TSet<EForceFeedbackPeriodicEffectType> UnsupportedWaveforms;
+	TSet<EForceFeedbackConditionEffectType> UnsupportedConditionTypes;
+
+	// Whether the selected device supports the authored effect. Polled by the transport bar every paint, so only re-checked when the device or effect type changes.
+	bool bPreviewEffectSupported = true;
 
 	EHapticPreviewEffectKind EffectKind = EHapticPreviewEffectKind::Periodic;
 

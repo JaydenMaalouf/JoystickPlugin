@@ -126,6 +126,8 @@ public:
 	// Builds the effect data to work out its type, then checks it against the effect types the device supports.
 	bool IsSupportedByDevice(const FJoystickHapticInformation& HapticInformation);
 
+	virtual bool IsEffectValid();
+
 	template <class T>
 	T* GetOwningActor() const
 	{

@@ -30,7 +30,7 @@ struct JOYSTICKPLUGIN_API FForceFeedbackEffectDurationData
 	}
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|Duration",
-		meta=(Units="Seconds", ShortToolTip="Duration", ToolTip="The duration of the effect.", UIMin="0", UIMax="4294.967", ClampMin="0", ClampMax="4294.967", EditCondition="!InfiniteDuration"))
+		meta=(Units="Seconds", ShortToolTip="Duration", ToolTip="The duration of the effect.", UIMin="0.001", UIMax="4294.967", ClampMin="0.001", ClampMax="4294.967", EditCondition="!InfiniteDuration"))
 	float Duration;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Joystick|Force Feedback|Duration", meta=(ShortToolTip="Infinite Duration", ToolTip="Whether the effect should run infinitely."))

@@ -303,7 +303,6 @@ void SHapticEffectEditor::Tick(const FGeometry& AllottedGeometry, const double I
 
 bool SHapticEffectEditor::SupportsKeyboardFocus() const
 {
-	// Lets a click on the panel take keyboard focus, so the spacebar shortcut works without clicking the graph first.
 	return true;
 }
 
@@ -349,6 +348,42 @@ FReply SHapticEffectEditor::OnKeyDown(const FGeometry& MyGeometry, const FKeyEve
 	return SCompoundWidget::OnKeyDown(MyGeometry, InKeyEvent);
 }
 
+// Limits undo handling to transactions that touch the authored effect.
+bool SHapticEffectEditor::MatchesContext(const FTransactionContext& InContext, const TArray<TPair<UObject*, FTransactionObjectEvent>>& TransactionObjectContexts) const
+{
+	return TransactionObjectContexts.ContainsByPredicate([this](const TPair<UObject*, FTransactionObjectEvent>& TransactionObjectContext)
+	{
+		return TransactionObjectContext.Key == PreviewEffect.Get();
+	});
+}
+
+void SHapticEffectEditor::PostUndo(const bool bSuccess)
+{
+	PostEdit(bSuccess);
+}
+
+void SHapticEffectEditor::PostRedo(const bool bSuccess)
+{
+	PostEdit(bSuccess);
+}
+
+void SHapticEffectEditor::PostEdit(const bool bSuccess)
+{
+	if (!bSuccess || !PreviewEffect.IsValid())
+	{
+		return;
+	}
+
+	// The changed property isn't known here, so resync Loop and support, and restart a playing effect.
+	bLoop = PreviewEffect->InfiniteIterations;
+	UpdatePreviewEffectSupported();
+
+	if (bIsPlaying)
+	{
+		OnPlayClicked();
+	}
+}
+
 TSharedPtr<FJoystickInstanceId> SHapticEffectEditor::GetSelectedJoystick() const
 {
 	return DevicePicker.IsValid() ? DevicePicker->GetSelectedJoystick() : nullptr;
@@ -365,6 +400,9 @@ void SHapticEffectEditor::OnDeviceChanged()
 void SHapticEffectEditor::UpdateSelectedHapticInformation()
 {
 	SelectedHapticInformation.Reset();
+	UnsupportedEffectKinds.Reset();
+	UnsupportedWaveforms.Reset();
+	UnsupportedConditionTypes.Reset();
 
 	const TSharedPtr<FJoystickInstanceId> SelectedJoystick = GetSelectedJoystick();
 	UJoystickSubsystem* JoystickSubsystem = GEngine ? GEngine->GetEngineSubsystem<UJoystickSubsystem>() : nullptr;
@@ -374,31 +412,62 @@ void SHapticEffectEditor::UpdateSelectedHapticInformation()
 	}
 
 	FJoystickInformation JoystickInfo;
-	if (JoystickSubsystem->GetJoystickInfo(*SelectedJoystick, JoystickInfo))
+	if (!JoystickSubsystem->GetJoystickInfo(*SelectedJoystick, JoystickInfo))
 	{
-		SelectedHapticInformation = JoystickInfo.Haptic;
+		return;
+	}
+
+	SelectedHapticInformation = JoystickInfo.Haptic;
+
+	for (const EHapticPreviewEffectKind Kind : TEnumRange<EHapticPreviewEffectKind>())
+	{
+		if (!FHapticEffectEditorProperties::IsEffectKindSupported(Kind, JoystickInfo.Haptic))
+		{
+			UnsupportedEffectKinds.Add(Kind);
+		}
+	}
+
+	for (const EForceFeedbackPeriodicEffectType WaveformType : TEnumRange<EForceFeedbackPeriodicEffectType>())
+	{
+		if (!FHapticEffectEditorProperties::IsWaveformSupported(WaveformType, JoystickInfo.Haptic))
+		{
+			UnsupportedWaveforms.Add(WaveformType);
+		}
+	}
+
+	for (const EForceFeedbackConditionEffectType ConditionType : TEnumRange<EForceFeedbackConditionEffectType>())
+	{
+		if (!FHapticEffectEditorProperties::IsConditionTypeSupported(ConditionType, JoystickInfo.Haptic))
+		{
+			UnsupportedConditionTypes.Add(ConditionType);
+		}
 	}
 }
 
 bool SHapticEffectEditor::IsEffectKindSupported(const EHapticPreviewEffectKind Kind) const
 {
-	return !SelectedHapticInformation.IsSet() || FHapticEffectEditorProperties::IsEffectKindSupported(Kind, SelectedHapticInformation.GetValue());
+	return !UnsupportedEffectKinds.Contains(Kind);
 }
 
 bool SHapticEffectEditor::IsWaveformSupported(const EForceFeedbackPeriodicEffectType WaveformType) const
 {
-	return !SelectedHapticInformation.IsSet() || FHapticEffectEditorProperties::IsWaveformSupported(WaveformType, SelectedHapticInformation.GetValue());
+	return !UnsupportedWaveforms.Contains(WaveformType);
 }
 
 bool SHapticEffectEditor::IsConditionTypeSupported(const EForceFeedbackConditionEffectType ConditionType) const
 {
-	return !SelectedHapticInformation.IsSet() || FHapticEffectEditorProperties::IsConditionTypeSupported(ConditionType, SelectedHapticInformation.GetValue());
+	return !UnsupportedConditionTypes.Contains(ConditionType);
 }
 
 bool SHapticEffectEditor::IsPreviewEffectSupported() const
 {
+	return bPreviewEffectSupported;
+}
+
+void SHapticEffectEditor::UpdatePreviewEffectSupported()
+{
 	// Checked against the authored effect rather than its kind, so an unsupported waveform or condition type also counts.
-	return !SelectedHapticInformation.IsSet() || !PreviewEffect.IsValid() || PreviewEffect->IsSupportedByDevice(SelectedHapticInformation.GetValue());
+	bPreviewEffectSupported = !SelectedHapticInformation.IsSet() || !PreviewEffect.IsValid() || PreviewEffect->IsSupportedByDevice(SelectedHapticInformation.GetValue());
 }
 
 void SHapticEffectEditor::SetEffectKind(const EHapticPreviewEffectKind NewKind)
@@ -453,6 +522,8 @@ void SHapticEffectEditor::RebuildPreviewEffect(const UForceFeedbackEffectBase* I
 	{
 		DetailsView->SetObject(PreviewEffect.Get());
 	}
+
+	UpdatePreviewEffectSupported();
 
 	// Reset the view to the default window rather than keeping the previous effect's pan/zoom.
 	if (EffectGraph.IsValid())
@@ -514,6 +585,8 @@ void SHapticEffectEditor::OnPropertiesChanged(const FPropertyChangedEvent& Prope
 
 void SHapticEffectEditor::RecreateDeviceEffect()
 {
+	UpdatePreviewEffectSupported();
+
 	if (!DeviceEffect.IsValid() || !DeviceEffect->IsInitialised)
 	{
 		return;
@@ -523,6 +596,12 @@ void SHapticEffectEditor::RecreateDeviceEffect()
 
 	DeviceEffect->StopEffect();
 	DeviceEffect->DestroyEffect();
+
+	if (!IsPreviewEffectSupported())
+	{
+		bIsPlaying = false;
+		return;
+	}
 
 	SyncDeviceEffect();
 	if (!DeviceEffect->InitialiseEffect())
@@ -535,53 +614,6 @@ void SHapticEffectEditor::RecreateDeviceEffect()
 	{
 		bIsPlaying = StartPreviewEffect();
 	}
-}
-
-void SHapticEffectEditor::SyncDeviceEffect()
-{
-	if (PreviewEffect.IsValid() && DeviceEffect.IsValid())
-	{
-		FHapticEffectEditorProperties::CopyAuthoredProperties(PreviewEffect.Get(), DeviceEffect.Get(), PreviewEffect->GetClass());
-	}
-}
-
-bool SHapticEffectEditor::StartPreviewEffect()
-{
-	// The preview plays the authored number of iterations unless looping.
-	DeviceEffect->InfiniteIterations = bLoop;
-	CurrentIteration = 1;
-
-	return DeviceEffect->StartEffect();
-}
-
-// Limits undo handling to transactions that touch the authored effect.
-bool SHapticEffectEditor::MatchesContext(const FTransactionContext& InContext, const TArray<TPair<UObject*, FTransactionObjectEvent>>& TransactionObjectContexts) const
-{
-	return TransactionObjectContexts.ContainsByPredicate([this](const TPair<UObject*, FTransactionObjectEvent>& TransactionObjectContext)
-	{
-		return TransactionObjectContext.Key == PreviewEffect.Get();
-	});
-}
-
-void SHapticEffectEditor::PostUndo(const bool bSuccess)
-{
-	if (!bSuccess || !PreviewEffect.IsValid())
-	{
-		return;
-	}
-
-	// The changed property isn't known here, so resync Loop and restart a playing effect.
-	bLoop = PreviewEffect->InfiniteIterations;
-
-	if (bIsPlaying)
-	{
-		OnPlayClicked();
-	}
-}
-
-void SHapticEffectEditor::PostRedo(const bool bSuccess)
-{
-	PostUndo(bSuccess);
 }
 
 bool SHapticEffectEditor::IsPropertyVisible(const FPropertyAndParent& PropertyAndParent) const
@@ -666,6 +698,23 @@ FReply SHapticEffectEditor::OnLoopClicked()
 	return FReply::Handled();
 }
 
+void SHapticEffectEditor::SyncDeviceEffect()
+{
+	if (PreviewEffect.IsValid() && DeviceEffect.IsValid())
+	{
+		FHapticEffectEditorProperties::CopyAuthoredProperties(PreviewEffect.Get(), DeviceEffect.Get(), PreviewEffect->GetClass());
+	}
+}
+
+bool SHapticEffectEditor::StartPreviewEffect()
+{
+	// The preview plays the authored number of iterations unless looping.
+	DeviceEffect->InfiniteIterations = bLoop;
+	CurrentIteration = 1;
+
+	return DeviceEffect->StartEffect();
+}
+
 void SHapticEffectEditor::OnGraphScrubbed(const float TimeMilliseconds)
 {
 	// Scrubbing only seeks the graph (SDL can't sample an effect at an arbitrary time) and ends playback, so stop the device effect too.
@@ -738,30 +787,6 @@ float SHapticEffectEditor::EvaluateConditionMotion(const FHapticConditionMotion&
 	return 0.0f;
 }
 
-TOptional<FAxisData> SHapticEffectEditor::GetPreviewAxis() const
-{
-	if (!IsValid(GEngine))
-	{
-		return TOptional<FAxisData>();
-	}
-
-	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
-	const TSharedPtr<FJoystickInstanceId> SelectedJoystick = GetSelectedJoystick();
-	if (!IsValid(JoystickSubsystem) || !SelectedJoystick.IsValid() || !DevicePreviewPanel.IsValid())
-	{
-		return TOptional<FAxisData>();
-	}
-
-	const int32 AxisIndex = DevicePreviewPanel->GetPreviewAxisIndex();
-	FJoystickDeviceState JoystickState;
-	if (!JoystickSubsystem->GetJoystickState(*SelectedJoystick, JoystickState) || !JoystickState.Axes.IsValidIndex(AxisIndex))
-	{
-		return TOptional<FAxisData>();
-	}
-
-	return JoystickState.Axes[AxisIndex];
-}
-
 void SHapticEffectEditor::UpdateConditionLiveMotion()
 {
 	// Read from the device here rather than taken from the preview panel, which ticks after this widget and would still hold last frame's position.
@@ -828,6 +853,30 @@ void SHapticEffectEditor::UpdateConditionLiveMotion()
 	}
 
 	ConditionLiveMotion = Motion;
+}
+
+TOptional<FAxisData> SHapticEffectEditor::GetPreviewAxis() const
+{
+	if (!IsValid(GEngine))
+	{
+		return TOptional<FAxisData>();
+	}
+
+	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
+	const TSharedPtr<FJoystickInstanceId> SelectedJoystick = GetSelectedJoystick();
+	if (!IsValid(JoystickSubsystem) || !SelectedJoystick.IsValid() || !DevicePreviewPanel.IsValid())
+	{
+		return TOptional<FAxisData>();
+	}
+
+	const int32 AxisIndex = DevicePreviewPanel->GetPreviewAxisIndex();
+	FJoystickDeviceState JoystickState;
+	if (!JoystickSubsystem->GetJoystickState(*SelectedJoystick, JoystickState) || !JoystickState.Axes.IsValidIndex(AxisIndex))
+	{
+		return TOptional<FAxisData>();
+	}
+
+	return JoystickState.Axes[AxisIndex];
 }
 
 bool SHapticEffectEditor::IsPreviewDurationInfinite() const

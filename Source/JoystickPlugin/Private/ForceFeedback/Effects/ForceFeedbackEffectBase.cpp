@@ -146,6 +146,12 @@ bool UForceFeedbackEffectBase::StartEffect()
 		return true;
 	}
 
+	if (!IsEffectValid())
+	{
+		FJoystickLogManager::Get()->LogError(TEXT("UForceFeedbackEffectBase::StartEffect: Effect is invalid and won't be started"));
+		return false;
+	}
+
 	const UJoystickHapticDeviceManager* HapticDeviceManager = GetDefault<UJoystickHapticDeviceManager>();
 	if (!IsValid(HapticDeviceManager))
 	{
@@ -452,6 +458,11 @@ bool UForceFeedbackEffectBase::IsSupportedByDevice(const FJoystickHapticInformat
 			// Not a type we track support for, let SDL decide when the effect is created.
 			return true;
 	}
+}
+
+bool UForceFeedbackEffectBase::IsEffectValid()
+{
+	return GetEffectDuration() != 0;
 }
 
 uint32 UForceFeedbackEffectBase::GetEffectDuration()
