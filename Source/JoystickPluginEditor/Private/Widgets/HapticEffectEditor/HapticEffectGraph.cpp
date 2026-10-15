@@ -1,7 +1,7 @@
 // JoystickPlugin is licensed under the MIT License.
 // Copyright Jayden Maalouf 2026. All Rights Reserved.
 
-#include "Widgets/HapticEffectGraph.h"
+#include "Widgets/HapticEffectEditor/HapticEffectGraph.h"
 
 #include "CurveEditor.h"
 #include "CurveEditorCommands.h"
@@ -11,7 +11,7 @@
 #include "Framework/Commands/UICommandList.h"
 #include "Runtime/Launch/Resources/Version.h"
 #include "Styling/AppStyle.h"
-#include "Widgets/HapticGraphPlayhead.h"
+#include "Widgets/HapticEffectEditor/HapticGraphPlayhead.h"
 #include "Widgets/SBoxPanel.h"
 #include "Widgets/SOverlay.h"
 #include "Widgets/Layout/SBorder.h"
@@ -155,8 +155,7 @@ FGeometry SHapticEffectGraph::GetViewGeometry() const
 	if (CurveEditorPanel.IsValid())
 	{
 		FCurveModelID CurveModelID = HapticCurveModelID;
-		auto It = CurveEditorPanel->FindViews(CurveModelID);
-		if (It)
+		if (const auto It = CurveEditorPanel->FindViews(CurveModelID))
 		{
 			return It.Value()->GetCachedGeometry();
 		}

@@ -1,7 +1,7 @@
 // JoystickPlugin is licensed under the MIT License.
 // Copyright Jayden Maalouf 2026. All Rights Reserved.
 
-#include "Widgets/HapticTransportBar.h"
+#include "Widgets/HapticEffectEditor/HapticTransportBar.h"
 
 #include "Styling/AppStyle.h"
 #include "Widgets/SBoxPanel.h"

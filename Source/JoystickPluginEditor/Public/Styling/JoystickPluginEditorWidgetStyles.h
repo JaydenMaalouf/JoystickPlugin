@@ -7,7 +7,7 @@
 #include "Styling/SlateWidgetStyle.h"
 
 // The time and condition graphs, the playhead overlays and the Curve Editor's curve.
-struct FHapticGraphStyle : public FSlateWidgetStyle
+struct FHapticGraphStyle : FSlateWidgetStyle
 {
 	FHapticGraphStyle();
 
@@ -33,7 +33,7 @@ struct FHapticGraphStyle : public FSlateWidgetStyle
 };
 
 // The Haptic Effect Editor's toggle buttons: effect type, waveform and condition type.
-struct FHapticToggleStyle : public FSlateWidgetStyle
+struct FHapticToggleStyle : FSlateWidgetStyle
 {
 	FHapticToggleStyle();
 
@@ -56,7 +56,7 @@ struct FHapticToggleStyle : public FSlateWidgetStyle
 	FLinearColor UnsupportedForegroundColor;
 };
 
-struct FHapticTransportBarStyle : public FSlateWidgetStyle
+struct FHapticTransportBarStyle : FSlateWidgetStyle
 {
 	FHapticTransportBarStyle();
 
@@ -70,7 +70,7 @@ struct FHapticTransportBarStyle : public FSlateWidgetStyle
 	FLinearColor LoopOffColor;
 };
 
-struct FHapticDevicePreviewStyle : public FSlateWidgetStyle
+struct FHapticDevicePreviewStyle : FSlateWidgetStyle
 {
 	FHapticDevicePreviewStyle();
 
@@ -87,7 +87,7 @@ struct FHapticDevicePreviewStyle : public FSlateWidgetStyle
 	FLinearColor MarkerColor;
 };
 
-struct FAxisBarStyle : public FSlateWidgetStyle
+struct FAxisBarStyle : FSlateWidgetStyle
 {
 	FAxisBarStyle();
 
@@ -108,7 +108,7 @@ struct FAxisBarStyle : public FSlateWidgetStyle
 	FLinearColor LabelColor;
 };
 
-struct FButtonBoxStyle : public FSlateWidgetStyle
+struct FButtonBoxStyle : FSlateWidgetStyle
 {
 	FButtonBoxStyle();
 
@@ -122,7 +122,7 @@ struct FButtonBoxStyle : public FSlateWidgetStyle
 	FLinearColor ReleasedLabelColor;
 };
 
-struct FHatSwitchStyle : public FSlateWidgetStyle
+struct FHatSwitchStyle : FSlateWidgetStyle
 {
 	FHatSwitchStyle();
 
@@ -138,7 +138,7 @@ struct FHatSwitchStyle : public FSlateWidgetStyle
 	FLinearColor LabelColor;
 };
 
-struct FBallSwitchStyle : public FSlateWidgetStyle
+struct FBallSwitchStyle : FSlateWidgetStyle
 {
 	FBallSwitchStyle();
 

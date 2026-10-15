@@ -1,7 +1,7 @@
 // JoystickPlugin is licensed under the MIT License.
 // Copyright Jayden Maalouf 2026. All Rights Reserved.
 
-#include "Widgets/HapticCurveModel.h"
+#include "Widgets/HapticEffectEditor/HapticCurveModel.h"
 
 #include "CurveEditorScreenSpace.h"
 #include "CurveDataAbstraction.h"

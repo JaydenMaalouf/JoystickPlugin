@@ -1,7 +1,7 @@
 // JoystickPlugin is licensed under the MIT License.
 // Copyright Jayden Maalouf 2026. All Rights Reserved.
 
-#include "Widgets/HapticGraphPlayhead.h"
+#include "Widgets/HapticEffectEditor/HapticGraphPlayhead.h"
 
 #include "Rendering/DrawElements.h"
 

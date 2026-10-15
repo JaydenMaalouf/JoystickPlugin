@@ -1,7 +1,7 @@
 // JoystickPlugin is licensed under the MIT License.
 // Copyright Jayden Maalouf 2026. All Rights Reserved.
 
-#include "Widgets/HapticTimelineScrubber.h"
+#include "Widgets/HapticEffectEditor/HapticTimelineScrubber.h"
 
 #include "InputCoreTypes.h"
 #include "Rendering/DrawElements.h"

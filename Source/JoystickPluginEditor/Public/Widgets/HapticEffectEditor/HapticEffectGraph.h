@@ -5,8 +5,8 @@
 
 #include "CurveEditorTypes.h"
 #include "Math/Range.h"
-#include "Widgets/HapticCurveModel.h"
-#include "Widgets/HapticTimelineScrubber.h"
+#include "Widgets/HapticEffectEditor/HapticCurveModel.h"
+#include "Widgets/HapticEffectEditor/HapticTimelineScrubber.h"
 #include "Widgets/SCompoundWidget.h"
 
 class FCurveEditor;

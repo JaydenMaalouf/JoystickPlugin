@@ -1,11 +1,11 @@
 // JoystickPlugin is licensed under the MIT License.
 // Copyright Jayden Maalouf 2026. All Rights Reserved.
 
-#include "Widgets/HapticWaveformSelector.h"
+#include "Widgets/HapticEffectEditor/HapticWaveformSelector.h"
 
 #include "Styling/AppStyle.h"
 #include "Styling/CoreStyle.h"
-#include "Widgets/HapticWaveformIcon.h"
+#include "Widgets/HapticEffectEditor/HapticWaveformIcon.h"
 #include "Widgets/SBoxPanel.h"
 #include "Widgets/Input/SButton.h"
 #include "Widgets/Layout/SBorder.h"

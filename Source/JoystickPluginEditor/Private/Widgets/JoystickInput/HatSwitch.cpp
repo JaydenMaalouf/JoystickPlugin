@@ -1,9 +1,9 @@
 ﻿// JoystickPlugin is licensed under the MIT License.
 // Copyright Jayden Maalouf 2026. All Rights Reserved.
 
-#include "Widgets/HatSwitch.h"
+#include "Widgets/JoystickInput/HatSwitch.h"
 
-#include "Widgets/CircleWidget.h"
+#include "Widgets/JoystickInput/CircleWidget.h"
 #include "Styling/AppStyle.h"
 #include "Widgets/Layout/SBorder.h"
 #include "Widgets/Text/STextBlock.h"

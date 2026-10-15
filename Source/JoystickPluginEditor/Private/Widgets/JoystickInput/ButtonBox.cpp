@@ -1,7 +1,7 @@
 // JoystickPlugin is licensed under the MIT License.
 // Copyright Jayden Maalouf 2026. All Rights Reserved.
 
-#include "Widgets/ButtonBox.h"
+#include "Widgets/JoystickInput/ButtonBox.h"
 
 #include "Widgets/Layout/SScaleBox.h"
 #include "Styling/AppStyle.h"

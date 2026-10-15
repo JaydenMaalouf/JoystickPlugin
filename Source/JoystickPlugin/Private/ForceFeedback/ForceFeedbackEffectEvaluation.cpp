@@ -104,9 +104,9 @@ float FForceFeedbackEffectEvaluation::EvaluateConditionResponse(const FForceFeed
 
 	// SDL's right_* fields are the positive side and left_* the negative side, which UpdateEffectData fills from Right* and Left* respectively.
 	// The force builds from the edge of the dead zone, so it is continuous across it.
-	float Coefficient = 0.0f;
-	float Saturation = 0.0f;
-	float Displacement = 0.0f;
+	float Coefficient;
+	float Saturation;
+	float Displacement;
 	if (Input > Center + DeadZone)
 	{
 		Coefficient = EffectData.RightCoefficient.X;

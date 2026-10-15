@@ -21,7 +21,7 @@
 #include "Styling/JoystickPluginEditorStyle.h"
 #include "Styling/SlateTypes.h"
 #include "Framework/Application/SlateApplication.h"
-#include "Widgets/AxisBar.h"
+#include "Widgets/JoystickInput/AxisBar.h"
 
 void SAxisConfigurationEditor::Construct(const FArguments& InArgs)
 {

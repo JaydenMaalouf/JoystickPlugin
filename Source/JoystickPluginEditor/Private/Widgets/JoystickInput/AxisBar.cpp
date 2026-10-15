@@ -1,7 +1,7 @@
 ﻿// JoystickPlugin is licensed under the MIT License.
 // Copyright Jayden Maalouf 2026. All Rights Reserved.
 
-#include "Widgets/AxisBar.h"
+#include "Widgets/JoystickInput/AxisBar.h"
 
 #include "Rendering/DrawElements.h"
 #include "Widgets/Layout/SScaleBox.h"

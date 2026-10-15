@@ -5,7 +5,7 @@
 
 #include "ForceFeedback/Types/ForceFeedbackConditionEffectType.h"
 #include "Misc/Optional.h"
-#include "Widgets/HapticConditionGraph.h"
+#include "Widgets/HapticEffectEditor/HapticConditionGraph.h"
 #include "Widgets/SCompoundWidget.h"
 
 // The Haptic Effect Editor's view of a condition effect: its graph against the axis, with the sweep rate (or inertia's full scale) the graph is drawn at.

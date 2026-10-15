@@ -14,7 +14,7 @@
 #include "Menus/HapticEffectEditorTypes.h"
 #include "Misc/Optional.h"
 #include "UObject/StrongObjectPtr.h"
-#include "Widgets/HapticConditionGraph.h"
+#include "Widgets/HapticEffectEditor/HapticConditionGraph.h"
 
 class IDetailsView;
 class SHapticDevicePicker;

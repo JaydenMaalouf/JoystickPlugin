@@ -1,7 +1,7 @@
 // JoystickPlugin is licensed under the MIT License.
 // Copyright Jayden Maalouf 2026. All Rights Reserved.
 
-#include "Widgets/HapticWaveformIcon.h"
+#include "Widgets/HapticEffectEditor/HapticWaveformIcon.h"
 
 #include "Rendering/DrawElements.h"
 
