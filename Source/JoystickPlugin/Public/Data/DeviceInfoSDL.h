@@ -20,6 +20,8 @@ struct FDeviceInfoSDL : FJoystickInformation
 		  , SDLHaptic(nullptr)
 		  , SDLJoystick(nullptr)
 		  , SDLGamepad(nullptr)
+		  , EngineRumbleEffectId(-1)
+		  , EngineRumbleLevel(0)
 	{
 		InputDeviceId = FInputDeviceId::CreateFromInternalId(0);
 		PlatformUserId = FPlatformUserId::CreateFromInternalId(0);
@@ -49,6 +51,8 @@ struct FDeviceInfoSDL : FJoystickInformation
 	SDL_Haptic* SDLHaptic;
 	SDL_Joystick* SDLJoystick;
 	SDL_Gamepad* SDLGamepad;
+	int EngineRumbleEffectId;
+	int16 EngineRumbleLevel;
 
 private:
 	FPlatformUserId PlatformUserId;

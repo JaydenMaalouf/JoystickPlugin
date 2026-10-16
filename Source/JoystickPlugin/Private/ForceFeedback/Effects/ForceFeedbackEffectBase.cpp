@@ -41,6 +41,7 @@ UForceFeedbackEffectBase::UForceFeedbackEffectBase(const FObjectInitializer& Obj
 	  , DebugWritesPerSecond(0.0f)
 #endif
 {
+	SDL_zero(Effect);
 }
 
 void UForceFeedbackEffectBase::BeginDestroy()

@@ -103,6 +103,9 @@ public:
 	bool HasRumbleDevice() const;
 
 	UFUNCTION(BlueprintCallable, Category="Joystick")
+	bool HasEngineForceFeedbackDevice() const;
+
+	UFUNCTION(BlueprintCallable, Category="Joystick")
 	bool IsConnected(const FJoystickInstanceId& InstanceId) const;
 
 	UPROPERTY(BlueprintAssignable, Category="Joystick|Delegates")

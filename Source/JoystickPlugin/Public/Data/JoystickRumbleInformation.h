@@ -11,10 +11,10 @@ struct FJoystickRumbleInformation
 	GENERATED_BODY()
 
 	FJoystickRumbleInformation()
-		: StandardRumble(false)
+		: Supported(false)
+		  , StandardRumble(false)
 		  , TriggerRumble(false)
 	{
-		Supported = StandardRumble || TriggerRumble;
 	}
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Rumble Config")

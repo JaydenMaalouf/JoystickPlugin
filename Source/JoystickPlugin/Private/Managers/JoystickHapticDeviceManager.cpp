@@ -6,6 +6,7 @@
 #include "Data/DeviceInfoSDL.h"
 #include "Engine/Engine.h"
 #include "ForceFeedback/ForceFeedbackConversion.h"
+#include "JoystickInputSettings.h"
 #include "Managers/JoystickLogManager.h"
 #include "Managers/JoystickProfileManager.h"
 #include "JoystickSubsystem.h"
@@ -277,6 +278,11 @@ bool UJoystickHapticDeviceManager::StopRumble(const FJoystickInstanceId& Instanc
 		return false;
 	}
 
+	if (!DeviceInfo->Rumble.StandardRumble)
+	{
+		return false;
+	}
+
 	const bool Result = SDL_RumbleJoystick(DeviceInfo->SDLJoystick, 0.0f, 0.0f, 0.0f);
 	if (Result == false)
 	{
@@ -296,6 +302,11 @@ bool UJoystickHapticDeviceManager::StopRumbleTriggers(const FJoystickInstanceId&
 		return false;
 	}
 
+	if (!DeviceInfo->Rumble.TriggerRumble)
+	{
+		return false;
+	}
+
 	const bool Result = SDL_RumbleJoystickTriggers(DeviceInfo->SDLJoystick, 0.0f, 0.0f, 0.0f);
 	if (Result == false)
 	{
@@ -308,14 +319,19 @@ bool UJoystickHapticDeviceManager::StopRumbleTriggers(const FJoystickInstanceId&
 
 bool UJoystickHapticDeviceManager::StopHapticRumble(const FJoystickInstanceId& InstanceId) const
 {
-	auto [HapticDevice, HapticDeviceResult] = GetHapticDevice(InstanceId);
-	if (HapticDeviceResult.bSuccess == false || HapticDevice == nullptr)
+	auto [DeviceInfo, DeviceInfoResult] = GetDeviceInfo(InstanceId);
+	if (DeviceInfoResult.bSuccess == false || DeviceInfo == nullptr)
 	{
-		FJoystickLogManager::Get()->LogError(HapticDeviceResult);
+		FJoystickLogManager::Get()->LogError(DeviceInfoResult);
 		return false;
 	}
 
-	const bool Result = SDL_StopHapticRumble(HapticDevice);
+	if (!DeviceInfo->HapticRumble.Enabled)
+	{
+		return false;
+	}
+
+	const bool Result = SDL_StopHapticRumble(DeviceInfo->SDLHaptic);
 	if (Result == false)
 	{
 		FJoystickLogManager::Get()->LogSDLError(TEXT("SDL_StopHapticRumble failed"));
@@ -414,6 +430,117 @@ void UJoystickHapticDeviceManager::DestroyEffect(const FJoystickInstanceId& Inst
 	}
 
 	SDL_DestroyHapticEffect(HapticDevice, EffectId);
+}
+
+void UJoystickHapticDeviceManager::InitialiseEngineRumble(FDeviceInfoSDL& DeviceInfo)
+{
+	if (DeviceInfo.SDLHaptic == nullptr || !DeviceInfo.Haptic.Sine)
+	{
+		return;
+	}
+
+	SDL_HapticEffect Effect;
+	const bool Result = BuildEngineRumbleEffect(0, Effect);
+	if (Result == false)
+	{
+		return;
+	}
+
+	DeviceInfo.EngineRumbleEffectId = SDL_CreateHapticEffect(DeviceInfo.SDLHaptic, &Effect);
+	if (DeviceInfo.EngineRumbleEffectId == -1)
+	{
+		FJoystickLogManager::Get()->LogSDLError(TEXT("SDL_CreateHapticEffect (Engine Rumble) failed"));
+	}
+}
+
+bool UJoystickHapticDeviceManager::PlayEngineForceFeedback(const FJoystickInstanceId& InstanceId, const float LargeValue, const float SmallValue) const
+{
+	auto [DeviceInfo, DeviceInfoResult] = GetDeviceInfo(InstanceId);
+	if (DeviceInfoResult.bSuccess == false || DeviceInfo == nullptr || DeviceInfo->Connected == false)
+	{
+		FJoystickLogManager::Get()->LogError(DeviceInfoResult);
+		return false;
+	}
+
+	if (DeviceInfo->SDLHaptic == nullptr)
+	{
+		return PlayRumble(InstanceId, LargeValue, SmallValue, -1);
+	}
+
+	return PlayEngineRumble(*DeviceInfo, FMath::Max(LargeValue, SmallValue));
+}
+
+bool UJoystickHapticDeviceManager::StopEngineForceFeedback(const FJoystickInstanceId& InstanceId) const
+{
+	auto [DeviceInfo, DeviceInfoResult] = GetDeviceInfo(InstanceId);
+	if (DeviceInfoResult.bSuccess == false || DeviceInfo == nullptr || DeviceInfo->Connected == false)
+	{
+		FJoystickLogManager::Get()->LogError(DeviceInfoResult);
+		return false;
+	}
+
+	if (DeviceInfo->SDLHaptic == nullptr)
+	{
+		return StopRumble(InstanceId);
+	}
+
+	DeviceInfo->EngineRumbleLevel = 0;
+	return StopEffect(InstanceId, DeviceInfo->EngineRumbleEffectId);
+}
+
+bool UJoystickHapticDeviceManager::PlayEngineRumble(FDeviceInfoSDL& DeviceInfo, const float Strength) const
+{
+	if (DeviceInfo.EngineRumbleEffectId == -1)
+	{
+		return false;
+	}
+
+	const int16 Level = FForceFeedbackConversion::ToSignedLevel(Strength);
+	if (Level == DeviceInfo.EngineRumbleLevel)
+	{
+		return true;
+	}
+
+	SDL_HapticEffect Effect;
+	if (!BuildEngineRumbleEffect(Level, Effect))
+	{
+		return false;
+	}
+
+	const bool UpdateResult = UpdateEffect(DeviceInfo.InstanceId, DeviceInfo.EngineRumbleEffectId, Effect);
+	if (UpdateResult == false)
+	{
+		return false;
+	}
+
+	if (DeviceInfo.EngineRumbleLevel == 0)
+	{
+		const bool EffectResult = RunEffect(DeviceInfo.InstanceId, DeviceInfo.EngineRumbleEffectId, 1);
+		if (EffectResult == false)
+		{
+			return false;
+		}
+	}
+
+	DeviceInfo.EngineRumbleLevel = Level;
+	return true;
+}
+
+bool UJoystickHapticDeviceManager::BuildEngineRumbleEffect(const int16 Level, SDL_HapticEffect& Effect)
+{
+	const UJoystickInputSettings* JoystickInputSettings = GetDefault<UJoystickInputSettings>();
+	if (!IsValid(JoystickInputSettings))
+	{
+		return false;
+	}
+
+	SDL_zero(Effect);
+	Effect.type = SDL_HAPTIC_SINE;
+	Effect.periodic.direction.type = SDL_HAPTIC_STEERING_AXIS;
+	Effect.periodic.length = SDL_HAPTIC_INFINITY;
+	Effect.periodic.period = FForceFeedbackConversion::SecondsToMilliseconds(1.0 / FMath::Max(JoystickInputSettings->EngineRumbleFrequency, 1));
+	Effect.periodic.magnitude = Level;
+	return true;
 }
 
 void UJoystickHapticDeviceManager::ApplyForceFeedbackProperties(const FDeviceInfoSDL& DeviceInfo, SDL_HapticEffect& Effect)

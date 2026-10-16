@@ -55,7 +55,7 @@ void FJoystickInputDevice::SetChannelValue(int ControllerId, FForceFeedbackChann
 
 void FJoystickInputDevice::SetChannelValues(int ControllerId, const FForceFeedbackValues& Values)
 {
-	UJoystickHapticDeviceManager* HapticDeviceManager = GetMutableDefault<UJoystickHapticDeviceManager>();
+	const UJoystickHapticDeviceManager* HapticDeviceManager = GetMutableDefault<UJoystickHapticDeviceManager>();
 	if (!IsValid(HapticDeviceManager))
 	{
 		return;
@@ -63,14 +63,17 @@ void FJoystickInputDevice::SetChannelValues(int ControllerId, const FForceFeedba
 
 	const float LargeValue = Values.LeftLarge > Values.RightLarge ? Values.LeftLarge : Values.RightLarge;
 	const float SmallValue = Values.LeftSmall > Values.RightSmall ? Values.LeftSmall : Values.RightSmall;
+	const bool bShouldRumble = SmallValue != 0 || LargeValue != 0;
 	for (const TTuple<FJoystickInstanceId, FJoystickDeviceState>& Joystick : JoystickDeviceState)
 	{
-		if (SmallValue == 0 && LargeValue == 0)
+		if (bShouldRumble)
 		{
-			continue;
+			HapticDeviceManager->PlayEngineForceFeedback(Joystick.Key, LargeValue, SmallValue);
 		}
-
-		HapticDeviceManager->PlayRumble(Joystick.Key, SmallValue, LargeValue, -1);
+		else
+		{
+			HapticDeviceManager->StopEngineForceFeedback(Joystick.Key);
+		}
 	}
 }
 
@@ -87,7 +90,7 @@ bool FJoystickInputDevice::IsGamepadAttached() const
 		return false;
 	}
 
-	return JoystickSubsystem->HasRumbleDevice();
+	return JoystickSubsystem->HasEngineForceFeedbackDevice();
 }
 
 void FJoystickInputDevice::SetMessageHandler(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler)
@@ -676,6 +679,10 @@ void FJoystickInputDevice::SendControllerEvents()
 	}
 
 	const UJoystickInputSettings* JoystickInputSettings = GetDefault<UJoystickInputSettings>();
+	if (!IsValid(JoystickInputSettings))
+	{
+		return;
+	}
 
 	for (const TPair<FJoystickInstanceId, FDeviceInfoSDL>& Device : JoystickSubsystem->GetDevices())
 	{

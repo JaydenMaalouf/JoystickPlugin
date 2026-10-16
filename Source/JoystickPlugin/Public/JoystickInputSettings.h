@@ -34,6 +34,15 @@ public:
 	UPROPERTY(Config, EditAnywhere, Category="Joystick Settings|Advanced", meta=(ToolTip="If false, will not add a Joystick if a mapped device with the same hash exists.", ConfigRestartRequired=true))
 	bool AllowDuplicateHashedDevices;
 
+	UPROPERTY(Config, EditAnywhere, Category="Joystick Settings|Force Feedback",
+		meta=(ToolTip="If true, the engine's built in Force Feedback effects play on haptic devices (ie. wheels) as a sine effect. Gamepads always receive them as standard rumble.", ConfigRestartRequired=true))
+	bool ApplyEngineForceFeedbackToHapticDevices;
+
+	UPROPERTY(Config, EditAnywhere, Category="Joystick Settings|Force Feedback",
+		meta=(Units="Hertz", ToolTip="The frequency of the sine effect used to play the engine's built in Force Feedback effects on haptic devices.", UIMin="1", UIMax="1000", ClampMin="1", ClampMax="1000",
+			EditCondition="ApplyEngineForceFeedbackToHapticDevices", EditConditionHides))
+	int32 EngineRumbleFrequency;
+
 	UPROPERTY(Config, EditAnywhere, Category="Joystick Settings|Advanced", DisplayName="Prioritise Devices by Collection Index",
 		meta=(ToolTip="If true, will skip devices with the same GUID based on the driver collection index prioritisation method. Useful for drivers that map multiple devices for the same GUID.",
 			EditConditionHides, ConfigRestartRequired=true))

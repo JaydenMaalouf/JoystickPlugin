@@ -78,6 +78,15 @@ public:
 	void DestroyEffect(const FJoystickInstanceId& InstanceId, const int EffectId) const;
 
 private:
+	friend class UJoystickSubsystem;
+	friend class FJoystickInputDevice;
+
+	static void InitialiseEngineRumble(FDeviceInfoSDL& DeviceInfo);
+	bool PlayEngineForceFeedback(const FJoystickInstanceId& InstanceId, const float LargeValue, const float SmallValue) const;
+	bool StopEngineForceFeedback(const FJoystickInstanceId& InstanceId) const;
+	bool PlayEngineRumble(FDeviceInfoSDL& DeviceInfo, const float Strength) const;
+	static bool BuildEngineRumbleEffect(const int16 Level, SDL_HapticEffect& Effect);
+
 	static void ApplyForceFeedbackProperties(const FDeviceInfoSDL& DeviceInfo, SDL_HapticEffect& Effect);
 	static void ApplyConditionProperties(const FJoystickInputDeviceForceFeedbackProperties& ForceFeedbackProperties, EForceFeedbackConditionEffectType ConditionType, SDL_HapticCondition& Condition);
 

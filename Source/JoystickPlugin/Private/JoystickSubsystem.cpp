@@ -11,6 +11,7 @@
 #include "JoystickFunctionLibrary.h"
 #include "JoystickInputDevice.h"
 #include "JoystickInputSettings.h"
+#include "Managers/JoystickHapticDeviceManager.h"
 #include "Managers/JoystickLogManager.h"
 #include "JoystickPluginModule.h"
 #include "Managers/JoystickProfileManager.h"
@@ -391,7 +392,35 @@ bool UJoystickSubsystem::HasRumbleDevice() const
 {
 	for (const TTuple<FJoystickInstanceId, FDeviceInfoSDL>& Device : Devices)
 	{
+		if (!Device.Value.Connected)
+		{
+			continue;
+		}
+
 		if (Device.Value.Rumble.StandardRumble || Device.Value.Rumble.TriggerRumble)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool UJoystickSubsystem::HasEngineForceFeedbackDevice() const
+{
+	if (HasRumbleDevice())
+	{
+		return true;
+	}
+
+	for (const TTuple<FJoystickInstanceId, FDeviceInfoSDL>& Device : Devices)
+	{
+		if (!Device.Value.Connected)
+		{
+			continue;
+		}
+
+		if (Device.Value.EngineRumbleEffectId != -1)
 		{
 			return true;
 		}
@@ -649,8 +678,11 @@ bool UJoystickSubsystem::AddDevice(FDeviceInfoSDL& Device)
 	Device.Led.Mono = SDL_GetBooleanProperty(QueryResult,SDL_PROP_JOYSTICK_CAP_MONO_LED_BOOLEAN, false);
 	Device.Led.RGB = SDL_GetBooleanProperty(QueryResult,SDL_PROP_JOYSTICK_CAP_RGB_LED_BOOLEAN, false);
 	Device.Led.Player = SDL_GetBooleanProperty(QueryResult,SDL_PROP_JOYSTICK_CAP_PLAYER_LED_BOOLEAN, false);
+	Device.Led.Supported = Device.Led.Mono || Device.Led.RGB || Device.Led.Player;
+
 	Device.Rumble.StandardRumble = SDL_GetBooleanProperty(QueryResult,SDL_PROP_JOYSTICK_CAP_RUMBLE_BOOLEAN, false);
 	Device.Rumble.TriggerRumble = SDL_GetBooleanProperty(QueryResult,SDL_PROP_JOYSTICK_CAP_TRIGGER_RUMBLE_BOOLEAN, false);
+	Device.Rumble.Supported = Device.Rumble.StandardRumble || Device.Rumble.TriggerRumble;
 
 	Device.FirmwareVersion = SDL_GetJoystickFirmwareVersion(Device.SDLJoystick);
 	Device.Path = UJoystickFunctionLibrary::SafelyStringify(SDL_GetJoystickPath(Device.SDLJoystick));
@@ -672,6 +704,14 @@ bool UJoystickSubsystem::AddDevice(FDeviceInfoSDL& Device)
 	if (SDL_IsJoystickHaptic(Device.SDLJoystick))
 	{
 		AddHapticDevice(Device);
+	}
+
+	// SDL reports standard rumble for every DirectInput force feedback device and emulates it with a malformed effect.
+	// Each failed attempt also sends DISFFC_RESET, which removes every haptic effect on the device, so haptic devices are driven through haptic effects only.
+	if (Device.Haptic.Supported)
+	{
+		Device.Rumble.StandardRumble = false;
+		Device.Rumble.Supported = Device.Rumble.TriggerRumble;
 	}
 
 	UJoystickProfileManager* JoystickProfileManager = GetMutableDefault<UJoystickProfileManager>();
@@ -797,6 +837,14 @@ void UJoystickSubsystem::AddHapticDevice(FDeviceInfoSDL& Device) const
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tSDL_HAPTIC_AUTOCENTER support: %s"), Device.Haptic.AutoCenter ? TEXT("true") : TEXT("false"));
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tSDL_HAPTIC_STATUS support: %s"), Device.Haptic.Status ? TEXT("true") : TEXT("false"));
 	FJoystickLogManager::Get()->LogDebug(TEXT("\tSDL_HAPTIC_PAUSE support: %s"), Device.Haptic.Pause ? TEXT("true") : TEXT("false"));
+
+	const UJoystickInputSettings* JoystickInputSettings = GetDefault<UJoystickInputSettings>();
+	if (!IsValid(JoystickInputSettings) || JoystickInputSettings->ApplyEngineForceFeedbackToHapticDevices == false)
+	{
+		return;
+	}
+
+	UJoystickHapticDeviceManager::InitialiseEngineRumble(Device);
 }
 
 void UJoystickSubsystem::AddSensorDevice(FDeviceInfoSDL& Device) const
@@ -844,6 +892,8 @@ void UJoystickSubsystem::CloseDeviceHandles(FDeviceInfoSDL& Device) const
 		FJoystickLogManager::Get()->LogDebug(TEXT("Closing haptic for device %d"), Device.InstanceId.Value);
 		SDL_CloseHaptic(Device.SDLHaptic);
 		Device.SDLHaptic = nullptr;
+		Device.EngineRumbleEffectId = -1;
+		Device.EngineRumbleLevel = 0;
 	}
 	if (Device.SDLJoystick != nullptr)
 	{

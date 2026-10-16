@@ -11,11 +11,11 @@ struct FJoystickLedInformation
 	GENERATED_BODY()
 
 	FJoystickLedInformation()
-		: Mono(false)
+		: Supported(false)
+		  , Mono(false)
 		  , RGB(false)
 		  , Player(false)
 	{
-		Supported = Mono || RGB || Player;
 	}
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Led Config")
