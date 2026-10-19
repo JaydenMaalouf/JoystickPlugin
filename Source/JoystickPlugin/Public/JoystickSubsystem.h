@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "Containers/Ticker.h"
 #include "Data/DeviceInfoSDL.h"
 #include "Data/JoystickDeviceState.h"
 #include "Data/JoystickSensorType.h"
@@ -19,6 +20,7 @@ THIRD_PARTY_INCLUDES_END
 
 class FJoystickInputDevice;
 struct FJoystickInfo;
+struct FJoystickInputDeviceConfiguration;
 struct FJoystickInformation;
 struct FJoystickInstanceId;
 struct FInputDeviceId;
@@ -134,8 +136,14 @@ public:
 
 private:
 	static bool HandleSDLEvent(void* UserData, SDL_Event* Event);
-	bool AddDeviceByInstanceId(const FJoystickInstanceId& InstanceId);
 
+	void QueueDevice(const FJoystickInstanceId& InstanceId);
+	bool RemovePendingDevice(const FJoystickInstanceId& InstanceId);
+	bool FlushPendingDevices(float DeltaTime);
+
+	void AddDevices(TArray<FDeviceInfoSDL>& NewDevices);
+	bool IsCollectionPrioritisationEnabled(const FDeviceInfoSDL& Device) const;
+	bool HasCollectionPriority(const FDeviceInfoSDL& Device, const TArray<FDeviceInfoSDL>& NewDevices) const;
 	bool AddDevice(FDeviceInfoSDL& Device);
 	void AddHapticDevice(FDeviceInfoSDL& Device) const;
 	void AddSensorDevice(FDeviceInfoSDL& Device) const;
@@ -153,11 +161,12 @@ private:
 	void LoadGamepadMappings() const;
 
 	bool BuildDeviceInfoForInstanceId(FJoystickInstanceId InstanceId, FDeviceInfoSDL& Device) const;
-	void ConvertSDLGuid(const SDL_GUID& SdlGuid, FGuid& OutGuid) const;
-	FString GenerateDeviceHash(const FDeviceInfoSDL& Device) const;
-	int CollectionIndexFromPath(const FString& Path) const;
 
 	TMap<FJoystickInstanceId, FDeviceInfoSDL> Devices;
+
+	TArray<FDeviceInfoSDL> PendingDevices;
+	FTSTicker::FDelegateHandle PendingDevicesTickerHandle;
+	static constexpr float PendingDevicesSettleTime = 0.25f;
 
 	TSharedPtr<FJoystickInputDevice> InputDevicePtr;
 

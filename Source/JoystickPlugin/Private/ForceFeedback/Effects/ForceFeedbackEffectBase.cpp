@@ -6,7 +6,7 @@
 #include "Data/JoystickHapticInformation.h"
 #include "Data/JoystickInstanceId.h"
 #include "ForceFeedback/ForceFeedbackEffectEvaluation.h"
-#include "ForceFeedback/Debug/ForceFeedbackDebugOverlay.h"
+#include "ForceFeedback/Debug/ForceFeedbackDebug.h"
 #include "GameFramework/Actor.h"
 #include "JoystickFunctionLibrary.h"
 #include "Managers/JoystickHapticDeviceManager.h"
@@ -502,7 +502,7 @@ void UForceFeedbackEffectBase::DescribeEffect(FForceFeedbackEffectDebugInfo& Out
 void UForceFeedbackEffectBase::AddDebugValue(const FName Name, const float Value)
 {
 #if !UE_BUILD_SHIPPING
-	if (FForceFeedbackDebugOverlay::IsEnabled())
+	if (FForceFeedbackDebug::IsEnabled())
 	{
 		SetDebugValue(DebugValues, Name, Value);
 	}
@@ -512,7 +512,7 @@ void UForceFeedbackEffectBase::AddDebugValue(const FName Name, const float Value
 void UForceFeedbackEffectBase::AddDebugText(const FName Name, const FName Value)
 {
 #if !UE_BUILD_SHIPPING
-	if (FForceFeedbackDebugOverlay::IsEnabled())
+	if (FForceFeedbackDebug::IsEnabled())
 	{
 		SetDebugValue(DebugTextValues, Name, Value);
 	}

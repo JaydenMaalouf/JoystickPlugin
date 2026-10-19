@@ -11,7 +11,7 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceAxisProperties
 	GENERATED_BODY()
 
 	FJoystickInputDeviceAxisProperties()
-		: AxisIndex(-1)
+		: AxisIndex(INDEX_NONE)
 		  , OverrideDisplayName(false)
 		  , RemappingEnabled(false)
 		  , InputOffset(0.0f)

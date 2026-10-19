@@ -16,22 +16,16 @@
 #include "JoystickInformation.generated.h"
 
 USTRUCT(BlueprintType)
-struct FJoystickInformation
+struct JOYSTICKPLUGIN_API FJoystickInformation
 {
 	GENERATED_BODY()
 
-	FJoystickInformation()
-		: InstanceId(-1)
-		  , Type(EJoystickType::Unknown)
-		  , ProductId(0)
-		  , FirmwareVersion(0)
-		  , ProductVersion(0)
-		  , VendorId(0)
-		  , IsGamepad(false)
-		  , Connection(EJoystickConnectionType::Unknown)
-		  , CollectionIndex(0)
-	{
-	}
+	FJoystickInformation();
+
+	bool IsCollectionSiblingOf(const FJoystickInformation& Other) const;
+
+	void UpdateCollectionFromPath();
+	void UpdateDeviceHash();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
 	FJoystickInstanceId InstanceId;
@@ -97,9 +91,7 @@ struct FJoystickInformation
 	FJoystickSensorInformation Accelerometer;
 
 	int CollectionIndex;
+	FString CollectionGroup;
 
-	FString GetDeviceDisplayName() const
-	{
-		return !DeviceName.IsEmpty() ? DeviceName : SafeDeviceName;
-	}
+	FString GetDeviceDisplayName() const;
 };

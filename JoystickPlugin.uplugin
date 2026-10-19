@@ -26,6 +26,16 @@
       ]
     },
     {
+      "Name": "JoystickPluginDeveloper",
+      "Type": "DeveloperTool",
+      "LoadingPhase": "PostEngineInit",
+      "WhitelistPlatforms": [
+        "Win64",
+        "Linux",
+        "Mac"
+      ]
+    },
+    {
       "Name": "JoystickPluginEditor",
       "Type": "Editor",
       "LoadingPhase": "PostEngineInit",

@@ -30,7 +30,7 @@ void FJoystickLogManager::LogSDLError(const FStringView Message)
 		return;
 	}
 
-	const FString ErrorMessage = FString(SDL_GetError());
+	const FString ErrorMessage = UTF8_TO_TCHAR(SDL_GetError());
 	if (ErrorMessage.IsEmpty())
 	{
 		LogError(TEXT("%.*s: Unknown error occurred"), Message.Len(), Message.GetData());

@@ -30,7 +30,7 @@ TArray<FDeviceInfoHID> UJoystickHIDManager::EnumerateHIDs(const int32 VendorId, 
 	{
 		if (CurrentDevice->vendor_id == VendorId && CurrentDevice->product_id == ProductId)
 		{
-			DeviceInfo.DevicePath = CurrentDevice->path;
+			DeviceInfo.DevicePath = UJoystickFunctionLibrary::SafelyStringify(CurrentDevice->path);
 			DeviceInfo.VendorId = CurrentDevice->vendor_id;
 			DeviceInfo.ProductId = CurrentDevice->product_id;
 			DeviceInfo.SerialNumber = UJoystickFunctionLibrary::SafelyStringify(CurrentDevice->serial_number);
@@ -179,16 +179,7 @@ bool UJoystickHIDManager::SendFeatureReport(const FDeviceHID& Device, const TArr
 
 bool UJoystickHIDManager::Internal_OpenHID(const int32 VendorId, const int32 ProductId, FDeviceHID& Device, const FString* SerialNumber) const
 {
-	const wchar_t* SerialW = nullptr;
-#if PLATFORM_WINDOWS
-	SerialW = SerialNumber ? **SerialNumber : nullptr; // TCHAR == wchar_t on Windows
-#else
-	// Convert to wchar_t explicitly
-	FString Tmp = SerialNumber ? *SerialNumber : FString();
-	SerialW = SerialNumber ? (const wchar_t*)*Tmp : nullptr; // not actually safe if wchar_t != TCHAR
-#endif
-
-	SDL_hid_device* HIDDevice = SDL_hid_open(VendorId, ProductId, SerialW);
+	SDL_hid_device* HIDDevice = SDL_hid_open(VendorId, ProductId, SerialNumber ? TCHAR_TO_WCHAR(**SerialNumber) : nullptr);
 	if (!HIDDevice)
 	{
 		FJoystickLogManager::Get()->LogSDLError(TEXT("SDL_hid_open failed"));

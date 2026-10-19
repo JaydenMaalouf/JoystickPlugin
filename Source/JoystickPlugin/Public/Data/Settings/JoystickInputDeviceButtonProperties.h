@@ -11,7 +11,7 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceButtonProperties
 	GENERATED_BODY()
 
 	FJoystickInputDeviceButtonProperties()
-		: ButtonIndex(-1),
+		: ButtonIndex(INDEX_NONE),
 		  OverrideDisplayName(false),
 		  InvertOutput(false)
 	{

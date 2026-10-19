@@ -36,7 +36,7 @@ EDataValidationResult UForceFeedbackEffectGroup::IsDataValid(FDataValidationCont
 	EDataValidationResult Result = Super::IsDataValid(Context);
 
 	TSet<FName> Names;
-	for (int32 i = 0; i < Entries.Num(); i++)
+	for (int i = 0; i < Entries.Num(); i++)
 	{
 		const FForceFeedbackEffectGroupEntry& Entry = Entries[i];
 

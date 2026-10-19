@@ -78,6 +78,9 @@ void UJoystickSubsystem::Deinitialize()
 
 	FJoystickLogManager::Get()->LogDebug(TEXT("UJoystickSubsystem deinitialising"));
 
+	FTSTicker::GetCoreTicker().RemoveTicker(PendingDevicesTickerHandle);
+	PendingDevices.Empty();
+
 	for (TPair<FJoystickInstanceId, FDeviceInfoSDL>& Device : Devices)
 	{
 		RemoveDevice(Device.Key);
@@ -274,15 +277,16 @@ void UJoystickSubsystem::SetIgnoreGamepads(const bool IgnoreGamepads)
 	}
 	else if (ChangedValue && !IgnoreGamepads)
 	{
-		for (TPair<FJoystickInstanceId, FDeviceInfoSDL>& Device : Devices)
+		TArray<FDeviceInfoSDL> GamepadDevices;
+		for (const TPair<FJoystickInstanceId, FDeviceInfoSDL>& Device : Devices)
 		{
-			if (SDL_IsGamepad(Device.Key) == false)
+			if (SDL_IsGamepad(Device.Key))
 			{
-				continue;
+				GamepadDevices.Add(Device.Value);
 			}
-
-			AddDeviceByInstanceId(Device.Key);
 		}
+
+		AddDevices(GamepadDevices);
 	}
 }
 
@@ -555,12 +559,16 @@ bool UJoystickSubsystem::HandleSDLEvent(void* UserData, SDL_Event* Event)
 	{
 		case SDL_EVENT_JOYSTICK_ADDED:
 			{
-				JoystickSubsystem.AddDeviceByInstanceId(Event->jdevice.which);
+				JoystickSubsystem.QueueDevice(Event->jdevice.which);
 				break;
 			}
 		case SDL_EVENT_JOYSTICK_REMOVED:
 			{
-				JoystickSubsystem.RemoveDevice(Event->jdevice.which);
+				// If device was pending to add then we can remove from the queue, if not we need to remove it properly
+				if (JoystickSubsystem.RemovePendingDevice(Event->jdevice.which) == false)
+				{
+					JoystickSubsystem.RemoveDevice(Event->jdevice.which);
+				}
 				break;
 			}
 		case SDL_EVENT_JOYSTICK_BUTTON_DOWN:
@@ -615,16 +623,151 @@ bool UJoystickSubsystem::HandleSDLEvent(void* UserData, SDL_Event* Event)
 	return true;
 }
 
-bool UJoystickSubsystem::AddDeviceByInstanceId(const FJoystickInstanceId& InstanceId)
+void UJoystickSubsystem::QueueDevice(const FJoystickInstanceId& InstanceId)
 {
-	//TODO: Add collection index priority logic here somehow. This is necessary if a device with multiple collection indexes is unplugged then replugged, it will add both despite us wanting to filter
 	FDeviceInfoSDL Device;
-	if (BuildDeviceInfoForInstanceId(InstanceId, Device))
+	if (BuildDeviceInfoForInstanceId(InstanceId, Device) == false)
 	{
-		return AddDevice(Device);
+		return;
 	}
 
+	if (IsCollectionPrioritisationEnabled(Device) == false)
+	{
+		AddDevice(Device);
+		return;
+	}
+
+	PendingDevices.Add(Device);
+
+	FTSTicker& CoreTicker = FTSTicker::GetCoreTicker();
+	CoreTicker.RemoveTicker(PendingDevicesTickerHandle);
+	PendingDevicesTickerHandle = CoreTicker.AddTicker(FTickerDelegate::CreateUObject(this, &UJoystickSubsystem::FlushPendingDevices), PendingDevicesSettleTime);
+}
+
+bool UJoystickSubsystem::RemovePendingDevice(const FJoystickInstanceId& InstanceId)
+{
+	return PendingDevices.RemoveAll([&InstanceId](const FDeviceInfoSDL& Device)
+	{
+		return Device.InstanceId == InstanceId;
+	}) > 0;
+}
+
+bool UJoystickSubsystem::FlushPendingDevices(float DeltaTime)
+{
+	PendingDevicesTickerHandle.Reset();
+
+	TArray<FDeviceInfoSDL> NewDevices = MoveTemp(PendingDevices);
+	PendingDevices.Reset();
+	AddDevices(NewDevices);
+
 	return false;
+}
+
+void UJoystickSubsystem::AddDevices(TArray<FDeviceInfoSDL>& NewDevices)
+{
+	for (FDeviceInfoSDL& Device : NewDevices)
+	{
+		if (IsCollectionPrioritisationEnabled(Device) && HasCollectionPriority(Device, NewDevices) == false)
+		{
+			FJoystickLogManager::Get()->LogDebug(TEXT("Skipping device %s (Instance Id: %d) as another collection has priority"), *Device.DeviceName, Device.InstanceId.Value);
+			continue;
+		}
+
+		AddDevice(Device);
+	}
+}
+
+bool UJoystickSubsystem::IsCollectionPrioritisationEnabled(const FDeviceInfoSDL& Device) const
+{
+	if (Device.CollectionIndex == INDEX_NONE)
+	{
+		return false;
+	}
+
+	const UJoystickInputSettings* JoystickInputSettings = GetDefault<UJoystickInputSettings>();
+	if (!IsValid(JoystickInputSettings))
+	{
+		return false;
+	}
+
+	if (JoystickInputSettings->PrioritiseCollectionIndex)
+	{
+		return true;
+	}
+
+	UJoystickProfileManager* JoystickProfileManager = GetMutableDefault<UJoystickProfileManager>();
+	if (!IsValid(JoystickProfileManager))
+	{
+		return false;
+	}
+
+	const FJoystickInputDeviceConfiguration* DeviceConfig = JoystickProfileManager->GetInputDeviceConfiguration(Device);
+	if (DeviceConfig == nullptr)
+	{
+		return false;
+	}
+
+	return DeviceConfig->LimitCollectionIndex;
+}
+
+bool UJoystickSubsystem::HasCollectionPriority(const FDeviceInfoSDL& Device, const TArray<FDeviceInfoSDL>& NewDevices) const
+{
+	// Not from a collection (? need to verify)
+	if (Device.CollectionIndex == INDEX_NONE)
+	{
+		return true;
+	}
+
+	// If a device of the same collection is already connected, we cannot have priority, otherwise we'd have to disconnect the existing devices and reconnect it based on collection again (maybe in the future)
+	for (const TPair<FJoystickInstanceId, FDeviceInfoSDL>& ExistingDevice : Devices)
+	{
+		if (ExistingDevice.Value.Connected && Device.IsCollectionSiblingOf(ExistingDevice.Value))
+		{
+			return false;
+		}
+	}
+
+	UJoystickProfileManager* JoystickProfileManager = GetMutableDefault<UJoystickProfileManager>();
+	if (!IsValid(JoystickProfileManager))
+	{
+		return true;
+	}
+
+	// If the device has a config, we want to check against that devices config and if it is the priority device we want, we early return
+	const FJoystickInputDeviceConfiguration* DeviceConfig = JoystickProfileManager->GetInputDeviceConfiguration(Device);
+	if (DeviceConfig != nullptr && DeviceConfig->LimitCollectionIndex)
+	{
+		return Device.CollectionIndex == DeviceConfig->CollectionIndex;
+	}
+
+	const UJoystickInputSettings* JoystickInputSettings = GetDefault<UJoystickInputSettings>();
+	if (!IsValid(JoystickInputSettings))
+	{
+		return true;
+	}
+
+	const bool PrioritiseIndex = JoystickInputSettings->PrioritiseCollectionIndex;
+	if (PrioritiseIndex == false)
+	{
+		return true;
+	}
+
+	const bool PrioritiseHighest = JoystickInputSettings->PrioritisationMethod == EJoystickPrioritisationType::Highest;
+	for (const FDeviceInfoSDL& OtherDevice : NewDevices)
+	{
+		if (Device.IsCollectionSiblingOf(OtherDevice) == false)
+		{
+			continue;
+		}
+
+		const bool IsPrioritised = PrioritiseHighest ? Device.CollectionIndex > OtherDevice.CollectionIndex : Device.CollectionIndex < OtherDevice.CollectionIndex;
+		if (IsPrioritised == false)
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
 
 bool UJoystickSubsystem::AddDevice(FDeviceInfoSDL& Device)
@@ -641,7 +784,12 @@ bool UJoystickSubsystem::AddDevice(FDeviceInfoSDL& Device)
 		return false;
 	}
 
-	Device.Connected = true;
+	UJoystickProfileManager* JoystickProfileManager = GetMutableDefault<UJoystickProfileManager>();
+	if (!IsValid(JoystickProfileManager))
+	{
+		return false;
+	}
+
 	Device.SDLJoystick = SDL_OpenJoystick(Device.InstanceId);
 	if (Device.SDLJoystick == nullptr)
 	{
@@ -662,15 +810,10 @@ bool UJoystickSubsystem::AddDevice(FDeviceInfoSDL& Device)
 		}
 	}
 
-	const SDL_JoystickType Type = SDL_GetJoystickType(Device.SDLJoystick);
-	Device.Type = static_cast<EJoystickType>(Type);
-
 	int PowerLevel = -1;
 	const SDL_PowerState PowerState = SDL_GetJoystickPowerInfo(Device.SDLJoystick, &PowerLevel);
 	Device.Power.State = static_cast<EJoystickPowerState>(PowerState + 1);
 	Device.Power.Level = PowerLevel;
-
-	Device.DeviceName = UJoystickFunctionLibrary::SafelyStringify(SDL_GetJoystickName(Device.SDLJoystick));
 
 	Device.SerialNumber = UJoystickFunctionLibrary::SafelyStringify(SDL_GetJoystickSerial(Device.SDLJoystick));
 
@@ -685,9 +828,6 @@ bool UJoystickSubsystem::AddDevice(FDeviceInfoSDL& Device)
 	Device.Rumble.Supported = Device.Rumble.StandardRumble || Device.Rumble.TriggerRumble;
 
 	Device.FirmwareVersion = SDL_GetJoystickFirmwareVersion(Device.SDLJoystick);
-	Device.Path = UJoystickFunctionLibrary::SafelyStringify(SDL_GetJoystickPath(Device.SDLJoystick));
-
-	Device.DeviceHash = GenerateDeviceHash(Device);
 
 	if (JoystickInputSettings->AllowDuplicateHashedDevices == false)
 	{
@@ -712,12 +852,6 @@ bool UJoystickSubsystem::AddDevice(FDeviceInfoSDL& Device)
 	{
 		Device.Rumble.StandardRumble = false;
 		Device.Rumble.Supported = Device.Rumble.TriggerRumble;
-	}
-
-	UJoystickProfileManager* JoystickProfileManager = GetMutableDefault<UJoystickProfileManager>();
-	if (!IsValid(JoystickProfileManager))
-	{
-		return false;
 	}
 
 	FJoystickInputDeviceConfiguration* DeviceConfig = JoystickProfileManager->GetInputDeviceConfiguration(Device);
@@ -776,6 +910,7 @@ bool UJoystickSubsystem::AddDevice(FDeviceInfoSDL& Device)
 		FJoystickLogManager::Get()->LogDebug(TEXT("New device connected: %s (Device Id: %d)"), *Device.DeviceName, Device.GetInputDeviceId().GetId());
 	}
 
+	Device.Connected = true;
 	Devices.Emplace(Device.InstanceId, Device);
 	JoystickPluggedIn(Device);
 
@@ -933,61 +1068,20 @@ bool UJoystickSubsystem::FindExistingDevice(const FDeviceInfoSDL& Device, FJoyst
 
 void UJoystickSubsystem::InitialiseExistingJoysticks()
 {
-	const UJoystickInputSettings* JoystickInputSettings = GetDefault<UJoystickInputSettings>();
-	if (!IsValid(JoystickInputSettings))
-	{
-		return;
-	}
-
 	TArray<FDeviceInfoSDL> DeviceInfos;
 	int JoystickCount = 0;
-	const SDL_JoystickID* JoystickIds = SDL_GetJoysticks(&JoystickCount);
+	SDL_JoystickID* JoystickIds = SDL_GetJoysticks(&JoystickCount);
 	for (int i = 0; i < JoystickCount; i++)
 	{
-		const SDL_JoystickID& JoystickId = JoystickIds[i];
 		FDeviceInfoSDL Device;
-		if (BuildDeviceInfoForInstanceId(JoystickId, Device))
+		if (BuildDeviceInfoForInstanceId(JoystickIds[i], Device))
 		{
 			DeviceInfos.Add(Device);
 		}
 	}
+	SDL_free(JoystickIds);
 
-	for (FDeviceInfoSDL& Device : DeviceInfos)
-	{
-		if (JoystickInputSettings->PrioritiseCollectionIndex == false)
-		{
-			AddDevice(Device);
-			continue;
-		}
-
-		const FDeviceInfoSDL* ExistingDevice = DeviceInfos.FindByPredicate([&Device](const FDeviceInfoSDL& DeviceInfo)
-		{
-			return Device.InstanceId != DeviceInfo.InstanceId && Device.ProductGuid == DeviceInfo.ProductGuid; // Using GUID here as the hash cannot be properly generated without a serial number
-		});
-
-		if (ExistingDevice == nullptr || Device.CollectionIndex == -1)
-		{
-			AddDevice(Device);
-			continue;
-		}
-
-		bool HasCollectionPriority;
-		switch (JoystickInputSettings->PrioritisationMethod)
-		{
-			default:
-			case EJoystickPrioritisationType::Lowest:
-				HasCollectionPriority = Device.CollectionIndex < ExistingDevice->CollectionIndex;
-				break;
-			case EJoystickPrioritisationType::Highest:
-				HasCollectionPriority = Device.CollectionIndex > ExistingDevice->CollectionIndex;
-				break;
-		}
-
-		if (HasCollectionPriority)
-		{
-			AddDevice(Device);
-		}
-	}
+	AddDevices(DeviceInfos);
 }
 
 void UJoystickSubsystem::JoystickPluggedIn(const FDeviceInfoSDL& Device) const
@@ -1085,74 +1179,12 @@ bool UJoystickSubsystem::BuildDeviceInfoForInstanceId(const FJoystickInstanceId 
 	Device.SafeDeviceName = UJoystickFunctionLibrary::SanitiseDeviceName(Device.DeviceName);
 
 	Device.Path = UJoystickFunctionLibrary::SafelyStringify(SDL_GetJoystickPathForID(InstanceId));
-	Device.CollectionIndex = CollectionIndexFromPath(Device.Path);
+	Device.UpdateCollectionFromPath();
 
-	const SDL_GUID SDLGuid = SDL_GetJoystickGUIDForID(InstanceId);
-	ConvertSDLGuid(SDLGuid, Device.ProductGuid);
+	Device.ProductGuid = UJoystickFunctionLibrary::ConvertSDLGuid(SDL_GetJoystickGUIDForID(InstanceId));
+	Device.UpdateDeviceHash();
 
 	return Device.InstanceId != -1;
-}
-
-void UJoystickSubsystem::ConvertSDLGuid(const SDL_GUID& SdlGuid, FGuid& OutGuid) const
-{
-	FMemory::Memcpy(&OutGuid.A, &SdlGuid.data[0], 4);
-	FMemory::Memcpy(&OutGuid.B, &SdlGuid.data[4], 4);
-	FMemory::Memcpy(&OutGuid.C, &SdlGuid.data[8], 4);
-	FMemory::Memcpy(&OutGuid.D, &SdlGuid.data[12], 4);
-}
-
-FString UJoystickSubsystem::GenerateDeviceHash(const FDeviceInfoSDL& Device) const
-{
-	FString FullSignature = FString::Printf(TEXT("%s::%04X:%04X"),
-	                                        *Device.DeviceName.TrimStartAndEnd(),
-	                                        Device.VendorId,
-	                                        Device.ProductId
-	);
-
-	if (!Device.SerialNumber.IsEmpty())
-	{
-		FullSignature += FString::Printf(TEXT("::%s"), *Device.SerialNumber.TrimStartAndEnd());
-	}
-
-	const uint32 HashValue = GetTypeHash(FullSignature);
-	return FString::Printf(TEXT("%08X"), HashValue);
-}
-
-int UJoystickSubsystem::CollectionIndexFromPath(const FString& Path) const
-{
-#if PLATFORM_WINDOWS
-	const int32 GuidMarker = Path.Find(TEXT("#{"), ESearchCase::IgnoreCase, ESearchDir::FromEnd);
-	if (GuidMarker == INDEX_NONE)
-	{
-		return -1;
-	}
-
-	const int32 LastAmpersand = Path.Left(GuidMarker).Find(
-		TEXT("&"),
-		ESearchCase::CaseSensitive,
-		ESearchDir::FromEnd
-	);
-
-	if (LastAmpersand == INDEX_NONE)
-	{
-		return -1;
-	}
-
-	const FString IndexString = Path.Mid(
-		LastAmpersand + 1,
-		GuidMarker - LastAmpersand - 1
-	);
-
-	if (!IndexString.IsNumeric())
-	{
-		return -1;
-	}
-
-	return FCString::Atoi(*IndexString);
-#else
-	//TODO: Other platform support
-	return -1;
-#endif
 }
 
 FString UJoystickSubsystem::GamepadMappingFile("gamecontrollerdb.txt");

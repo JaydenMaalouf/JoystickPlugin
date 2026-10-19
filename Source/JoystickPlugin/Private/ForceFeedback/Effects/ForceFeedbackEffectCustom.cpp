@@ -31,8 +31,8 @@ void UForceFeedbackEffectCustom::UpdateEffectData()
 	SampleData.Reset();
 	SampleData.SetNumZeroed(RequiredSamples);
 
-	const int32 SamplesToCopy = FMath::Min(EffectData.Data.Num(), RequiredSamples);
-	for (int32 i = 0; i < SamplesToCopy; i++)
+	const int SamplesToCopy = FMath::Min(EffectData.Data.Num(), RequiredSamples);
+	for (int i = 0; i < SamplesToCopy; i++)
 	{
 		SampleData[i] = FForceFeedbackConversion::ToSample(EffectData.Data[i]);
 	}

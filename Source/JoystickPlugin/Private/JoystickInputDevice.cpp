@@ -924,7 +924,7 @@ int FJoystickInputDevice::GetAxisIndexFromKey(const FKey& Key) const
 		}
 	}
 
-	return -1;
+	return INDEX_NONE;
 }
 
 int FJoystickInputDevice::GetButtonIndexFromKey(const FKey& Key) const
@@ -937,7 +937,7 @@ int FJoystickInputDevice::GetButtonIndexFromKey(const FKey& Key) const
 		}
 	}
 
-	return -1;
+	return INDEX_NONE;
 }
 
 void FJoystickInputDevice::ResetAxisProperties()

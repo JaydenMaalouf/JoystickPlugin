@@ -19,6 +19,8 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceConfiguration
 	FJoystickInputDeviceConfiguration()
 		: DeviceIdentifyMethod(EJoystickIdentifierType::Hashed)
 		  , OverrideDeviceName(false)
+		  , LimitCollectionIndex(false)
+		  , CollectionIndex(INDEX_NONE)
 		  , OverrideForceFeedbackProperties(false)
 	{
 	}
@@ -27,6 +29,8 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceConfiguration
 		: DeviceIdentifyMethod(EJoystickIdentifierType::Hashed)
 		  , ProductGuid(JoystickProductId)
 		  , OverrideDeviceName(false)
+		  , LimitCollectionIndex(false)
+		  , CollectionIndex(INDEX_NONE)
 		  , OverrideForceFeedbackProperties(false)
 	{
 	}
@@ -35,6 +39,8 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceConfiguration
 		: DeviceIdentifyMethod(EJoystickIdentifierType::Hashed)
 		  , DeviceHash(JoystickHash)
 		  , OverrideDeviceName(false)
+		  , LimitCollectionIndex(false)
+		  , CollectionIndex(INDEX_NONE)
 		  , OverrideForceFeedbackProperties(false)
 	{
 	}
@@ -56,6 +62,14 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceConfiguration
 	UPROPERTY(EditAnywhere, Category="Device Config", meta=(EditCondition="OverrideDeviceName", EditConditionHides, ConfigRestartRequired=true), NoClear)
 	FString DeviceName;
 
+	UPROPERTY(EditAnywhere, Category="Device Config",
+		meta=(ToolTip="If enabled, only the driver collection matching the Collection Index is connected for devices that expose multiple collections. Takes priority over the global collection index prioritisation.", ConfigRestartRequired=
+			true))
+	bool LimitCollectionIndex;
+
+	UPROPERTY(EditAnywhere, Category="Device Config", meta=(EditCondition="LimitCollectionIndex", EditConditionHides, ClampMin="0", ConfigRestartRequired=true))
+	int32 CollectionIndex;
+
 	UPROPERTY(EditAnywhere, Category="Device Config", meta=(TitleProperty="AxisIndex"))
 	TArray<FJoystickInputDeviceAxisProperties> AxisProperties;
 
@@ -72,7 +86,7 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceConfiguration
 	{
 		return AxisProperties.FindByPredicate([AxisIndex](const FJoystickInputDeviceAxisProperties& AxisProperty)
 		{
-			return AxisProperty.AxisIndex != -1 && AxisProperty.AxisIndex == AxisIndex;
+			return AxisProperty.AxisIndex != INDEX_NONE && AxisProperty.AxisIndex == AxisIndex;
 		});
 	}
 
@@ -80,7 +94,7 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceConfiguration
 	{
 		return ButtonProperties.FindByPredicate([ButtonIndex](const FJoystickInputDeviceButtonProperties& ButtonProperty)
 		{
-			return ButtonProperty.ButtonIndex != -1 && ButtonProperty.ButtonIndex == ButtonIndex;
+			return ButtonProperty.ButtonIndex != INDEX_NONE && ButtonProperty.ButtonIndex == ButtonIndex;
 		});
 	}
 
@@ -88,6 +102,12 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceConfiguration
 	{
 		OverrideDeviceName = Other.OverrideDeviceName;
 		DeviceName = Other.DeviceName;
+
+		if (Other.LimitCollectionIndex)
+		{
+			LimitCollectionIndex = true;
+			CollectionIndex = Other.CollectionIndex;
+		}
 
 		for (FJoystickInputDeviceAxisProperties& AxisProperty : AxisProperties)
 		{

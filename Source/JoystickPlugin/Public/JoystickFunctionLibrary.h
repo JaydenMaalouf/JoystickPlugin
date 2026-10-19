@@ -1,4 +1,4 @@
-// JoystickPlugin is licensed under the MIT License.
+﻿// JoystickPlugin is licensed under the MIT License.
 // Copyright Jayden Maalouf 2026. All Rights Reserved.
 
 #pragma once
@@ -8,6 +8,8 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 
 #include "JoystickFunctionLibrary.generated.h"
+
+struct SDL_GUID;
 
 UCLASS()
 class JOYSTICKPLUGIN_API UJoystickFunctionLibrary final : public UBlueprintFunctionLibrary
@@ -37,4 +39,5 @@ public:
 	static FString SanitiseDeviceName(const FString& InDeviceName, const bool AllowSpaces = false);
 	static FString SafelyStringify(const wchar_t* Input);
 	static FString SafelyStringify(const char* Input);
+	static FGuid ConvertSDLGuid(const SDL_GUID& SdlGuid);
 };

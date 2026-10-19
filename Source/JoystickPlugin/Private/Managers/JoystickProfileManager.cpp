@@ -47,7 +47,7 @@ bool UJoystickProfileManager::UpdateAxisConfiguration(const FKey& AxisKey, FJoys
 	}
 
 	const int AxisIndex = InputDevice->GetAxisIndexFromKey(AxisKey);
-	if (AxisIndex == -1)
+	if (AxisIndex == INDEX_NONE)
 	{
 		return false;
 	}
@@ -123,7 +123,7 @@ bool UJoystickProfileManager::UpdateButtonConfiguration(const FKey& ButtonKey, F
 	}
 
 	const int ButtonIndex = InputDevice->GetButtonIndexFromKey(ButtonKey);
-	if (ButtonIndex == -1)
+	if (ButtonIndex == INDEX_NONE)
 	{
 		return false;
 	}
@@ -228,6 +228,11 @@ void UJoystickProfileManager::LoadJoystickProfiles()
 						{
 							DeviceConfiguration.OverrideDeviceName = true;
 							DeviceConfiguration.DeviceName = ValueString;
+						}
+						else if (Key == GET_MEMBER_NAME_CHECKED(FJoystickInputDeviceConfiguration, CollectionIndex))
+						{
+							DeviceConfiguration.LimitCollectionIndex = true;
+							DeviceConfiguration.CollectionIndex = AsInteger(ValueString);
 						}
 					}
 				}
@@ -450,6 +455,11 @@ bool UJoystickProfileManager::CreateJoystickProfile(const FString& DeviceProfile
 		ProfileConfigFile.SetString(*JoystickConfigurationSection, GET_MEMBER_NAME_STRING_CHECKED(FJoystickInputDeviceConfiguration, DeviceName), *DeviceConfiguration.DeviceName);
 	}
 
+	if (DeviceConfiguration.LimitCollectionIndex)
+	{
+		ProfileConfigFile.SetString(*JoystickConfigurationSection, GET_MEMBER_NAME_STRING_CHECKED(FJoystickInputDeviceConfiguration, CollectionIndex), *FString::FromInt(DeviceConfiguration.CollectionIndex));
+	}
+
 	for (int AxisPropertyIndex = 0; AxisPropertyIndex < DeviceConfiguration.AxisProperties.Num(); ++AxisPropertyIndex)
 	{
 		const FJoystickInputDeviceAxisProperties& AxisProperties = DeviceConfiguration.AxisProperties[AxisPropertyIndex];
@@ -506,7 +516,7 @@ const FJoystickInputDeviceAxisProperties* UJoystickProfileManager::GetAxisProper
 	}
 
 	const int AxisIndex = InputDevice->GetAxisIndexFromKey(AxisKey);
-	if (AxisIndex == -1)
+	if (AxisIndex == INDEX_NONE)
 	{
 		return nullptr;
 	}
@@ -535,7 +545,7 @@ const FJoystickInputDeviceButtonProperties* UJoystickProfileManager::GetButtonPr
 	}
 
 	const int ButtonIndex = InputDevice->GetButtonIndexFromKey(AxisKey);
-	if (ButtonIndex == -1)
+	if (ButtonIndex == INDEX_NONE)
 	{
 		return nullptr;
 	}

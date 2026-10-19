@@ -1,4 +1,4 @@
-// JoystickPlugin is licensed under the MIT License.
+﻿// JoystickPlugin is licensed under the MIT License.
 // Copyright Jayden Maalouf 2026. All Rights Reserved.
 
 #include "JoystickFunctionLibrary.h"
@@ -164,7 +164,7 @@ FString UJoystickFunctionLibrary::SafelyStringify(const wchar_t* Input)
 		return TEXT("");
 	}
 
-	return UTF8_TO_TCHAR(Input);
+	return WCHAR_TO_TCHAR(Input);
 }
 
 FString UJoystickFunctionLibrary::SafelyStringify(const char* Input)
@@ -175,4 +175,14 @@ FString UJoystickFunctionLibrary::SafelyStringify(const char* Input)
 	}
 
 	return UTF8_TO_TCHAR(Input);
+}
+
+FGuid UJoystickFunctionLibrary::ConvertSDLGuid(const SDL_GUID& SdlGuid)
+{
+	FGuid Guid;
+	FMemory::Memcpy(&Guid.A, &SdlGuid.data[0], 4);
+	FMemory::Memcpy(&Guid.B, &SdlGuid.data[4], 4);
+	FMemory::Memcpy(&Guid.C, &SdlGuid.data[8], 4);
+	FMemory::Memcpy(&Guid.D, &SdlGuid.data[12], 4);
+	return Guid;
 }

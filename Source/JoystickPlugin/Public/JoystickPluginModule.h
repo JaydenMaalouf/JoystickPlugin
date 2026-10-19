@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "ForceFeedback/Debug/ForceFeedbackDebugOverlay.h"
 #include "Interfaces/JoystickPluginInterface.h"
 
 class FJoystickInputDevice;
@@ -26,8 +25,4 @@ public:
 private:
 	void* SdlDllHandle = nullptr;
 	TSharedPtr<FJoystickInputDevice> JoystickInputDevice;
-
-#if !UE_BUILD_SHIPPING
-	FForceFeedbackDebugOverlay ForceFeedbackDebugOverlay;
-#endif
 };
