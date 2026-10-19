@@ -16,7 +16,7 @@ class SButtonBox;
 class SAxisBar;
 class SWindow;
 
-class JOYSTICKPLUGINEDITOR_API SJoystickInputViewer final : public SCompoundWidget
+class SJoystickInputViewer final : public SCompoundWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SJoystickInputViewer)

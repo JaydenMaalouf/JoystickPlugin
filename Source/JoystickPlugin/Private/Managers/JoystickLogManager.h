@@ -24,7 +24,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogJoystickPlugin, Log, All);
 
 #define JOYSTICK_LOG(Verbosity, Message) UE_LOG(LogJoystickPlugin, Verbosity, TEXT("%s"), Message)
 
-class JOYSTICKPLUGIN_API FJoystickLogManager
+class FJoystickLogManager
 {
 public:
 	static FJoystickLogManager* Get();

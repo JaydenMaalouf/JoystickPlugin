@@ -27,7 +27,7 @@ struct FPropertyAndParent;
 struct FPropertyChangedEvent;
 
 // Editor tool for authoring and previewing force feedback effects against a connected device.
-class JOYSTICKPLUGINEDITOR_API SHapticEffectEditor final : public SCompoundWidget, public FEditorUndoClient
+class SHapticEffectEditor final : public SCompoundWidget, public FEditorUndoClient
 {
 public:
 	SLATE_BEGIN_ARGS(SHapticEffectEditor)

@@ -8,7 +8,7 @@
 #include "Widgets/SCompoundWidget.h"
 #include "Data/Settings/JoystickInputDeviceButtonProperties.h"
 
-class JOYSTICKPLUGINEDITOR_API SButtonConfigurationEditor final : public SBaseKeyConfigurationEditor
+class SButtonConfigurationEditor final : public SBaseKeyConfigurationEditor
 {
 public:
 	SLATE_BEGIN_ARGS(SButtonConfigurationEditor)

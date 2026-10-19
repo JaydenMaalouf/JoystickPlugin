@@ -12,7 +12,7 @@ class SAxisBar;
 template <typename NumericType>
 class SNumericEntryBox;
 
-class JOYSTICKPLUGINEDITOR_API SAxisConfigurationEditor final : public SBaseKeyConfigurationEditor
+class SAxisConfigurationEditor final : public SBaseKeyConfigurationEditor
 {
 public:
 	SLATE_BEGIN_ARGS(SAxisConfigurationEditor)

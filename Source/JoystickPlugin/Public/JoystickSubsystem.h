@@ -121,12 +121,9 @@ public:
 	void InitialiseInputDevice(const TSharedPtr<FJoystickInputDevice>& NewInputDevice);
 	void Update() const;
 
-	TTuple<FDeviceInfoSDL*, FInternalResultMessage> GetDeviceInfo(const FJoystickInstanceId& InstanceId);
 	FJoystickDeviceState CreateInitialDeviceState(const FJoystickInstanceId& InstanceId);
 
 	FJoystickInputDevice* GetInputDevice() const;
-
-	const TMap<FJoystickInstanceId, FDeviceInfoSDL>& GetDevices();
 
 	UPROPERTY(BlueprintAssignable, Category="Joystick|Subsystem|Delegates")
 	FOnJoystickSubsystemReady JoystickSubsystemReady;
@@ -135,6 +132,12 @@ public:
 	FOnJoystickSubsystemReady JoystickSubsystemInitialised;
 
 private:
+	friend class FJoystickInputDevice;
+	friend class UJoystickHapticDeviceManager;
+
+	TTuple<FDeviceInfoSDL*, FInternalResultMessage> GetDeviceInfo(const FJoystickInstanceId& InstanceId);
+	const TMap<FJoystickInstanceId, FDeviceInfoSDL>& GetDevices();
+
 	static bool HandleSDLEvent(void* UserData, SDL_Event* Event);
 
 	void QueueDevice(const FJoystickInstanceId& InstanceId);

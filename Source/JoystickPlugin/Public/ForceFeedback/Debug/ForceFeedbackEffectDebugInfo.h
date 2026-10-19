@@ -7,7 +7,7 @@
 #include "Data/JoystickInstanceId.h"
 #include "UObject/ObjectKey.h"
 
-struct JOYSTICKPLUGIN_API FForceFeedbackEffectDebugInfo
+struct FForceFeedbackEffectDebugInfo
 {
 	using FValueList = TArray<TPair<FName, float>, TInlineAllocator<8>>;
 	using FTextValueList = TArray<TPair<FName, FName>, TInlineAllocator<2>>;

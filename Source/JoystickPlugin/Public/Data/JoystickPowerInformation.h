@@ -8,7 +8,7 @@
 #include "JoystickPowerInformation.generated.h"
 
 USTRUCT(BlueprintType)
-struct FJoystickPowerInformation
+struct JOYSTICKPLUGIN_API FJoystickPowerInformation
 {
 	GENERATED_BODY()
 

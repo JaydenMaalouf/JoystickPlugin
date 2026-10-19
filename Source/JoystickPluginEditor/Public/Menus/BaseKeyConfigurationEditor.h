@@ -8,7 +8,7 @@
 
 class SAxisBar;
 
-class JOYSTICKPLUGINEDITOR_API SBaseKeyConfigurationEditor : public SCompoundWidget
+class SBaseKeyConfigurationEditor : public SCompoundWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SBaseKeyConfigurationEditor)

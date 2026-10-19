@@ -13,7 +13,7 @@
 
 // A device's full input state, each input in the order SDL indexes them.
 USTRUCT(BlueprintType)
-struct FJoystickDeviceState
+struct JOYSTICKPLUGIN_API FJoystickDeviceState
 {
 	GENERATED_BODY()
 
