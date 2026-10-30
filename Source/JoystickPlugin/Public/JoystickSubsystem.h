@@ -79,7 +79,7 @@ public:
 	bool GetJoystickPowerInformation(const FJoystickInstanceId& InstanceId, FJoystickPowerInformation& PowerInformation);
 
 	UFUNCTION(BlueprintCallable, Category="Joystick")
-	void MapJoystickDeviceToPlayer(const FJoystickInstanceId& InstanceId, const int PlayerId);
+	void AssignJoystickToPlatformUser(const FJoystickInstanceId& InstanceId, const int PlatformUserId);
 
 	UFUNCTION(BlueprintCallable, Category="Joystick")
 	void SetIgnoreGamepads(const bool IgnoreGamepads);
@@ -125,6 +125,12 @@ public:
 	FJoystickDeviceState CreateInitialDeviceState(const FJoystickInstanceId& InstanceId);
 
 	FJoystickInputDevice* GetInputDevice() const;
+
+	// The current time on the same clock as the input data's timestamps: nanoseconds since SDL started.
+	static uint64 GetTicksNS();
+
+	// The current time on the same clock as force feedback effect playback: milliseconds since SDL started, the unit SDL's haptic effects are timed in.
+	static uint64 GetTicks();
 
 	UPROPERTY(BlueprintAssignable, Category="Joystick|Subsystem|Delegates")
 	FOnJoystickSubsystemReady JoystickSubsystemReady;

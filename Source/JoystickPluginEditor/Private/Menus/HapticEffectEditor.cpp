@@ -6,7 +6,6 @@
 #include "DetailsViewArgs.h"
 #include "Editor.h"
 #include "IDetailsView.h"
-#include "JoystickFunctionLibrary.h"
 #include "JoystickSubsystem.h"
 #include "PropertyEditorDelegates.h"
 #include "PropertyEditorModule.h"
@@ -806,7 +805,7 @@ void SHapticEffectEditor::UpdateConditionLiveMotion()
 	// Without that a stopped axis would keep the motion it last had until its final reads left the window.
 	// Raw Value rather than GetValue(), the same as the device preview, to follow where the hardware physically is.
 	constexpr double NanosecondsToSeconds = 1.0e-9;
-	const double CurrentTime = UJoystickFunctionLibrary::GetTicksNS() * NanosecondsToSeconds;
+	const double CurrentTime = UJoystickSubsystem::GetTicksNS() * NanosecondsToSeconds;
 	const bool bIsNewRead = Axis->Timestamp != ConditionLastReadTimestamp;
 	ConditionLastReadTimestamp = Axis->Timestamp;
 	ConditionPositionHistory.Emplace(bIsNewRead ? Axis->Timestamp * NanosecondsToSeconds : CurrentTime, Axis->Value);

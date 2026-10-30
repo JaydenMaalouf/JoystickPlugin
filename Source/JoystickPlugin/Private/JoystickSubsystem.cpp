@@ -236,9 +236,9 @@ bool UJoystickSubsystem::GetJoystickPowerInformation(const FJoystickInstanceId& 
 	return true;
 }
 
-void UJoystickSubsystem::MapJoystickDeviceToPlayer(const FJoystickInstanceId& InstanceId, const int PlayerId)
+void UJoystickSubsystem::AssignJoystickToPlatformUser(const FJoystickInstanceId& InstanceId, const int PlatformUserId)
 {
-	FJoystickLogManager::Get()->LogDebug(TEXT("Remapping Joystick %d to Player Id %d"), InstanceId.Value, PlayerId);
+	FJoystickLogManager::Get()->LogDebug(TEXT("Remapping Joystick %d to PlatformUserId %d"), InstanceId.Value, PlatformUserId);
 	auto [DeviceInfo, Result] = GetDeviceInfo(InstanceId);
 	if (DeviceInfo == nullptr || Result.bSuccess == false)
 	{
@@ -246,12 +246,20 @@ void UJoystickSubsystem::MapJoystickDeviceToPlayer(const FJoystickInstanceId& In
 		return;
 	}
 
-	DeviceInfo->SetPlatformUserId(FPlatformUserId::CreateFromInternalId(PlayerId));
+	const FPlatformUserId NewPlatformUserId = FPlatformUserId::CreateFromInternalId(PlatformUserId);
 
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
 	IPlatformInputDeviceMapper& DeviceMapper = IPlatformInputDeviceMapper::Get();
-	DeviceMapper.Internal_MapInputDeviceToUser(DeviceInfo->GetInputDeviceId(), DeviceInfo->GetPlatformUserId(), EInputDeviceConnectionState::Unknown);
+	const FPlatformUserId OldPlatformUserId = DeviceMapper.GetUserForInputDevice(DeviceInfo->GetInputDeviceId());
+	const bool MappedDevice = DeviceMapper.Internal_ChangeInputDeviceUserMapping(DeviceInfo->GetInputDeviceId(), NewPlatformUserId, OldPlatformUserId);
+	if (MappedDevice == false)
+	{
+		FJoystickLogManager::Get()->LogError(TEXT("Remapping Joystick %d to PlatformUserId %d failed."), InstanceId.Value, PlatformUserId);
+		return;
+	}
 #endif
+
+	DeviceInfo->SetPlatformUserId(NewPlatformUserId);
 }
 
 void UJoystickSubsystem::SetIgnoreGamepads(const bool IgnoreGamepads)
@@ -435,12 +443,18 @@ bool UJoystickSubsystem::HasEngineForceFeedbackDevice() const
 
 bool UJoystickSubsystem::IsConnected(const FJoystickInstanceId& InstanceId) const
 {
-	if (!Devices.Contains(InstanceId))
+	if (!InstanceId.IsValid())
 	{
 		return false;
 	}
 
-	return Devices[InstanceId].Connected;
+	const FDeviceInfoSDL* Device = Devices.Find(InstanceId);
+	if (Device == nullptr)
+	{
+		return false;
+	}
+
+	return Device->Connected;
 }
 
 void UJoystickSubsystem::InitialiseInputDevice(const TSharedPtr<FJoystickInputDevice>& NewInputDevice)
@@ -481,22 +495,6 @@ void UJoystickSubsystem::Update() const
 	}
 }
 
-TTuple<FDeviceInfoSDL*, FInternalResultMessage> UJoystickSubsystem::GetDeviceInfo(const FJoystickInstanceId& InstanceId)
-{
-	if (GetJoystickCount() == 0)
-	{
-		return {nullptr, FInternalResultMessage(false, TEXT("Device list is empty."))};
-	}
-
-	FDeviceInfoSDL* Device = Devices.Find(InstanceId);
-	if (Device == nullptr)
-	{
-		return {nullptr, FInternalResultMessage(false, TEXT("Device not found."))};
-	}
-
-	return {Device, FInternalResultMessage(true)};
-}
-
 FJoystickDeviceState UJoystickSubsystem::CreateInitialDeviceState(const FJoystickInstanceId& InstanceId)
 {
 	auto [DeviceInfo, Result] = GetDeviceInfo(InstanceId);
@@ -522,7 +520,7 @@ FJoystickDeviceState UJoystickSubsystem::CreateInitialDeviceState(const FJoystic
 		}
 
 		const int16 CurrentValue = SDL_GetJoystickAxis(DeviceInfo->SDLJoystick, AxisIndex);
-		DeviceState.Axes[AxisIndex].Update(UJoystickFunctionLibrary::NormalizeAxisRaw(CurrentValue), static_cast<int64>(UJoystickFunctionLibrary::GetTicksNS()));
+		DeviceState.Axes[AxisIndex].Update(UJoystickFunctionLibrary::NormalizeAxisRaw(CurrentValue), static_cast<int64>(GetTicksNS()));
 	}
 
 	DeviceState.Buttons.SetNumZeroed(ButtonCount);
@@ -540,6 +538,37 @@ FJoystickInputDevice* UJoystickSubsystem::GetInputDevice() const
 	}
 
 	return InputDevicePtr.Get();
+}
+
+uint64 UJoystickSubsystem::GetTicksNS()
+{
+	return SDL_GetTicksNS();
+}
+
+uint64 UJoystickSubsystem::GetTicks()
+{
+	return SDL_GetTicks();
+}
+
+TTuple<FDeviceInfoSDL*, FInternalResultMessage> UJoystickSubsystem::GetDeviceInfo(const FJoystickInstanceId& InstanceId)
+{
+	if (!InstanceId.IsValid())
+	{
+		return {nullptr, FInternalResultMessage(false, TEXT("Invalid instance id."))};
+	}
+
+	if (GetJoystickCount() == 0)
+	{
+		return {nullptr, FInternalResultMessage(false, TEXT("Device list is empty."))};
+	}
+
+	FDeviceInfoSDL* Device = Devices.Find(InstanceId);
+	if (Device == nullptr)
+	{
+		return {nullptr, FInternalResultMessage(false, TEXT("Device not found."))};
+	}
+
+	return {Device, FInternalResultMessage(true)};
 }
 
 const TMap<FJoystickInstanceId, FDeviceInfoSDL>& UJoystickSubsystem::GetDevices()

@@ -25,12 +25,6 @@ public:
 
 	static EHatDirection HatValueToDirection(const int8 Value);
 
-	// The current time on the same clock as the input data's timestamps: nanoseconds since SDL started.
-	static uint64 GetTicksNS();
-
-	// The current time on the same clock as force feedback effect playback: milliseconds since SDL started, the unit SDL's haptic effects are timed in.
-	static uint64 GetTicks();
-
 	UFUNCTION(BlueprintPure, Category="Joystick|Hat")
 	static FString HatDirectionAsString(EHatDirection Value);
 

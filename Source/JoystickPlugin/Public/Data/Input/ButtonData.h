@@ -61,7 +61,7 @@ struct JOYSTICKPLUGIN_API FButtonData
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Button")
 	bool InvertOutput;
 
-	// When SDL read the current value, in nanoseconds on UJoystickFunctionLibrary::GetTicksNS()'s clock.
+	// When SDL read the current value, in nanoseconds.
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Button")
 	int64 Timestamp;
 };

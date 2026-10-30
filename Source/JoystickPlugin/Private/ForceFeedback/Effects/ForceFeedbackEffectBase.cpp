@@ -8,7 +8,7 @@
 #include "ForceFeedback/ForceFeedbackEffectEvaluation.h"
 #include "ForceFeedback/Debug/ForceFeedbackDebug.h"
 #include "GameFramework/Actor.h"
-#include "JoystickFunctionLibrary.h"
+#include "JoystickSubsystem.h"
 #include "Managers/JoystickHapticDeviceManager.h"
 #include "Managers/JoystickLogManager.h"
 #include "Runtime/Launch/Resources/Version.h"
@@ -21,7 +21,6 @@ THIRD_PARTY_INCLUDES_END
 
 UForceFeedbackEffectBase::UForceFeedbackEffectBase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
-	  , InstanceId(-1)
 	  , EffectId(-1)
 	  , IsInitialised(false)
 	  , Iterations(1)
@@ -183,7 +182,7 @@ bool UForceFeedbackEffectBase::StartEffect()
 	{
 		return false;
 	}
-	StartTime = UJoystickFunctionLibrary::GetTicks();
+	StartTime = UJoystickSubsystem::GetTicks();
 	EffectRunning = true;
 
 	//Safety check to ensure we don't try calling BP during destruction
@@ -365,7 +364,7 @@ void UForceFeedbackEffectBase::TickEffect(const float DeltaTime)
 
 		if (ShouldCheck)
 		{
-			const uint64 CurrentTime = UJoystickFunctionLibrary::GetTicks();
+			const uint64 CurrentTime = UJoystickSubsystem::GetTicks();
 
 			// The effect waits out its delay, then runs once per iteration, so it only lapses after the last one.
 			// Both operands are 32-bit, so the duration is widened first to keep a long total from wrapping.
@@ -416,7 +415,7 @@ uint64 UForceFeedbackEffectBase::GetElapsedTimeMilliseconds() const
 		return 0;
 	}
 
-	return UJoystickFunctionLibrary::GetTicks() - StartTime;
+	return UJoystickSubsystem::GetTicks() - StartTime;
 }
 
 void UForceFeedbackEffectBase::SetInstanceId(const FJoystickInstanceId& NewInstanceId)

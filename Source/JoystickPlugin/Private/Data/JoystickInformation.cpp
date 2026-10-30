@@ -3,8 +3,7 @@
 
 #include "Data/JoystickInformation.h"
 
-FJoystickInformation::FJoystickInformation() : InstanceId(-1)
-                                               , Type(EJoystickType::Unknown)
+FJoystickInformation::FJoystickInformation() : Type(EJoystickType::Unknown)
                                                , ProductId(0)
                                                , FirmwareVersion(0)
                                                , ProductVersion(0)

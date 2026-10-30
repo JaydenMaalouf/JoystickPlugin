@@ -51,7 +51,7 @@ struct JOYSTICKPLUGIN_API FHatData
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Hat")
 	EHatDirection PreviousDirection;
 
-	// When SDL read the current value, in nanoseconds on UJoystickFunctionLibrary::GetTicksNS()'s clock.
+	// When SDL read the current value, in nanoseconds.
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Hat")
 	int64 Timestamp;
 };

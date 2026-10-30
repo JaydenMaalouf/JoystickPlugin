@@ -15,7 +15,6 @@
 
 UJoystickForceFeedbackComponent::UJoystickForceFeedbackComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
-	  , InstanceId(-1)
 	  , Running(false)
 	  , Tickable(true)
 	  , RegisteredSolver(nullptr)

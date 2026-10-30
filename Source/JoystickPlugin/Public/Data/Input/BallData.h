@@ -49,7 +49,7 @@ struct JOYSTICKPLUGIN_API FBallData
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Ball")
 	FVector2D PreviousDirection;
 
-	// When SDL read the current value, in nanoseconds on UJoystickFunctionLibrary::GetTicksNS()'s clock.
+	// When SDL read the current value, in nanoseconds.
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Ball")
 	int64 Timestamp;
 };

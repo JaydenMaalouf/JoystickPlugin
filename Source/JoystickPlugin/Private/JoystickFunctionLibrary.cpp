@@ -74,16 +74,6 @@ EHatDirection UJoystickFunctionLibrary::HatValueToDirection(const int8 Value)
 	}
 }
 
-uint64 UJoystickFunctionLibrary::GetTicksNS()
-{
-	return SDL_GetTicksNS();
-}
-
-uint64 UJoystickFunctionLibrary::GetTicks()
-{
-	return SDL_GetTicks();
-}
-
 FString UJoystickFunctionLibrary::HatDirectionAsString(EHatDirection Value)
 {
 	static const UEnum* EnumPtr = StaticEnum<EHatDirection>();

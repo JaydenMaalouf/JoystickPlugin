@@ -13,8 +13,8 @@ struct JOYSTICKPLUGIN_API FMotionData
 
 	FMotionData()
 		: Gyro(FVector::ZeroVector)
-		  , Accelerometer(FVector::ZeroVector)
 		  , GyroTimestamp(0)
+		  , Accelerometer(FVector::ZeroVector)
 		  , AccelerometerTimestamp(0)
 	{
 	}
@@ -35,15 +35,15 @@ struct JOYSTICKPLUGIN_API FMotionData
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Motion")
 	FVector Gyro;
 
+	// When SDL read the current gyro value, in nanoseconds.
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Motion")
+	int64 GyroTimestamp;
+
 	// The accelerometer's reading, in metres per second squared, as SDL reports it.
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Motion")
 	FVector Accelerometer;
 
-	// When SDL read the current gyro value, in nanoseconds on UJoystickFunctionLibrary::GetTicksNS()'s clock.
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Motion")
-	int64 GyroTimestamp;
-
-	// When SDL read the current accelerometer value, in nanoseconds on UJoystickFunctionLibrary::GetTicksNS()'s clock.
+	// When SDL read the current accelerometer value, in nanoseconds.
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Motion")
 	int64 AccelerometerTimestamp;
 };

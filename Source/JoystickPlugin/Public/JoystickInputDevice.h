@@ -67,6 +67,9 @@ private:
 #endif
 	void TryAddWidgetNavigation(const FKey& ButtonKey) const;
 
+	template <typename TKey>
+	static const TKey& FindDeviceKey(const TMap<FJoystickInstanceId, TArray<TKey>>& KeyMap, const FJoystickInstanceId& InstanceId, const int Index, const TKey& Fallback);
+
 	TMap<FJoystickInstanceId, FJoystickDeviceState> JoystickDeviceState;
 
 	TMap<FJoystickInstanceId, TArray<FKey>> DeviceButtonKeys;
@@ -79,4 +82,6 @@ private:
 	TMap<FJoystickInstanceId, TArray<FKey>> DeviceKeys;
 
 	TSharedRef<FGenericApplicationMessageHandler> MessageHandler;
+
+	static const FKeyPair InvalidKeyPair;
 };

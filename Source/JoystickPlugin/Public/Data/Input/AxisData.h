@@ -56,7 +56,7 @@ struct JOYSTICKPLUGIN_API FAxisData : public FJoystickAxisRemapping
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Axis")
 	float PreviousValue;
 
-	// When SDL read the current value, in nanoseconds on UJoystickFunctionLibrary::GetTicksNS()'s clock.
+	// When SDL read the current value, in nanoseconds.
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Axis")
 	int64 Timestamp;
 };
