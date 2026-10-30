@@ -5,8 +5,7 @@
 
 #include "JoystickInputDeviceAxisProperties.h"
 #include "JoystickInputDeviceButtonProperties.h"
-
-#include "Data/JoystickIdentifierType.h"
+#include "JoystickInputDeviceForceFeedbackProperties.h"
 
 #include "JoystickInputDeviceConfiguration.generated.h"
 
@@ -16,34 +15,24 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceConfiguration
 	GENERATED_BODY()
 
 	FJoystickInputDeviceConfiguration()
-		: DeviceIdentifyMethod(EJoystickIdentifierType::Hashed)
-		  , OverrideDeviceName(false)
-	{
-	}
-
-	FJoystickInputDeviceConfiguration(const FGuid& JoystickProductId)
-		: DeviceIdentifyMethod(EJoystickIdentifierType::Hashed)
-		  , ProductGuid(JoystickProductId)
-		  , OverrideDeviceName(false)
+		: OverrideDeviceName(false)
+		  , LimitCollectionIndex(false)
+		  , CollectionIndex(INDEX_NONE)
+		  , OverrideForceFeedbackProperties(false)
 	{
 	}
 
 	FJoystickInputDeviceConfiguration(const FString& JoystickHash)
-		: DeviceIdentifyMethod(EJoystickIdentifierType::Hashed)
-		  , DeviceHash(JoystickHash)
+		: DeviceHash(JoystickHash)
 		  , OverrideDeviceName(false)
+		  , LimitCollectionIndex(false)
+		  , CollectionIndex(INDEX_NONE)
+		  , OverrideForceFeedbackProperties(false)
 	{
 	}
 
-	UPROPERTY(EditAnywhere, Category="Joystick Settings",
-		meta=(ToolTip="Method to identify a joystick to apply configurations to.", ConfigRestartRequired=true))
-	EJoystickIdentifierType DeviceIdentifyMethod;
-
-	UPROPERTY(EditAnywhere, Category="Device Config", meta=(ToolTip="Used to determine the device to apply the configuration to.", EditCondition="DeviceIdentifyMethod == EJoystickIdentifierType::Hashed", EditConditionHides))
+	UPROPERTY(EditAnywhere, Category="Device Config", meta=(ToolTip="Used to determine the device to apply the configuration to."))
 	FString DeviceHash;
-
-	UPROPERTY(EditAnywhere, Category="Device Config", meta=(ToolTip="Used to determine the device to apply the configuration to.", EditCondition="DeviceIdentifyMethod == EJoystickIdentifierType::Legacy", EditConditionHides))
-	FGuid ProductGuid;
 
 	UPROPERTY(EditAnywhere, Category="Device Config",
 		meta=(ToolTip="If enabled and the global setting for using Device Names as input, it will use the name specified as part of the key name. Requires a restart to apply.", ConfigRestartRequired=true))
@@ -52,17 +41,43 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceConfiguration
 	UPROPERTY(EditAnywhere, Category="Device Config", meta=(EditCondition="OverrideDeviceName", EditConditionHides, ConfigRestartRequired=true), NoClear)
 	FString DeviceName;
 
+	UPROPERTY(EditAnywhere, Category="Device Config",
+		meta=(ToolTip="If enabled, only the driver collection matching the Collection Index is connected for devices that expose multiple collections. Takes priority over the global collection index prioritisation.", ConfigRestartRequired=
+			true))
+	bool LimitCollectionIndex;
+
+	UPROPERTY(EditAnywhere, Category="Device Config", meta=(EditCondition="LimitCollectionIndex", EditConditionHides, ClampMin="0", ConfigRestartRequired=true))
+	int32 CollectionIndex;
+
 	UPROPERTY(EditAnywhere, Category="Device Config", meta=(TitleProperty="AxisIndex"))
 	TArray<FJoystickInputDeviceAxisProperties> AxisProperties;
 
 	UPROPERTY(EditAnywhere, Category="Device Config", meta=(TitleProperty="ButtonIndex"))
 	TArray<FJoystickInputDeviceButtonProperties> ButtonProperties;
 
+	UPROPERTY(EditAnywhere, Category="Device Config", meta=(ToolTip="If enabled, these force feedback corrections replace any the device's profile ships with."))
+	bool OverrideForceFeedbackProperties;
+
+	UPROPERTY(EditAnywhere, Category="Device Config", meta=(EditCondition="OverrideForceFeedbackProperties", EditConditionHides))
+	FJoystickInputDeviceForceFeedbackProperties ForceFeedbackProperties;
+
+	FString ProfileFileName;
+
+	bool IsProfile() const
+	{
+		return ProfileFileName.IsEmpty() == false;
+	}
+
+	bool HasDeviceIdentifier() const
+	{
+		return DeviceHash.IsEmpty() == false;
+	}
+
 	FJoystickInputDeviceAxisProperties* GetAxisProperties(const int AxisIndex)
 	{
 		return AxisProperties.FindByPredicate([AxisIndex](const FJoystickInputDeviceAxisProperties& AxisProperty)
 		{
-			return AxisProperty.AxisIndex != -1 && AxisProperty.AxisIndex == AxisIndex;
+			return AxisProperty.AxisIndex != INDEX_NONE && AxisProperty.AxisIndex == AxisIndex;
 		});
 	}
 
@@ -70,35 +85,139 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceConfiguration
 	{
 		return ButtonProperties.FindByPredicate([ButtonIndex](const FJoystickInputDeviceButtonProperties& ButtonProperty)
 		{
-			return ButtonProperty.ButtonIndex != -1 && ButtonProperty.ButtonIndex == ButtonIndex;
+			return ButtonProperty.ButtonIndex != INDEX_NONE && ButtonProperty.ButtonIndex == ButtonIndex;
 		});
 	}
 
-	void Merge(FJoystickInputDeviceConfiguration& Other)
+	FJoystickInputDeviceAxisProperties* FindOrAddAxisProperties(const int AxisIndex)
 	{
-		OverrideDeviceName = Other.OverrideDeviceName;
-		DeviceName = Other.DeviceName;
-
-		for (FJoystickInputDeviceAxisProperties& AxisProperty : AxisProperties)
+		if (AxisIndex == INDEX_NONE)
 		{
-			const FJoystickInputDeviceAxisProperties* OtherAxisProperties = Other.GetAxisProperties(AxisProperty.AxisIndex);
-			if (!OtherAxisProperties)
-			{
-				continue;
-			}
-
-			AxisProperty.UpdateProperties(*OtherAxisProperties);
+			return nullptr;
 		}
 
-		for (FJoystickInputDeviceButtonProperties& ButtonProperty : ButtonProperties)
+		if (FJoystickInputDeviceAxisProperties* ExistingAxisProperties = GetAxisProperties(AxisIndex))
 		{
-			const FJoystickInputDeviceButtonProperties* OtherButtonProperties = Other.GetButtonProperties(ButtonProperty.ButtonIndex);
-			if (!OtherButtonProperties)
-			{
-				continue;
-			}
+			return ExistingAxisProperties;
+		}
 
-			ButtonProperty.UpdateProperties(*OtherButtonProperties);
+		AxisProperties.AddDefaulted_GetRef().AxisIndex = AxisIndex;
+		SortAxisProperties();
+		return GetAxisProperties(AxisIndex);
+	}
+
+	FJoystickInputDeviceButtonProperties* FindOrAddButtonProperties(const int ButtonIndex)
+	{
+		if (ButtonIndex == INDEX_NONE)
+		{
+			return nullptr;
+		}
+
+		if (FJoystickInputDeviceButtonProperties* ExistingButtonProperties = GetButtonProperties(ButtonIndex))
+		{
+			return ExistingButtonProperties;
+		}
+
+		ButtonProperties.AddDefaulted_GetRef().ButtonIndex = ButtonIndex;
+		SortButtonProperties();
+		return GetButtonProperties(ButtonIndex);
+	}
+
+	void AddOrUpdateAxisProperties(const FJoystickInputDeviceAxisProperties& InAxisProperties)
+	{
+		FJoystickInputDeviceAxisProperties* TargetAxisProperties = FindOrAddAxisProperties(InAxisProperties.AxisIndex);
+		if (TargetAxisProperties == nullptr)
+		{
+			return;
+		}
+
+		TargetAxisProperties->UpdateProperties(InAxisProperties);
+	}
+
+	void AddOrUpdateButtonProperties(const FJoystickInputDeviceButtonProperties& InButtonProperties)
+	{
+		FJoystickInputDeviceButtonProperties* TargetButtonProperties = FindOrAddButtonProperties(InButtonProperties.ButtonIndex);
+		if (TargetButtonProperties == nullptr)
+		{
+			return;
+		}
+
+		TargetButtonProperties->UpdateProperties(InButtonProperties);
+	}
+
+	void MergeAxisProperties(const FJoystickInputDeviceAxisProperties& InAxisProperties)
+	{
+		FJoystickInputDeviceAxisProperties* TargetAxisProperties = FindOrAddAxisProperties(InAxisProperties.AxisIndex);
+		if (TargetAxisProperties == nullptr)
+		{
+			return;
+		}
+
+		TargetAxisProperties->MergeProperties(InAxisProperties);
+	}
+
+	void MergeButtonProperties(const FJoystickInputDeviceButtonProperties& InButtonProperties)
+	{
+		FJoystickInputDeviceButtonProperties* TargetButtonProperties = FindOrAddButtonProperties(InButtonProperties.ButtonIndex);
+		if (TargetButtonProperties == nullptr)
+		{
+			return;
+		}
+
+		TargetButtonProperties->MergeProperties(InButtonProperties);
+	}
+
+	void SortAxisProperties()
+	{
+		AxisProperties.Sort([](const FJoystickInputDeviceAxisProperties& A, const FJoystickInputDeviceAxisProperties& B)
+		{
+			return A.AxisIndex < B.AxisIndex;
+		});
+	}
+
+	void SortButtonProperties()
+	{
+		ButtonProperties.Sort([](const FJoystickInputDeviceButtonProperties& A, const FJoystickInputDeviceButtonProperties& B)
+		{
+			return A.ButtonIndex < B.ButtonIndex;
+		});
+	}
+
+	void SortProperties()
+	{
+		SortAxisProperties();
+		SortButtonProperties();
+	}
+
+	void Merge(const FJoystickInputDeviceConfiguration& Other)
+	{
+		if (Other.OverrideDeviceName)
+		{
+			OverrideDeviceName = true;
+			DeviceName = Other.DeviceName;
+		}
+
+		if (Other.LimitCollectionIndex)
+		{
+			LimitCollectionIndex = true;
+			CollectionIndex = Other.CollectionIndex;
+		}
+
+		for (const FJoystickInputDeviceAxisProperties& OtherAxisProperty : Other.AxisProperties)
+		{
+			MergeAxisProperties(OtherAxisProperty);
+		}
+
+		for (const FJoystickInputDeviceButtonProperties& OtherButtonProperty : Other.ButtonProperties)
+		{
+			MergeButtonProperties(OtherButtonProperty);
+		}
+
+		// Only taken when set, so a configuration made just to rename axes or buttons doesn't clear a profile's corrections.
+		if (Other.OverrideForceFeedbackProperties)
+		{
+			OverrideForceFeedbackProperties = true;
+			ForceFeedbackProperties.UpdateProperties(Other.ForceFeedbackProperties);
 		}
 	}
 };

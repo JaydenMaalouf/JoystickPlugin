@@ -28,7 +28,14 @@
 #include "Misc/CoreMiscDefines.h"
 #include "Runtime/Launch/Resources/Version.h"
 
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 8
+#include "GenericPlatform/InputDeviceRegistry.h"
+#endif
+
 const static FName JoystickCategory = "Joystick";
+static FName JoystickInputInterfaceName = FName("JoystickPluginInput");
+
+const FKeyPair FJoystickInputDevice::InvalidKeyPair;
 
 FJoystickInputDevice::FJoystickInputDevice(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler) : MessageHandler(InMessageHandler)
 {
@@ -50,8 +57,7 @@ void FJoystickInputDevice::SetChannelValue(int ControllerId, FForceFeedbackChann
 
 void FJoystickInputDevice::SetChannelValues(int ControllerId, const FForceFeedbackValues& Values)
 {
-#if ENGINE_MAJOR_VERSION == 5
-	UJoystickHapticDeviceManager* HapticDeviceManager = GetMutableDefault<UJoystickHapticDeviceManager>();
+	const UJoystickHapticDeviceManager* HapticDeviceManager = GetMutableDefault<UJoystickHapticDeviceManager>();
 	if (!IsValid(HapticDeviceManager))
 	{
 		return;
@@ -59,16 +65,18 @@ void FJoystickInputDevice::SetChannelValues(int ControllerId, const FForceFeedba
 
 	const float LargeValue = Values.LeftLarge > Values.RightLarge ? Values.LeftLarge : Values.RightLarge;
 	const float SmallValue = Values.LeftSmall > Values.RightSmall ? Values.LeftSmall : Values.RightSmall;
+	const bool bShouldRumble = SmallValue != 0 || LargeValue != 0;
 	for (const TTuple<FJoystickInstanceId, FJoystickDeviceState>& Joystick : JoystickDeviceState)
 	{
-		if (SmallValue == 0 && LargeValue == 0)
+		if (bShouldRumble)
 		{
-			continue;
+			HapticDeviceManager->PlayEngineForceFeedback(Joystick.Key, LargeValue, SmallValue);
 		}
-
-		HapticDeviceManager->PlayRumble(Joystick.Key, SmallValue, LargeValue, -1);
+		else
+		{
+			HapticDeviceManager->StopEngineForceFeedback(Joystick.Key);
+		}
 	}
-#endif
 }
 
 bool FJoystickInputDevice::IsGamepadAttached() const
@@ -84,7 +92,7 @@ bool FJoystickInputDevice::IsGamepadAttached() const
 		return false;
 	}
 
-	return JoystickSubsystem->HasRumbleDevice();
+	return JoystickSubsystem->HasEngineForceFeedbackDevice();
 }
 
 void FJoystickInputDevice::SetMessageHandler(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler)
@@ -411,247 +419,6 @@ void FJoystickInputDevice::NotifyDeviceState(const FInputDeviceId& InputDeviceId
 }
 #endif
 
-void FJoystickInputDevice::JoystickPluggedIn(const FDeviceInfoSDL& Device)
-{
-	if (!IsValid(GEngine))
-	{
-		return;
-	}
-
-	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
-	if (!IsValid(JoystickSubsystem))
-	{
-		return;
-	}
-
-	const FJoystickDeviceState InitialDeviceState = JoystickSubsystem->CreateInitialDeviceState(Device.InstanceId);
-	JoystickDeviceState.Emplace(Device.InstanceId, InitialDeviceState);
-
-	UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
-	if (!IsValid(JoystickInputSettings))
-	{
-		return;
-	}
-
-	UJoystickProfileManager* JoystickProfileManager = GetMutableDefault<UJoystickProfileManager>();
-	if (!IsValid(JoystickProfileManager))
-	{
-		return;
-	}
-
-	FJoystickInputDeviceConfiguration* DeviceConfig = JoystickProfileManager->GetInputDeviceConfiguration(Device);
-
-	FString BaseKeyName("Joystick");
-	FString BaseDisplayName("Joystick");
-	if (JoystickInputSettings->UseDeviceName)
-	{
-		FString DeviceName = Device.SafeDeviceName;
-		BaseKeyName = FString::Printf(TEXT("Joystick_%s"), *DeviceName);
-		BaseDisplayName = DeviceName;
-	}
-
-	if (JoystickInputSettings->IncludeDeviceIndex)
-	{
-		const int InputDeviceId = Device.GetInputDeviceId().GetId();
-		BaseKeyName = FString::Printf(TEXT("%s_%d"), *BaseKeyName, InputDeviceId);
-		BaseDisplayName = FString::Printf(TEXT("%s %d"), *BaseDisplayName, InputDeviceId);
-	}
-
-	DeviceKeys.Emplace(Device.InstanceId);
-
-	// create FKeyDetails for inputs
-	const bool EnablePairedKeys = JoystickInputSettings->EnablePairedKeys;
-	InitialiseAxis(Device.InstanceId, DeviceConfig, BaseKeyName, BaseDisplayName);
-	InitialiseButtons(Device.InstanceId, DeviceConfig, BaseKeyName, BaseDisplayName);
-	InitialiseHatAxis(Device.InstanceId, BaseKeyName, BaseDisplayName, EnablePairedKeys);
-	InitialiseHatButtons(Device.InstanceId, BaseKeyName, BaseDisplayName);
-	InitialiseBalls(Device.InstanceId, BaseKeyName, BaseDisplayName, EnablePairedKeys);
-
-	JoystickInputSettings->DeviceAdded(static_cast<FJoystickInformation>(Device));
-
-	if (UInputSettings* InputSettings = UInputSettings::GetInputSettings())
-	{
-		InputSettings->PostInitProperties();
-	}
-
-	UpdateDeviceProperties();
-
-#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
-	NotifyDeviceState(Device.GetInputDeviceId(), Device.GetPlatformUserId(), EInputDeviceConnectionState::Connected);
-#endif
-
-	FJoystickLogManager::Get()->LogInformation(TEXT("Device Ready: %s (Device Id: %d) - Instance Id: %d"), *Device.DeviceName, Device.GetInputDeviceId().GetId(), Device.InstanceId.Value);
-}
-
-void FJoystickInputDevice::JoystickUnplugged(const FJoystickInstanceId& InstanceId, const FInputDeviceId& InputDeviceId)
-{
-	UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
-	if (!IsValid(JoystickInputSettings))
-	{
-		return;
-	}
-
-	JoystickInputSettings->DeviceRemoved(InstanceId);
-
-#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
-	if (JoystickDeviceState.Contains(InstanceId))
-	{
-		// Device managed by subsystem
-		const IPlatformInputDeviceMapper& DeviceMapper = IPlatformInputDeviceMapper::Get();
-		const FPlatformUserId NewUserToAssign = DeviceMapper.GetUserForUnpairedInputDevices();
-		NotifyDeviceState(InputDeviceId, NewUserToAssign, EInputDeviceConnectionState::Disconnected);
-	}
-#endif
-
-	RemoveDeviceKeys(InstanceId);
-}
-
-void FJoystickInputDevice::RemoveDeviceKeys(const FJoystickInstanceId& InstanceId)
-{
-	DeviceButtonKeys.Remove(InstanceId);
-	DeviceAxisKeys.Remove(InstanceId);
-	DeviceHatAxisKeys.Remove(InstanceId);
-	DeviceHatAxisPairedKeys.Remove(InstanceId);
-	DeviceHatButtonKeys.Remove(InstanceId);
-	DeviceBallKeys.Remove(InstanceId);
-	DeviceBallPairedKeys.Remove(InstanceId);
-	DeviceKeys.Remove(InstanceId);
-}
-
-void FJoystickInputDevice::JoystickButton(const FJoystickInstanceId& InstanceId, const int Button, const bool Pressed)
-{
-	if (!JoystickDeviceState.Contains(InstanceId))
-	{
-		return;
-	}
-
-	FJoystickDeviceState& DeviceData = JoystickDeviceState[InstanceId];
-	if (!DeviceData.Buttons.IsValidIndex(Button))
-	{
-		return;
-	}
-
-	FButtonData& State = DeviceData.Buttons[Button];
-	State.Update(Pressed);
-
-	FJoystickLogManager::Get()->LogDebug(TEXT("Event JoystickButton Device=%d Button=%d State=%d"), InstanceId.Value, Button, State.GetValue());
-}
-
-void FJoystickInputDevice::JoystickAxis(const FJoystickInstanceId& InstanceId, const int Axis, const float Value)
-{
-	auto [DeviceState, Result] = GetDeviceState(InstanceId);
-	if (!DeviceState || Result.bSuccess == false)
-	{
-		FJoystickLogManager::Get()->LogError(Result);
-		return;
-	}
-
-	if (!DeviceState->Axes.IsValidIndex(Axis))
-	{
-		return;
-	}
-
-	FAxisData& State = DeviceState->Axes[Axis];
-	State.Update(Value);
-}
-
-void FJoystickInputDevice::JoystickHat(const FJoystickInstanceId& InstanceId, const int Hat, const EHatDirection Value)
-{
-	auto [DeviceState, Result] = GetDeviceState(InstanceId);
-	if (!DeviceState || Result.bSuccess == false)
-	{
-		FJoystickLogManager::Get()->LogError(Result);
-		return;
-	}
-
-	if (!DeviceState->Hats.IsValidIndex(Hat))
-	{
-		return;
-	}
-
-	FHatData& State = DeviceState->Hats[Hat];
-	State.Update(Value);
-}
-
-void FJoystickInputDevice::JoystickBall(const FJoystickInstanceId& InstanceId, const int Ball, const FVector2D& Value)
-{
-	auto [DeviceState, Result] = GetDeviceState(InstanceId);
-	if (!DeviceState || Result.bSuccess == false)
-	{
-		FJoystickLogManager::Get()->LogError(Result);
-		return;
-	}
-
-	if (!DeviceState->Balls.IsValidIndex(Ball))
-	{
-		return;
-	}
-
-	FBallData& State = DeviceState->Balls[Ball];
-	State.Update(Value);
-}
-
-void FJoystickInputDevice::JoystickGyro(const FJoystickInstanceId& InstanceId, const FVector& Value)
-{
-	auto [DeviceState, Result] = GetDeviceState(InstanceId);
-	if (!DeviceState || Result.bSuccess == false)
-	{
-		FJoystickLogManager::Get()->LogError(Result);
-		return;
-	}
-
-	DeviceState->Motion.UpdateGyro(Value);
-}
-
-void FJoystickInputDevice::JoystickAccelerometer(const FJoystickInstanceId& InstanceId, const FVector& Value)
-{
-	auto [DeviceState, Result] = GetDeviceState(InstanceId);
-	if (!DeviceState || Result.bSuccess == false)
-	{
-		FJoystickLogManager::Get()->LogError(Result);
-		return;
-	}
-
-	DeviceState->Motion.UpdateAccelerometer(Value);
-}
-
-TTuple<FJoystickDeviceState*, FInternalResultMessage> FJoystickInputDevice::GetDeviceState(const FJoystickInstanceId& InstanceId)
-{
-	if (!JoystickDeviceState.Contains(InstanceId))
-	{
-		return {nullptr, FInternalResultMessage(false, TEXT("Device is not a valid Joystick device"))};
-	}
-
-	return {&JoystickDeviceState[InstanceId], FInternalResultMessage(true)};
-}
-
-void FJoystickInputDevice::GetDeviceKeys(const FJoystickInstanceId& InstanceId, TArray<FKey>& Keys)
-{
-	if (!DeviceKeys.Contains(InstanceId))
-	{
-		return;
-	}
-
-	Keys = DeviceKeys[InstanceId];
-}
-
-const FKey& FJoystickInputDevice::GetDeviceAxisKey(const FJoystickInstanceId& InstanceId, const int AxisIndex)
-{
-	return DeviceAxisKeys[InstanceId][AxisIndex];
-}
-
-const FKey& FJoystickInputDevice::GetDeviceButtonKey(const FJoystickInstanceId& InstanceId, const int ButtonIndex)
-{
-	return DeviceButtonKeys[InstanceId][ButtonIndex];
-}
-
-const FKeyPair& FJoystickInputDevice::GetDeviceHatKey(const FJoystickInstanceId& InstanceId, const int HatKeyIndex)
-{
-	return DeviceHatAxisKeys[InstanceId][HatKeyIndex];
-}
-
-static FName JoystickInputInterfaceName = FName("JoystickPluginInput");
-
 void FJoystickInputDevice::SendControllerEvents()
 {
 	if (!IsValid(GEngine))
@@ -666,6 +433,10 @@ void FJoystickInputDevice::SendControllerEvents()
 	}
 
 	const UJoystickInputSettings* JoystickInputSettings = GetDefault<UJoystickInputSettings>();
+	if (!IsValid(JoystickInputSettings))
+	{
+		return;
+	}
 
 	for (const TPair<FJoystickInstanceId, FDeviceInfoSDL>& Device : JoystickSubsystem->GetDevices())
 	{
@@ -685,8 +456,10 @@ void FJoystickInputDevice::SendControllerEvents()
 			continue;
 		}
 
+#if !(ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 8)
 		const FString HardwareDeviceIdentifier = JoystickInputSettings->UseDeviceNameAsHardwareDeviceIdentifier ? DeviceInfo.DeviceName : "Joystick";
 		FInputDeviceScope InputScope(this, JoystickInputInterfaceName, InstanceId, HardwareDeviceIdentifier);
+#endif
 
 		// Axis
 		if (DeviceAxisKeys.Contains(InstanceId))
@@ -718,7 +491,6 @@ void FJoystickInputDevice::SendControllerEvents()
 #endif
 
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
-
 					MessageHandler->OnControllerAnalog(AxisKey.GetFName(), DeviceInfo.GetPlatformUserId(), DeviceInfo.GetInputDeviceId(), CurrentValue);
 #else
 					MessageHandler->OnControllerAnalog(AxisKey.GetFName(), DeviceInfo.GetPlatformUserId(), CurrentValue);
@@ -883,7 +655,255 @@ void FJoystickInputDevice::SendControllerEvents()
 	JoystickSubsystem->Update();
 }
 
-FJoystickInstanceId FJoystickInputDevice::GetInstanceIdByKey(const FKey& Key) const
+void FJoystickInputDevice::JoystickPluggedIn(const FDeviceInfoSDL& Device)
+{
+	if (!IsValid(GEngine))
+	{
+		return;
+	}
+
+	UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
+	if (!IsValid(JoystickSubsystem))
+	{
+		return;
+	}
+
+	const FJoystickDeviceState InitialDeviceState = JoystickSubsystem->CreateInitialDeviceState(Device.InstanceId);
+	JoystickDeviceState.Emplace(Device.InstanceId, InitialDeviceState);
+
+	UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
+	if (!IsValid(JoystickInputSettings))
+	{
+		return;
+	}
+
+	UJoystickProfileManager* JoystickProfileManager = GetMutableDefault<UJoystickProfileManager>();
+	if (!IsValid(JoystickProfileManager))
+	{
+		return;
+	}
+
+	FJoystickInputDeviceConfiguration* DeviceConfig = JoystickProfileManager->GetInputDeviceConfiguration(Device);
+
+	FString BaseKeyName("Joystick");
+	FString BaseDisplayName("Joystick");
+	if (JoystickInputSettings->UseDeviceName)
+	{
+		FString DeviceName = Device.SafeDeviceName;
+		BaseKeyName = FString::Printf(TEXT("Joystick_%s"), *DeviceName);
+		BaseDisplayName = DeviceName;
+	}
+
+	if (JoystickInputSettings->IncludeDeviceIndex)
+	{
+		const int InputDeviceId = Device.GetInputDeviceId().GetId();
+		BaseKeyName = FString::Printf(TEXT("%s_%d"), *BaseKeyName, InputDeviceId);
+		BaseDisplayName = FString::Printf(TEXT("%s %d"), *BaseDisplayName, InputDeviceId);
+	}
+
+	DeviceKeys.Emplace(Device.InstanceId);
+
+	// create FKeyDetails for inputs
+	const bool EnablePairedKeys = JoystickInputSettings->EnablePairedKeys;
+	InitialiseAxis(Device.InstanceId, DeviceConfig, BaseKeyName, BaseDisplayName);
+	InitialiseButtons(Device.InstanceId, DeviceConfig, BaseKeyName, BaseDisplayName);
+	InitialiseHatAxis(Device.InstanceId, BaseKeyName, BaseDisplayName, EnablePairedKeys);
+	InitialiseHatButtons(Device.InstanceId, BaseKeyName, BaseDisplayName);
+	InitialiseBalls(Device.InstanceId, BaseKeyName, BaseDisplayName, EnablePairedKeys);
+
+	JoystickInputSettings->DeviceAdded(static_cast<FJoystickInformation>(Device));
+
+	if (UInputSettings* InputSettings = UInputSettings::GetInputSettings())
+	{
+		InputSettings->PostInitProperties();
+	}
+
+	UpdateDeviceProperties();
+
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 8
+	// FInputDeviceScope is deprecated in 5.8, hardware info is registered once on connection instead
+	FInputDeviceDescriptor DeviceDescriptor;
+	DeviceDescriptor.HardwareDeviceHandle = Device.GetInputDeviceId();
+	DeviceDescriptor.InputDeviceName = JoystickInputInterfaceName;
+	DeviceDescriptor.HardwareDeviceIdentifier = JoystickInputSettings->UseDeviceNameAsHardwareDeviceIdentifier ? FName(*Device.DeviceName) : FName("Joystick");
+	FInputDeviceRegistry::RegisterDevice(DeviceDescriptor);
+#endif
+
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
+	NotifyDeviceState(Device.GetInputDeviceId(), Device.GetPlatformUserId(), EInputDeviceConnectionState::Connected);
+#endif
+
+	FJoystickLogManager::Get()->LogInformation(TEXT("Device Ready: %s (Device Id: %d) - Instance Id: %d"), *Device.DeviceName, Device.GetInputDeviceId().GetId(), Device.InstanceId.Value);
+}
+
+void FJoystickInputDevice::JoystickUnplugged(const FJoystickInstanceId& InstanceId, const FInputDeviceId& InputDeviceId)
+{
+	UJoystickInputSettings* JoystickInputSettings = GetMutableDefault<UJoystickInputSettings>();
+	if (!IsValid(JoystickInputSettings))
+	{
+		return;
+	}
+
+	JoystickInputSettings->DeviceRemoved(InstanceId);
+
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
+	if (JoystickDeviceState.Contains(InstanceId))
+	{
+		// Device managed by subsystem
+		const IPlatformInputDeviceMapper& DeviceMapper = IPlatformInputDeviceMapper::Get();
+		const FPlatformUserId NewUserToAssign = DeviceMapper.GetUserForUnpairedInputDevices();
+		NotifyDeviceState(InputDeviceId, NewUserToAssign, EInputDeviceConnectionState::Disconnected);
+	}
+#endif
+
+	RemoveDeviceKeys(InstanceId);
+}
+
+void FJoystickInputDevice::JoystickButton(const FJoystickInstanceId& InstanceId, const int Button, const bool Pressed, const int64 Timestamp)
+{
+	if (!JoystickDeviceState.Contains(InstanceId))
+	{
+		return;
+	}
+
+	FJoystickDeviceState& DeviceData = JoystickDeviceState[InstanceId];
+	if (!DeviceData.Buttons.IsValidIndex(Button))
+	{
+		return;
+	}
+
+	FButtonData& State = DeviceData.Buttons[Button];
+	State.Update(Pressed, Timestamp);
+
+	FJoystickLogManager::Get()->LogDebug(TEXT("Event JoystickButton Device=%d Button=%d State=%d"), InstanceId.Value, Button, State.GetValue());
+}
+
+void FJoystickInputDevice::JoystickAxis(const FJoystickInstanceId& InstanceId, const int Axis, const float Value, const int64 Timestamp)
+{
+	auto [DeviceState, Result] = GetDeviceState(InstanceId);
+	if (!DeviceState || Result.bSuccess == false)
+	{
+		FJoystickLogManager::Get()->LogError(Result);
+		return;
+	}
+
+	if (!DeviceState->Axes.IsValidIndex(Axis))
+	{
+		return;
+	}
+
+	FAxisData& State = DeviceState->Axes[Axis];
+	State.Update(Value, Timestamp);
+}
+
+void FJoystickInputDevice::JoystickHat(const FJoystickInstanceId& InstanceId, const int Hat, const EHatDirection Value, const int64 Timestamp)
+{
+	auto [DeviceState, Result] = GetDeviceState(InstanceId);
+	if (!DeviceState || Result.bSuccess == false)
+	{
+		FJoystickLogManager::Get()->LogError(Result);
+		return;
+	}
+
+	if (!DeviceState->Hats.IsValidIndex(Hat))
+	{
+		return;
+	}
+
+	FHatData& State = DeviceState->Hats[Hat];
+	State.Update(Value, Timestamp);
+}
+
+void FJoystickInputDevice::JoystickBall(const FJoystickInstanceId& InstanceId, const int Ball, const FVector2D& Value, const int64 Timestamp)
+{
+	auto [DeviceState, Result] = GetDeviceState(InstanceId);
+	if (!DeviceState || Result.bSuccess == false)
+	{
+		FJoystickLogManager::Get()->LogError(Result);
+		return;
+	}
+
+	if (!DeviceState->Balls.IsValidIndex(Ball))
+	{
+		return;
+	}
+
+	FBallData& State = DeviceState->Balls[Ball];
+	State.Update(Value, Timestamp);
+}
+
+void FJoystickInputDevice::JoystickGyro(const FJoystickInstanceId& InstanceId, const FVector& Value, const int64 Timestamp)
+{
+	auto [DeviceState, Result] = GetDeviceState(InstanceId);
+	if (!DeviceState || Result.bSuccess == false)
+	{
+		FJoystickLogManager::Get()->LogError(Result);
+		return;
+	}
+
+	DeviceState->Motion.UpdateGyro(Value, Timestamp);
+}
+
+void FJoystickInputDevice::JoystickAccelerometer(const FJoystickInstanceId& InstanceId, const FVector& Value, const int64 Timestamp)
+{
+	auto [DeviceState, Result] = GetDeviceState(InstanceId);
+	if (!DeviceState || Result.bSuccess == false)
+	{
+		FJoystickLogManager::Get()->LogError(Result);
+		return;
+	}
+
+	DeviceState->Motion.UpdateAccelerometer(Value, Timestamp);
+}
+
+TTuple<FJoystickDeviceState*, FInternalResultMessage> FJoystickInputDevice::GetDeviceState(const FJoystickInstanceId& InstanceId)
+{
+	if (!InstanceId.IsValid())
+	{
+		return {nullptr, FInternalResultMessage(false, TEXT("Invalid instance id."))};
+	}
+
+	FJoystickDeviceState* DeviceState = JoystickDeviceState.Find(InstanceId);
+	if (DeviceState == nullptr)
+	{
+		return {nullptr, FInternalResultMessage(false, TEXT("Device is not a valid Joystick device"))};
+	}
+
+	return {DeviceState, FInternalResultMessage(true)};
+}
+
+void FJoystickInputDevice::GetDeviceKeys(const FJoystickInstanceId& InstanceId, TArray<FKey>& Keys)
+{
+	if (!InstanceId.IsValid())
+	{
+		return;
+	}
+
+	const TArray<FKey>* ExistingKeys = DeviceKeys.Find(InstanceId);
+	if (ExistingKeys == nullptr)
+	{
+		return;
+	}
+
+	Keys = *ExistingKeys;
+}
+
+const FKey& FJoystickInputDevice::GetDeviceAxisKey(const FJoystickInstanceId& InstanceId, const int AxisIndex) const
+{
+	return FindDeviceKey(DeviceAxisKeys, InstanceId, AxisIndex, EKeys::Invalid);
+}
+
+const FKey& FJoystickInputDevice::GetDeviceButtonKey(const FJoystickInstanceId& InstanceId, const int ButtonIndex) const
+{
+	return FindDeviceKey(DeviceButtonKeys, InstanceId, ButtonIndex, EKeys::Invalid);
+}
+
+const FKeyPair& FJoystickInputDevice::GetDeviceHatKey(const FJoystickInstanceId& InstanceId, const int HatKeyIndex) const
+{
+	return FindDeviceKey(DeviceHatAxisKeys, InstanceId, HatKeyIndex, InvalidKeyPair);
+}
+
+FJoystickInstanceId FJoystickInputDevice::GetInstanceIdFromKey(const FKey& Key) const
 {
 	for (const TPair<FJoystickInstanceId, TArray<FKey>>& Device : DeviceKeys)
 	{
@@ -893,33 +913,17 @@ FJoystickInstanceId FJoystickInputDevice::GetInstanceIdByKey(const FKey& Key) co
 		}
 	}
 
-	return -1;
+	return FJoystickInstanceId();
 }
 
 int FJoystickInputDevice::GetAxisIndexFromKey(const FKey& Key) const
 {
-	for (const TTuple<FJoystickInstanceId, TArray<FKey>>& DeviceAxisKey : DeviceAxisKeys)
-	{
-		if (DeviceAxisKey.Value.Contains(Key))
-		{
-			return DeviceAxisKey.Value.IndexOfByKey(Key);
-		}
-	}
-
-	return -1;
+	return FindKeyIndex(DeviceAxisKeys, Key);
 }
 
 int FJoystickInputDevice::GetButtonIndexFromKey(const FKey& Key) const
 {
-	for (const TTuple<FJoystickInstanceId, TArray<FKey>>& DeviceButtonKey : DeviceButtonKeys)
-	{
-		if (DeviceButtonKey.Value.Contains(Key))
-		{
-			return DeviceButtonKey.Value.IndexOfByKey(Key);
-		}
-	}
-
-	return -1;
+	return FindKeyIndex(DeviceButtonKeys, Key);
 }
 
 void FJoystickInputDevice::ResetAxisProperties()
@@ -928,16 +932,7 @@ void FJoystickInputDevice::ResetAxisProperties()
 	{
 		for (int i = 0; i < DeviceData.Value.Axes.Num(); i++)
 		{
-			const FAxisData Defaults;
-			FAxisData& AxisKeyData = DeviceData.Value.Axes[i];
-			AxisKeyData.RemappingEnabled = Defaults.RemappingEnabled;
-			AxisKeyData.InputOffset = Defaults.InputOffset;
-			AxisKeyData.InvertInput = Defaults.InvertInput;
-			AxisKeyData.InputRangeMin = Defaults.InputRangeMin;
-			AxisKeyData.InputRangeMax = Defaults.InputRangeMax;
-			AxisKeyData.OutputRangeMin = Defaults.OutputRangeMin;
-			AxisKeyData.OutputRangeMax = Defaults.OutputRangeMax;
-			AxisKeyData.InvertOutput = Defaults.InvertOutput;
+			DeviceData.Value.Axes[i].CopyRemapping(FJoystickAxisRemapping());
 		}
 	}
 }
@@ -1010,31 +1005,7 @@ void FJoystickInputDevice::UpdateAxisProperties(FJoystickInputDeviceConfiguratio
 		}
 
 		FAxisData& AxisKeyData = CurrentState.Axes[i];
-		AxisKeyData.RemappingEnabled = AxisProperties->RemappingEnabled;
-		if (AxisKeyData.RemappingEnabled)
-		{
-			if ((AxisProperties->InputRangeMin == -1.0f && AxisProperties->InputRangeMax == 1.0f && AxisProperties->OutputRangeMin == 0.0f && AxisProperties->OutputRangeMax == 1.0f) ||
-				(AxisProperties->InputRangeMin == 0.0f && AxisProperties->InputRangeMax == 1.0f && AxisProperties->OutputRangeMin == 0.0f && AxisProperties->OutputRangeMax == 1.0f))
-			{
-				AxisKeyData.Value = AxisProperties->InvertInput ? -AxisProperties->InputRangeMin : AxisProperties->InputRangeMin;
-			}
-			else if (AxisProperties->InputRangeMin == -1.0f && AxisProperties->InputRangeMax == 1.0f && AxisProperties->OutputRangeMin == -1.0f && AxisProperties->OutputRangeMax == 1.0f)
-			{
-				AxisKeyData.Value = 0.0f;
-			}
-			else
-			{
-				AxisKeyData.Value = AxisProperties->InputRangeMin;
-			}
-			AxisKeyData.PreviousValue = AxisKeyData.Value;
-		}
-		AxisKeyData.InputOffset = AxisProperties->InputOffset;
-		AxisKeyData.InvertInput = AxisProperties->InvertInput;
-		AxisKeyData.InputRangeMin = AxisProperties->InputRangeMin;
-		AxisKeyData.InputRangeMax = AxisProperties->InputRangeMax;
-		AxisKeyData.OutputRangeMin = AxisProperties->OutputRangeMin;
-		AxisKeyData.OutputRangeMax = AxisProperties->OutputRangeMax;
-		AxisKeyData.InvertOutput = AxisProperties->InvertOutput;
+		AxisKeyData.CopyRemapping(*AxisProperties);
 	}
 }
 
@@ -1051,6 +1022,18 @@ void FJoystickInputDevice::UpdateButtonProperties(FJoystickInputDeviceConfigurat
 		FButtonData& ButtonKeyData = CurrentState.Buttons[i];
 		ButtonKeyData.InvertOutput = ButtonProperties->InvertOutput;
 	}
+}
+
+void FJoystickInputDevice::RemoveDeviceKeys(const FJoystickInstanceId& InstanceId)
+{
+	DeviceButtonKeys.Remove(InstanceId);
+	DeviceAxisKeys.Remove(InstanceId);
+	DeviceHatAxisKeys.Remove(InstanceId);
+	DeviceHatAxisPairedKeys.Remove(InstanceId);
+	DeviceHatButtonKeys.Remove(InstanceId);
+	DeviceBallKeys.Remove(InstanceId);
+	DeviceBallPairedKeys.Remove(InstanceId);
+	DeviceKeys.Remove(InstanceId);
 }
 
 void FJoystickInputDevice::TryAddWidgetNavigation(const FKey& ButtonKey) const
@@ -1093,4 +1076,35 @@ void FJoystickInputDevice::TryAddWidgetNavigation(const FKey& ButtonKey) const
 		}
 #endif
 	});
+}
+
+template <typename TKey>
+const TKey& FJoystickInputDevice::FindDeviceKey(const TMap<FJoystickInstanceId, TArray<TKey>>& KeyMap, const FJoystickInstanceId& InstanceId, const int Index, const TKey& Fallback)
+{
+	if (!InstanceId.IsValid())
+	{
+		return Fallback;
+	}
+
+	const TArray<TKey>* Keys = KeyMap.Find(InstanceId);
+	if (Keys == nullptr || !Keys->IsValidIndex(Index))
+	{
+		return Fallback;
+	}
+
+	return (*Keys)[Index];
+}
+
+int FJoystickInputDevice::FindKeyIndex(const TMap<FJoystickInstanceId, TArray<FKey>>& KeyMap, const FKey& Key)
+{
+	for (const TTuple<FJoystickInstanceId, TArray<FKey>>& DeviceKey : KeyMap)
+	{
+		const int Index = DeviceKey.Value.IndexOfByKey(Key);
+		if (Index != INDEX_NONE)
+		{
+			return Index;
+		}
+	}
+
+	return INDEX_NONE;
 }

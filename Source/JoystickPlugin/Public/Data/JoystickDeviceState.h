@@ -11,23 +11,29 @@
 
 #include "JoystickDeviceState.generated.h"
 
+// A device's full input state, each input in the order SDL indexes them.
 USTRUCT(BlueprintType)
-struct FJoystickDeviceState
+struct JOYSTICKPLUGIN_API FJoystickDeviceState
 {
 	GENERATED_BODY()
 
+	// The analog axes.
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|State")
 	TArray<FAxisData> Axes;
 
+	// The buttons.
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|State")
 	TArray<FButtonData> Buttons;
 
+	// The hat switches.
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|State")
 	TArray<FHatData> Hats;
 
+	// The trackballs.
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|State")
 	TArray<FBallData> Balls;
 
+	// The gyro and accelerometer, on devices that have them.
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|State")
 	FMotionData Motion;
 };

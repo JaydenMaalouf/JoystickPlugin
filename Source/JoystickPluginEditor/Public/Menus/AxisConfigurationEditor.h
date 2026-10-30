@@ -12,7 +12,7 @@ class SAxisBar;
 template <typename NumericType>
 class SNumericEntryBox;
 
-class JOYSTICKPLUGINEDITOR_API SAxisConfigurationEditor final : public SBaseKeyConfigurationEditor
+class SAxisConfigurationEditor final : public SBaseKeyConfigurationEditor
 {
 public:
 	SLATE_BEGIN_ARGS(SAxisConfigurationEditor)
@@ -55,7 +55,7 @@ private:
 	TSharedPtr<SCheckBox> OverrideDisplayNameCheckBox;
 	TSharedPtr<SEditableTextBox> DisplayNameTextBox;
 	TSharedPtr<SHorizontalBox> DisplayNameInputContainer;
-	FProgressBarStyle ProgressBarStyle;
+	const FProgressBarStyle* ProgressBarStyle = nullptr;
 
 	// Track original display name state for restart notification
 	FString OriginalDisplayName;

@@ -8,13 +8,12 @@
 #include "Data/Input/KeyPair.h"
 #include "Data/JoystickInformation.h"
 #include "Data/JoystickType.h"
-#include "Data/JoystickPowerLevel.h"
 #include "Menus/AxisConfigurationEditor.h"
 #include "Menus/ButtonConfigurationEditor.h"
-#include "Widgets/AxisBar.h"
-#include "Widgets/BallSwitch.h"
-#include "Widgets/ButtonBox.h"
-#include "Widgets/HatSwitch.h"
+#include "Widgets/JoystickInput/AxisBar.h"
+#include "Widgets/JoystickInput/BallSwitch.h"
+#include "Widgets/JoystickInput/ButtonBox.h"
+#include "Widgets/JoystickInput/HatSwitch.h"
 #include "Widgets/Layout/SScrollBox.h"
 #include "Widgets/Layout/SWrapBox.h"
 #include "Widgets/Text/STextBlock.h"
@@ -25,7 +24,7 @@
 #include "Widgets/SOverlay.h"
 #include "Framework/Application/SlateApplication.h"
 #include "Widgets/SWindow.h"
-#include "Styling/CoreStyle.h"
+#include "Styling/JoystickPluginEditorStyle.h"
 
 void SJoystickInputViewer::Construct(const FArguments& InArgs, const TSharedRef<SDockTab>& ConstructUnderMajorTab, const TSharedPtr<SWindow>& ConstructUnderWindow)
 {
@@ -231,9 +230,9 @@ void SJoystickInputViewer::Construct(const FArguments& InArgs, const TSharedRef<
 													return FText::FromString("N/A");
 												}
 
-												if (const UEnum* EnumPtr = StaticEnum<EJoystickPowerLevel>())
+												if (const UEnum* EnumPtr = StaticEnum<EJoystickPowerState>())
 												{
-													FString EnumName = EnumPtr->GetNameStringByValue(static_cast<int64>(CachedJoystickInfo.PowerLevel));
+													FString EnumName = EnumPtr->GetNameStringByValue(static_cast<int64>(CachedJoystickInfo.Power.State));
 													EnumName.RemoveFromStart(TEXT("EJoystickPowerLevel::"));
 													return FText::FromString(EnumName);
 												}
@@ -355,7 +354,7 @@ void SJoystickInputViewer::Construct(const FArguments& InArgs, const TSharedRef<
 													return FText::FromString("N/A");
 												}
 
-												return FText::FromString(CachedJoystickInfo.LedSupport ? TEXT("Yes") : TEXT("No"));
+												return FText::FromString(CachedJoystickInfo.Led.Supported ? TEXT("Yes") : TEXT("No"));
 											})
 											.TextStyle(FAppStyle::Get(), "NormalText")
 										]
@@ -385,7 +384,7 @@ void SJoystickInputViewer::Construct(const FArguments& InArgs, const TSharedRef<
 													return FText::FromString("N/A");
 												}
 
-												return FText::FromString(CachedJoystickInfo.RumbleSupport ? TEXT("Yes") : TEXT("No"));
+												return FText::FromString(CachedJoystickInfo.Rumble.Supported ? TEXT("Yes") : TEXT("No"));
 											})
 											.TextStyle(FAppStyle::Get(), "NormalText")
 										]
@@ -490,7 +489,7 @@ void SJoystickInputViewer::Construct(const FArguments& InArgs, const TSharedRef<
 										.Padding(0, 0, 8, 0)
 										[
 											SNew(STextBlock)
-											.Text(FText::FromString("Game Controller:"))
+											.Text(FText::FromString("Gamepad:"))
 											.TextStyle(FAppStyle::Get(), "NormalText")
 											.ColorAndOpacity(FSlateColor::UseSubduedForeground())
 										]
@@ -505,7 +504,7 @@ void SJoystickInputViewer::Construct(const FArguments& InArgs, const TSharedRef<
 													return FText::FromString("N/A");
 												}
 
-												return FText::FromString(CachedJoystickInfo.IsGameController ? TEXT("Yes") : TEXT("No"));
+												return FText::FromString(CachedJoystickInfo.IsGamepad ? TEXT("Yes") : TEXT("No"));
 											})
 											.TextStyle(FAppStyle::Get(), "NormalText")
 										]
@@ -660,8 +659,7 @@ void SJoystickInputViewer::Construct(const FArguments& InArgs, const TSharedRef<
 			.Visibility(EVisibility::Collapsed)
 			[
 				SNew(SBorder)
-				.BorderImage(FCoreStyle::Get().GetBrush("WhiteBrush"))
-				.BorderBackgroundColor(FLinearColor(0.0f, 0.0f, 0.0f, 0.3f))
+				.BorderImage(FJoystickPluginEditorStyle::Get().GetBrush("InputViewer.InputBlocker"))
 			]
 		]
 	];

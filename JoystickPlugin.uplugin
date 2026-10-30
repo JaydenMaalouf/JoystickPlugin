@@ -1,7 +1,7 @@
 {
   "FileVersion": 3,
   "Version": 1,
-  "VersionName": "1.0.0",
+  "VersionName": "5.0.0",
   "FriendlyName": "Joystick Plugin",
   "Description": "Unreal Engine Plugin to add Joystick Controllers as Input Devices (with Force Feedback support)",
   "Category": "Input Devices",
@@ -21,7 +21,18 @@
       "LoadingPhase": "PostConfigInit",
       "WhitelistPlatforms": [
         "Win64",
-        "Linux"
+        "Linux",
+        "Mac"
+      ]
+    },
+    {
+      "Name": "JoystickPluginDeveloper",
+      "Type": "DeveloperTool",
+      "LoadingPhase": "PostEngineInit",
+      "WhitelistPlatforms": [
+        "Win64",
+        "Linux",
+        "Mac"
       ]
     },
     {
@@ -33,7 +44,8 @@
       ],
       "WhitelistPlatforms": [
         "Win64",
-        "Linux"
+        "Linux",
+        "Mac"
       ]
     }
   ]

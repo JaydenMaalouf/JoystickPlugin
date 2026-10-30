@@ -7,12 +7,14 @@
 #include "PBDRigidsSolver.h"
 #include "Engine/Engine.h"
 #include "ForceFeedback/JoystickForceFeedbackSubstepCallback.h"
+#include "ForceFeedback/Data/ForceFeedbackEffectGroup.h"
 #include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
+#include "Managers/JoystickHapticDeviceManager.h"
+#include "Managers/JoystickLogManager.h"
 #include "PhysicsEngine/PhysicsSettings.h"
 
 UJoystickForceFeedbackComponent::UJoystickForceFeedbackComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
-	  , InstanceId(-1)
 	  , Running(false)
 	  , Tickable(true)
 	  , RegisteredSolver(nullptr)
@@ -57,16 +59,11 @@ void UJoystickForceFeedbackComponent::BeginPlay()
 
 	if (JoystickSubsystem->IsReady())
 	{
-		CreateEffects();
+		OnSubsystemReady();
 	}
 	else
 	{
 		JoystickSubsystem->JoystickSubsystemReady.AddDynamic(this, &UJoystickForceFeedbackComponent::OnSubsystemReady);
-	}
-
-	if (Configuration.AutoStartOnInitialisation)
-	{
-		Running = true;
 	}
 
 	RegisterPhysicsSubstepCallback();
@@ -76,15 +73,7 @@ void UJoystickForceFeedbackComponent::EndPlay(const EEndPlayReason::Type EndPlay
 {
 	UnregisterPhysicsSubstepCallback();
 
-	ActionOnAllEffects([&](UForceFeedbackEffectBase* Effect)
-	{
-		DestroyEffect(Effect);
-	});
-
-	{
-		FScopeLock EffectsLock(&EffectsCriticalSection);
-		Effects.Empty();
-	}
+	DestroyAllEffects();
 
 	Super::EndPlay(EndPlayReason);
 }
@@ -98,19 +87,7 @@ void UJoystickForceFeedbackComponent::TickComponent(const float DeltaTime, const
 		return;
 	}
 
-#if ENGINE_MAJOR_VERSION == 5
 	TickEffects(DeltaTime);
-#else
-	if (TargetPrimitive.IsValid())
-	{
-		return;
-	}
-
-	if (FBodyInstance* BodyInstance = TargetPrimitive->GetBodyInstance())
-	{
-		BodyInstance->AddCustomPhysics(OnCalculateCustomPhysics);
-	}
-#endif
 }
 
 void UJoystickForceFeedbackComponent::SetComponentTickEnabled(const bool bEnabled)
@@ -120,7 +97,7 @@ void UJoystickForceFeedbackComponent::SetComponentTickEnabled(const bool bEnable
 	SetTickable(bEnabled);
 }
 
-#if (ENGINE_MAJOR_VERSION > 5) || (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3
 void UJoystickForceFeedbackComponent::AsyncPhysicsTickComponent(const float DeltaTime, const float SimTime)
 {
 	Super::AsyncPhysicsTickComponent(DeltaTime, SimTime);
@@ -134,7 +111,6 @@ void UJoystickForceFeedbackComponent::AsyncPhysicsTickComponent(const float Delt
 }
 #endif
 
-
 void UJoystickForceFeedbackComponent::SetTickable(const bool bTickable)
 {
 	Tickable = bTickable;
@@ -142,10 +118,7 @@ void UJoystickForceFeedbackComponent::SetTickable(const bool bTickable)
 	{
 		if (Tickable)
 		{
-			ActionOnAllEffects([](UForceFeedbackEffectBase* Effect)
-			{
-				Effect->StartEffect();
-			});
+			StartAutoStartEffects();
 		}
 		else
 		{
@@ -159,6 +132,11 @@ void UJoystickForceFeedbackComponent::SetTickable(const bool bTickable)
 
 void UJoystickForceFeedbackComponent::OnSubsystemReady()
 {
+	if (Configuration.AutoStartOnInitialisation)
+	{
+		Running = true;
+	}
+
 	CreateEffects();
 
 	if (!IsValid(GEngine))
@@ -172,7 +150,10 @@ void UJoystickForceFeedbackComponent::OnSubsystemReady()
 		return;
 	}
 
-	JoystickSubsystem->JoystickSubsystemReady.RemoveDynamic(this, &UJoystickForceFeedbackComponent::OnSubsystemReady);
+	if (JoystickSubsystem->JoystickSubsystemReady.IsBound())
+	{
+		JoystickSubsystem->JoystickSubsystemReady.RemoveDynamic(this, &UJoystickForceFeedbackComponent::OnSubsystemReady);
+	}
 }
 
 void UJoystickForceFeedbackComponent::TickEffects(const float DeltaTime)
@@ -194,7 +175,10 @@ void UJoystickForceFeedbackComponent::TickEffects(const float DeltaTime)
 		return;
 	}
 
-	for (UForceFeedbackEffectBase* ForcedFeedbackEffect : Effects)
+	// Iterate a copy, as the effect callbacks can re-enter the component on this thread and change Effects.
+	// The lock stays held for the whole pass so an effect cannot be destroyed or started/stopped while it ticks.
+	const TArray<UForceFeedbackEffectBase*, TInlineAllocator<16>> EffectsSnapshot(Effects);
+	for (UForceFeedbackEffectBase* ForcedFeedbackEffect : EffectsSnapshot)
 	{
 		if (!IsValid(ForcedFeedbackEffect))
 		{
@@ -218,7 +202,6 @@ void UJoystickForceFeedbackComponent::RegisterPhysicsSubstepCallback()
 		return;
 	}
 
-#if ENGINE_MAJOR_VERSION == 5
 	const UWorld* World = GetWorld();
 	if (!IsValid(World))
 	{
@@ -240,26 +223,10 @@ void UJoystickForceFeedbackComponent::RegisterPhysicsSubstepCallback()
 	RegisteredSolver = Solver;
 	SubstepCallback = Solver->CreateAndRegisterSimCallbackObject_External<FJoystickForceFeedbackSubstepCallback>();
 	SubstepCallback->Init(this);
-#else
-	const AActor* OwningPawn = GetOwner();
-	if (!OwningPawn)
-	{
-		return;
-	}
-
-	TargetPrimitive = Cast<UPrimitiveComponent>(OwningPawn->GetRootComponent());
-	if (!TargetPrimitive.IsValid())
-	{
-		return;
-	}
-
-	OnCalculateCustomPhysics.BindUObject(this, &UJoystickForceFeedbackComponent::HandleSubstepTick);
-#endif
 }
 
 void UJoystickForceFeedbackComponent::UnregisterPhysicsSubstepCallback()
 {
-#if ENGINE_MAJOR_VERSION == 5
 	if (RegisteredSolver != nullptr && SubstepCallback != nullptr)
 	{
 		RegisteredSolver->UnregisterAndFreeSimCallbackObject_External(SubstepCallback);
@@ -267,19 +234,16 @@ void UJoystickForceFeedbackComponent::UnregisterPhysicsSubstepCallback()
 
 	RegisteredSolver = nullptr;
 	SubstepCallback = nullptr;
-#else
-	OnCalculateCustomPhysics.Unbind();
-#endif
 }
 
 void UJoystickForceFeedbackComponent::CreateEffects()
 {
-	if (!EffectType)
+	if (!EffectType && EffectGroups.Num() == 0)
 	{
 		return;
 	}
 
-	if (InstanceId != -1)
+	if (InstanceId.IsValid())
 	{
 		CreateInstanceEffect(InstanceId);
 	}
@@ -313,12 +277,12 @@ void UJoystickForceFeedbackComponent::CreateEffects()
 
 void UJoystickForceFeedbackComponent::CreateInstanceEffect(const FJoystickInstanceId& JoystickInstanceId)
 {
-	if (InstanceId != -1 && InstanceId != JoystickInstanceId)
+	if (InstanceId.IsValid() && InstanceId != JoystickInstanceId)
 	{
 		return;
 	}
 
-	if (!EffectType)
+	if (!EffectType && EffectGroups.Num() == 0)
 	{
 		return;
 	}
@@ -341,10 +305,50 @@ void UJoystickForceFeedbackComponent::CreateInstanceEffect(const FJoystickInstan
 		return;
 	}
 
-	UForceFeedbackEffectBase* ForcedFeedbackEffect = NewObject<UForceFeedbackEffectBase>(this, EffectType);
+	// Budget the device's effect slots, so the lowest priority effects are skipped instead of failing to create
+	int AvailableSlots = GetAvailableEffectSlots(JoystickInstanceId);
+	if (EffectType && AvailableSlots > 0)
+	{
+		// Single effect type, spawned with its class defaults
+		if (CreateInstanceEffect(JoystickInstanceId, JoystickInfo.Haptic, EffectType, FForceFeedbackEffectGroupEntry(), nullptr))
+		{
+			AvailableSlots--;
+		}
+	}
+
+	TArray<TPair<FForceFeedbackEffectGroupEntry, const UForceFeedbackEffectGroup*>> Entries;
+	GetActiveGroupEntries(Entries);
+
+	for (int i = 0; i < Entries.Num(); i++)
+	{
+		if (AvailableSlots <= 0)
+		{
+			FJoystickLogManager::Get()->LogWarning(TEXT("Device %d has no free effect slots, skipping the %d lowest priority effect(s)"), JoystickInstanceId.Value, Entries.Num() - i);
+			break;
+		}
+
+		const FForceFeedbackEffectGroupEntry& Entry = Entries[i].Key;
+		if (CreateInstanceEffect(JoystickInstanceId, JoystickInfo.Haptic, Entry.Effect->GetClass(), Entry, Entries[i].Value))
+		{
+			AvailableSlots--;
+		}
+	}
+}
+
+bool UJoystickForceFeedbackComponent::CreateInstanceEffect(const FJoystickInstanceId& JoystickInstanceId, const FJoystickHapticInformation& HapticInformation, const TSubclassOf<UForceFeedbackEffectBase> EffectClass,
+                                                           const FForceFeedbackEffectGroupEntry& Entry, const UForceFeedbackEffectGroup* Group)
+{
+	UForceFeedbackEffectBase* ForcedFeedbackEffect = NewObject<UForceFeedbackEffectBase>(this, EffectClass, NAME_None, RF_NoFlags, Entry.Effect);
 	if (!IsValid(ForcedFeedbackEffect))
 	{
-		return;
+		return false;
+	}
+
+	ForcedFeedbackEffect->SetInstanceId(JoystickInstanceId);
+	if (!ForcedFeedbackEffect->IsSupportedByDevice(HapticInformation))
+	{
+		FJoystickLogManager::Get()->LogDebug(TEXT("Device %d does not support effect %s, skipping"), JoystickInstanceId.Value, *EffectClass->GetName());
+		return false;
 	}
 
 	if (Configuration.OverrideEffectTick)
@@ -353,7 +357,14 @@ void UJoystickForceFeedbackComponent::CreateInstanceEffect(const FJoystickInstan
 		ForcedFeedbackEffect->SetTickable(false);
 	}
 
-	ForcedFeedbackEffect->SetInstanceId(JoystickInstanceId);
+	ForcedFeedbackEffect->EffectName = Entry.Name;
+	ForcedFeedbackEffect->EffectTag = Entry.Tag;
+	if (IsValid(Group))
+	{
+		ForcedFeedbackEffect->GroupTag = Group->GroupTag;
+	}
+	ForcedFeedbackEffect->ShouldStartWithComponent = Entry.AutoStart;
+
 	ForcedFeedbackEffect->OnInitialisedEffectDelegate.AddDynamic(this, &UJoystickForceFeedbackComponent::OnInitialisedEffect);
 	ForcedFeedbackEffect->OnStartedEffectDelegate.AddDynamic(this, &UJoystickForceFeedbackComponent::OnStartedEffect);
 	ForcedFeedbackEffect->OnStoppedEffectDelegate.AddDynamic(this, &UJoystickForceFeedbackComponent::OnStoppedEffect);
@@ -362,9 +373,9 @@ void UJoystickForceFeedbackComponent::CreateInstanceEffect(const FJoystickInstan
 
 	ForcedFeedbackEffect->Configuration.Update(Configuration);
 
-	if (Running == false)
+	if (Running == false || Entry.AutoStart == false)
 	{
-		// Force effect not to auto start if the component isn't "running"
+		// Force effect not to auto start if the component isn't "running", or the effect is started manually
 		ForcedFeedbackEffect->Configuration.AutoStartOnInitialisation = false;
 	}
 
@@ -373,7 +384,7 @@ void UJoystickForceFeedbackComponent::CreateInstanceEffect(const FJoystickInstan
 		ForcedFeedbackEffect->InitialiseEffect();
 	}
 
-	if (Running)
+	if (Running && Entry.AutoStart)
 	{
 		// Effect component is already running, we should start the effect
 		ForcedFeedbackEffect->StartEffect();
@@ -383,6 +394,61 @@ void UJoystickForceFeedbackComponent::CreateInstanceEffect(const FJoystickInstan
 		FScopeLock EffectsLock(&EffectsCriticalSection);
 		Effects.Add(ForcedFeedbackEffect);
 	}
+
+	return true;
+}
+
+int UJoystickForceFeedbackComponent::GetAvailableEffectSlots(const FJoystickInstanceId& JoystickInstanceId) const
+{
+	const UJoystickHapticDeviceManager* HapticDeviceManager = GetDefault<UJoystickHapticDeviceManager>();
+	if (!IsValid(HapticDeviceManager))
+	{
+		return INT_MAX;
+	}
+
+	const int MaxEffects = HapticDeviceManager->GetMaxNumEffects(JoystickInstanceId);
+	if (MaxEffects <= 0)
+	{
+		return INT_MAX;
+	}
+
+	// Only this component's effects are counted, the device does not report slots used elsewhere
+	int ExistingEffects = 0;
+	FScopeLock EffectsLock(&EffectsCriticalSection);
+	for (const UForceFeedbackEffectBase* Effect : Effects)
+	{
+		if (IsValid(Effect) && Effect->GetInstanceId() == JoystickInstanceId)
+		{
+			ExistingEffects++;
+		}
+	}
+
+	return FMath::Max(MaxEffects - ExistingEffects, 0);
+}
+
+void UJoystickForceFeedbackComponent::GetActiveGroupEntries(TArray<TPair<FForceFeedbackEffectGroupEntry, const UForceFeedbackEffectGroup*>>& OutEntries) const
+{
+	for (const UForceFeedbackEffectGroup* Group : EffectGroups)
+	{
+		if (!IsValid(Group))
+		{
+			continue;
+		}
+
+		TArray<FForceFeedbackEffectGroupEntry> GroupEntries;
+		Group->GetActiveEntries(GroupEntries);
+
+		for (const FForceFeedbackEffectGroupEntry& Entry : GroupEntries)
+		{
+			OutEntries.Emplace(Entry, Group);
+		}
+	}
+
+	// The groups share the device's effect slots, so priority is compared across all of them
+	OutEntries.StableSort([](const TPair<FForceFeedbackEffectGroupEntry, const UForceFeedbackEffectGroup*>& A, const TPair<FForceFeedbackEffectGroupEntry, const UForceFeedbackEffectGroup*>& B)
+	{
+		return A.Key.Priority > B.Key.Priority;
+	});
 }
 
 void UJoystickForceFeedbackComponent::DestroyEffect(UForceFeedbackEffectBase* ForcedFeedbackEffect)
@@ -392,11 +458,26 @@ void UJoystickForceFeedbackComponent::DestroyEffect(UForceFeedbackEffectBase* Fo
 		return;
 	}
 
-	ForcedFeedbackEffect->OnInitialisedEffectDelegate.RemoveDynamic(this, &UJoystickForceFeedbackComponent::OnInitialisedEffect);
-	ForcedFeedbackEffect->OnStartedEffectDelegate.RemoveDynamic(this, &UJoystickForceFeedbackComponent::OnStartedEffect);
-	ForcedFeedbackEffect->OnStoppedEffectDelegate.RemoveDynamic(this, &UJoystickForceFeedbackComponent::OnStoppedEffect);
-	ForcedFeedbackEffect->OnUpdatedEffectDelegate.RemoveDynamic(this, &UJoystickForceFeedbackComponent::OnUpdatedEffect);
-	ForcedFeedbackEffect->OnDestroyedEffectDelegate.RemoveDynamic(this, &UJoystickForceFeedbackComponent::OnDestroyedEffect);
+	if (ForcedFeedbackEffect->OnInitialisedEffectDelegate.IsBound())
+	{
+		ForcedFeedbackEffect->OnInitialisedEffectDelegate.RemoveDynamic(this, &UJoystickForceFeedbackComponent::OnInitialisedEffect);
+	}
+	if (ForcedFeedbackEffect->OnStartedEffectDelegate.IsBound())
+	{
+		ForcedFeedbackEffect->OnStartedEffectDelegate.RemoveDynamic(this, &UJoystickForceFeedbackComponent::OnStartedEffect);
+	}
+	if (ForcedFeedbackEffect->OnStoppedEffectDelegate.IsBound())
+	{
+		ForcedFeedbackEffect->OnStoppedEffectDelegate.RemoveDynamic(this, &UJoystickForceFeedbackComponent::OnStoppedEffect);
+	}
+	if (ForcedFeedbackEffect->OnUpdatedEffectDelegate.IsBound())
+	{
+		ForcedFeedbackEffect->OnUpdatedEffectDelegate.RemoveDynamic(this, &UJoystickForceFeedbackComponent::OnUpdatedEffect);
+	}
+	if (ForcedFeedbackEffect->OnDestroyedEffectDelegate.IsBound())
+	{
+		ForcedFeedbackEffect->OnDestroyedEffectDelegate.RemoveDynamic(this, &UJoystickForceFeedbackComponent::OnDestroyedEffect);
+	}
 
 	ForcedFeedbackEffect->ConditionalBeginDestroy();
 }
@@ -424,6 +505,42 @@ void UJoystickForceFeedbackComponent::DestroyInstanceEffects(const FJoystickInst
 	for (UForceFeedbackEffectBase* Effect : EffectsToDestroy)
 	{
 		DestroyEffect(Effect);
+	}
+}
+
+void UJoystickForceFeedbackComponent::DestroyAllEffects()
+{
+	TArray<UForceFeedbackEffectBase*> EffectsToDestroy;
+
+	{
+		FScopeLock EffectsLock(&EffectsCriticalSection);
+		EffectsToDestroy = Effects;
+		Effects.Empty();
+	}
+
+	for (UForceFeedbackEffectBase* Effect : EffectsToDestroy)
+	{
+		DestroyEffect(Effect);
+	}
+}
+
+void UJoystickForceFeedbackComponent::StartAutoStartEffects()
+{
+	// Held while the effects are started, so they cannot be ticked on the physics thread at the same time
+	FScopeLock EffectsLock(&EffectsCriticalSection);
+
+	TArray<UForceFeedbackEffectBase*> EffectsToStart;
+	for (UForceFeedbackEffectBase* Effect : Effects)
+	{
+		if (IsValid(Effect) && Effect->ShouldStartWithComponent)
+		{
+			EffectsToStart.Add(Effect);
+		}
+	}
+
+	for (UForceFeedbackEffectBase* Effect : EffectsToStart)
+	{
+		Effect->StartEffect();
 	}
 }
 
@@ -456,10 +573,7 @@ TArray<UForceFeedbackEffectBase*> UJoystickForceFeedbackComponent::GetEffects() 
 void UJoystickForceFeedbackComponent::StartEffect()
 {
 	Running = true;
-	ActionOnAllEffects([](UForceFeedbackEffectBase* Effect)
-	{
-		Effect->StartEffect();
-	});
+	StartAutoStartEffects();
 }
 
 void UJoystickForceFeedbackComponent::StopEffect()
@@ -469,6 +583,116 @@ void UJoystickForceFeedbackComponent::StopEffect()
 	{
 		Effect->StopEffect();
 	});
+}
+
+void UJoystickForceFeedbackComponent::SetEffectGroups(const TArray<UForceFeedbackEffectGroup*>& NewEffectGroups)
+{
+	if (EffectGroups == NewEffectGroups)
+	{
+		return;
+	}
+
+	EffectGroups = NewEffectGroups;
+
+	if (!HasBegunPlay())
+	{
+		return;
+	}
+
+	DestroyAllEffects();
+	CreateEffects();
+}
+
+TArray<UForceFeedbackEffectBase*> UJoystickForceFeedbackComponent::GetEffectsByName(const FName EffectName) const
+{
+	TArray<UForceFeedbackEffectBase*> NamedEffects;
+	if (EffectName.IsNone())
+	{
+		return NamedEffects;
+	}
+
+	FScopeLock EffectsLock(&EffectsCriticalSection);
+
+	for (UForceFeedbackEffectBase* Effect : Effects)
+	{
+		if (IsValid(Effect) && Effect->EffectName == EffectName)
+		{
+			NamedEffects.Add(Effect);
+		}
+	}
+
+	return NamedEffects;
+}
+
+void UJoystickForceFeedbackComponent::StartEffectByName(const FName EffectName)
+{
+	FScopeLock EffectsLock(&EffectsCriticalSection);
+	for (UForceFeedbackEffectBase* Effect : GetEffectsByName(EffectName))
+	{
+		Effect->StartEffect();
+	}
+}
+
+void UJoystickForceFeedbackComponent::StopEffectByName(const FName EffectName)
+{
+	FScopeLock EffectsLock(&EffectsCriticalSection);
+	for (UForceFeedbackEffectBase* Effect : GetEffectsByName(EffectName))
+	{
+		Effect->StopEffect();
+	}
+}
+
+TArray<UForceFeedbackEffectBase*> UJoystickForceFeedbackComponent::GetEffectsByTag(const FGameplayTag EffectTag) const
+{
+	TArray<UForceFeedbackEffectBase*> TaggedEffects;
+	if (!EffectTag.IsValid())
+	{
+		return TaggedEffects;
+	}
+
+	FScopeLock EffectsLock(&EffectsCriticalSection);
+
+	for (UForceFeedbackEffectBase* Effect : Effects)
+	{
+		if (IsValid(Effect) && (Effect->EffectTag.MatchesTag(EffectTag) || Effect->GroupTag.MatchesTag(EffectTag)))
+		{
+			TaggedEffects.Add(Effect);
+		}
+	}
+
+	return TaggedEffects;
+}
+
+void UJoystickForceFeedbackComponent::StartEffectByTag(const FGameplayTag EffectTag)
+{
+	FScopeLock EffectsLock(&EffectsCriticalSection);
+	for (UForceFeedbackEffectBase* Effect : GetEffectsByTag(EffectTag))
+	{
+		Effect->StartEffect();
+	}
+}
+
+void UJoystickForceFeedbackComponent::StopEffectByTag(const FGameplayTag EffectTag)
+{
+	FScopeLock EffectsLock(&EffectsCriticalSection);
+	for (UForceFeedbackEffectBase* Effect : GetEffectsByTag(EffectTag))
+	{
+		Effect->StopEffect();
+	}
+}
+
+void UJoystickForceFeedbackComponent::DescribeEffects(TArray<FForceFeedbackEffectDebugInfo>& OutInfos) const
+{
+	FScopeLock EffectsLock(&EffectsCriticalSection);
+	for (const UForceFeedbackEffectBase* Effect : Effects)
+	{
+		if (!IsValid(Effect) || !Effect->IsInitialised)
+		{
+			continue;
+		}
+
+		Effect->DescribeEffect(OutInfos.AddDefaulted_GetRef());
+	}
 }
 
 void UJoystickForceFeedbackComponent::JoystickPluggedIn(const FJoystickInstanceId& JoystickInstanceId)
@@ -483,22 +707,20 @@ void UJoystickForceFeedbackComponent::JoystickUnplugged(const FJoystickInstanceI
 
 void UJoystickForceFeedbackComponent::ActionOnAllEffects(const TFunctionRef<void(UForceFeedbackEffectBase* Effect)>& CustomInitializer)
 {
-	TArray<UForceFeedbackEffectBase*> EffectsSnapshot;
+	// Held while the action runs, so the effects cannot be ticked on the physics thread at the same time
+	FScopeLock EffectsLock(&EffectsCriticalSection);
 
+	if (Effects.Num() == 0)
 	{
-		FScopeLock EffectsLock(&EffectsCriticalSection);
+		return;
+	}
 
-		if (Effects.Num() == 0)
+	TArray<UForceFeedbackEffectBase*> EffectsSnapshot;
+	for (UForceFeedbackEffectBase* Effect : Effects)
+	{
+		if (IsValid(Effect))
 		{
-			return;
-		}
-
-		for (UForceFeedbackEffectBase* Effect : Effects)
-		{
-			if (IsValid(Effect))
-			{
-				EffectsSnapshot.Add(Effect);
-			}
+			EffectsSnapshot.Add(Effect);
 		}
 	}
 
@@ -510,39 +732,32 @@ void UJoystickForceFeedbackComponent::ActionOnAllEffects(const TFunctionRef<void
 
 void UJoystickForceFeedbackComponent::ActionOnJoystickEffects(const FJoystickInstanceId& JoystickInstanceId, const TFunctionRef<void(UForceFeedbackEffectBase* Effect)>& CustomInitializer)
 {
-	TArray<UForceFeedbackEffectBase*> EffectsSnapshot;
+	// Held while the action runs, so the effects cannot be ticked on the physics thread at the same time
+	FScopeLock EffectsLock(&EffectsCriticalSection);
 
+	if (Effects.Num() == 0)
 	{
-		FScopeLock EffectsLock(&EffectsCriticalSection);
+		return;
+	}
 
-		if (Effects.Num() == 0)
+	TArray<UForceFeedbackEffectBase*> EffectsSnapshot;
+	for (UForceFeedbackEffectBase* Effect : Effects)
+	{
+		if (!IsValid(Effect))
 		{
-			return;
+			continue;
 		}
 
-		for (UForceFeedbackEffectBase* Effect : Effects)
+		if (Effect->GetInstanceId() != JoystickInstanceId)
 		{
-			if (!IsValid(Effect))
-			{
-				continue;
-			}
-
-			if (Effect->GetInstanceId() != JoystickInstanceId)
-			{
-				continue;
-			}
-
-			EffectsSnapshot.Add(Effect);
+			continue;
 		}
+
+		EffectsSnapshot.Add(Effect);
 	}
 
 	for (UForceFeedbackEffectBase* Effect : EffectsSnapshot)
 	{
 		CustomInitializer(Effect);
 	}
-}
-
-void UJoystickForceFeedbackComponent::HandleSubstepTick(const float DeltaTime, FBodyInstance* BodyInstance)
-{
-	TickEffects(DeltaTime);
 }

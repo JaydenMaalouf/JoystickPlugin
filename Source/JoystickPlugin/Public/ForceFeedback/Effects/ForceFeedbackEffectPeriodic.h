@@ -17,7 +17,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Force Feedback")
 	FForceFeedbackEffectPeriodicData EffectData;
 
+	virtual void DescribeEffect(FForceFeedbackEffectDebugInfo& OutInfo) const override;
+	virtual uint32 GetEffectDuration() const override;
+	virtual uint32 GetEffectDelay() const override;
+
 protected:
 	virtual void UpdateEffectData() override;
-	virtual uint32 GetEffectDuration() override;
 };

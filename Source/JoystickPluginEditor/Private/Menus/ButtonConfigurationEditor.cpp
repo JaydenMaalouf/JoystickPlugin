@@ -16,7 +16,7 @@
 #include "Widgets/Input/SEditableTextBox.h"
 #include "Styling/AppStyle.h"
 #include "Framework/Application/SlateApplication.h"
-#include "Widgets/ButtonBox.h"
+#include "Widgets/JoystickInput/ButtonBox.h"
 
 void SButtonConfigurationEditor::Construct(const FArguments& InArgs)
 {
@@ -268,7 +268,7 @@ void SButtonConfigurationEditor::SaveConfiguration() const
 		return;
 	}
 
-	ProfileManager->UpdateButtonConfiguration(Key, CurrentProperties);
+	ProfileManager->UpdateButtonProfileConfiguration(Key, CurrentProperties);
 
 	if (CurrentProperties.OverrideDisplayName != bOriginalOverrideDisplayName || CurrentProperties.DisplayName != OriginalDisplayName)
 	{

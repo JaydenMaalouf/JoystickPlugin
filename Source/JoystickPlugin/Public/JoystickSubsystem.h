@@ -3,15 +3,17 @@
 
 #pragma once
 
+#include "Containers/Ticker.h"
 #include "Data/DeviceInfoSDL.h"
 #include "Data/JoystickDeviceState.h"
 #include "Data/JoystickSensorType.h"
 #include "Data/ResultMessage.h"
+#include "Data/Settings/JoystickInputDeviceAxisProperties.h"
 #include "Subsystems/EngineSubsystem.h"
 
 THIRD_PARTY_INCLUDES_START
 
-#include "SDL_events.h"
+#include "JoystickSDL.h"
 
 THIRD_PARTY_INCLUDES_END
 
@@ -19,6 +21,7 @@ THIRD_PARTY_INCLUDES_END
 
 class FJoystickInputDevice;
 struct FJoystickInfo;
+struct FJoystickInputDeviceConfiguration;
 struct FJoystickInformation;
 struct FJoystickInstanceId;
 struct FInputDeviceId;
@@ -51,20 +54,16 @@ public:
 	bool IsInitialised() const;
 
 	UFUNCTION(BlueprintPure, Category="Joystick",
-		meta=(ToolTip="The number of joysticks captured by SDL2. This does not reflect the joystick count monitored by the plugin - please use GetJoystickCount() or GetConnectedJoystickCount() instead."))
-	int GetRawJoystickCount() const;
-
-	UFUNCTION(BlueprintPure, Category="Joystick",
 		meta=(ToolTip="The number of joysticks captured by this plugin. This does not reflect the current joystick count, as disconnected joysticks will persist in this count - please use GetConnectedJoystickCount() instead."))
 	int GetJoystickCount() const;
 
 	UFUNCTION(BlueprintPure, Category="Joystick", meta=(ToolTip="The number of connected joysticks monitored by this plugin."))
 	int GetConnectedJoystickCount() const;
 
-	UFUNCTION(BlueprintCallable, BlueprintPure=false, Category="Joystick", meta=(ToolTip="The raw input state of the specified joystick."))
+	UFUNCTION(BlueprintCallable, BlueprintPure=false, Category="Joystick", meta=(ToolTip="The axis value with the device's configured remapping applied."))
 	float GetAxisKeyValue(const FKey& Key) const;
 
-	UFUNCTION(BlueprintCallable, BlueprintPure=false, Category="Joystick", meta=(ToolTip="The raw input state of the specified joystick."))
+	UFUNCTION(BlueprintCallable, BlueprintPure=false, Category="Joystick", meta=(ToolTip="The axis value with the supplied properties applied, for previewing remapping."))
 	float GetAxisKeyMockValue(const FKey& Key, const FJoystickInputDeviceAxisProperties& AxisProperties) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure=false, Category="Joystick", meta=(ToolTip="The raw input state of the specified joystick."))
@@ -77,13 +76,13 @@ public:
 	EJoystickType GetJoystickType(const FJoystickInstanceId& InstanceId);
 
 	UFUNCTION(BlueprintCallable, Category="Joystick")
-	EJoystickPowerLevel GetJoystickPowerLevel(const FJoystickInstanceId& InstanceId);
+	bool GetJoystickPowerInformation(const FJoystickInstanceId& InstanceId, FJoystickPowerInformation& PowerInformation);
 
 	UFUNCTION(BlueprintCallable, Category="Joystick")
-	void MapJoystickDeviceToPlayer(const FJoystickInstanceId& InstanceId, const int PlayerId);
+	void AssignJoystickToPlatformUser(const FJoystickInstanceId& InstanceId, const int PlatformUserId);
 
 	UFUNCTION(BlueprintCallable, Category="Joystick")
-	void SetIgnoreGameControllers(const bool IgnoreControllers);
+	void SetIgnoreGamepads(const bool IgnoreGamepads);
 
 	UFUNCTION(BlueprintCallable, Category="Joystick")
 	bool SetJoystickSensorEnabled(const FJoystickInstanceId& InstanceId, const EJoystickSensorType SensorType, const bool Enabled);
@@ -103,8 +102,14 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Joystick")
 	bool InstanceIdFromDeviceId(const FInputDeviceId& DeviceId, FJoystickInstanceId& InstanceId) const;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure=false, Category="Joystick")
+	bool GetInstanceIdFromKey(const FKey& Key, FJoystickInstanceId& InstanceId) const;
+
 	UFUNCTION(BlueprintCallable, Category="Joystick")
 	bool HasRumbleDevice() const;
+
+	UFUNCTION(BlueprintCallable, Category="Joystick")
+	bool HasEngineForceFeedbackDevice() const;
 
 	UFUNCTION(BlueprintCallable, Category="Joystick")
 	bool IsConnected(const FJoystickInstanceId& InstanceId) const;
@@ -120,12 +125,15 @@ public:
 	void InitialiseInputDevice(const TSharedPtr<FJoystickInputDevice>& NewInputDevice);
 	void Update() const;
 
-	TTuple<FDeviceInfoSDL*, FInternalResultMessage> GetDeviceInfo(const FJoystickInstanceId& InstanceId);
 	FJoystickDeviceState CreateInitialDeviceState(const FJoystickInstanceId& InstanceId);
 
 	FJoystickInputDevice* GetInputDevice() const;
 
-	const TMap<FJoystickInstanceId, FDeviceInfoSDL>& GetDevices();
+	// The current time on the same clock as the input data's timestamps: nanoseconds since SDL started.
+	static uint64 GetTicksNS();
+
+	// The current time on the same clock as force feedback effect playback: milliseconds since SDL started, the unit SDL's haptic effects are timed in.
+	static uint64 GetTicks();
 
 	UPROPERTY(BlueprintAssignable, Category="Joystick|Subsystem|Delegates")
 	FOnJoystickSubsystemReady JoystickSubsystemReady;
@@ -134,14 +142,25 @@ public:
 	FOnJoystickSubsystemReady JoystickSubsystemInitialised;
 
 private:
-	static int HandleSDLEvent(void* UserData, SDL_Event* Event);
-	bool AddDeviceByIndex(int DeviceIndex);
+	friend class FJoystickInputDevice;
+	friend class UJoystickHapticDeviceManager;
 
+	TTuple<FDeviceInfoSDL*, FInternalResultMessage> GetDeviceInfo(const FJoystickInstanceId& InstanceId);
+	const TMap<FJoystickInstanceId, FDeviceInfoSDL>& GetDevices();
+
+	static bool HandleSDLEvent(void* UserData, SDL_Event* Event);
+
+	void QueueDevice(const FJoystickInstanceId& InstanceId);
+	bool RemovePendingDevice(const FJoystickInstanceId& InstanceId);
+	bool FlushPendingDevices(float DeltaTime);
+
+	void AddDevices(TArray<FDeviceInfoSDL>& NewDevices);
+	bool IsCollectionPrioritisationEnabled(const FDeviceInfoSDL& Device) const;
+	bool HasCollectionPriority(const FDeviceInfoSDL& Device, const TArray<FDeviceInfoSDL>& NewDevices) const;
 	bool AddDevice(FDeviceInfoSDL& Device);
 	void AddHapticDevice(FDeviceInfoSDL& Device) const;
 	void AddSensorDevice(FDeviceInfoSDL& Device) const;
 	bool RemoveDevice(const FJoystickInstanceId& InstanceId);
-	bool RemoveDeviceByIndex(const int DeviceIndex);
 	void CloseDeviceHandles(FDeviceInfoSDL& Device) const;
 
 	bool FindExistingDevice(const FDeviceInfoSDL& Device, FJoystickInstanceId& PreviousJoystickInstanceId, FInputDeviceId& ExistingInputDeviceId, FPlatformUserId& ExistingPlatformUserId);
@@ -150,22 +169,24 @@ private:
 
 	void JoystickPluggedIn(const FDeviceInfoSDL& Device) const;
 	void JoystickUnplugged(const FJoystickInstanceId& InstanceId, const FInputDeviceId& InputDeviceId) const;
+	void JoystickPowerInformationUpdated(const FJoystickInstanceId& InstanceId);
 
-	void LoadGameControllerMappings() const;
+	void LoadGamepadMappings() const;
 
-	bool BuildDeviceInfoForIndex(const int DeviceIndex, FDeviceInfoSDL& Device) const;
-	void ConvertSDLGuid(const SDL_JoystickGUID& SdlGuid, FGuid& OutGuid) const;
-	FString GenerateDeviceHash(const FDeviceInfoSDL& Device) const;
-	int CollectionIndexFromPath(const FString& Path) const;
+	bool BuildDeviceInfoForInstanceId(FJoystickInstanceId InstanceId, FDeviceInfoSDL& Device) const;
 
 	TMap<FJoystickInstanceId, FDeviceInfoSDL> Devices;
+
+	TArray<FDeviceInfoSDL> PendingDevices;
+	FTSTicker::FDelegateHandle PendingDevicesTickerHandle;
+	static constexpr float PendingDevicesSettleTime = 0.25f;
 
 	TSharedPtr<FJoystickInputDevice> InputDevicePtr;
 
 	bool OwnsSDL;
 	bool bIsInitialised;
 
-	static FString GameControllerMappingFile;
+	static FString GamepadMappingFile;
 	static FString AxisPropertiesSection;
 	static FString ButtonPropertiesSection;
 	static FString JoystickConfigurationSection;

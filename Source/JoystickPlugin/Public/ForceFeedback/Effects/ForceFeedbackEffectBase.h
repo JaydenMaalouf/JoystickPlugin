@@ -3,13 +3,15 @@
 
 #pragma once
 
+#include "GameplayTagContainer.h"
 #include "Tickable.h"
 #include "Data/JoystickInstanceId.h"
 #include "ForceFeedback/JoystickForceFeedbackComponent.h"
 #include "ForceFeedback/Data/Configuration/ForceFeedbackEffectConfiguration.h"
+#include "ForceFeedback/Debug/ForceFeedbackEffectDebugInfo.h"
 
 THIRD_PARTY_INCLUDES_START
-#include "SDL_haptic.h"
+#include "JoystickSDL.h"
 THIRD_PARTY_INCLUDES_END
 
 #include "ForceFeedbackEffectBase.generated.h"
@@ -24,7 +26,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdatedEffect, const UForceFeedba
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDestroyedEffect, const UForceFeedbackEffectBase*, Effect);
 
-UCLASS(BlueprintType)
+struct FJoystickHapticInformation;
+
+UCLASS(BlueprintType, EditInlineNew)
 class JOYSTICKPLUGIN_API UForceFeedbackEffectBase : public UObject, public FTickableGameObject
 {
 	GENERATED_BODY()
@@ -33,6 +37,10 @@ public:
 	UForceFeedbackEffectBase(const FObjectInitializer& ObjectInitializer);
 
 	virtual void BeginDestroy() override;
+
+#if WITH_EDITOR
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
 
 	// Begin FTickableGameObject Interface.
 	virtual void Tick(float DeltaTime) final override;
@@ -43,10 +51,10 @@ public:
 	// End FTickableGameObject Interface.
 
 	UFUNCTION(BlueprintCallable, Category="Force Feedback")
-	void InitialiseEffect();
+	bool InitialiseEffect();
 
 	UFUNCTION(BlueprintCallable, Category="Force Feedback")
-	void StartEffect();
+	bool StartEffect();
 
 	UFUNCTION(BlueprintCallable, Category="Force Feedback")
 	void StopEffect();
@@ -85,7 +93,18 @@ public:
 	virtual void ReceivedTick_Implementation(const float DeltaTime);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Force Feedback")
-	int GetEffectStatus() const;
+	bool GetEffectStatus() const;
+
+	// Whether the effect is running. Finite completion is reconciled by TickEffect; this doesn't query the device.
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Force Feedback")
+	bool IsEffectRunning() const;
+
+	// Seconds since the effect was last started, across all of its iterations. Zero while it isn't running.
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Force Feedback")
+	float GetElapsedTime() const;
+
+	// GetElapsedTime in whole milliseconds, read straight off the SDL tick counter the effect is timed against.
+	uint64 GetElapsedTimeMilliseconds() const;
 
 	UFUNCTION(BlueprintCallable, Category="Force Feedback")
 	void SetInstanceId(const FJoystickInstanceId& NewInstanceId);
@@ -104,6 +123,22 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Force Feedback")
 	AActor* GetOwningActor() const;
+
+	// Builds the effect data to work out its type, then checks it against the effect types the device supports.
+	bool IsSupportedByDevice(const FJoystickHapticInformation& HapticInformation);
+
+	virtual bool IsEffectValid();
+
+	// Fills in what the debug overlay shows for this effect. Called by the overlay under the owning component's effects lock.
+	virtual void DescribeEffect(FForceFeedbackEffectDebugInfo& OutInfo) const;
+
+	// Shows a value on this effect's row in the debug overlay, replacing any earlier value with the same name.
+	UFUNCTION(BlueprintCallable, Category="Force Feedback|Debug", meta=(DevelopmentOnly))
+	void AddDebugValue(const FName Name, const float Value);
+
+	// Shows a piece of text, such as a surface name, on this effect's row in the debug overlay.
+	UFUNCTION(BlueprintCallable, Category="Force Feedback|Debug", meta=(DevelopmentOnly))
+	void AddDebugText(const FName Name, const FName Value);
 
 	template <class T>
 	T* GetOwningActor() const
@@ -134,11 +169,20 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Force Feedback", meta=(ExposeOnSpawn=true))
 	FForceFeedbackEffectConfiguration Configuration;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Force Feedback", meta=(ExposeOnSpawn=true, EditCondition="!InfiniteIterations", UIMin="0", ClampMin="0"))
-	int Iterations;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Force Feedback", meta=(ExposeOnSpawn=true, EditCondition="!InfiniteIterations", UIMin="1", UIMax = "4294967295", ClampMin="1", ClampMax = "4294967295"))
+	int64 Iterations;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Force Feedback", meta=(ExposeOnSpawn=true))
 	bool InfiniteIterations;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Force Feedback", meta=(ToolTip="Name given to this effect by the effect group entry that spawned it."))
+	FName EffectName;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Force Feedback", meta=(ToolTip="Tag given to this effect by the effect group entry that spawned it."))
+	FGameplayTag EffectTag;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Force Feedback", meta=(ToolTip="Tag of the effect group that spawned this effect."))
+	FGameplayTag GroupTag;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Force Feedback|Tick")
 	bool Tickable;
@@ -167,14 +211,34 @@ public:
 	UPROPERTY(BlueprintAssignable, Category="Force Feedback|Delegates", meta=(DisplayName="OnDestroyedEffect"))
 	FOnDestroyedEffect OnDestroyedEffectDelegate;
 
+	// The length of a single iteration in milliseconds, or SDL_HAPTIC_INFINITY.
+	virtual uint32 GetEffectDuration() const;
+
+	// The wait in milliseconds between starting the effect and its first iteration playing. Zero for effects with no replay data.
+	virtual uint32 GetEffectDelay() const;
+
+	// The number of iterations the device is asked to run, or SDL_HAPTIC_INFINITY. Lower than Iterations where the platform limits the total play time.
+	uint32 GetRunIterations() const;
+
+	// The most iterations the platform can play at this effect's duration, or SDL_HAPTIC_INFINITY where it sets no limit.
+	uint32 GetPlatformMaxIterations() const;
+
+	// The most iterations worth setting. Only one at an infinite duration, since its first iteration never ends.
+	uint32 GetMaxIterations() const;
+
 protected:
 	SDL_HapticEffect Effect;
 
 	virtual void CreateEffect();
 	virtual void UpdateEffectData();
-	virtual uint32 GetEffectDuration();
+
+	// Seconds into the current iteration, past the start delay, for the FForceFeedbackEffectEvaluation functions. Negative while the effect isn't playing.
+	float GetEvaluationTime() const;
 
 private:
+	// Clears playback state and sends the stopped event once, including natural completion.
+	void FinishEffect();
+
 	// The last frame number we were ticked.
 	// We don't want to tick multiple times per frame 
 	uint32 LastFrameNumber = INDEX_NONE;
@@ -183,5 +247,23 @@ private:
 
 	bool EffectRunning;
 
+	// Set by the owning component from the effect group entry's AutoStart. When false the component leaves this effect stopped when it starts, so it is only started by name or tag.
+	bool ShouldStartWithComponent;
+
 	friend class UJoystickForceFeedbackComponent;
+
+#if !UE_BUILD_SHIPPING
+	template <typename ListType, typename ValueType>
+	static void SetDebugValue(ListType& List, const FName Name, const ValueType& Value);
+
+	void UpdateDebugWriteRate(const float DeltaTime);
+
+	static constexpr float DebugWriteRateWindow = 0.5f;
+
+	FForceFeedbackEffectDebugInfo::FValueList DebugValues;
+	FForceFeedbackEffectDebugInfo::FTextValueList DebugTextValues;
+	uint32 DebugWriteCount;
+	float DebugWriteTime;
+	float DebugWritesPerSecond;
+#endif
 };

@@ -5,7 +5,7 @@
 
 #include "Runtime/Launch/Resources/Version.h"
 
-#if ENGINE_MAJOR_VERSION == 4 || ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION == 0
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION == 0
 struct FInputDeviceId
 {
 	static FInputDeviceId CreateFromInternalId(int32 InInternalId)

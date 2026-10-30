@@ -29,16 +29,32 @@ TSharedPtr<IInputDevice> FJoystickPluginModule::CreateInputDevice(const TSharedR
 
 void FJoystickPluginModule::StartupModule()
 {
-	PluginDirectory = IPluginManager::Get().FindPlugin(PluginName)->GetBaseDir();
+	const FString BaseDirectory = IPluginManager::Get().FindPlugin(PluginName)->GetBaseDir();
+	PluginDirectory = FPaths::ConvertRelativePathToFull(BaseDirectory);
 	PluginSourceDirectory = FPaths::Combine(PluginDirectory, TEXT("Source"));
 	PluginThirdPartyDirectory = FPaths::Combine(PluginSourceDirectory, TEXT("ThirdParty"));
+
+	// Prefer the symbol-prefixed JoystickSDL3 binary, falling back to stock SDL3 names. Linux links it directly, so needs no manual load.
 #if PLATFORM_WINDOWS
-	const FString SdlDir = FPaths::Combine(*PluginThirdPartyDirectory, TEXT("SDL2"), TEXT("Win64"));
+	const FString SdlDir = FPaths::Combine(PluginThirdPartyDirectory, TEXT("SDL3"), TEXT("Win64"));
+	FString SdlDllPath = FPaths::Combine(SdlDir, TEXT("JoystickSDL3.dll"));
+	if (!FPaths::FileExists(SdlDllPath))
+	{
+		SdlDllPath = FPaths::Combine(SdlDir, TEXT("SDL3.dll"));
+	}
 
 	FPlatformProcess::PushDllDirectory(*SdlDir);
-	const FString SdlDllDir = FPaths::Combine(SdlDir, "SDL2.dll");
-	SdlDllHandle = FPlatformProcess::GetDllHandle(*SdlDllDir);
+	SdlDllHandle = FPlatformProcess::GetDllHandle(*SdlDllPath);
 	FPlatformProcess::PopDllDirectory(*SdlDir);
+#elif PLATFORM_MAC
+	const FString SdlDir = FPaths::Combine(PluginThirdPartyDirectory, TEXT("SDL3"), TEXT("Mac"));
+	FString SdlDylibPath = FPaths::Combine(SdlDir, TEXT("libJoystickSDL3.0.dylib"));
+	if (!FPaths::FileExists(SdlDylibPath))
+	{
+		SdlDylibPath = FPaths::Combine(SdlDir, TEXT("libSDL3.0.dylib"));
+	}
+
+	SdlDllHandle = FPlatformProcess::GetDllHandle(*SdlDylibPath);
 #endif
 
 	IJoystickPlugin::StartupModule();
@@ -46,7 +62,7 @@ void FJoystickPluginModule::StartupModule()
 
 void FJoystickPluginModule::ShutdownModule()
 {
-#if PLATFORM_WINDOWS
+#if PLATFORM_WINDOWS || PLATFORM_MAC
 	FPlatformProcess::FreeDllHandle(SdlDllHandle);
 #endif
 

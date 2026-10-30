@@ -20,6 +20,7 @@ void FJoystickForceFeedbackSubstepCallback::OnPreSimulate_Internal()
 
 FName FJoystickForceFeedbackSubstepCallback::GetFNameForStatId() const
 {
+	// ReSharper disable once CppVariableCanBeMadeConstexpr
 	static const FLazyName StaticName(TEXT("FJoystickForceFeedbackSubstepCallback"));
 	return StaticName;
 }

@@ -9,20 +9,19 @@
 
 THIRD_PARTY_INCLUDES_START
 
-#include "SDL_haptic.h"
-#include "SDL_joystick.h"
-#include "SDL_gamecontroller.h"
+#include "JoystickSDL.h"
 
 THIRD_PARTY_INCLUDES_END
 
 struct FDeviceInfoSDL : FJoystickInformation
 {
 	FDeviceInfoSDL()
-		: DeviceIndex(-1)
-		  , Connected(false)
+		: Connected(false)
 		  , SDLHaptic(nullptr)
 		  , SDLJoystick(nullptr)
-		  , SDLGameController(nullptr)
+		  , SDLGamepad(nullptr)
+		  , EngineRumbleEffectId(-1)
+		  , EngineRumbleLevel(0)
 	{
 		InputDeviceId = FInputDeviceId::CreateFromInternalId(0);
 		PlatformUserId = FPlatformUserId::CreateFromInternalId(0);
@@ -48,11 +47,12 @@ struct FDeviceInfoSDL : FJoystickInformation
 		return PlatformUserId;
 	}
 
-	int DeviceIndex;
 	bool Connected;
 	SDL_Haptic* SDLHaptic;
 	SDL_Joystick* SDLJoystick;
-	SDL_GameController* SDLGameController;
+	SDL_Gamepad* SDLGamepad;
+	int EngineRumbleEffectId;
+	int16 EngineRumbleLevel;
 
 private:
 	FPlatformUserId PlatformUserId;

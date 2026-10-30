@@ -7,6 +7,7 @@
 
 #include "HatData.generated.h"
 
+// A hat switch's state.
 USTRUCT(BlueprintType)
 struct JOYSTICKPLUGIN_API FHatData
 {
@@ -15,6 +16,7 @@ struct JOYSTICKPLUGIN_API FHatData
 	FHatData()
 		: Direction(EHatDirection::None)
 		  , PreviousDirection(EHatDirection::None)
+		  , Timestamp(0)
 	{
 	}
 
@@ -28,20 +30,28 @@ struct JOYSTICKPLUGIN_API FHatData
 		return PreviousDirection;
 	}
 
-	void Update(const EHatDirection& InValue)
+	void Update(const EHatDirection& InValue, const int64 InTimestamp)
 	{
 		PreviousDirection = Direction;
 		Direction = InValue;
+		Timestamp = InTimestamp;
 	}
 
+	// Marks the current value as handled, so it no longer reads as changed from the previous one.
 	void Processed()
 	{
 		PreviousDirection = Direction;
 	}
 
+	// The direction the hat is pressed.
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Hat")
 	EHatDirection Direction;
 
+	// The direction before the last update.
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Hat")
 	EHatDirection PreviousDirection;
+
+	// When SDL read the current value, in nanoseconds.
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Hat")
+	int64 Timestamp;
 };

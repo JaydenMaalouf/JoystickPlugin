@@ -24,6 +24,9 @@ private:
 	bool IsDeviceConfigurationArrayItem(const TSharedRef<IPropertyHandle>& StructPropertyHandle) const;
 	FText GetConnectedDeviceDisplayName(const TSharedRef<IPropertyHandle>& StructPropertyHandle) const;
 	FReply ConvertToProfile(const TSharedRef<IPropertyHandle>& StructPropertyHandle) const;
+	FString ResolveProfileFileName(const FJoystickInputDeviceConfiguration& DeviceConfiguration) const;
+	bool ConfirmProfileOverwrite(const FText& Message) const;
+	FString PromptForProfileName(const FString& InitialProfileName) const;
 	const FJoystickInputDeviceConfiguration* GetDeviceConfiguration(const TSharedRef<IPropertyHandle>& StructPropertyHandle) const;
 };
 

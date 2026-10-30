@@ -6,6 +6,7 @@
 
 #include "ButtonData.generated.h"
 
+// A button's state, with the inversion its configuration applies on read.
 USTRUCT(BlueprintType)
 struct JOYSTICKPLUGIN_API FButtonData
 {
@@ -15,6 +16,7 @@ struct JOYSTICKPLUGIN_API FButtonData
 		: ButtonState(false)
 		  , PreviousButtonState(false)
 		  , InvertOutput(false)
+		  , Timestamp(0)
 	{
 	}
 
@@ -23,6 +25,7 @@ struct JOYSTICKPLUGIN_API FButtonData
 		return InvertOutput ? !ButtonState : ButtonState;
 	}
 
+	// The current state as the given properties would invert it, for previewing a configuration before it is applied.
 	bool GetMockValue(const FJoystickInputDeviceButtonProperties& ButtonProperties) const
 	{
 		return ButtonProperties.InvertOutput ? !ButtonState : ButtonState;
@@ -33,23 +36,32 @@ struct JOYSTICKPLUGIN_API FButtonData
 		return InvertOutput ? !PreviousButtonState : PreviousButtonState;
 	}
 
-	void Update(const bool& InValue)
+	void Update(const bool& InValue, const int64 InTimestamp)
 	{
 		PreviousButtonState = ButtonState;
 		ButtonState = InValue;
+		Timestamp = InTimestamp;
 	}
 
+	// Marks the current value as handled, so it no longer reads as changed from the previous one.
 	void Processed()
 	{
 		PreviousButtonState = ButtonState;
 	}
 
+	// Whether the button is held, before inversion.
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Button")
 	bool ButtonState;
 
+	// Whether the button was held before the last update, before inversion.
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Button")
 	bool PreviousButtonState;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Axis")
+	// Inverts the state on read, so a held button reads as released.
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Button")
 	bool InvertOutput;
+
+	// When SDL read the current value, in nanoseconds.
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category="Joystick|Button")
+	int64 Timestamp;
 };

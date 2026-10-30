@@ -1,6 +1,7 @@
 // JoystickPlugin is licensed under the MIT License.
 // Copyright Jayden Maalouf 2026. All Rights Reserved.
 
+using System;
 using System.IO;
 using System.Linq;
 using UnrealBuildTool;
@@ -12,51 +13,59 @@ public class JoystickPlugin : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new[]
 			{
+				"ApplicationCore",
+				"Chaos",
 				"Core",
 				"CoreUObject",
 				"Engine",
-				"SlateCore",
-				"Slate",
-				"ApplicationCore",
+				"GameplayTags",
 				"InputCore",
 				"InputDevice",
-				"UMG",
+				"PhysicsCore",
 				"Projects",
-				"Chaos",
-				"PhysicsCore"
+				"Slate",
+				"SlateCore",
+				"UMG"
 			});
 
-		var PluginSdlPath = Path.Combine(PluginDirectory, "Source", "ThirdParty", "SDL2");
-
-		var PluginIncludePath = Path.Combine(PluginSdlPath, "include");
-		var EngineIncludePath = Path.Combine(EngineDirectory, "Source", "ThirdParty", "SDL2", "SDL-gui-backend", "include");
-
-		var SdlIncludeDir =
-			Directory.Exists(EngineIncludePath) ? EngineIncludePath :
-			Directory.Exists(PluginIncludePath) ? PluginIncludePath :
-			null;
-
-		if (SdlIncludeDir == null)
+		// UE4 has no Internal include directory support, so expose it publicly there.
+		if (Target.Version.MajorVersion < 5)
 		{
-			throw new BuildException(
-				"SDL2 headers not found. Checked:\n" +
-				$"  Plugin: {PluginIncludePath}\n" +
-				$"  Engine: {EngineIncludePath}\n" +
-				"Ensure SDL2 is bundled in the plugin ThirdParty/SDL2/include or available in the Engine third-party path.");
+			PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Internal"));
 		}
 
-		PublicSystemIncludePaths.Add(SdlIncludeDir);
+		var ThirdPartyDirectory = Path.Combine(PluginDirectory, "Source", "ThirdParty");
+		var SdlDirectory = Path.Combine(ThirdPartyDirectory, "SDL3");
+		var SdlIncludeParentDirectory = Path.Combine(SdlDirectory, "include");
+		var SdlIncludeDirectory = Path.Combine(SdlIncludeParentDirectory, "SDL3");
 
+		if (!Directory.Exists(SdlIncludeDirectory))
+		{
+			throw new BuildException(
+				"SDL headers not found. Checked:\n" +
+				$"  Plugin: {SdlIncludeDirectory}\n" +
+				"Ensure SDL3 is bundled in the plugin Source/ThirdParty/SDL3/include.");
+		}
+
+		PublicSystemIncludePaths.Add(SdlIncludeDirectory);
+		PublicSystemIncludePaths.Add(SdlIncludeParentDirectory);
+
+		// Prefer the symbol-prefixed JoystickSDL3 binaries, falling back to stock SDL3 names for older artifacts.
 		if (Target.Platform == UnrealTargetPlatform.Win64)
 		{
-			var Win64Path = Path.Combine(PluginSdlPath, "Win64");
-			var LibPath = Path.Combine(Win64Path, "SDL2.lib");
-			var DllPath = Path.Combine(Win64Path, "SDL2.dll");
+			var Win64Path = Path.Combine(SdlDirectory, "Win64");
+			var LibPath = Path.Combine(Win64Path, "JoystickSDL3.lib");
+			var DllPath = Path.Combine(Win64Path, "JoystickSDL3.dll");
+			if (!File.Exists(LibPath) || !File.Exists(DllPath))
+			{
+				LibPath = Path.Combine(Win64Path, "SDL3.lib");
+				DllPath = Path.Combine(Win64Path, "SDL3.dll");
+			}
 
 			if (!File.Exists(LibPath) || !File.Exists(DllPath))
 			{
 				throw new BuildException(
-					"SDL2 Win64 binaries not found. Expected:\n" +
+					"SDL3 Win64 binaries not found. Expected:\n" +
 					$"  {LibPath}\n" +
 					$"  {DllPath}");
 			}
@@ -65,11 +74,47 @@ public class JoystickPlugin : ModuleRules
 
 			RuntimeDependencies.Add(DllPath, StagedFileType.NonUFS);
 
-			PublicDelayLoadDLLs.Add("SDL2.dll");
+			PublicDelayLoadDLLs.Add(Path.GetFileName(DllPath));
 		}
 		else if (Target.Platform == UnrealTargetPlatform.Linux)
 		{
-			// SDL should be loaded as part of the engine
+			var LinuxPath = Path.Combine(SdlDirectory, "Linux");
+			var SdlSoPath = Path.Combine(LinuxPath, "libJoystickSDL3.so");
+			if (!File.Exists(SdlSoPath))
+			{
+				SdlSoPath = Path.Combine(LinuxPath, "libSDL3.so.0");
+			}
+
+			if (!File.Exists(SdlSoPath))
+			{
+				throw new BuildException(
+					"SDL3 Linux binaries not found. Expected:\n" +
+					$"  {SdlSoPath}");
+			}
+
+			PublicAdditionalLibraries.Add(SdlSoPath);
+
+			RuntimeDependencies.Add(SdlSoPath, StagedFileType.NonUFS);
+		}
+		else if (Target.Platform == UnrealTargetPlatform.Mac)
+		{
+			var MacPath = Path.Combine(SdlDirectory, "Mac");
+			var SdlDylibPath = Path.Combine(MacPath, "libJoystickSDL3.0.dylib");
+			if (!File.Exists(SdlDylibPath))
+			{
+				SdlDylibPath = Path.Combine(MacPath, "libSDL3.0.dylib");
+			}
+
+			if (!File.Exists(SdlDylibPath))
+			{
+				throw new BuildException(
+					"SDL3 Mac binaries not found. Expected:\n" +
+					$"  {SdlDylibPath}");
+			}
+
+			PublicAdditionalLibraries.Add(SdlDylibPath);
+
+			RuntimeDependencies.Add(SdlDylibPath, StagedFileType.NonUFS);
 		}
 
 		var ProfilesDirectory = Path.Combine(PluginDirectory, "Profiles");
@@ -80,11 +125,12 @@ public class JoystickPlugin : ModuleRules
 			RuntimeDependencies.Add(ProfileFiles);
 		}
 
-		var GameControllerDbFile = Path.Combine(PluginDirectory, "ThirdParty", "gamecontrollerdb.txt");
+		var GameControllerDbFile = Path.Combine(ThirdPartyDirectory, "gamecontrollerdb.txt");
 		if (File.Exists(GameControllerDbFile))
 		{
 			// Add gamecontrollerdb.txt to runtime deps
 			RuntimeDependencies.Add(GameControllerDbFile);
+			Console.WriteLine("Successfully loaded GameControllerDb");
 		}
 	}
 }

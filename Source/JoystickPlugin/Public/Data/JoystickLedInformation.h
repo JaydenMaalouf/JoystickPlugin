@@ -1,0 +1,32 @@
+// JoystickPlugin is licensed under the MIT License.
+// Copyright Jayden Maalouf 2026. All Rights Reserved.
+
+#pragma once
+
+#include "JoystickLedInformation.generated.h"
+
+USTRUCT(BlueprintType)
+struct JOYSTICKPLUGIN_API FJoystickLedInformation
+{
+	GENERATED_BODY()
+
+	FJoystickLedInformation()
+		: Supported(false)
+		  , Mono(false)
+		  , RGB(false)
+		  , Player(false)
+	{
+	}
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Led Config")
+	bool Supported;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Led Config")
+	bool Mono;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Led Config")
+	bool RGB;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Led Config")
+	bool Player;
+};

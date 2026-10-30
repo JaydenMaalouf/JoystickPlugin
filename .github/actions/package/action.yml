@@ -11,9 +11,6 @@ inputs:
   releaseVersion:
     description: 'The plugin release version used for packaging or tagging.'
     required: true
-  epicGamesDirectory:
-    description: 'The root Epic Games installation directory containing SDL binaries.'
-    required: true
   launcherDirectory:
     description: 'The directory where the Epic Games Launcher installs the Unreal Engine version.'
     required: true
@@ -38,21 +35,6 @@ runs:
         }
 
         Invoke-WebRequest -Uri $sourceUrl -OutFile $targetFile
-
-    - name: Copy SDL2 dll and lib to Plugin - ${{ inputs.engineVersion }} ${{ inputs.platform }}
-      shell: pwsh
-      run: |
-        $engineVersion  = '${{ inputs.engineVersion }}'
-        $platform       = '${{ inputs.platform }}'
-        $epicDir        = '${{ inputs.epicGamesDirectory }}'
-        $workspace      = '${{ github.workspace }}'
-
-        $inputFolder  = Join-Path $epicDir ("SDL/UE_{0}" -f $engineVersion)
-        $outputFolder = Join-Path $workspace ("Source/ThirdParty/SDL2")
-
-        New-Item -ItemType Directory -Path $outputFolder -Force | Out-Null
-
-        Copy-Item -Path "$inputFolder/*" -Destination $outputFolder -Recurse -Force
 
     - name: Build Plugin - ${{ inputs.engineVersion }} ${{ inputs.platform }}
       shell: pwsh
@@ -94,13 +76,25 @@ runs:
         $runnerTemp    = $env:RUNNER_TEMP
 
         $buildDir    = Join-Path $runnerTemp ("build\UE_{0}" -f $engineVersion)
+        $stageDir    = Join-Path $runnerTemp ("stage\UE_{0}" -f $engineVersion)
         $outputDir   = Join-Path $runnerTemp 'output'
         $zipFilePath = Join-Path $outputDir ("JoystickPlugin-{0}.zip" -f $engineVersion)
 
         Remove-Item -Path (Join-Path $buildDir "Intermediate") -Recurse -Force -ErrorAction SilentlyContinue
 
+        # The release archive is Win64 only. Stage a copy without the SDL3 libraries for the other
+        # platforms so the build directory stays complete for the package-fab action.
+        Remove-Item -Path $stageDir -Recurse -Force -ErrorAction SilentlyContinue
+        New-Item -Path $stageDir -ItemType Directory -Force | Out-Null
+        Copy-Item -Path (Join-Path $buildDir '*') -Destination $stageDir -Recurse -Force
+
+        foreach ($otherPlatform in 'Mac', 'Linux') {
+          Remove-Item -Path (Join-Path $stageDir "Source\ThirdParty\SDL3\$otherPlatform") -Recurse -Force -ErrorAction SilentlyContinue
+        }
+
         if (-not (Test-Path $outputDir)) {
           New-Item -Path $outputDir -ItemType Directory -Force | Out-Null
         }
 
-        Compress-Archive -Path (Join-Path $buildDir '*') -DestinationPath $zipFilePath -Force
+        Compress-Archive -Path (Join-Path $stageDir '*') -DestinationPath $zipFilePath -Force
+        Remove-Item -Path $stageDir -Recurse -Force

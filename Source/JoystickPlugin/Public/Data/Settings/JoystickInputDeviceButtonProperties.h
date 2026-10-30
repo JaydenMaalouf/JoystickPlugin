@@ -11,7 +11,7 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceButtonProperties
 	GENERATED_BODY()
 
 	FJoystickInputDeviceButtonProperties()
-		: ButtonIndex(-1),
+		: ButtonIndex(INDEX_NONE),
 		  OverrideDisplayName(false),
 		  InvertOutput(false)
 	{
@@ -33,6 +33,17 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceButtonProperties
 	{
 		OverrideDisplayName = ButtonProperties.OverrideDisplayName;
 		DisplayName = ButtonProperties.DisplayName;
+		InvertOutput = ButtonProperties.InvertOutput;
+	}
+
+	void MergeProperties(const FJoystickInputDeviceButtonProperties& ButtonProperties)
+	{
+		if (ButtonProperties.OverrideDisplayName)
+		{
+			OverrideDisplayName = true;
+			DisplayName = ButtonProperties.DisplayName;
+		}
+
 		InvertOutput = ButtonProperties.InvertOutput;
 	}
 };

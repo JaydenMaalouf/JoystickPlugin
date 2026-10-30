@@ -4,6 +4,8 @@
 #include "Widgets/SJoystickInputSelector.h"
 
 #include "JoystickFunctionLibrary.h"
+#include "JoystickSubsystem.h"
+#include "Engine/Engine.h"
 #include "Data/InputSelectorTypes.h"
 #include "Data/KeySelectorTypes.h"
 #include "Managers/JoystickProfileManager.h"
@@ -19,6 +21,7 @@ void SJoystickInputSelector::Construct(const FArguments& InArgs)
 	NoKeySpecifiedText = InArgs._NoKeySpecifiedText;
 	OnKeySelected = InArgs._OnKeySelected;
 	OnIsSelectingChanged = InArgs._OnIsSelectingChanged;
+	OnSelectedKeyCleared = InArgs._OnSelectedKeyCleared;
 	InputSelectorTypes = InArgs._InputSelectorTypes;
 	KeySelectorTypes = InArgs._KeySelectorTypes;
 	bEscapeCancelsSelection = InArgs._EscapeCancelsSelection;
@@ -60,7 +63,13 @@ void SJoystickInputSelector::SetSelectedKey(const TAttribute<FInputChord>& InSel
 	if (SelectedKey.IdenticalTo(InSelectedKey) == false)
 	{
 		SelectedKey = InSelectedKey;
-		OnKeySelected.ExecuteIfBound(SelectedKey.IsSet() ? SelectedKey.Get() : FInputChord(EKeys::Invalid));
+		const FInputChord NewSelectedKey = GetSelectedKey();
+		OnKeySelected.ExecuteIfBound(NewSelectedKey, FJoystickInstanceId());
+
+		if (!NewSelectedKey.Key.IsValid())
+		{
+			OnSelectedKeyCleared.ExecuteIfBound();
+		}
 	}
 }
 
@@ -155,8 +164,9 @@ FReply SJoystickInputSelector::OnAnalogValueChanged(const FGeometry& MyGeometry,
 		const FJoystickInputDeviceAxisProperties* AxisProperties = JoystickProfileManager->GetAxisPropertiesByKey(AxisKey);
 		if (UseAxisProperties && AxisProperties != nullptr)
 		{
-			MinRangeDetection = AxisProperties->OutputRangeMin;
-			MaxRangeDetection = AxisProperties->OutputRangeMax;
+			const FVector2D OutputRange = AxisProperties->GetOutputRange();
+			MinRangeDetection = OutputRange.X;
+			MaxRangeDetection = OutputRange.Y;
 		}
 
 		const float PhysicalMin = MinRangeDetection;
@@ -191,56 +201,56 @@ FReply SJoystickInputSelector::OnAnalogValueChanged(const FGeometry& MyGeometry,
 
 		switch (SelectedKeyData.State)
 		{
-		case EAxisSelectState::Idle:
-			{
-				if (bHitMinEdge)
+			case EAxisSelectState::Idle:
 				{
-					SelectedKeyData.State = EAxisSelectState::FromMin;
-					SelectedKeyData.StartTimeSeconds = Now;
+					if (bHitMinEdge)
+					{
+						SelectedKeyData.State = EAxisSelectState::FromMin;
+						SelectedKeyData.StartTimeSeconds = Now;
+					}
+					else if (bHitMaxEdge)
+					{
+						SelectedKeyData.State = EAxisSelectState::FromMax;
+						SelectedKeyData.StartTimeSeconds = Now;
+					}
+					break;
 				}
-				else if (bHitMaxEdge)
+			case EAxisSelectState::FromMin:
 				{
-					SelectedKeyData.State = EAxisSelectState::FromMax;
-					SelectedKeyData.StartTimeSeconds = Now;
+					if (bAtMax)
+					{
+						SelectedKeyData.Reset();
+						SelectedKeyData.bWasSelecting = true;
+						SelectKey(
+							AxisKey,
+							ModifierKey == EModifierKey::Shift,
+							ModifierKey == EModifierKey::Control,
+							ModifierKey == EModifierKey::Alt,
+							ModifierKey == EModifierKey::Command,
+							InAnalogInputEvent.GetInputDeviceId());
+						SetIsSelectingKey(false);
+						return FReply::Handled();
+					}
+					break;
 				}
-				break;
-			}
-
-		case EAxisSelectState::FromMin:
-			{
-				if (bAtMax)
+			case EAxisSelectState::FromMax:
 				{
-					SelectedKeyData.Reset();
-					SelectedKeyData.bWasSelecting = true;
-					SelectKey(
-						AxisKey,
-						ModifierKey == EModifierKey::Shift,
-						ModifierKey == EModifierKey::Control,
-						ModifierKey == EModifierKey::Alt,
-						ModifierKey == EModifierKey::Command);
-					SetIsSelectingKey(false);
-					return FReply::Handled();
+					if (bAtMin)
+					{
+						SelectedKeyData.Reset();
+						SelectedKeyData.bWasSelecting = true;
+						SelectKey(
+							AxisKey,
+							ModifierKey == EModifierKey::Shift,
+							ModifierKey == EModifierKey::Control,
+							ModifierKey == EModifierKey::Alt,
+							ModifierKey == EModifierKey::Command,
+							InAnalogInputEvent.GetInputDeviceId());
+						SetIsSelectingKey(false);
+						return FReply::Handled();
+					}
+					break;
 				}
-				break;
-			}
-
-		case EAxisSelectState::FromMax:
-			{
-				if (bAtMin)
-				{
-					SelectedKeyData.Reset();
-					SelectedKeyData.bWasSelecting = true;
-					SelectKey(
-						AxisKey,
-						ModifierKey == EModifierKey::Shift,
-						ModifierKey == EModifierKey::Control,
-						ModifierKey == EModifierKey::Alt,
-						ModifierKey == EModifierKey::Command);
-					SetIsSelectingKey(false);
-					return FReply::Handled();
-				}
-				break;
-			}
 		}
 
 		// Update edge history AFTER processing
@@ -282,8 +292,7 @@ FReply SJoystickInputSelector::OnKeyUp(const FGeometry& MyGeometry, const FKeyEv
 
 	const bool bAllowModifierKeys = (KeySelectorTypes & static_cast<int32>(EKeySelectorTypes::Modifier)) != 0;
 
-	// Skip if it's a modifier key and either modifiers aren't allowed, or other modifiers are pressed
-	// (Don't allow chords consisting of just modifier keys)
+	// Skip modifier keys if they aren't allowed or other modifiers are pressed (no modifier-only chords)
 	const bool bShouldSkipModifierKey = KeyUp.IsModifierKey() && (!bAllowModifierKeys || ModifierKey != EModifierKey::None);
 
 	if (bIsSelectingKey &&
@@ -301,7 +310,8 @@ FReply SJoystickInputSelector::OnKeyUp(const FGeometry& MyGeometry, const FKeyEv
 			ModifierKey == EModifierKey::Shift,
 			ModifierKey == EModifierKey::Control,
 			ModifierKey == EModifierKey::Alt,
-			ModifierKey == EModifierKey::Command);
+			ModifierKey == EModifierKey::Command,
+			InKeyEvent.GetInputDeviceId());
 		SetIsSelectingKey(false);
 		return FReply::Handled();
 	}
@@ -322,8 +332,7 @@ FReply SJoystickInputSelector::OnPreviewKeyDown(const FGeometry& MyGeometry, con
 
 	if (bIsSelectingKey && ShouldProcessInputKey(InKeyEvent.GetKey()))
 	{
-		// While selecting keys handle all key downs to prevent contained controls from
-		// interfering with key selection.
+		// While selecting keys handle all key downs, so contained controls can't interfere.
 		return FReply::Handled();
 	}
 	return SCompoundWidget::OnPreviewKeyDown(MyGeometry, InKeyEvent);
@@ -341,7 +350,8 @@ FReply SJoystickInputSelector::OnPreviewMouseButtonDown(const FGeometry& MyGeome
 				MouseEvent.IsShiftDown(),
 				MouseEvent.IsControlDown(),
 				MouseEvent.IsAltDown(),
-				MouseEvent.IsCommandDown());
+				MouseEvent.IsCommandDown(),
+				MouseEvent.GetInputDeviceId());
 			SetIsSelectingKey(false);
 			return FReply::Handled();
 		}
@@ -410,7 +420,7 @@ FReply SJoystickInputSelector::OnClicked()
 	return FReply::Handled();
 }
 
-void SJoystickInputSelector::SelectKey(const FKey& Key, const bool bShiftDown, const bool bControlDown, const bool bAltDown, const bool bCommandDown)
+void SJoystickInputSelector::SelectKey(const FKey& Key, const bool bShiftDown, const bool bControlDown, const bool bAltDown, const bool bCommandDown, const FInputDeviceId& InputDeviceId)
 {
 	const bool bAllowModifierKeys = (KeySelectorTypes & static_cast<int32>(EKeySelectorTypes::Modifier)) != 0;
 	const FInputChord NewSelectedKey = bAllowModifierKeys
@@ -420,7 +430,26 @@ void SJoystickInputSelector::SelectKey(const FKey& Key, const bool bShiftDown, c
 	{
 		SelectedKey.Set(NewSelectedKey);
 	}
-	OnKeySelected.ExecuteIfBound(NewSelectedKey);
+
+	OnKeySelected.ExecuteIfBound(NewSelectedKey, GetJoystickInstanceId(Key, InputDeviceId));
+}
+
+FJoystickInstanceId SJoystickInputSelector::GetJoystickInstanceId(const FKey& Key, const FInputDeviceId& InputDeviceId) const
+{
+	FJoystickInstanceId InstanceId;
+	if (!UJoystickFunctionLibrary::IsJoystickKey(Key))
+	{
+		return InstanceId;
+	}
+
+	const UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
+	if (!IsValid(JoystickSubsystem))
+	{
+		return InstanceId;
+	}
+
+	JoystickSubsystem->InstanceIdFromDeviceId(InputDeviceId, InstanceId);
+	return InstanceId;
 }
 
 void SJoystickInputSelector::SetIsSelectingKey(const bool bInIsSelectingKey)
@@ -462,8 +491,7 @@ bool SJoystickInputSelector::ShouldProcessInputKey(const FKey& InKey) const
 	const bool bAllowAxisKeys = (KeySelectorTypes & static_cast<int32>(EKeySelectorTypes::Axis)) != 0;
 	const bool bAllowButtonKeys = (KeySelectorTypes & static_cast<int32>(EKeySelectorTypes::Button)) != 0;
 
-	// Check if key type (Axis/Button) is allowed
-	// Modifier keys are handled separately in the calling functions, so skip them here
+	// Check if key type (Axis/Button) is allowed. Modifier keys are handled by the callers.
 	const bool bIsAxisKey = InKey.IsAnalog();
 	const bool bIsButtonKey = InKey.IsDigital();
 
@@ -478,8 +506,7 @@ bool SJoystickInputSelector::ShouldProcessInputKey(const FKey& InKey) const
 		return false;
 	}
 
-	// Check joystick keys FIRST (since they are a subset of gamepad keys)
-	// This allows joystick keys to be evaluated separately from regular gamepad keys
+	// Check joystick keys first, since they are a subset of gamepad keys
 	if (UJoystickFunctionLibrary::IsJoystickKey(InKey))
 	{
 		return bAllowJoystickKeys;

@@ -1,0 +1,136 @@
+name: sign-mac
+description: 'Signs a Mac binary with a Developer ID Application certificate and, when notary credentials are given, notarizes it.'
+
+# The logs of this repository are public, so:
+# - every secret reaches the script through env, never interpolated into run text;
+# - xtrace is never enabled and no command output that could describe the
+#   certificate (identity name, team, key attributes) is let through;
+# - the certificate is imported into a throwaway keychain with a random
+#   password, and that keychain plus every decoded secret file is removed on
+#   exit, success or not.
+#
+# A dylib cannot be stapled, so a notarized dylib is verified by Gatekeeper
+# online the first time it is loaded.
+
+inputs:
+  binary:
+    description: 'Path to the binary to sign in place.'
+    required: true
+  required:
+    description: 'Fail instead of skipping when no certificate is provided.'
+    default: 'false'
+  certificate:
+    description: 'Base64 (single line) of the Developer ID Application .p12.'
+    default: ''
+  certificatePassword:
+    description: 'Password of the .p12.'
+    default: ''
+  notaryKey:
+    description: 'Base64 (single line) of the App Store Connect API .p8 key. Notarization is skipped when empty.'
+    default: ''
+  notaryKeyId:
+    description: 'App Store Connect API key ID.'
+    default: ''
+  notaryIssuerId:
+    description: 'App Store Connect API issuer ID.'
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Check signing certificate
+      if: inputs.certificate == ''
+      shell: bash
+      env:
+        SIGNING_REQUIRED: ${{ inputs.required }}
+      run: |
+        if [ "$SIGNING_REQUIRED" = "true" ]; then
+          echo "::error::Mac signing is required but no certificate was provided"
+          exit 1
+        fi
+        echo "::warning::No Mac signing certificate provided, the binary is left unsigned"
+
+    - name: Sign and notarize
+      if: inputs.certificate != ''
+      shell: bash
+      env:
+        BINARY: ${{ inputs.binary }}
+        MAC_CERTIFICATE: ${{ inputs.certificate }}
+        MAC_CERTIFICATE_PASSWORD: ${{ inputs.certificatePassword }}
+        MAC_NOTARY_KEY: ${{ inputs.notaryKey }}
+        MAC_NOTARY_KEY_ID: ${{ inputs.notaryKeyId }}
+        MAC_NOTARY_ISSUER_ID: ${{ inputs.notaryIssuerId }}
+      run: |
+        set -euo pipefail
+        set +x
+        umask 077
+
+        WORK_DIR="$(mktemp -d "$RUNNER_TEMP/mac-signing.XXXXXX")"
+        KEYCHAIN="$WORK_DIR/signing.keychain-db"
+        KEYCHAIN_PASSWORD="$(openssl rand -hex 32)"
+        echo "::add-mask::$KEYCHAIN_PASSWORD"
+        ORIGINAL_KEYCHAINS="$(security list-keychains -d user | xargs)"
+
+        cleanup() {
+          security list-keychains -d user -s $ORIGINAL_KEYCHAINS >/dev/null 2>&1 || true
+          security delete-keychain "$KEYCHAIN" >/dev/null 2>&1 || true
+          rm -rf "$WORK_DIR"
+        }
+        trap cleanup EXIT
+
+        base64 --decode <<< "$MAC_CERTIFICATE" > "$WORK_DIR/certificate.p12"
+
+        security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN" >/dev/null
+        security set-keychain-settings -lut 3600 "$KEYCHAIN"
+        security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+        security import "$WORK_DIR/certificate.p12" -k "$KEYCHAIN" -f pkcs12 -P "$MAC_CERTIFICATE_PASSWORD" -T /usr/bin/codesign >/dev/null 2>&1 || {
+          echo "ERROR: failed to import the signing certificate" >&2
+          exit 1
+        }
+        rm -f "$WORK_DIR/certificate.p12"
+        security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN" >/dev/null 2>&1
+        security list-keychains -d user -s "$KEYCHAIN" $ORIGINAL_KEYCHAINS
+
+        IDENTITY="$(security find-identity -v -p codesigning "$KEYCHAIN" | awk '/"Developer ID Application: / { print $2; exit }')"
+        if [ -z "$IDENTITY" ]; then
+          echo "ERROR: no valid Developer ID Application identity in the certificate" >&2
+          exit 1
+        fi
+
+        codesign --force --sign "$IDENTITY" --keychain "$KEYCHAIN" --options runtime --timestamp "$BINARY" >/dev/null 2>&1 || {
+          echo "ERROR: codesign failed" >&2
+          exit 1
+        }
+        codesign --verify --strict "$BINARY"
+        echo "Signed: $(basename "$BINARY")"
+
+        if [ -z "$MAC_NOTARY_KEY" ]; then
+          echo "::warning::No notary key provided, the binary is signed but not notarized"
+          exit 0
+        fi
+
+        if [ -z "$MAC_NOTARY_KEY_ID" ] || [ -z "$MAC_NOTARY_ISSUER_ID" ]; then
+          echo "ERROR: notarization needs the notary key, key ID and issuer ID" >&2
+          exit 1
+        fi
+
+        base64 --decode <<< "$MAC_NOTARY_KEY" > "$WORK_DIR/notary.p8"
+        ditto -c -k --keepParent "$BINARY" "$WORK_DIR/notarize.zip"
+
+        RESULT="$(xcrun notarytool submit "$WORK_DIR/notarize.zip" \
+          --key "$WORK_DIR/notary.p8" \
+          --key-id "$MAC_NOTARY_KEY_ID" \
+          --issuer "$MAC_NOTARY_ISSUER_ID" \
+          --wait \
+          --output-format json 2>/dev/null)" || true
+
+        STATUS="$(jq -r '.status // empty' <<< "$RESULT" 2>/dev/null || true)"
+        SUBMISSION_ID="$(jq -r '.id // empty' <<< "$RESULT" 2>/dev/null || true)"
+
+        if [ "$STATUS" != "Accepted" ]; then
+          echo "ERROR: notarization failed (status: ${STATUS:-unknown}, submission: ${SUBMISSION_ID:-none})" >&2
+          echo "Inspect it locally with: xcrun notarytool log <submission> --key ... --key-id ... --issuer ..." >&2
+          exit 1
+        fi
+
+        echo "Notarized: $(basename "$BINARY") (submission $SUBMISSION_ID)"

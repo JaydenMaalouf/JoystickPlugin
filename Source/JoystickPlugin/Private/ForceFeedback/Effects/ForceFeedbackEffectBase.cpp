@@ -3,21 +3,24 @@
 
 #include "ForceFeedback/Effects/ForceFeedbackEffectBase.h"
 
+#include "Data/JoystickHapticInformation.h"
 #include "Data/JoystickInstanceId.h"
+#include "ForceFeedback/ForceFeedbackEffectEvaluation.h"
+#include "ForceFeedback/Debug/ForceFeedbackDebug.h"
 #include "GameFramework/Actor.h"
+#include "JoystickSubsystem.h"
 #include "Managers/JoystickHapticDeviceManager.h"
 #include "Managers/JoystickLogManager.h"
 #include "Runtime/Launch/Resources/Version.h"
 
 THIRD_PARTY_INCLUDES_START
 
-#include "SDL_timer.h"
+#include "JoystickSDL.h"
 
 THIRD_PARTY_INCLUDES_END
 
 UForceFeedbackEffectBase::UForceFeedbackEffectBase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
-	  , InstanceId(-1)
 	  , EffectId(-1)
 	  , IsInitialised(false)
 	  , Iterations(1)
@@ -27,10 +30,17 @@ UForceFeedbackEffectBase::UForceFeedbackEffectBase(const FObjectInitializer& Obj
 	  , TickableWhenPaused(false)
 	  , ForceStopAfterDurationLapsed(false)
 	  , Effect()
-	  , StartTime(-1)
+	  , StartTime(UINT64_MAX)
 	  , TimeAccumulator(0)
 	  , EffectRunning(false)
+	  , ShouldStartWithComponent(true)
+#if !UE_BUILD_SHIPPING
+	  , DebugWriteCount(0)
+	  , DebugWriteTime(0.0f)
+	  , DebugWritesPerSecond(0.0f)
+#endif
 {
+	SDL_zero(Effect);
 }
 
 void UForceFeedbackEffectBase::BeginDestroy()
@@ -39,6 +49,16 @@ void UForceFeedbackEffectBase::BeginDestroy()
 
 	Super::BeginDestroy();
 }
+
+#if WITH_EDITOR
+void UForceFeedbackEffectBase::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+
+	// The limit follows the duration, so editing it can leave Iterations above what can play.
+	Iterations = FMath::Clamp<int64>(Iterations, 1, GetMaxIterations());
+}
+#endif
 
 void UForceFeedbackEffectBase::Tick(const float DeltaTime)
 {
@@ -69,48 +89,41 @@ void UForceFeedbackEffectBase::Tick(const float DeltaTime)
 	}
 }
 
-void UForceFeedbackEffectBase::InitialiseEffect()
+bool UForceFeedbackEffectBase::InitialiseEffect()
 {
 	if (IsInitialised)
 	{
 		FJoystickLogManager::Get()->LogWarning(TEXT("UForceFeedbackEffectBase::InitialiseEffect: Effect is already initialised"));
-		return;
+		return true;
 	}
 
-	if (InstanceId == -1)
+	if (!InstanceId.IsValid())
 	{
 		FJoystickLogManager::Get()->LogError(TEXT("UForceFeedbackEffectBase::InitialiseEffect: Effect InstanceId is not set"));
-		return;
+		return false;
 	}
 
 	const UJoystickHapticDeviceManager* HapticDeviceManager = GetDefault<UJoystickHapticDeviceManager>();
 	if (!IsValid(HapticDeviceManager))
 	{
 		FJoystickLogManager::Get()->LogError(TEXT("UForceFeedbackEffectBase::InitialiseEffect: HapticDeviceManager is invalid"));
-		return;
+		return false;
 	}
 
 	CreateEffect();
 	EffectId = HapticDeviceManager->CreateEffect(InstanceId, Effect);
 	if (EffectId == -1)
 	{
-		return;
+		return false;
 	}
 
 	IsInitialised = true;
 
 	//Safety check to ensure we don't try calling BP during destruction
-#if ENGINE_MAJOR_VERSION == 5
 	if (IsValidChecked(this) == false || this->IsUnreachable())
 	{
-		return;
+		return true;
 	}
-#else
-	if (this->IsPendingKillOrUnreachable())
-	{
-		return;
-	}
-#endif
 
 	OnInitialisedEffect();
 	if (OnInitialisedEffectDelegate.IsBound())
@@ -122,59 +135,69 @@ void UForceFeedbackEffectBase::InitialiseEffect()
 	{
 		StartEffect();
 	}
+
+	return true;
 }
 
-void UForceFeedbackEffectBase::StartEffect()
+bool UForceFeedbackEffectBase::StartEffect()
 {
 	if (IsInitialised == false)
 	{
-		return;
+		return false;
 	}
 
-	const int Status = GetEffectStatus();
-	if (Status == 1)
+	const bool Status = GetEffectStatus();
+	if (Status == true)
 	{
 		EffectRunning = true;
-		return;
+		return true;
+	}
+
+	if (!IsEffectValid())
+	{
+		FJoystickLogManager::Get()->LogError(TEXT("UForceFeedbackEffectBase::StartEffect: Effect is invalid and won't be started"));
+		return false;
 	}
 
 	const UJoystickHapticDeviceManager* HapticDeviceManager = GetDefault<UJoystickHapticDeviceManager>();
 	if (!IsValid(HapticDeviceManager))
 	{
-		return;
+		return false;
 	}
 
-	if (InfiniteIterations)
+	if (Configuration.AutoUpdateOnStart)
 	{
-		Iterations = SDL_HAPTIC_INFINITY;
+		// Starting only replays what the device last received, so send anything that has changed since
+		UpdateEffect();
 	}
 
-	const bool Result = HapticDeviceManager->RunEffect(InstanceId, EffectId, Iterations);
+	const uint32 RunIterations = GetRunIterations();
+	if (InfiniteIterations == false && RunIterations < Iterations)
+	{
+		FJoystickLogManager::Get()->LogWarning(TEXT("UForceFeedbackEffectBase::StartEffect: %lld iterations exceeds the longest playable time, clamping to %u iterations"), Iterations, RunIterations);
+	}
+
+	const bool Result = HapticDeviceManager->RunEffect(InstanceId, EffectId, RunIterations);
 	if (Result == false)
 	{
-		return;
+		return false;
 	}
-	StartTime = SDL_GetTicks64();
+	StartTime = UJoystickSubsystem::GetTicks();
 	EffectRunning = true;
 
 	//Safety check to ensure we don't try calling BP during destruction
-#if ENGINE_MAJOR_VERSION == 5
 	if (IsValidChecked(this) == false || this->IsUnreachable())
 	{
-		return;
+		return false;
 	}
-#else
-	if (this->IsPendingKillOrUnreachable())
-	{
-		return;
-	}
-#endif
 
 	OnStartedEffect();
 	if (OnStartedEffectDelegate.IsBound())
 	{
 		OnStartedEffectDelegate.Broadcast(this);
 	}
+
+	return true;
 }
 
 void UForceFeedbackEffectBase::StopEffect()
@@ -195,21 +218,24 @@ void UForceFeedbackEffectBase::StopEffect()
 	{
 		return;
 	}
-	StartTime = -1;
+
+	FinishEffect();
+}
+
+void UForceFeedbackEffectBase::FinishEffect()
+{
+	if (!EffectRunning)
+	{
+		return;
+	}
+	StartTime = UINT64_MAX;
 	EffectRunning = false;
 
 	//Safety check to ensure we don't try calling BP during destruction
-#if ENGINE_MAJOR_VERSION == 5
 	if (IsValidChecked(this) == false || this->IsUnreachable())
 	{
 		return;
 	}
-#else
-	if (this->IsPendingKillOrUnreachable())
-	{
-		return;
-	}
-#endif
 
 	OnStoppedEffect();
 	if (OnStoppedEffectDelegate.IsBound())
@@ -235,21 +261,14 @@ void UForceFeedbackEffectBase::DestroyEffect()
 
 	IsInitialised = false;
 	EffectId = -1;
-	StartTime = -1;
+	StartTime = UINT64_MAX;
 	EffectRunning = false;
 
 	//Safety check to ensure we don't try calling BP during destruction
-#if ENGINE_MAJOR_VERSION == 5
 	if (IsValidChecked(this) == false || this->IsUnreachable())
 	{
 		return;
 	}
-#else
-	if (this->IsPendingKillOrUnreachable())
-	{
-		return;
-	}
-#endif
 
 	OnDestroyedEffect();
 	if (OnDestroyedEffectDelegate.IsBound())
@@ -273,18 +292,15 @@ void UForceFeedbackEffectBase::UpdateEffect()
 		return;
 	}
 
+#if !UE_BUILD_SHIPPING
+	DebugWriteCount++;
+#endif
+
 	//Safety check to ensure we don't try calling BP during destruction
-#if ENGINE_MAJOR_VERSION == 5
 	if (IsValidChecked(this) == false || this->IsUnreachable())
 	{
 		return;
 	}
-#else
-	if (this->IsPendingKillOrUnreachable())
-	{
-		return;
-	}
-#endif
 
 	OnUpdatedEffect();
 	if (OnUpdatedEffectDelegate.IsBound())
@@ -327,16 +343,41 @@ void UForceFeedbackEffectBase::TickEffect(const float DeltaTime)
 		UpdateEffect();
 	}
 
-	const uint32 Duration = GetEffectDuration();
-	if (EffectRunning && InfiniteIterations == false && StartTime != -1 && Duration != -1)
+#if !UE_BUILD_SHIPPING
+	UpdateDebugWriteRate(DeltaTime);
+#endif
+
+	// Check after the final iteration, never during the start delay. Devices without
+	// status support return false, so duration also supplies their completion fallback.
+	if (EffectRunning)
 	{
-		const uint64 CurrentTime = SDL_GetTicks();
-		if (CurrentTime - StartTime >= Duration)
+		const uint32 Duration = GetEffectDuration();
+		const uint32 RunIterations = GetRunIterations();
+
+		const bool ShouldCheck =
+			EffectRunning &&
+			InfiniteIterations == false &&
+			RunIterations != SDL_HAPTIC_INFINITY &&
+			StartTime != UINT64_MAX &&
+			Duration != SDL_HAPTIC_INFINITY &&
+			Duration != 0;
+
+		if (ShouldCheck)
 		{
-			// Effect should be finished but sometimes SDL2 doesn't handle the status correctly.
-			if (GetEffectStatus() == 0 || ForceStopAfterDurationLapsed)
+			const uint64 CurrentTime = UJoystickSubsystem::GetTicks();
+
+			// The effect waits out its delay, then runs once per iteration, so it only lapses after the last one.
+			// Both operands are 32-bit, so the duration is widened first to keep a long total from wrapping.
+			if (CurrentTime - StartTime >= GetEffectDelay() + static_cast<uint64>(Duration) * RunIterations)
 			{
-				StopEffect();
+				if (ForceStopAfterDurationLapsed)
+				{
+					StopEffect();
+				}
+				if (EffectRunning && !GetEffectStatus())
+				{
+					FinishEffect();
+				}
 			}
 		}
 	}
@@ -346,15 +387,35 @@ void UForceFeedbackEffectBase::ReceivedTick_Implementation(const float DeltaTime
 {
 }
 
-int UForceFeedbackEffectBase::GetEffectStatus() const
+bool UForceFeedbackEffectBase::GetEffectStatus() const
 {
 	const UJoystickHapticDeviceManager* HapticDeviceManager = GetMutableDefault<UJoystickHapticDeviceManager>();
 	if (!IsValid(HapticDeviceManager))
 	{
-		return -1;
+		return false;
 	}
 
 	return HapticDeviceManager->GetEffectStatus(InstanceId, EffectId);
+}
+
+bool UForceFeedbackEffectBase::IsEffectRunning() const
+{
+	return EffectRunning;
+}
+
+float UForceFeedbackEffectBase::GetElapsedTime() const
+{
+	return GetElapsedTimeMilliseconds() / 1000.0f;
+}
+
+uint64 UForceFeedbackEffectBase::GetElapsedTimeMilliseconds() const
+{
+	if (!EffectRunning || StartTime == UINT64_MAX)
+	{
+		return 0;
+	}
+
+	return UJoystickSubsystem::GetTicks() - StartTime;
 }
 
 void UForceFeedbackEffectBase::SetInstanceId(const FJoystickInstanceId& NewInstanceId)
@@ -393,6 +454,154 @@ AActor* UForceFeedbackEffectBase::GetOwningActor() const
 	return GetOwningActor<AActor>();
 }
 
+bool UForceFeedbackEffectBase::IsSupportedByDevice(const FJoystickHapticInformation& HapticInformation)
+{
+	if (!IsInitialised)
+	{
+		CreateEffect();
+	}
+
+	switch (Effect.type)
+	{
+		case SDL_HAPTIC_CONSTANT:
+			return HapticInformation.Constant;
+		case SDL_HAPTIC_SINE:
+			return HapticInformation.Sine;
+		case SDL_HAPTIC_TRIANGLE:
+			return HapticInformation.Triangle;
+		case SDL_HAPTIC_SAWTOOTHUP:
+			return HapticInformation.SawToothUp;
+		case SDL_HAPTIC_SAWTOOTHDOWN:
+			return HapticInformation.SawToothDown;
+		case SDL_HAPTIC_RAMP:
+			return HapticInformation.Ramp;
+		case SDL_HAPTIC_SPRING:
+			return HapticInformation.Spring;
+		case SDL_HAPTIC_DAMPER:
+			return HapticInformation.Damper;
+		case SDL_HAPTIC_INERTIA:
+			return HapticInformation.Inertia;
+		case SDL_HAPTIC_FRICTION:
+			return HapticInformation.Friction;
+		case SDL_HAPTIC_LEFTRIGHT:
+			return HapticInformation.LeftRight;
+		case SDL_HAPTIC_CUSTOM:
+			return HapticInformation.Custom;
+		default:
+			// Not a type we track support for, let SDL decide when the effect is created.
+			return true;
+	}
+}
+
+bool UForceFeedbackEffectBase::IsEffectValid()
+{
+	return GetEffectDuration() != 0;
+}
+
+void UForceFeedbackEffectBase::DescribeEffect(FForceFeedbackEffectDebugInfo& OutInfo) const
+{
+	OutInfo.Effect = FObjectKey(this);
+	OutInfo.Label = EffectName.IsNone() ? GetClass()->GetName() : EffectName.ToString();
+	if (GroupTag.IsValid())
+	{
+		OutInfo.Label = FString::Printf(TEXT("%s / %s"), *GroupTag.ToString(), *OutInfo.Label);
+	}
+	OutInfo.InstanceId = InstanceId;
+	OutInfo.IsRunning = EffectRunning;
+
+#if !UE_BUILD_SHIPPING
+	OutInfo.WritesPerSecond = DebugWritesPerSecond;
+	OutInfo.Values = DebugValues;
+	OutInfo.TextValues = DebugTextValues;
+#endif
+}
+
+void UForceFeedbackEffectBase::AddDebugValue(const FName Name, const float Value)
+{
+#if !UE_BUILD_SHIPPING
+	if (FForceFeedbackDebug::IsEnabled())
+	{
+		SetDebugValue(DebugValues, Name, Value);
+	}
+#endif
+}
+
+void UForceFeedbackEffectBase::AddDebugText(const FName Name, const FName Value)
+{
+#if !UE_BUILD_SHIPPING
+	if (FForceFeedbackDebug::IsEnabled())
+	{
+		SetDebugValue(DebugTextValues, Name, Value);
+	}
+#endif
+}
+
+#if !UE_BUILD_SHIPPING
+template <typename ListType, typename ValueType>
+void UForceFeedbackEffectBase::SetDebugValue(ListType& List, const FName Name, const ValueType& Value)
+{
+	for (TPair<FName, ValueType>& Entry : List)
+	{
+		if (Entry.Key == Name)
+		{
+			Entry.Value = Value;
+			return;
+		}
+	}
+
+	List.Emplace(Name, Value);
+}
+
+void UForceFeedbackEffectBase::UpdateDebugWriteRate(const float DeltaTime)
+{
+	DebugWriteTime += DeltaTime;
+	if (DebugWriteTime < DebugWriteRateWindow)
+	{
+		return;
+	}
+
+	DebugWritesPerSecond = DebugWriteCount / DebugWriteTime;
+	DebugWriteCount = 0;
+	DebugWriteTime = 0.0f;
+}
+#endif
+
+uint32 UForceFeedbackEffectBase::GetEffectDuration() const
+{
+	return -1;
+}
+
+uint32 UForceFeedbackEffectBase::GetEffectDelay() const
+{
+	return 0;
+}
+
+uint32 UForceFeedbackEffectBase::GetRunIterations() const
+{
+	if (InfiniteIterations)
+	{
+		return SDL_HAPTIC_INFINITY;
+	}
+
+	const uint32 RunIterations = static_cast<uint32>(FMath::Clamp<int64>(Iterations, 0, SDL_HAPTIC_INFINITY));
+	if (RunIterations == SDL_HAPTIC_INFINITY)
+	{
+		return RunIterations;
+	}
+
+	return FMath::Min(RunIterations, GetPlatformMaxIterations());
+}
+
+uint32 UForceFeedbackEffectBase::GetPlatformMaxIterations() const
+{
+	return SDL_HAPTIC_INFINITY;
+}
+
+uint32 UForceFeedbackEffectBase::GetMaxIterations() const
+{
+	return GetEffectDuration() == SDL_HAPTIC_INFINITY ? 1 : GetPlatformMaxIterations();
+}
+
 void UForceFeedbackEffectBase::CreateEffect()
 {
 	SDL_memset(&Effect, 0, sizeof(SDL_HapticEffect));
@@ -403,7 +612,27 @@ void UForceFeedbackEffectBase::UpdateEffectData()
 {
 }
 
-uint32 UForceFeedbackEffectBase::GetEffectDuration()
+float UForceFeedbackEffectBase::GetEvaluationTime() const
 {
-	return -1;
+	const int64 ElapsedTime = static_cast<int64>(GetElapsedTimeMilliseconds());
+	const int64 Delay = GetEffectDelay();
+	if (!EffectRunning || ElapsedTime < Delay)
+	{
+		return -1.0f;
+	}
+
+	const uint32 Duration = GetEffectDuration();
+	if (Duration == SDL_HAPTIC_INFINITY || Duration == 0)
+	{
+		return (ElapsedTime - Delay) / 1000.0f;
+	}
+
+	int64 Iteration;
+	int64 PassTime;
+	if (!FForceFeedbackEffectEvaluation::GetIterationProgress(ElapsedTime, Delay, Duration, GetRunIterations(), Iteration, PassTime))
+	{
+		return -1.0f;
+	}
+
+	return PassTime / 1000.0f;
 }

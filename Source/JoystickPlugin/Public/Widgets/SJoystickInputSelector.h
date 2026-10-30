@@ -6,6 +6,7 @@
 #include "CoreMinimal.h"
 #include "Misc/Attribute.h"
 #include "InputCoreTypes.h"
+#include "Data/JoystickInstanceId.h"
 #include "Data/KeySelectorData.h"
 #include "Layout/Margin.h"
 #include "Fonts/SlateFontInfo.h"
@@ -24,8 +25,9 @@ class STextBlock;
 class JOYSTICKPLUGIN_API SJoystickInputSelector : public SCompoundWidget
 {
 public:
-	DECLARE_DELEGATE_OneParam(FOnKeySelected, const FInputChord&)
+	DECLARE_DELEGATE_TwoParams(FOnKeySelected, const FInputChord&, const FJoystickInstanceId&)
 	DECLARE_DELEGATE_OneParam(FOnIsSelectingChanged, bool)
+	DECLARE_DELEGATE(FOnSelectedKeyCleared)
 
 	SLATE_BEGIN_ARGS(SJoystickInputSelector)
 			: _SelectedKey(FInputChord(EKeys::Invalid))
@@ -90,6 +92,9 @@ public:
 
 		/** Occurs whenever key selection mode starts and stops. */
 		SLATE_EVENT(FOnIsSelectingChanged, OnIsSelectingChanged)
+
+		/** Occurs whenever the selected key is cleared. */
+		SLATE_EVENT(FOnSelectedKeyCleared, OnSelectedKeyCleared)
 
 		/** Sometimes a button should only be mouse-clickable and never keyboard focusable. */
 		SLATE_ARGUMENT(bool, IsFocusable)
@@ -161,7 +166,10 @@ private:
 	FReply OnClicked();
 
 	/** Sets the currently selected key and invokes the associated events. */
-	void SelectKey(const FKey& Key, bool bShiftDown, bool bControlDown, bool bAltDown, bool bCommandDown);
+	void SelectKey(const FKey& Key, bool bShiftDown, bool bControlDown, bool bAltDown, bool bCommandDown, const FInputDeviceId& InputDeviceId);
+
+	/** Returns the instance id of the joystick that produced the key, or an invalid id if it didn't come from a joystick owned by the joystick plugin. */
+	FJoystickInstanceId GetJoystickInstanceId(const FKey& Key, const FInputDeviceId& InputDeviceId) const;
 
 	/** Sets bIsSelectingKey and invokes the associated events. */
 	void SetIsSelectingKey(const bool bInIsSelectingKey);
@@ -213,6 +221,9 @@ private:
 
 	/** Delegate which is run when key selection mode starts and stops. */
 	FOnIsSelectingChanged OnIsSelectingChanged;
+
+	/** Delegate which is run when the selected key is cleared. */
+	FOnSelectedKeyCleared OnSelectedKeyCleared;
 
 	/** The button which starts the key selection mode. */
 	TSharedPtr<SButton> Button;

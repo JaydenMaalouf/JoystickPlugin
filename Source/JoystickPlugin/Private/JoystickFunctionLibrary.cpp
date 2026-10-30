@@ -1,4 +1,4 @@
-// JoystickPlugin is licensed under the MIT License.
+﻿// JoystickPlugin is licensed under the MIT License.
 // Copyright Jayden Maalouf 2026. All Rights Reserved.
 
 #include "JoystickFunctionLibrary.h"
@@ -9,7 +9,7 @@
 
 THIRD_PARTY_INCLUDES_START
 
-#include "SDL_joystick.h"
+#include "JoystickSDL.h"
 
 THIRD_PARTY_INCLUDES_END
 
@@ -17,26 +17,26 @@ FVector2D UJoystickFunctionLibrary::HatDirectionToFVector2D(const EHatDirection 
 {
 	switch (Direction)
 	{
-	case EHatDirection::None:
-		return FVector2D(0, 0);
-	case EHatDirection::Up:
-		return FVector2D(0, 1);
-	case EHatDirection::Right_Up:
-		return FVector2D(1, 1);
-	case EHatDirection::Right:
-		return FVector2D(1, 0);
-	case EHatDirection::Right_Down:
-		return FVector2D(1, -1);
-	case EHatDirection::Down:
-		return FVector2D(0, -1);
-	case EHatDirection::Left_Down:
-		return FVector2D(-1, -1);
-	case EHatDirection::Left:
-		return FVector2D(-1, 0);
-	case EHatDirection::Left_Up:
-		return FVector2D(-1, 1);
-	default:
-		return FVector2D(0, 0);
+		case EHatDirection::None:
+			return FVector2D(0, 0);
+		case EHatDirection::Up:
+			return FVector2D(0, 1);
+		case EHatDirection::Right_Up:
+			return FVector2D(1, 1);
+		case EHatDirection::Right:
+			return FVector2D(1, 0);
+		case EHatDirection::Right_Down:
+			return FVector2D(1, -1);
+		case EHatDirection::Down:
+			return FVector2D(0, -1);
+		case EHatDirection::Left_Down:
+			return FVector2D(-1, -1);
+		case EHatDirection::Left:
+			return FVector2D(-1, 0);
+		case EHatDirection::Left_Up:
+			return FVector2D(-1, 1);
+		default:
+			return FVector2D(0, 0);
 	}
 }
 
@@ -51,17 +51,26 @@ EHatDirection UJoystickFunctionLibrary::HatValueToDirection(const int8 Value)
 {
 	switch (Value)
 	{
-	case SDL_HAT_CENTERED: return EHatDirection::None;
-	case SDL_HAT_UP: return EHatDirection::Up;
-	case SDL_HAT_RIGHTUP: return EHatDirection::Right_Up;
-	case SDL_HAT_RIGHT: return EHatDirection::Right;
-	case SDL_HAT_RIGHTDOWN: return EHatDirection::Right_Down;
-	case SDL_HAT_DOWN: return EHatDirection::Down;
-	case SDL_HAT_LEFTDOWN: return EHatDirection::Left_Down;
-	case SDL_HAT_LEFT: return EHatDirection::Left;
-	case SDL_HAT_LEFTUP: return EHatDirection::Left_Up;
-	default:
-		return EHatDirection::None;
+		case SDL_HAT_CENTERED:
+			return EHatDirection::None;
+		case SDL_HAT_UP:
+			return EHatDirection::Up;
+		case SDL_HAT_RIGHTUP:
+			return EHatDirection::Right_Up;
+		case SDL_HAT_RIGHT:
+			return EHatDirection::Right;
+		case SDL_HAT_RIGHTDOWN:
+			return EHatDirection::Right_Down;
+		case SDL_HAT_DOWN:
+			return EHatDirection::Down;
+		case SDL_HAT_LEFTDOWN:
+			return EHatDirection::Left_Down;
+		case SDL_HAT_LEFT:
+			return EHatDirection::Left;
+		case SDL_HAT_LEFTUP:
+			return EHatDirection::Left_Up;
+		default:
+			return EHatDirection::None;
 	}
 }
 
@@ -89,13 +98,13 @@ bool UJoystickFunctionLibrary::IsJoystickKey(IN const FKey& Key)
 		return false;
 	}
 
-	const FJoystickInputDevice* InputDevice = JoystickSubsystem->GetInputDevice();
-	if (!InputDevice)
-	{
-		return false;
-	}
+	FJoystickInstanceId InstanceId;
+	return JoystickSubsystem->GetInstanceIdFromKey(Key, InstanceId);
+}
 
-	return InputDevice->GetInstanceIdByKey(Key) != -1;
+bool UJoystickFunctionLibrary::IsValidInstanceId(const FJoystickInstanceId& InstanceId)
+{
+	return InstanceId.IsValid();
 }
 
 FString UJoystickFunctionLibrary::SanitiseDeviceName(const FString& InDeviceName, const bool AllowSpaces)
@@ -145,7 +154,7 @@ FString UJoystickFunctionLibrary::SafelyStringify(const wchar_t* Input)
 		return TEXT("");
 	}
 
-	return UTF8_TO_TCHAR(Input);
+	return WCHAR_TO_TCHAR(Input);
 }
 
 FString UJoystickFunctionLibrary::SafelyStringify(const char* Input)
@@ -156,4 +165,14 @@ FString UJoystickFunctionLibrary::SafelyStringify(const char* Input)
 	}
 
 	return UTF8_TO_TCHAR(Input);
+}
+
+FGuid UJoystickFunctionLibrary::ConvertSDLGuid(const SDL_GUID& SdlGuid)
+{
+	FGuid Guid;
+	FMemory::Memcpy(&Guid.A, &SdlGuid.data[0], 4);
+	FMemory::Memcpy(&Guid.B, &SdlGuid.data[4], 4);
+	FMemory::Memcpy(&Guid.C, &SdlGuid.data[8], 4);
+	FMemory::Memcpy(&Guid.D, &SdlGuid.data[12], 4);
+	return Guid;
 }

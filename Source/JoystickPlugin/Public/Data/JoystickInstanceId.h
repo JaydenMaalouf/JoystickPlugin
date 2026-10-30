@@ -11,7 +11,7 @@ struct JOYSTICKPLUGIN_API FJoystickInstanceId
 	GENERATED_BODY()
 
 	FJoystickInstanceId()
-		: Value(-1)
+		: Value(INDEX_NONE)
 	{
 	}
 
@@ -38,6 +38,11 @@ struct JOYSTICKPLUGIN_API FJoystickInstanceId
 	bool Equals(const FJoystickInstanceId& Other) const
 	{
 		return Value == Other.Value;
+	}
+
+	bool IsValid() const
+	{
+		return Value != INDEX_NONE;
 	}
 
 	friend int32 GetTypeHash(const FJoystickInstanceId& Other)

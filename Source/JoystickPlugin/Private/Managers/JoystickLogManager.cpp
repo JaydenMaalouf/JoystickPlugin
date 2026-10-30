@@ -3,9 +3,11 @@
 
 #include "Managers/JoystickLogManager.h"
 
+#include "Misc/MessageDialog.h"
+
 THIRD_PARTY_INCLUDES_START
 
-#include "SDL_error.h"
+#include "JoystickSDL.h"
 
 THIRD_PARTY_INCLUDES_END
 
@@ -30,7 +32,7 @@ void FJoystickLogManager::LogSDLError(const FStringView Message)
 		return;
 	}
 
-	const FString ErrorMessage = FString(SDL_GetError());
+	const FString ErrorMessage = UTF8_TO_TCHAR(SDL_GetError());
 	if (ErrorMessage.IsEmpty())
 	{
 		LogError(TEXT("%.*s: Unknown error occurred"), Message.Len(), Message.GetData());
@@ -38,4 +40,16 @@ void FJoystickLogManager::LogSDLError(const FStringView Message)
 	}
 
 	LogError(TEXT("%.*s: %s"), Message.Len(), Message.GetData(), *ErrorMessage);
+}
+
+void FJoystickLogManager::LogErrorWithDialog(const FText& Message, const FText& Title)
+{
+	LogError(TEXT("%s"), *Message.ToString());
+
+	if (GIsEditor == false)
+	{
+		return;
+	}
+
+	FMessageDialog::Open(EAppMsgType::Ok, Message, Title);
 }

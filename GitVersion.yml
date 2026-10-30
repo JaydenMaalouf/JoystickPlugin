@@ -1,19 +1,25 @@
-mode: Mainline
-continuous-delivery-fallback-tag: ''
+workflow: TrunkBased/preview1
 branches:
-  develop:
-    tag: beta
-  feature:
-    mode: ContinuousDeployment
-    tag: alpha
-  hotfix:
-    tag: ''
-    increment: Patch
-  release:
-    tag: rc
   main:
-    tag: ''
     increment: Minor
-ignore:
-  sha: []
-merge-message-formats: {}
+  develop:
+    regex: ^dev(elop)?(ment)?$
+    mode: ManualDeployment
+    label: beta
+    increment: Minor
+    source-branches:
+      - main
+  release:
+    regex: ^releases?[\/-](?<BranchName>.+)
+    mode: ManualDeployment
+    label: rc
+    increment: None
+    is-release-branch: true
+    source-branches:
+      - main
+      - develop
+  feature:
+    mode: ContinuousDelivery
+    label: alpha
+  hotfix:
+    label: ''

@@ -11,51 +11,122 @@ on:
       - master
 
 jobs:
-  release-plugin:
-    runs-on: self-hosted
+  build-sdl:
+    name: Build SDL3 - ${{ matrix.platform }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: Win64
+            runner: windows-latest
+            includeHeaders: true
+          - platform: Mac
+            runner: macos-14
+            includeHeaders: false
+          - platform: Linux
+            runner: ubuntu-24.04
+            includeHeaders: false
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
+      - name: Build SDL3
+        uses: ./.github/actions/build-sdl
+        with:
+          platform: ${{ matrix.platform }}
+          sdlVersion: '3.4.8'
+          outputDirectory: ${{ runner.temp }}/sdl3-${{ matrix.platform }}
+          includeHeaders: ${{ matrix.includeHeaders }}
+      - name: Sign SDL3 for Mac
+        if: matrix.platform == 'Mac'
+        uses: ./.github/actions/sign-mac
+        with:
+          binary: ${{ runner.temp }}/sdl3-Mac/Source/ThirdParty/SDL3/Mac/libJoystickSDL3.0.dylib
+          required: true
+          certificate: ${{ secrets.MAC_CERTIFICATE_P12_BASE64 }}
+          certificatePassword: ${{ secrets.MAC_CERTIFICATE_PASSWORD }}
+          notaryKey: ${{ secrets.MAC_NOTARY_KEY_P8_BASE64 }}
+          notaryKeyId: ${{ secrets.MAC_NOTARY_KEY_ID }}
+          notaryIssuerId: ${{ secrets.MAC_NOTARY_ISSUER_ID }}
+      - name: Upload SDL3 artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: sdl3-${{ matrix.platform }}
+          path: ${{ runner.temp }}/sdl3-${{ matrix.platform }}/Source/ThirdParty/SDL3
+          if-no-files-found: error
+          # Only needed to hand the libraries to the release job; don't leave them downloadable.
+          retention-days: 1
+
+  release-plugin:
+    runs-on: [self-hosted, Windows]
+    needs: build-sdl
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Setup Versioning
         uses: ./.github/actions/version
         with:
           prerelease: ${{ github.ref != 'refs/heads/master' }}
+      - name: Download SDL3 artifacts
+        uses: actions/download-artifact@v8
+        with:
+          pattern: sdl3-*
+          path: ${{ runner.temp }}/sdl3-artifacts
+      - name: Copy SDL3 artifacts to plugin
+        shell: pwsh
+        run: |
+          $artifactRoot = Join-Path $env:RUNNER_TEMP 'sdl3-artifacts'
+          $targetDir    = Join-Path '${{ github.workspace }}' 'Source/ThirdParty/SDL3'
+
+          New-Item -Path $targetDir -ItemType Directory -Force | Out-Null
+
+          Get-ChildItem -Path $artifactRoot -Directory | ForEach-Object {
+            Copy-Item -Path (Join-Path $_.FullName '*') -Destination $targetDir -Recurse -Force
+          }
       - name: Package Plugin - 5.4
         uses: ./.github/actions/package
         with:
           engineVersion: '5.4'
-          releaseVersion: ${{ steps.gitversion.outputs.semVer }}
-          epicGamesDirectory: ${{ secrets.EPIC_GAMES_DIRECTORY }}
+          releaseVersion: ${{ env.GitVersion_SemVer }}
           launcherDirectory: ${{ secrets.LAUNCHER_DIRECTORY }}
           controllerDbUrl: ${{ vars.CONTROLLERDB_URL }}
       - name: Package Plugin - 5.5
         uses: ./.github/actions/package
         with:
           engineVersion: '5.5'
-          releaseVersion: ${{ steps.gitversion.outputs.semVer }}
-          epicGamesDirectory: ${{ secrets.EPIC_GAMES_DIRECTORY }}
+          releaseVersion: ${{ env.GitVersion_SemVer }}
           launcherDirectory: ${{ secrets.LAUNCHER_DIRECTORY }}
           controllerDbUrl: ${{ vars.CONTROLLERDB_URL }}
       - name: Package Plugin - 5.6
         uses: ./.github/actions/package
         with:
           engineVersion: '5.6'
-          releaseVersion: ${{ steps.gitversion.outputs.semVer }}
-          epicGamesDirectory: ${{ secrets.EPIC_GAMES_DIRECTORY }}
+          releaseVersion: ${{ env.GitVersion_SemVer }}
           launcherDirectory: ${{ secrets.LAUNCHER_DIRECTORY }}
           controllerDbUrl: ${{ vars.CONTROLLERDB_URL }}
       - name: Package Plugin - 5.7
         uses: ./.github/actions/package
         with:
           engineVersion: '5.7'
-          releaseVersion: ${{ steps.gitversion.outputs.semVer }}
-          epicGamesDirectory: ${{ secrets.EPIC_GAMES_DIRECTORY }}
+          releaseVersion: ${{ env.GitVersion_SemVer }}
           launcherDirectory: ${{ secrets.LAUNCHER_DIRECTORY }}
           controllerDbUrl: ${{ vars.CONTROLLERDB_URL }}
+      - name: Package Plugin - 5.8
+        uses: ./.github/actions/package
+        with:
+          engineVersion: '5.8'
+          releaseVersion: ${{ env.GitVersion_SemVer }}
+          launcherDirectory: ${{ secrets.LAUNCHER_DIRECTORY }}
+          controllerDbUrl: ${{ vars.CONTROLLERDB_URL }}
+      - name: Package Plugin for Fab
+        uses: ./.github/actions/package-fab
+        with:
+          releaseVersion: ${{ env.GitVersion_SemVer }}
+          outputDirectory: ${{ vars.FAB_OUTPUT_DIRECTORY }}
       - name: Create Release
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@v1.21.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:

@@ -3,9 +3,12 @@
 
 #pragma once
 
+#include "JoystickConnectionType.h"
+#include "JoystickLedInformation.h"
+#include "JoystickPowerInformation.h"
+#include "JoystickRumbleInformation.h"
 #include "Data/JoystickInstanceId.h"
 #include "Data/JoystickType.h"
-#include "Data/JoystickPowerLevel.h"
 #include "Data/JoystickHapticInformation.h"
 #include "Data/JoystickHapticRumbleInformation.h"
 #include "Data/JoystickSensorInformation.h"
@@ -13,24 +16,16 @@
 #include "JoystickInformation.generated.h"
 
 USTRUCT(BlueprintType)
-struct FJoystickInformation
+struct JOYSTICKPLUGIN_API FJoystickInformation
 {
 	GENERATED_BODY()
 
-	FJoystickInformation()
-		: InstanceId(-1)
-		  , Type(EJoystickType::Unknown)
-		  , ProductId(0)
-		  , FirmwareVersion(0)
-		  , ProductVersion(0)
-		  , VendorId(0)
-		  , IsGameController(false)
-		  , PowerLevel(EJoystickPowerLevel::Unknown)
-		  , LedSupport(false)
-		  , RumbleSupport(false)
-		  , CollectionIndex(-1)
-	{
-	}
+	FJoystickInformation();
+
+	bool IsCollectionSiblingOf(const FJoystickInformation& Other) const;
+
+	void UpdateCollectionFromPath();
+	void UpdateDeviceHash();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
 	FJoystickInstanceId InstanceId;
@@ -69,21 +64,24 @@ struct FJoystickInformation
 	int32 VendorId;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
-	bool IsGameController;
+	bool IsGamepad;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
-	EJoystickPowerLevel PowerLevel;
+	EJoystickConnectionType Connection;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config|Supported Features")
-	bool LedSupport;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config|Power")
+	FJoystickPowerInformation Power;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config|Supported Features")
-	bool RumbleSupport;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config|Led")
+	FJoystickLedInformation Led;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config|Rumble")
+	FJoystickRumbleInformation Rumble;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config|Haptic")
 	FJoystickHapticInformation Haptic;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config|Haptic")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config|Haptic Rumble")
 	FJoystickHapticRumbleInformation HapticRumble;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config|Sensors")
@@ -93,9 +91,7 @@ struct FJoystickInformation
 	FJoystickSensorInformation Accelerometer;
 
 	int CollectionIndex;
+	FString CollectionGroup;
 
-	FString GetDeviceDisplayName() const
-	{
-		return !DeviceName.IsEmpty() ? DeviceName : SafeDeviceName;
-	}
+	FString GetDeviceDisplayName() const;
 };

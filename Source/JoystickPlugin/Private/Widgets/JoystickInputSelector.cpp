@@ -264,6 +264,8 @@ void UJoystickInputSelector::SynchronizeProperties()
 
 TSharedRef<SWidget> UJoystickInputSelector::RebuildWidget()
 {
+	Super::RebuildWidget();
+
 	JoystickInputSelector = SNew(SJoystickInputSelector)
 		.SelectedKey(SelectedKey)
 		.Margin(Margin)
@@ -282,7 +284,8 @@ TSharedRef<SWidget> UJoystickInputSelector::RebuildWidget()
 		.SetDeadZone(DeadZone)
 		.EscapeKeys(EscapeKeys)
 		.OnKeySelected(BIND_UOBJECT_DELEGATE(SJoystickInputSelector::FOnKeySelected, HandleKeySelected))
-		.OnIsSelectingChanged(BIND_UOBJECT_DELEGATE(SJoystickInputSelector::FOnIsSelectingChanged, HandleIsSelectingChanged));
+		.OnIsSelectingChanged(BIND_UOBJECT_DELEGATE(SJoystickInputSelector::FOnIsSelectingChanged, HandleIsSelectingChanged))
+		.OnSelectedKeyCleared(BIND_UOBJECT_DELEGATE(SJoystickInputSelector::FOnSelectedKeyCleared, HandleSelectedKeyCleared));
 	return JoystickInputSelector.ToSharedRef();
 }
 
@@ -293,11 +296,11 @@ void UJoystickInputSelector::ReleaseSlateResources(const bool bReleaseChildren)
 	JoystickInputSelector.Reset();
 }
 
-void UJoystickInputSelector::HandleKeySelected(const FInputChord& InSelectedKey)
+void UJoystickInputSelector::HandleKeySelected(const FInputChord& InSelectedKey, const FJoystickInstanceId& InInstanceId)
 {
 	SelectedKey = InSelectedKey;
 	BroadcastFieldValueChanged(FFieldNotificationClassDescriptor::SelectedKey);
-	OnKeySelected.Broadcast(SelectedKey);
+	OnKeySelected.Broadcast(SelectedKey, InInstanceId);
 }
 
 void UJoystickInputSelector::SetTextBlockVisibility(const ESlateVisibility InVisibility) const
@@ -315,6 +318,11 @@ void UJoystickInputSelector::HandleIsSelectingChanged(const bool Selecting) cons
 	{
 		OnIsSelectingChanged.Broadcast(Selecting);
 	}
+}
+
+void UJoystickInputSelector::HandleSelectedKeyCleared() const
+{
+	OnSelectedKeyCleared.Broadcast();
 }
 
 #undef LOCTEXT_NAMESPACE

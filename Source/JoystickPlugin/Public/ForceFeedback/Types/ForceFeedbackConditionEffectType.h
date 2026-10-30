@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "Misc/EnumRange.h"
+
 #include "ForceFeedbackConditionEffectType.generated.h"
 
 UENUM(BlueprintType)
@@ -13,3 +15,5 @@ enum class EForceFeedbackConditionEffectType : uint8
 	Inertia,
 	Friction
 };
+
+ENUM_RANGE_BY_FIRST_AND_LAST(EForceFeedbackConditionEffectType, EForceFeedbackConditionEffectType::Spring, EForceFeedbackConditionEffectType::Friction);
