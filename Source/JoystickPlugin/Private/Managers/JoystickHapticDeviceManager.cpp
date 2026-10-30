@@ -485,6 +485,12 @@ bool UJoystickHapticDeviceManager::StopEngineForceFeedback(const FJoystickInstan
 	}
 
 	DeviceInfo->EngineRumbleLevel = 0;
+
+	if (DeviceInfo->EngineRumbleEffectId == -1)
+	{
+		return true;
+	}
+
 	return StopEffect(InstanceId, DeviceInfo->EngineRumbleEffectId);
 }
 

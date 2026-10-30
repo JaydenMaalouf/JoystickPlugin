@@ -9,28 +9,28 @@
 #include "Runtime/Launch/Resources/Version.h"
 
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6
-#define FUNC_TEMPLATE_PARAMS typename... Types
-#define FUNC_PARAMS UE::Core::TCheckedFormatString<FString::FmtCharType, Types...> Fmt, Types... Args
+#define JOYSTICK_LOG_TEMPLATE_PARAMS typename... Types
+#define JOYSTICK_LOG_PARAMS UE::Core::TCheckedFormatString<FString::FmtCharType, Types...> Fmt, Types... Args
 #else
-#define FUNC_TEMPLATE_PARAMS typename FmtType, typename... Types
-#define FUNC_PARAMS const FmtType& Fmt, Types... Args
+#define JOYSTICK_LOG_TEMPLATE_PARAMS typename FmtType, typename... Types
+#define JOYSTICK_LOG_PARAMS const FmtType& Fmt, Types... Args
 #endif
 
 #if UE_BUILD_SHIPPING
-DECLARE_LOG_CATEGORY_EXTERN(LogJoystickPlugin, Display, All);
+JOYSTICKPLUGIN_API DECLARE_LOG_CATEGORY_EXTERN(LogJoystickPlugin, Display, All);
 #else
-DECLARE_LOG_CATEGORY_EXTERN(LogJoystickPlugin, Log, All);
+JOYSTICKPLUGIN_API DECLARE_LOG_CATEGORY_EXTERN(LogJoystickPlugin, Log, All);
 #endif
 
 #define JOYSTICK_LOG(Verbosity, Message) UE_LOG(LogJoystickPlugin, Verbosity, TEXT("%s"), Message)
 
-class FJoystickLogManager
+class JOYSTICKPLUGIN_API FJoystickLogManager
 {
 public:
 	static FJoystickLogManager* Get();
 
-	template <FUNC_TEMPLATE_PARAMS>
-	FORCEINLINE void Log(const ELogVerbosity::Type Level, FUNC_PARAMS)
+	template <JOYSTICK_LOG_TEMPLATE_PARAMS>
+	FORCEINLINE void Log(const ELogVerbosity::Type Level, JOYSTICK_LOG_PARAMS)
 	{
 		if (!CanLog())
 		{
@@ -46,8 +46,8 @@ public:
 		LogInternal(Level, *Message.ErrorMessage);
 	}
 
-	template <FUNC_TEMPLATE_PARAMS>
-	FORCEINLINE void LogWarning(FUNC_PARAMS)
+	template <JOYSTICK_LOG_TEMPLATE_PARAMS>
+	FORCEINLINE void LogWarning(JOYSTICK_LOG_PARAMS)
 	{
 		Log(ELogVerbosity::Type::Warning, Fmt, Forward<Types>(Args)...);
 	}
@@ -57,8 +57,8 @@ public:
 		Log(ELogVerbosity::Type::Warning, Message);
 	}
 
-	template <FUNC_TEMPLATE_PARAMS>
-	FORCEINLINE void LogError(FUNC_PARAMS)
+	template <JOYSTICK_LOG_TEMPLATE_PARAMS>
+	FORCEINLINE void LogError(JOYSTICK_LOG_PARAMS)
 	{
 		Log(ELogVerbosity::Type::Error, Fmt, Forward<Types>(Args)...);
 	}
@@ -68,8 +68,8 @@ public:
 		Log(ELogVerbosity::Type::Error, Message);
 	}
 
-	template <FUNC_TEMPLATE_PARAMS>
-	FORCEINLINE void LogDebug(FUNC_PARAMS)
+	template <JOYSTICK_LOG_TEMPLATE_PARAMS>
+	FORCEINLINE void LogDebug(JOYSTICK_LOG_PARAMS)
 	{
 		Log(ELogVerbosity::Type::Log, Fmt, Forward<Types>(Args)...);
 	}
@@ -79,8 +79,8 @@ public:
 		Log(ELogVerbosity::Type::Log, Message);
 	}
 
-	template <FUNC_TEMPLATE_PARAMS>
-	FORCEINLINE void LogInformation(FUNC_PARAMS)
+	template <JOYSTICK_LOG_TEMPLATE_PARAMS>
+	FORCEINLINE void LogInformation(JOYSTICK_LOG_PARAMS)
 	{
 		Log(ELogVerbosity::Type::Display, Fmt, Forward<Types>(Args)...);
 	}
@@ -91,6 +91,7 @@ public:
 	}
 
 	void LogSDLError(FStringView Message);
+	void LogErrorWithDialog(const FText& Message, const FText& Title = FText::GetEmpty());
 
 private:
 	static bool CanLog()

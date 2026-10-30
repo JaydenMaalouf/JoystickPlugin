@@ -11,13 +11,14 @@
 #include "Widgets/SWidget.h"
 #include "Styling/SlateTypes.h"
 #include "Layout/Visibility.h"
+#include "Data/JoystickInstanceId.h"
 
 #include "JoystickInputSelector.generated.h"
 
 class SJoystickInputSelector;
 struct FButtonStyle;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnKeySelected, FInputChord, SelectedKey);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnKeySelected, FInputChord, SelectedKey, FJoystickInstanceId, InstanceId);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnIsSelectingChanged, bool, Selecting);
 
@@ -94,7 +95,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Key Selection")
 	TArray<FKey> EscapeKeys;
 
-	/** Called when a key is selected. */
+	/** Called when a key is selected. InstanceId is the joystick the key came from; check it with IsValidInstanceId before use, it is invalid for keys that didn't come from a joystick. */
 	UPROPERTY(BlueprintAssignable, Category="Widget Event")
 	FOnKeySelected OnKeySelected;
 
@@ -197,7 +198,7 @@ protected:
 	//~ End UVisual Interface
 
 private:
-	virtual void HandleKeySelected(const FInputChord& InSelectedKey);
+	virtual void HandleKeySelected(const FInputChord& InSelectedKey, const FJoystickInstanceId& InInstanceId);
 	void HandleIsSelectingChanged(bool Selecting) const;
 
 	/** The input key selector widget managed by this object. */

@@ -819,7 +819,7 @@ void SAxisConfigurationEditor::SaveConfiguration() const
 		ShowRestartRequiredNotification();
 	}
 
-	ProfileManager->UpdateAxisConfiguration(Key, CurrentProperties);
+	ProfileManager->UpdateAxisProfileConfiguration(Key, CurrentProperties);
 }
 
 void SAxisConfigurationEditor::ApplyWorkingRange()

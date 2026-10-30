@@ -244,7 +244,7 @@ void UJoystickForceFeedbackComponent::CreateEffects()
 		return;
 	}
 
-	if (InstanceId != -1)
+	if (InstanceId.IsValid())
 	{
 		CreateInstanceEffect(InstanceId);
 	}
@@ -278,7 +278,7 @@ void UJoystickForceFeedbackComponent::CreateEffects()
 
 void UJoystickForceFeedbackComponent::CreateInstanceEffect(const FJoystickInstanceId& JoystickInstanceId)
 {
-	if (InstanceId != -1 && InstanceId != JoystickInstanceId)
+	if (InstanceId.IsValid() && InstanceId != JoystickInstanceId)
 	{
 		return;
 	}

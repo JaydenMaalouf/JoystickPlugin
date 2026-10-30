@@ -85,9 +85,13 @@ public:
 
 	UJoystickInputSettings();
 
-	void AddDeviceConfiguration(const FJoystickInputDeviceConfiguration& InDeviceConfiguration);
-	void RemoveDeviceConfiguration(int DeviceConfigurationIndex);
-	void AddProfileConfiguration(const FJoystickInputDeviceConfiguration& InDeviceConfiguration);
+	bool AddDeviceConfiguration(const FJoystickInputDeviceConfiguration& InDeviceConfiguration);
+	bool AddDeviceConfigurations(const TArray<FJoystickInputDeviceConfiguration>& InDeviceConfigurations);
+	bool RemoveDeviceConfiguration(int DeviceConfigurationIndex);
+	bool SaveDeviceConfigurations();
+
+	bool AddProfileConfiguration(const FJoystickInputDeviceConfiguration& InDeviceConfiguration);
+	void ReplaceProfileConfiguration(const FJoystickInputDeviceConfiguration& InDeviceConfiguration);
 	void ClearProfiles();
 
 	void DeviceAdded(const FJoystickInformation& JoystickInfo);
@@ -99,15 +103,16 @@ public:
 	bool GetIgnoreGamepads() const;
 	bool SetIgnoreGamepads(const bool bIgnoreGamepads);
 
-	FJoystickInputDeviceConfiguration* GetDeviceConfiguration(const FJoystickInformation& Device);
-	FJoystickInputDeviceConfiguration* GetProfileConfiguration(const FJoystickInformation& Device);
+	FJoystickInputDeviceConfiguration* GetDeviceConfiguration(const FString& DeviceHash);
+	FJoystickInputDeviceConfiguration* GetProfileConfiguration(const FString& DeviceHash);
+	FJoystickInputDeviceConfiguration* GetProfileConfigurationByFileName(const FString& ProfileFileName);
 
 #if WITH_EDITOR
 	virtual void PostEditChangeChainProperty(FPropertyChangedChainEvent& PropertyChangedEvent) override;
 #endif
 
 private:
-	FJoystickInputDeviceConfiguration* FindConfiguration(TArray<FJoystickInputDeviceConfiguration>& ConfigurationArray, const FJoystickInformation& Device, bool IncludeEmptyGuids = false) const;
-	static bool ConfigurationMatchesDevice(const FJoystickInputDeviceConfiguration& DeviceConfiguration, const FJoystickInformation& ConnectedDevice, bool IncludeEmptyGuids = false);
-	bool ConfigurationExists(TArray<FJoystickInputDeviceConfiguration>& ConfigurationArray, const FJoystickInputDeviceConfiguration& Device, bool IncludeEmptyGuids = false) const;
+	void RebuildDeviceConfigurations() const;
+	FJoystickInputDeviceConfiguration* FindConfiguration(TArray<FJoystickInputDeviceConfiguration>& ConfigurationArray, const FString& DeviceHash) const;
+	bool ConfigurationExists(TArray<FJoystickInputDeviceConfiguration>& ConfigurationArray, const FString& DeviceHash) const;
 };

@@ -107,7 +107,7 @@ void FJoystickDebugCommands::PlayEffectGroup(const TArray<FString>& Args, UWorld
 	});
 	PlayedComponents.Add(Component);
 
-	const FString Target = Component->InstanceId.Value < 0 ? TEXT("every device") : FString::Printf(TEXT("device %d"), Component->InstanceId.Value);
+	const FString Target = !Component->InstanceId.IsValid() ? TEXT("every device") : FString::Printf(TEXT("device %d"), Component->InstanceId.Value);
 	Ar.Logf(TEXT("Playing %s on %s. Joystick.FFB.StopAll stops it."), *EffectGroup->GetName(), *Target);
 }
 

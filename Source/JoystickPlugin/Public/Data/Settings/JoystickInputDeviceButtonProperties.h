@@ -35,4 +35,15 @@ struct JOYSTICKPLUGIN_API FJoystickInputDeviceButtonProperties
 		DisplayName = ButtonProperties.DisplayName;
 		InvertOutput = ButtonProperties.InvertOutput;
 	}
+
+	void MergeProperties(const FJoystickInputDeviceButtonProperties& ButtonProperties)
+	{
+		if (ButtonProperties.OverrideDisplayName)
+		{
+			OverrideDisplayName = true;
+			DisplayName = ButtonProperties.DisplayName;
+		}
+
+		InvertOutput = ButtonProperties.InvertOutput;
+	}
 };

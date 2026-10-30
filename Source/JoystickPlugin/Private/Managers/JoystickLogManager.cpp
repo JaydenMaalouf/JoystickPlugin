@@ -3,6 +3,8 @@
 
 #include "Managers/JoystickLogManager.h"
 
+#include "Misc/MessageDialog.h"
+
 THIRD_PARTY_INCLUDES_START
 
 #include "JoystickSDL.h"
@@ -38,4 +40,16 @@ void FJoystickLogManager::LogSDLError(const FStringView Message)
 	}
 
 	LogError(TEXT("%.*s: %s"), Message.Len(), Message.GetData(), *ErrorMessage);
+}
+
+void FJoystickLogManager::LogErrorWithDialog(const FText& Message, const FText& Title)
+{
+	LogError(TEXT("%s"), *Message.ToString());
+
+	if (GIsEditor == false)
+	{
+		return;
+	}
+
+	FMessageDialog::Open(EAppMsgType::Ok, Message, Title);
 }

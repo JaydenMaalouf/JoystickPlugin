@@ -946,16 +946,7 @@ void FJoystickInputDevice::ResetAxisProperties()
 	{
 		for (int i = 0; i < DeviceData.Value.Axes.Num(); i++)
 		{
-			const FAxisData Defaults;
-			FAxisData& AxisKeyData = DeviceData.Value.Axes[i];
-			AxisKeyData.RemappingEnabled = Defaults.RemappingEnabled;
-			AxisKeyData.InputOffset = Defaults.InputOffset;
-			AxisKeyData.InvertInput = Defaults.InvertInput;
-			AxisKeyData.InputRangeMin = Defaults.InputRangeMin;
-			AxisKeyData.InputRangeMax = Defaults.InputRangeMax;
-			AxisKeyData.OutputRangeMin = Defaults.OutputRangeMin;
-			AxisKeyData.OutputRangeMax = Defaults.OutputRangeMax;
-			AxisKeyData.InvertOutput = Defaults.InvertOutput;
+			DeviceData.Value.Axes[i].CopyRemapping(FJoystickAxisRemapping());
 		}
 	}
 }
@@ -1028,31 +1019,7 @@ void FJoystickInputDevice::UpdateAxisProperties(FJoystickInputDeviceConfiguratio
 		}
 
 		FAxisData& AxisKeyData = CurrentState.Axes[i];
-		AxisKeyData.RemappingEnabled = AxisProperties->RemappingEnabled;
-		if (AxisKeyData.RemappingEnabled)
-		{
-			if ((AxisProperties->InputRangeMin == -1.0f && AxisProperties->InputRangeMax == 1.0f && AxisProperties->OutputRangeMin == 0.0f && AxisProperties->OutputRangeMax == 1.0f) ||
-				(AxisProperties->InputRangeMin == 0.0f && AxisProperties->InputRangeMax == 1.0f && AxisProperties->OutputRangeMin == 0.0f && AxisProperties->OutputRangeMax == 1.0f))
-			{
-				AxisKeyData.Value = AxisProperties->InvertInput ? -AxisProperties->InputRangeMin : AxisProperties->InputRangeMin;
-			}
-			else if (AxisProperties->InputRangeMin == -1.0f && AxisProperties->InputRangeMax == 1.0f && AxisProperties->OutputRangeMin == -1.0f && AxisProperties->OutputRangeMax == 1.0f)
-			{
-				AxisKeyData.Value = 0.0f;
-			}
-			else
-			{
-				AxisKeyData.Value = AxisProperties->InputRangeMin;
-			}
-			AxisKeyData.PreviousValue = AxisKeyData.Value;
-		}
-		AxisKeyData.InputOffset = AxisProperties->InputOffset;
-		AxisKeyData.InvertInput = AxisProperties->InvertInput;
-		AxisKeyData.InputRangeMin = AxisProperties->InputRangeMin;
-		AxisKeyData.InputRangeMax = AxisProperties->InputRangeMax;
-		AxisKeyData.OutputRangeMin = AxisProperties->OutputRangeMin;
-		AxisKeyData.OutputRangeMax = AxisProperties->OutputRangeMax;
-		AxisKeyData.InvertOutput = AxisProperties->InvertOutput;
+		AxisKeyData.CopyRemapping(*AxisProperties);
 	}
 }
 

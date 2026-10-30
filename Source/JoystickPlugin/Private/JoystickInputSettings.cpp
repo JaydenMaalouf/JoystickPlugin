@@ -7,8 +7,12 @@
 #include "Data/JoystickInstanceId.h"
 #include "Data/Settings/JoystickInputDeviceConfiguration.h"
 #include "Engine/Engine.h"
+#include "Managers/JoystickLogManager.h"
 #include "Managers/JoystickProfileManager.h"
 #include "JoystickSubsystem.h"
+#include "Misc/Paths.h"
+
+#define LOCTEXT_NAMESPACE "JoystickPlugin"
 
 UJoystickInputSettings::UJoystickInputSettings() : UseDeviceName(true),
                                                    IncludeDeviceIndex(false),
@@ -52,7 +56,7 @@ FString UJoystickInputSettings::GetConnectedDeviceDisplayNameByConfiguration(con
 {
 	for (const FJoystickInformation& ConnectedDevice : ConnectedDevices)
 	{
-		if (ConfigurationMatchesDevice(DeviceConfiguration, ConnectedDevice))
+		if (ConnectedDevice.DeviceHash == DeviceConfiguration.DeviceHash)
 		{
 			return ConnectedDevice.GetDeviceDisplayName();
 		}
@@ -73,51 +77,101 @@ bool UJoystickInputSettings::SetIgnoreGamepads(const bool bIgnoreGamepads)
 	return Changed;
 }
 
-FJoystickInputDeviceConfiguration* UJoystickInputSettings::GetDeviceConfiguration(const FJoystickInformation& Device)
+FJoystickInputDeviceConfiguration* UJoystickInputSettings::GetDeviceConfiguration(const FString& DeviceHash)
 {
-	return FindConfiguration(DeviceConfigurations, Device, true);
+	return FindConfiguration(DeviceConfigurations, DeviceHash);
 }
 
-FJoystickInputDeviceConfiguration* UJoystickInputSettings::GetProfileConfiguration(const FJoystickInformation& Device)
+FJoystickInputDeviceConfiguration* UJoystickInputSettings::GetProfileConfiguration(const FString& DeviceHash)
 {
-	return FindConfiguration(ProfileConfigurations, Device, true);
+	return FindConfiguration(ProfileConfigurations, DeviceHash);
+}
+
+FJoystickInputDeviceConfiguration* UJoystickInputSettings::GetProfileConfigurationByFileName(const FString& ProfileFileName)
+{
+	return ProfileConfigurations.FindByPredicate([&ProfileFileName](const FJoystickInputDeviceConfiguration& ProfileConfiguration)
+	{
+		return ProfileConfiguration.ProfileFileName.Equals(ProfileFileName, ESearchCase::IgnoreCase);
+	});
 }
 
 #if WITH_EDITOR
 void UJoystickInputSettings::PostEditChangeChainProperty(FPropertyChangedChainEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeChainProperty(PropertyChangedEvent);
-
-	UJoystickProfileManager* JoystickProfileManager = GetMutableDefault<UJoystickProfileManager>();
-	if (!IsValid(JoystickProfileManager))
-	{
-		return;
-	}
-
-	JoystickProfileManager->RebuildDeviceConfigurations();
+	RebuildDeviceConfigurations();
 }
 #endif
 
-void UJoystickInputSettings::AddDeviceConfiguration(const FJoystickInputDeviceConfiguration& InDeviceConfiguration)
+bool UJoystickInputSettings::AddDeviceConfiguration(const FJoystickInputDeviceConfiguration& InDeviceConfiguration)
 {
-	if (ConfigurationExists(DeviceConfigurations, InDeviceConfiguration))
+	return AddDeviceConfigurations({InDeviceConfiguration});
+}
+
+bool UJoystickInputSettings::AddDeviceConfigurations(const TArray<FJoystickInputDeviceConfiguration>& InDeviceConfigurations)
+{
+	bool AddedConfiguration = false;
+	for (const FJoystickInputDeviceConfiguration& InDeviceConfiguration : InDeviceConfigurations)
 	{
-		return;
+		if (ConfigurationExists(DeviceConfigurations, InDeviceConfiguration.DeviceHash))
+		{
+			continue;
+		}
+
+		DeviceConfigurations.Add(InDeviceConfiguration);
+		AddedConfiguration = true;
 	}
 
-	DeviceConfigurations.Add(InDeviceConfiguration);
-}
-
-void UJoystickInputSettings::RemoveDeviceConfiguration(const int DeviceConfigurationIndex)
-{
-	DeviceConfigurations.RemoveAt(DeviceConfigurationIndex);
-	TryUpdateDefaultConfigFile();
-}
-
-void UJoystickInputSettings::AddProfileConfiguration(const FJoystickInputDeviceConfiguration& InDeviceConfiguration)
-{
-	if (ConfigurationExists(ProfileConfigurations, InDeviceConfiguration))
+	if (AddedConfiguration == false)
 	{
+		return false;
+	}
+
+	return SaveDeviceConfigurations();
+}
+
+bool UJoystickInputSettings::RemoveDeviceConfiguration(const int DeviceConfigurationIndex)
+{
+	if (DeviceConfigurations.IsValidIndex(DeviceConfigurationIndex) == false)
+	{
+		return false;
+	}
+
+	DeviceConfigurations.RemoveAt(DeviceConfigurationIndex);
+	return SaveDeviceConfigurations();
+}
+
+bool UJoystickInputSettings::SaveDeviceConfigurations()
+{
+	const bool Saved = TryUpdateDefaultConfigFile();
+	RebuildDeviceConfigurations();
+	if (Saved)
+	{
+		return true;
+	}
+
+	const FText Message = FText::Format(
+		LOCTEXT("DeviceConfigurationSaveFailed", "Failed to save joystick device configurations:\n{0}\n\nCheck the file isn't read-only or open in another program."), FText::FromString(GetDefaultConfigFilename()));
+	FJoystickLogManager::Get()->LogErrorWithDialog(Message, LOCTEXT("DeviceConfigurationSaveFailedTitle", "Save Joystick Device Configurations Failed"));
+	return false;
+}
+
+bool UJoystickInputSettings::AddProfileConfiguration(const FJoystickInputDeviceConfiguration& InDeviceConfiguration)
+{
+	if (ConfigurationExists(ProfileConfigurations, InDeviceConfiguration.DeviceHash))
+	{
+		return false;
+	}
+
+	ProfileConfigurations.Add(InDeviceConfiguration);
+	return true;
+}
+
+void UJoystickInputSettings::ReplaceProfileConfiguration(const FJoystickInputDeviceConfiguration& InDeviceConfiguration)
+{
+	if (FJoystickInputDeviceConfiguration* ExistingProfile = GetProfileConfigurationByFileName(InDeviceConfiguration.ProfileFileName))
+	{
+		*ExistingProfile = InDeviceConfiguration;
 		return;
 	}
 
@@ -129,30 +183,28 @@ void UJoystickInputSettings::ClearProfiles()
 	ProfileConfigurations.Empty();
 }
 
-FJoystickInputDeviceConfiguration* UJoystickInputSettings::FindConfiguration(TArray<FJoystickInputDeviceConfiguration>& ConfigurationArray, const FJoystickInformation& Device, const bool IncludeEmptyGuids) const
+void UJoystickInputSettings::RebuildDeviceConfigurations() const
 {
-	return ConfigurationArray.FindByPredicate([Device, IncludeEmptyGuids](const FJoystickInputDeviceConfiguration& PredicateDeviceConfig)
+	UJoystickProfileManager* JoystickProfileManager = GetMutableDefault<UJoystickProfileManager>();
+	if (!IsValid(JoystickProfileManager))
 	{
-		return ConfigurationMatchesDevice(PredicateDeviceConfig, Device, IncludeEmptyGuids);
+		return;
+	}
+
+	JoystickProfileManager->RebuildInputDeviceConfigurations();
+}
+
+FJoystickInputDeviceConfiguration* UJoystickInputSettings::FindConfiguration(TArray<FJoystickInputDeviceConfiguration>& ConfigurationArray, const FString& DeviceHash) const
+{
+	return ConfigurationArray.FindByPredicate([&DeviceHash](const FJoystickInputDeviceConfiguration& PredicateDeviceConfig)
+	{
+		return PredicateDeviceConfig.DeviceHash == DeviceHash;
 	});
 }
 
-bool UJoystickInputSettings::ConfigurationMatchesDevice(const FJoystickInputDeviceConfiguration& DeviceConfiguration, const FJoystickInformation& ConnectedDevice, const bool IncludeEmptyGuids)
+bool UJoystickInputSettings::ConfigurationExists(TArray<FJoystickInputDeviceConfiguration>& ConfigurationArray, const FString& DeviceHash) const
 {
-	switch (DeviceConfiguration.DeviceIdentifyMethod)
-	{
-		case EJoystickIdentifierType::Legacy:
-			return (IncludeEmptyGuids && !DeviceConfiguration.ProductGuid.IsValid()) || ConnectedDevice.ProductGuid == DeviceConfiguration.ProductGuid;
-		case EJoystickIdentifierType::Hashed:
-		default:
-			return (IncludeEmptyGuids && DeviceConfiguration.DeviceHash.IsEmpty()) || ConnectedDevice.DeviceHash == DeviceConfiguration.DeviceHash;
-	}
+	return FindConfiguration(ConfigurationArray, DeviceHash) != nullptr;
 }
 
-bool UJoystickInputSettings::ConfigurationExists(TArray<FJoystickInputDeviceConfiguration>& ConfigurationArray, const FJoystickInputDeviceConfiguration& Device, const bool IncludeEmptyGuids) const
-{
-	FJoystickInformation DummyJoystickInformation;
-	DummyJoystickInformation.ProductGuid = Device.ProductGuid;
-	DummyJoystickInformation.DeviceHash = Device.DeviceHash;
-	return FindConfiguration(ConfigurationArray, DummyJoystickInformation, IncludeEmptyGuids) != nullptr;
-}
+#undef LOCTEXT_NAMESPACE

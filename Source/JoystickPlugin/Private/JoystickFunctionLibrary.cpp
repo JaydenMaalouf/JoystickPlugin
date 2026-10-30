@@ -47,16 +47,6 @@ float UJoystickFunctionLibrary::NormalizeAxisRaw(const int16 Value)
 		       : static_cast<float>(Value) / 32767.0f;
 }
 
-uint64 UJoystickFunctionLibrary::GetTicksNS()
-{
-	return SDL_GetTicksNS();
-}
-
-uint64 UJoystickFunctionLibrary::GetTicks()
-{
-	return SDL_GetTicks();
-}
-
 EHatDirection UJoystickFunctionLibrary::HatValueToDirection(const int8 Value)
 {
 	switch (Value)
@@ -82,6 +72,16 @@ EHatDirection UJoystickFunctionLibrary::HatValueToDirection(const int8 Value)
 		default:
 			return EHatDirection::None;
 	}
+}
+
+uint64 UJoystickFunctionLibrary::GetTicksNS()
+{
+	return SDL_GetTicksNS();
+}
+
+uint64 UJoystickFunctionLibrary::GetTicks()
+{
+	return SDL_GetTicks();
 }
 
 FString UJoystickFunctionLibrary::HatDirectionAsString(EHatDirection Value)
@@ -114,7 +114,12 @@ bool UJoystickFunctionLibrary::IsJoystickKey(IN const FKey& Key)
 		return false;
 	}
 
-	return InputDevice->GetInstanceIdByKey(Key) != -1;
+	return InputDevice->GetInstanceIdByKey(Key).IsValid();
+}
+
+bool UJoystickFunctionLibrary::IsValidInstanceId(const FJoystickInstanceId& InstanceId)
+{
+	return InstanceId.IsValid();
 }
 
 FString UJoystickFunctionLibrary::SanitiseDeviceName(const FString& InDeviceName, const bool AllowSpaces)

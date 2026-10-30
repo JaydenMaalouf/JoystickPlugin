@@ -4,6 +4,8 @@
 #include "Widgets/SJoystickInputSelector.h"
 
 #include "JoystickFunctionLibrary.h"
+#include "JoystickSubsystem.h"
+#include "Engine/Engine.h"
 #include "Data/InputSelectorTypes.h"
 #include "Data/KeySelectorTypes.h"
 #include "Managers/JoystickProfileManager.h"
@@ -60,7 +62,7 @@ void SJoystickInputSelector::SetSelectedKey(const TAttribute<FInputChord>& InSel
 	if (SelectedKey.IdenticalTo(InSelectedKey) == false)
 	{
 		SelectedKey = InSelectedKey;
-		OnKeySelected.ExecuteIfBound(SelectedKey.IsSet() ? SelectedKey.Get() : FInputChord(EKeys::Invalid));
+		OnKeySelected.ExecuteIfBound(SelectedKey.IsSet() ? SelectedKey.Get() : FInputChord(EKeys::Invalid), FJoystickInstanceId());
 	}
 }
 
@@ -155,8 +157,9 @@ FReply SJoystickInputSelector::OnAnalogValueChanged(const FGeometry& MyGeometry,
 		const FJoystickInputDeviceAxisProperties* AxisProperties = JoystickProfileManager->GetAxisPropertiesByKey(AxisKey);
 		if (UseAxisProperties && AxisProperties != nullptr)
 		{
-			MinRangeDetection = AxisProperties->OutputRangeMin;
-			MaxRangeDetection = AxisProperties->OutputRangeMax;
+			const FVector2D OutputRange = AxisProperties->GetOutputRange();
+			MinRangeDetection = OutputRange.X;
+			MaxRangeDetection = OutputRange.Y;
 		}
 
 		const float PhysicalMin = MinRangeDetection;
@@ -205,7 +208,6 @@ FReply SJoystickInputSelector::OnAnalogValueChanged(const FGeometry& MyGeometry,
 					}
 					break;
 				}
-
 			case EAxisSelectState::FromMin:
 				{
 					if (bAtMax)
@@ -217,13 +219,13 @@ FReply SJoystickInputSelector::OnAnalogValueChanged(const FGeometry& MyGeometry,
 							ModifierKey == EModifierKey::Shift,
 							ModifierKey == EModifierKey::Control,
 							ModifierKey == EModifierKey::Alt,
-							ModifierKey == EModifierKey::Command);
+							ModifierKey == EModifierKey::Command,
+							InAnalogInputEvent.GetInputDeviceId());
 						SetIsSelectingKey(false);
 						return FReply::Handled();
 					}
 					break;
 				}
-
 			case EAxisSelectState::FromMax:
 				{
 					if (bAtMin)
@@ -235,7 +237,8 @@ FReply SJoystickInputSelector::OnAnalogValueChanged(const FGeometry& MyGeometry,
 							ModifierKey == EModifierKey::Shift,
 							ModifierKey == EModifierKey::Control,
 							ModifierKey == EModifierKey::Alt,
-							ModifierKey == EModifierKey::Command);
+							ModifierKey == EModifierKey::Command,
+							InAnalogInputEvent.GetInputDeviceId());
 						SetIsSelectingKey(false);
 						return FReply::Handled();
 					}
@@ -300,7 +303,8 @@ FReply SJoystickInputSelector::OnKeyUp(const FGeometry& MyGeometry, const FKeyEv
 			ModifierKey == EModifierKey::Shift,
 			ModifierKey == EModifierKey::Control,
 			ModifierKey == EModifierKey::Alt,
-			ModifierKey == EModifierKey::Command);
+			ModifierKey == EModifierKey::Command,
+			InKeyEvent.GetInputDeviceId());
 		SetIsSelectingKey(false);
 		return FReply::Handled();
 	}
@@ -339,7 +343,8 @@ FReply SJoystickInputSelector::OnPreviewMouseButtonDown(const FGeometry& MyGeome
 				MouseEvent.IsShiftDown(),
 				MouseEvent.IsControlDown(),
 				MouseEvent.IsAltDown(),
-				MouseEvent.IsCommandDown());
+				MouseEvent.IsCommandDown(),
+				MouseEvent.GetInputDeviceId());
 			SetIsSelectingKey(false);
 			return FReply::Handled();
 		}
@@ -408,7 +413,7 @@ FReply SJoystickInputSelector::OnClicked()
 	return FReply::Handled();
 }
 
-void SJoystickInputSelector::SelectKey(const FKey& Key, const bool bShiftDown, const bool bControlDown, const bool bAltDown, const bool bCommandDown)
+void SJoystickInputSelector::SelectKey(const FKey& Key, const bool bShiftDown, const bool bControlDown, const bool bAltDown, const bool bCommandDown, const FInputDeviceId& InputDeviceId)
 {
 	const bool bAllowModifierKeys = (KeySelectorTypes & static_cast<int32>(EKeySelectorTypes::Modifier)) != 0;
 	const FInputChord NewSelectedKey = bAllowModifierKeys
@@ -418,7 +423,26 @@ void SJoystickInputSelector::SelectKey(const FKey& Key, const bool bShiftDown, c
 	{
 		SelectedKey.Set(NewSelectedKey);
 	}
-	OnKeySelected.ExecuteIfBound(NewSelectedKey);
+
+	OnKeySelected.ExecuteIfBound(NewSelectedKey, GetJoystickInstanceId(Key, InputDeviceId));
+}
+
+FJoystickInstanceId SJoystickInputSelector::GetJoystickInstanceId(const FKey& Key, const FInputDeviceId& InputDeviceId) const
+{
+	FJoystickInstanceId InstanceId;
+	if (!UJoystickFunctionLibrary::IsJoystickKey(Key))
+	{
+		return InstanceId;
+	}
+
+	const UJoystickSubsystem* JoystickSubsystem = GEngine->GetEngineSubsystem<UJoystickSubsystem>();
+	if (!IsValid(JoystickSubsystem))
+	{
+		return InstanceId;
+	}
+
+	JoystickSubsystem->InstanceIdFromDeviceId(InputDeviceId, InstanceId);
+	return InstanceId;
 }
 
 void SJoystickInputSelector::SetIsSelectingKey(const bool bInIsSelectingKey)

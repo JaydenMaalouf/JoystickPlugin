@@ -515,12 +515,13 @@ FJoystickDeviceState UJoystickSubsystem::CreateInitialDeviceState(const FJoystic
 	DeviceState.Axes.SetNumZeroed(AxesCount);
 	for (int AxisIndex = 0; AxisIndex < AxesCount; AxisIndex++)
 	{
-		int16 CurrentValue = 0;
-		if (SDL_GetJoystickAxisInitialState(DeviceInfo->SDLJoystick, AxisIndex, &CurrentValue))
+		int16 InitialValue = 0;
+		if (SDL_GetJoystickAxisInitialState(DeviceInfo->SDLJoystick, AxisIndex, &InitialValue) == false)
 		{
-			CurrentValue = SDL_GetJoystickAxis(DeviceInfo->SDLJoystick, AxisIndex);
+			continue;
 		}
 
+		const int16 CurrentValue = SDL_GetJoystickAxis(DeviceInfo->SDLJoystick, AxisIndex);
 		DeviceState.Axes[AxisIndex].Update(UJoystickFunctionLibrary::NormalizeAxisRaw(CurrentValue), static_cast<int64>(UJoystickFunctionLibrary::GetTicksNS()));
 	}
 
@@ -1165,7 +1166,7 @@ bool UJoystickSubsystem::BuildDeviceInfoForInstanceId(const FJoystickInstanceId 
 {
 	Device = FDeviceInfoSDL();
 	Device.InstanceId = InstanceId;
-	if (Device.InstanceId == -1)
+	if (!Device.InstanceId.IsValid())
 	{
 		return false;
 	}
@@ -1184,7 +1185,7 @@ bool UJoystickSubsystem::BuildDeviceInfoForInstanceId(const FJoystickInstanceId 
 	Device.ProductGuid = UJoystickFunctionLibrary::ConvertSDLGuid(SDL_GetJoystickGUIDForID(InstanceId));
 	Device.UpdateDeviceHash();
 
-	return Device.InstanceId != -1;
+	return Device.InstanceId.IsValid();
 }
 
 FString UJoystickSubsystem::GamepadMappingFile("gamecontrollerdb.txt");

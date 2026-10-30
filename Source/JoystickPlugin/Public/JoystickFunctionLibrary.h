@@ -4,6 +4,7 @@
 #pragma once
 
 #include "InputCoreTypes.h"
+#include "Data/JoystickInstanceId.h"
 #include "Data/Input/HatDirection.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 
@@ -35,6 +36,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category="Joystick|Key")
 	static bool IsJoystickKey(const FKey& Key);
+
+	UFUNCTION(BlueprintPure, Category="Joystick|Instance")
+	static bool IsValidInstanceId(const FJoystickInstanceId& InstanceId);
 
 	static FString SanitiseDeviceName(const FString& InDeviceName, const bool AllowSpaces = false);
 	static FString SafelyStringify(const wchar_t* Input);

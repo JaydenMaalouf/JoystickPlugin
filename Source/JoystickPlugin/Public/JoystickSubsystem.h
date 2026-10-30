@@ -8,6 +8,7 @@
 #include "Data/JoystickDeviceState.h"
 #include "Data/JoystickSensorType.h"
 #include "Data/ResultMessage.h"
+#include "Data/Settings/JoystickInputDeviceAxisProperties.h"
 #include "Subsystems/EngineSubsystem.h"
 
 THIRD_PARTY_INCLUDES_START
@@ -59,10 +60,10 @@ public:
 	UFUNCTION(BlueprintPure, Category="Joystick", meta=(ToolTip="The number of connected joysticks monitored by this plugin."))
 	int GetConnectedJoystickCount() const;
 
-	UFUNCTION(BlueprintCallable, BlueprintPure=false, Category="Joystick", meta=(ToolTip="The raw input state of the specified joystick."))
+	UFUNCTION(BlueprintCallable, BlueprintPure=false, Category="Joystick", meta=(ToolTip="The axis value with the device's configured remapping applied."))
 	float GetAxisKeyValue(const FKey& Key) const;
 
-	UFUNCTION(BlueprintCallable, BlueprintPure=false, Category="Joystick", meta=(ToolTip="The raw input state of the specified joystick."))
+	UFUNCTION(BlueprintCallable, BlueprintPure=false, Category="Joystick", meta=(ToolTip="The axis value with the supplied properties applied, for previewing remapping."))
 	float GetAxisKeyMockValue(const FKey& Key, const FJoystickInputDeviceAxisProperties& AxisProperties) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure=false, Category="Joystick", meta=(ToolTip="The raw input state of the specified joystick."))

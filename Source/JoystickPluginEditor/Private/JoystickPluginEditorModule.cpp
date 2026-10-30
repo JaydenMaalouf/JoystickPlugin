@@ -233,6 +233,11 @@ void FJoystickPluginEditorModule::RegisterPropertyLayout() const
 
 void FJoystickPluginEditorModule::UnregisterSettings() const
 {
+	if (UObjectInitialized() == false)
+	{
+		return;
+	}
+
 	if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
 	{
 		SettingsModule->UnregisterSettings("Project", "Engine", SettingsSection);
@@ -241,6 +246,11 @@ void FJoystickPluginEditorModule::UnregisterSettings() const
 
 void FJoystickPluginEditorModule::UnregisterPropertyLayout() const
 {
+	if (UObjectInitialized() == false)
+	{
+		return;
+	}
+
 	if (FPropertyEditorModule* PropertyModule = FModuleManager::GetModulePtr<FPropertyEditorModule>("PropertyEditor"))
 	{
 		PropertyModule->UnregisterCustomClassLayout(UJoystickInputSettings::StaticClass()->GetFName());

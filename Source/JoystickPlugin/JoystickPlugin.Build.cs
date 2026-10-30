@@ -28,6 +28,12 @@ public class JoystickPlugin : ModuleRules
 				"UMG"
 			});
 
+		// UE4 has no Internal include directory support, so expose it publicly there.
+		if (Target.Version.MajorVersion < 5)
+		{
+			PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Internal"));
+		}
+
 		var ThirdPartyDirectory = Path.Combine(PluginDirectory, "Source", "ThirdParty");
 		var SdlDirectory = Path.Combine(ThirdPartyDirectory, "SDL3");
 		var SdlIncludeParentDirectory = Path.Combine(SdlDirectory, "include");

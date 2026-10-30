@@ -6,6 +6,7 @@
 #include "CoreMinimal.h"
 #include "Misc/Attribute.h"
 #include "InputCoreTypes.h"
+#include "Data/JoystickInstanceId.h"
 #include "Data/KeySelectorData.h"
 #include "Layout/Margin.h"
 #include "Fonts/SlateFontInfo.h"
@@ -24,7 +25,7 @@ class STextBlock;
 class JOYSTICKPLUGIN_API SJoystickInputSelector : public SCompoundWidget
 {
 public:
-	DECLARE_DELEGATE_OneParam(FOnKeySelected, const FInputChord&)
+	DECLARE_DELEGATE_TwoParams(FOnKeySelected, const FInputChord&, const FJoystickInstanceId&)
 	DECLARE_DELEGATE_OneParam(FOnIsSelectingChanged, bool)
 
 	SLATE_BEGIN_ARGS(SJoystickInputSelector)
@@ -161,7 +162,10 @@ private:
 	FReply OnClicked();
 
 	/** Sets the currently selected key and invokes the associated events. */
-	void SelectKey(const FKey& Key, bool bShiftDown, bool bControlDown, bool bAltDown, bool bCommandDown);
+	void SelectKey(const FKey& Key, bool bShiftDown, bool bControlDown, bool bAltDown, bool bCommandDown, const FInputDeviceId& InputDeviceId);
+
+	/** Returns the instance id of the joystick that produced the key, or an invalid id if it didn't come from a joystick owned by the joystick plugin. */
+	FJoystickInstanceId GetJoystickInstanceId(const FKey& Key, const FInputDeviceId& InputDeviceId) const;
 
 	/** Sets bIsSelectingKey and invokes the associated events. */
 	void SetIsSelectingKey(const bool bInIsSelectingKey);

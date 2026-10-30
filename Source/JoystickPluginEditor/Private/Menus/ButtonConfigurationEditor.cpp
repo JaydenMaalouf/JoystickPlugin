@@ -268,7 +268,7 @@ void SButtonConfigurationEditor::SaveConfiguration() const
 		return;
 	}
 
-	ProfileManager->UpdateButtonConfiguration(Key, CurrentProperties);
+	ProfileManager->UpdateButtonProfileConfiguration(Key, CurrentProperties);
 
 	if (CurrentProperties.OverrideDisplayName != bOriginalOverrideDisplayName || CurrentProperties.DisplayName != OriginalDisplayName)
 	{

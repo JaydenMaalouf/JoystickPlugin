@@ -95,7 +95,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Force Feedback")
 	bool GetEffectStatus() const;
 
-	// Whether the effect was started and hasn't been stopped since. Unlike GetEffectStatus this doesn't query the device.
+	// Whether the effect is running. Finite completion is reconciled by TickEffect; this doesn't query the device.
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Force Feedback")
 	bool IsEffectRunning() const;
 
@@ -236,6 +236,9 @@ protected:
 	float GetEvaluationTime() const;
 
 private:
+	// Clears playback state and sends the stopped event once, including natural completion.
+	void FinishEffect();
+
 	// The last frame number we were ticked.
 	// We don't want to tick multiple times per frame 
 	uint32 LastFrameNumber = INDEX_NONE;

@@ -295,11 +295,11 @@ void UJoystickInputSelector::ReleaseSlateResources(const bool bReleaseChildren)
 	JoystickInputSelector.Reset();
 }
 
-void UJoystickInputSelector::HandleKeySelected(const FInputChord& InSelectedKey)
+void UJoystickInputSelector::HandleKeySelected(const FInputChord& InSelectedKey, const FJoystickInstanceId& InInstanceId)
 {
 	SelectedKey = InSelectedKey;
 	BroadcastFieldValueChanged(FFieldNotificationClassDescriptor::SelectedKey);
-	OnKeySelected.Broadcast(SelectedKey);
+	OnKeySelected.Broadcast(SelectedKey, InInstanceId);
 }
 
 void UJoystickInputSelector::SetTextBlockVisibility(const ESlateVisibility InVisibility) const

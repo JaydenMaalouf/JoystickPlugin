@@ -98,7 +98,7 @@ bool UForceFeedbackEffectBase::InitialiseEffect()
 		return true;
 	}
 
-	if (InstanceId == -1)
+	if (!InstanceId.IsValid())
 	{
 		FJoystickLogManager::Get()->LogError(TEXT("UForceFeedbackEffectBase::InitialiseEffect: Effect InstanceId is not set"));
 		return false;
@@ -216,6 +216,16 @@ void UForceFeedbackEffectBase::StopEffect()
 
 	const bool Result = HapticDeviceManager->StopEffect(InstanceId, EffectId);
 	if (Result == false)
+	{
+		return;
+	}
+
+	FinishEffect();
+}
+
+void UForceFeedbackEffectBase::FinishEffect()
+{
+	if (!EffectRunning)
 	{
 		return;
 	}
@@ -338,8 +348,9 @@ void UForceFeedbackEffectBase::TickEffect(const float DeltaTime)
 	UpdateDebugWriteRate(DeltaTime);
 #endif
 
-	// Effect should be finished but sometimes SDL doesn't handle the status correctly.
-	if (ForceStopAfterDurationLapsed)
+	// Check after the final iteration, never during the start delay. Devices without
+	// status support return false, so duration also supplies their completion fallback.
+	if (EffectRunning)
 	{
 		const uint32 Duration = GetEffectDuration();
 		const uint32 RunIterations = GetRunIterations();
@@ -358,9 +369,16 @@ void UForceFeedbackEffectBase::TickEffect(const float DeltaTime)
 
 			// The effect waits out its delay, then runs once per iteration, so it only lapses after the last one.
 			// Both operands are 32-bit, so the duration is widened first to keep a long total from wrapping.
-			if (CurrentTime - StartTime >= GetEffectDelay() + static_cast<uint64>(Duration) * RunIterations && GetEffectStatus())
+			if (CurrentTime - StartTime >= GetEffectDelay() + static_cast<uint64>(Duration) * RunIterations)
 			{
-				StopEffect();
+				if (ForceStopAfterDurationLapsed)
+				{
+					StopEffect();
+				}
+				if (EffectRunning && !GetEffectStatus())
+				{
+					FinishEffect();
+				}
 			}
 		}
 	}

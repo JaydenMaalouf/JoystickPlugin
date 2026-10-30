@@ -40,6 +40,11 @@ struct JOYSTICKPLUGIN_API FJoystickInstanceId
 		return Value == Other.Value;
 	}
 
+	bool IsValid() const
+	{
+		return Value != -1;
+	}
+
 	friend int32 GetTypeHash(const FJoystickInstanceId& Other)
 	{
 		return GetTypeHash(Other.Value);

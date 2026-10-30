@@ -8,6 +8,7 @@
 #include "DetailWidgetRow.h"
 #include "IDetailChildrenBuilder.h"
 #include "JoystickInputSettings.h"
+#include "Managers/JoystickLogManager.h"
 #include "Managers/JoystickProfileManager.h"
 #include "Misc/MessageDialog.h"
 #include "Styling/JoystickPluginEditorStyle.h"
@@ -115,16 +116,82 @@ FReply FJoystickInputDeviceConfigurationCustomization::ConvertToProfile(const TS
 		return FReply::Handled();
 	}
 
-	UJoystickProfileManager* ProfileManager = GetMutableDefault<UJoystickProfileManager>();
-	if (!ProfileManager)
+	if (DeviceConfiguration->HasDeviceIdentifier() == false)
+	{
+		FJoystickLogManager::Get()->LogErrorWithDialog(
+			LOCTEXT("ConvertToProfileMissingIdentifier", "This device configuration has no device hash. Set one before converting it to a profile."), LOCTEXT("ConvertToProfileErrorTitle", "Convert to Joystick Profile"));
+		return FReply::Handled();
+	}
+
+	const FString ProfileFileName = ResolveProfileFileName(*DeviceConfiguration);
+	if (ProfileFileName.IsEmpty())
 	{
 		return FReply::Handled();
 	}
 
+	UJoystickProfileManager* ProfileManager = GetMutableDefault<UJoystickProfileManager>();
+	if (!IsValid(ProfileManager))
+	{
+		return FReply::Handled();
+	}
+
+	if (ProfileManager->CreateJoystickProfile(ProfileFileName, *DeviceConfiguration) == false)
+	{
+		return FReply::Handled();
+	}
+
+	UJoystickInputSettings* InputSettings = GetMutableDefault<UJoystickInputSettings>();
+	InputSettings->RemoveDeviceConfiguration(StructPropertyHandle->GetIndexInArray());
+	return FReply::Handled();
+}
+
+FString FJoystickInputDeviceConfigurationCustomization::ResolveProfileFileName(const FJoystickInputDeviceConfiguration& DeviceConfiguration) const
+{
+	UJoystickInputSettings* InputSettings = GetMutableDefault<UJoystickInputSettings>();
+	if (!IsValid(InputSettings))
+	{
+		return FString();
+	}
+
+	if (const FJoystickInputDeviceConfiguration* ExistingProfile = InputSettings->GetProfileConfiguration(DeviceConfiguration.DeviceHash))
+	{
+		const FText Message = FText::Format(LOCTEXT("OverwriteDeviceProfile", "This device already has a joystick profile: {0}\n\nOverwrite it with this configuration?"), FText::FromString(ExistingProfile->ProfileFileName));
+		return ConfirmProfileOverwrite(Message) ? ExistingProfile->ProfileFileName : FString();
+	}
+
+	const UJoystickProfileManager* ProfileManager = GetDefault<UJoystickProfileManager>();
+	if (!IsValid(ProfileManager))
+	{
+		return FString();
+	}
+
+	const FString ProfileName = PromptForProfileName(DeviceConfiguration.OverrideDeviceName ? DeviceConfiguration.DeviceName : FString());
+	if (ProfileName.IsEmpty())
+	{
+		return FString();
+	}
+
+	const FString ProfileFileName = ProfileManager->GetProfileFileName(ProfileName);
+	const FJoystickInputDeviceConfiguration* ConflictingProfile = InputSettings->GetProfileConfigurationByFileName(ProfileFileName);
+	if (ConflictingProfile == nullptr)
+	{
+		return ProfileFileName;
+	}
+
+	const FText Message = FText::Format(
+		LOCTEXT("OverwriteConflictingProfile", "A joystick profile named {0} already exists\n\nDevice: {1}\n\nOverwrite it with this configuration?"), FText::FromString(ProfileFileName), FText::FromString(ConflictingProfile->DeviceHash));
+	return ConfirmProfileOverwrite(Message) ? ProfileFileName : FString();
+}
+
+bool FJoystickInputDeviceConfigurationCustomization::ConfirmProfileOverwrite(const FText& Message) const
+{
+	return FMessageDialog::Open(EAppMsgType::YesNo, Message, LOCTEXT("OverwriteProfileTitle", "Overwrite Joystick Profile")) == EAppReturnType::Yes;
+}
+
+FString FJoystickInputDeviceConfigurationCustomization::PromptForProfileName(const FString& InitialProfileName) const
+{
 	TSharedPtr<SEditableTextBox> ProfileNameTextBox;
 	bool bAccepted = false;
-
-	const FText InitialProfileName = DeviceConfiguration->OverrideDeviceName && !DeviceConfiguration->DeviceName.IsEmpty() ? FText::FromString(DeviceConfiguration->DeviceName) : FText::GetEmpty();
 
 	const TSharedRef<SWindow> DialogWindow = SNew(SWindow)
 		.Title(LOCTEXT("CreateProfileDialogTitle", "Convert to Joystick Profile"))
@@ -186,7 +253,7 @@ FReply FJoystickInputDeviceConfigurationCustomization::ConvertToProfile(const TS
 			.AutoHeight()
 			[
 				SAssignNew(ProfileNameTextBox, SEditableTextBox)
-				.Text(InitialProfileName)
+				.Text(FText::FromString(InitialProfileName))
 				.HintText(LOCTEXT("ProfileNameHint", "Enter a profile name"))
 				.SelectAllTextWhenFocused(true)
 				.OnTextCommitted_Lambda([&bAccepted, DialogWindow, &ProfileNameTextBox](const FText&, const ETextCommit::Type CommitType)
@@ -251,28 +318,10 @@ FReply FJoystickInputDeviceConfigurationCustomization::ConvertToProfile(const TS
 
 	if (!bAccepted || !ProfileNameTextBox.IsValid())
 	{
-		return FReply::Handled();
+		return FString();
 	}
 
-	const FString ProfileName = ProfileNameTextBox->GetText().ToString().TrimStartAndEnd();
-	if (ProfileName.IsEmpty())
-	{
-		return FReply::Handled();
-	}
-
-	if (ProfileManager->CreateJoystickProfile(ProfileName, *DeviceConfiguration))
-	{
-		UJoystickInputSettings* InputSettings = GetMutableDefault<UJoystickInputSettings>();
-		InputSettings->RemoveDeviceConfiguration(StructPropertyHandle->GetIndexInArray());
-	}
-	else
-	{
-		FMessageDialog::Open(EAppMsgType::Ok,
-		                     FText::Format(LOCTEXT("CreateProfileFailedMessage", "Failed to create joystick profile \"{0}\". Check that the plugin Profiles directory is writable and try again."),
-		                                   FText::FromString(ProfileName)), LOCTEXT("CreateProfileFailedTitle", "Create Joystick Profile Failed"));
-	}
-
-	return FReply::Handled();
+	return ProfileNameTextBox->GetText().ToString().TrimStartAndEnd();
 }
 
 const FJoystickInputDeviceConfiguration* FJoystickInputDeviceConfigurationCustomization::GetDeviceConfiguration(const TSharedRef<IPropertyHandle>& StructPropertyHandle) const
