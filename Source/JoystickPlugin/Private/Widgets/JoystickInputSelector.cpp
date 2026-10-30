@@ -284,7 +284,8 @@ TSharedRef<SWidget> UJoystickInputSelector::RebuildWidget()
 		.SetDeadZone(DeadZone)
 		.EscapeKeys(EscapeKeys)
 		.OnKeySelected(BIND_UOBJECT_DELEGATE(SJoystickInputSelector::FOnKeySelected, HandleKeySelected))
-		.OnIsSelectingChanged(BIND_UOBJECT_DELEGATE(SJoystickInputSelector::FOnIsSelectingChanged, HandleIsSelectingChanged));
+		.OnIsSelectingChanged(BIND_UOBJECT_DELEGATE(SJoystickInputSelector::FOnIsSelectingChanged, HandleIsSelectingChanged))
+		.OnSelectedKeyCleared(BIND_UOBJECT_DELEGATE(SJoystickInputSelector::FOnSelectedKeyCleared, HandleSelectedKeyCleared));
 	return JoystickInputSelector.ToSharedRef();
 }
 
@@ -317,6 +318,11 @@ void UJoystickInputSelector::HandleIsSelectingChanged(const bool Selecting) cons
 	{
 		OnIsSelectingChanged.Broadcast(Selecting);
 	}
+}
+
+void UJoystickInputSelector::HandleSelectedKeyCleared() const
+{
+	OnSelectedKeyCleared.Broadcast();
 }
 
 #undef LOCTEXT_NAMESPACE

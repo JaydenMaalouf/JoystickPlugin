@@ -27,6 +27,7 @@ class JOYSTICKPLUGIN_API SJoystickInputSelector : public SCompoundWidget
 public:
 	DECLARE_DELEGATE_TwoParams(FOnKeySelected, const FInputChord&, const FJoystickInstanceId&)
 	DECLARE_DELEGATE_OneParam(FOnIsSelectingChanged, bool)
+	DECLARE_DELEGATE(FOnSelectedKeyCleared)
 
 	SLATE_BEGIN_ARGS(SJoystickInputSelector)
 			: _SelectedKey(FInputChord(EKeys::Invalid))
@@ -91,6 +92,9 @@ public:
 
 		/** Occurs whenever key selection mode starts and stops. */
 		SLATE_EVENT(FOnIsSelectingChanged, OnIsSelectingChanged)
+
+		/** Occurs whenever the selected key is cleared. */
+		SLATE_EVENT(FOnSelectedKeyCleared, OnSelectedKeyCleared)
 
 		/** Sometimes a button should only be mouse-clickable and never keyboard focusable. */
 		SLATE_ARGUMENT(bool, IsFocusable)
@@ -217,6 +221,9 @@ private:
 
 	/** Delegate which is run when key selection mode starts and stops. */
 	FOnIsSelectingChanged OnIsSelectingChanged;
+
+	/** Delegate which is run when the selected key is cleared. */
+	FOnSelectedKeyCleared OnSelectedKeyCleared;
 
 	/** The button which starts the key selection mode. */
 	TSharedPtr<SButton> Button;

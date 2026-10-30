@@ -135,7 +135,7 @@ float UJoystickSubsystem::GetAxisKeyValue(const FKey& Key) const
 		return false;
 	}
 
-	const FJoystickInstanceId InstanceId = InputDevice->GetInstanceIdByKey(Key);
+	const FJoystickInstanceId InstanceId = InputDevice->GetInstanceIdFromKey(Key);
 	const int AxisIndex = InputDevice->GetAxisIndexFromKey(Key);
 
 	FJoystickDeviceState JoystickState;
@@ -161,7 +161,7 @@ float UJoystickSubsystem::GetAxisKeyMockValue(const FKey& Key, const FJoystickIn
 		return false;
 	}
 
-	const FJoystickInstanceId InstanceId = InputDevice->GetInstanceIdByKey(Key);
+	const FJoystickInstanceId InstanceId = InputDevice->GetInstanceIdFromKey(Key);
 	const int AxisIndex = InputDevice->GetAxisIndexFromKey(Key);
 
 	FJoystickDeviceState JoystickState;
@@ -398,6 +398,18 @@ bool UJoystickSubsystem::InstanceIdFromDeviceId(const FInputDeviceId& DeviceId, 
 	}
 
 	return false;
+}
+
+bool UJoystickSubsystem::GetInstanceIdFromKey(const FKey& Key, FJoystickInstanceId& InstanceId) const
+{
+	const FJoystickInputDevice* InputDevice = GetInputDevice();
+	if (InputDevice == nullptr)
+	{
+		return false;
+	}
+
+	InstanceId = InputDevice->GetInstanceIdFromKey(Key);
+	return InstanceId.IsValid();
 }
 
 bool UJoystickSubsystem::HasRumbleDevice() const

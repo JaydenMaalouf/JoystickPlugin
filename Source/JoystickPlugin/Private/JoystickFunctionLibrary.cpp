@@ -98,13 +98,8 @@ bool UJoystickFunctionLibrary::IsJoystickKey(IN const FKey& Key)
 		return false;
 	}
 
-	const FJoystickInputDevice* InputDevice = JoystickSubsystem->GetInputDevice();
-	if (InputDevice == nullptr)
-	{
-		return false;
-	}
-
-	return InputDevice->GetInstanceIdByKey(Key).IsValid();
+	FJoystickInstanceId InstanceId;
+	return JoystickSubsystem->GetInstanceIdFromKey(Key, InstanceId);
 }
 
 bool UJoystickFunctionLibrary::IsValidInstanceId(const FJoystickInstanceId& InstanceId)

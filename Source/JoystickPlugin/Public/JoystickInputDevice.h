@@ -42,10 +42,10 @@ public:
 
 	TTuple<FJoystickDeviceState*, FInternalResultMessage> GetDeviceState(const FJoystickInstanceId& InstanceId);
 	void GetDeviceKeys(const FJoystickInstanceId& InstanceId, TArray<FKey>& Keys);
-	const FKey& GetDeviceAxisKey(const FJoystickInstanceId& InstanceId, const int AxisIndex);
-	const FKey& GetDeviceButtonKey(const FJoystickInstanceId& InstanceId, const int ButtonIndex);
-	const FKeyPair& GetDeviceHatKey(const FJoystickInstanceId& InstanceId, int HatKeyIndex);
-	FJoystickInstanceId GetInstanceIdByKey(const FKey& Key) const;
+	const FKey& GetDeviceAxisKey(const FJoystickInstanceId& InstanceId, const int AxisIndex) const;
+	const FKey& GetDeviceButtonKey(const FJoystickInstanceId& InstanceId, const int ButtonIndex) const;
+	const FKeyPair& GetDeviceHatKey(const FJoystickInstanceId& InstanceId, int HatKeyIndex) const;
+	FJoystickInstanceId GetInstanceIdFromKey(const FKey& Key) const;
 	int GetAxisIndexFromKey(const FKey& Key) const;
 	int GetButtonIndexFromKey(const FKey& Key) const;
 
@@ -69,6 +69,7 @@ private:
 
 	template <typename TKey>
 	static const TKey& FindDeviceKey(const TMap<FJoystickInstanceId, TArray<TKey>>& KeyMap, const FJoystickInstanceId& InstanceId, const int Index, const TKey& Fallback);
+	static int FindKeyIndex(const TMap<FJoystickInstanceId, TArray<FKey>>& KeyMap, const FKey& Key);
 
 	TMap<FJoystickInstanceId, FJoystickDeviceState> JoystickDeviceState;
 

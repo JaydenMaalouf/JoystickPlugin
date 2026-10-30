@@ -22,6 +22,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnKeySelected, FInputChord, Select
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnIsSelectingChanged, bool, Selecting);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSelectedKeyCleared);
+
 /** A widget for selecting a single key or a single key with a modifier. */
 UCLASS()
 class JOYSTICKPLUGIN_API UJoystickInputSelector : public UUserWidget
@@ -102,6 +104,10 @@ public:
 	/** Called whenever the key selection mode starts or stops. */
 	UPROPERTY(BlueprintAssignable, Category="Widget Event")
 	FOnIsSelectingChanged OnIsSelectingChanged;
+
+	/** Called when the selected key is cleared, either by right-clicking the widget or by setting an empty key. */
+	UPROPERTY(BlueprintAssignable, Category="Widget Event")
+	FOnSelectedKeyCleared OnSelectedKeyCleared;
 
 	/** Sets the currently selected key. */
 	UFUNCTION(BlueprintCallable, BlueprintSetter, Category="Key Selection")
@@ -200,6 +206,7 @@ protected:
 private:
 	virtual void HandleKeySelected(const FInputChord& InSelectedKey, const FJoystickInstanceId& InInstanceId);
 	void HandleIsSelectingChanged(bool Selecting) const;
+	void HandleSelectedKeyCleared() const;
 
 	/** The input key selector widget managed by this object. */
 	TSharedPtr<SJoystickInputSelector> JoystickInputSelector;

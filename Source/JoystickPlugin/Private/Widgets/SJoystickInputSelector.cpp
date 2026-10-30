@@ -21,6 +21,7 @@ void SJoystickInputSelector::Construct(const FArguments& InArgs)
 	NoKeySpecifiedText = InArgs._NoKeySpecifiedText;
 	OnKeySelected = InArgs._OnKeySelected;
 	OnIsSelectingChanged = InArgs._OnIsSelectingChanged;
+	OnSelectedKeyCleared = InArgs._OnSelectedKeyCleared;
 	InputSelectorTypes = InArgs._InputSelectorTypes;
 	KeySelectorTypes = InArgs._KeySelectorTypes;
 	bEscapeCancelsSelection = InArgs._EscapeCancelsSelection;
@@ -62,7 +63,13 @@ void SJoystickInputSelector::SetSelectedKey(const TAttribute<FInputChord>& InSel
 	if (SelectedKey.IdenticalTo(InSelectedKey) == false)
 	{
 		SelectedKey = InSelectedKey;
-		OnKeySelected.ExecuteIfBound(SelectedKey.IsSet() ? SelectedKey.Get() : FInputChord(EKeys::Invalid), FJoystickInstanceId());
+		const FInputChord NewSelectedKey = GetSelectedKey();
+		OnKeySelected.ExecuteIfBound(NewSelectedKey, FJoystickInstanceId());
+
+		if (!NewSelectedKey.Key.IsValid())
+		{
+			OnSelectedKeyCleared.ExecuteIfBound();
+		}
 	}
 }
 

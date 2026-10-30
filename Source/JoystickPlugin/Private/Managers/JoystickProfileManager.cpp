@@ -366,13 +366,12 @@ bool UJoystickProfileManager::GetDeviceInfoByKey(const FKey& Key, FJoystickInfor
 		return false;
 	}
 
-	const FJoystickInputDevice* InputDevice = JoystickSubsystem->GetInputDevice();
-	if (InputDevice == nullptr)
+	FJoystickInstanceId InstanceId;
+	if (!JoystickSubsystem->GetInstanceIdFromKey(Key, InstanceId))
 	{
 		return false;
 	}
 
-	const FJoystickInstanceId& InstanceId = InputDevice->GetInstanceIdByKey(Key);
 	return JoystickSubsystem->GetJoystickInfo(InstanceId, OutJoystickInformation);
 }
 

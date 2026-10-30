@@ -102,6 +102,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Joystick")
 	bool InstanceIdFromDeviceId(const FInputDeviceId& DeviceId, FJoystickInstanceId& InstanceId) const;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure=false, Category="Joystick")
+	bool GetInstanceIdFromKey(const FKey& Key, FJoystickInstanceId& InstanceId) const;
+
 	UFUNCTION(BlueprintCallable, Category="Joystick")
 	bool HasRumbleDevice() const;
 
