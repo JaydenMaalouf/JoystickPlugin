@@ -25,7 +25,7 @@ jobs:
             runner: macos-14
             includeHeaders: false
           - platform: Linux
-            runner: ubuntu-latest
+            runner: ubuntu-24.04
             includeHeaders: false
     steps:
       - name: Checkout
@@ -37,6 +37,17 @@ jobs:
           sdlVersion: '3.4.8'
           outputDirectory: ${{ runner.temp }}/sdl3-${{ matrix.platform }}
           includeHeaders: ${{ matrix.includeHeaders }}
+      - name: Sign SDL3 for Mac
+        if: matrix.platform == 'Mac'
+        uses: ./.github/actions/sign-mac
+        with:
+          binary: ${{ runner.temp }}/sdl3-Mac/Source/ThirdParty/SDL3/Mac/libJoystickSDL3.0.dylib
+          required: true
+          certificate: ${{ secrets.MAC_CERTIFICATE_P12_BASE64 }}
+          certificatePassword: ${{ secrets.MAC_CERTIFICATE_PASSWORD }}
+          notaryKey: ${{ secrets.MAC_NOTARY_KEY_P8_BASE64 }}
+          notaryKeyId: ${{ secrets.MAC_NOTARY_KEY_ID }}
+          notaryIssuerId: ${{ secrets.MAC_NOTARY_ISSUER_ID }}
       - name: Upload SDL3 artifact
         uses: actions/upload-artifact@v7
         with:
