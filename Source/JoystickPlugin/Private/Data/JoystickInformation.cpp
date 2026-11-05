@@ -9,9 +9,30 @@ FJoystickInformation::FJoystickInformation() : Type(EJoystickType::Unknown)
                                                , ProductVersion(0)
                                                , VendorId(0)
                                                , IsGamepad(false)
+                                               , GamepadType(EJoystickGamepadType::Unknown)
                                                , Connection(EJoystickConnectionType::Unknown)
                                                , CollectionIndex(INDEX_NONE)
 {
+}
+
+bool FJoystickInformation::IsEngineHandledGamepad() const
+{
+	if (IsGamepad == false)
+	{
+		return false;
+	}
+
+	// Unknown is kept rather than excluded: a pad whose HID descriptor SDL cannot read still reports
+	// its family below, and a device that is positively something else is what this rules out.
+	if (Type != EJoystickType::Unknown && Type != EJoystickType::Gamepad)
+	{
+		return false;
+	}
+
+	// The last question, and the only one a mapping cannot answer for the device: Standard is what
+	// SDL falls back to for every mapped device whose ids it does not recognise, so a pad family here
+	// is positive identification rather than the absence of one.
+	return GamepadType != EJoystickGamepadType::Unknown && GamepadType != EJoystickGamepadType::Standard;
 }
 
 bool FJoystickInformation::IsCollectionSiblingOf(const FJoystickInformation& Other) const

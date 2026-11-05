@@ -1,4 +1,4 @@
-// JoystickPlugin is licensed under the MIT License.
+﻿// JoystickPlugin is licensed under the MIT License.
 // Copyright Jayden Maalouf 2026. All Rights Reserved.
 
 #include "Commands/JoystickDebugCommands.h"
@@ -189,6 +189,10 @@ void FJoystickDebugCommands::ListDevice(const FJoystickInformation& Info, const 
 {
 	Ar.Logf(TEXT("[%d] %s (%s)"), Info.InstanceId.Value, *Info.GetDeviceDisplayName(), IsConnected ? TEXT("Connected") : TEXT("Disconnected"));
 	Ar.Logf(TEXT("    Type %s   Connection %s   Gamepad %s"), *FormatEnum(Info.Type), *FormatEnum(Info.Connection), *FormatYesNo(Info.IsGamepad));
+	// Gamepad and Type above both come from the device's mapping; this one comes from its ids, and is
+	// what decides whether IgnoreGamepads leaves the device to the engine. Printed next to them
+	// because the three disagreeing is the whole diagnosis for a stick the plugin dropped.
+	Ar.Logf(TEXT("    Family %s   Engine handled %s"), *FormatEnum(Info.GamepadType), *FormatYesNo(Info.IsEngineHandledGamepad()));
 	Ar.Logf(TEXT("    Vendor 0x%04X   Product 0x%04X   Version 0x%04X   Firmware 0x%04X"), Info.VendorId, Info.ProductId, Info.ProductVersion, Info.FirmwareVersion);
 	Ar.Logf(TEXT("    GUID %s   Hash %s"), *Info.ProductGuid.ToString(), *Info.DeviceHash);
 	Ar.Logf(TEXT("    Profile %s"), *FormatProfile(Info));
