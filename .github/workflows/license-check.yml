@@ -7,17 +7,15 @@ on:
       - synchronize
       - reopened
     paths:
-      - "**/*.h"
-      - "**/*.cpp"
+      - '**/*.h'
+      - '**/*.cpp'
 
 jobs:
   check-license-headers:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
 
       - name: Verify license headers
         shell: pwsh
