@@ -5,6 +5,7 @@
 
 #include "CoreMinimal.h"
 #include "HAL/IConsoleManager.h"
+#include "UObject/ReflectedTypeAccessors.h"
 
 class FOutputDevice;
 class UJoystickForceFeedbackComponent;
