@@ -6,6 +6,16 @@ on:
     paths:
       - '.github/actions/build-sdl/**'
       - '.github/workflows/build-sdl.yml'
+  workflow_call:
+    inputs:
+      signingRequired:
+        description: 'Fail instead of skipping Mac signing when no certificate is provided.'
+        type: boolean
+        default: false
+      retentionDays:
+        description: 'Days to keep the SDL3 artifacts. 0 uses the repository default.'
+        type: number
+        default: 0
 
 jobs:
   build-sdl:
@@ -19,10 +29,10 @@ jobs:
             runner: windows-latest
             includeHeaders: true
           - platform: Mac
-            runner: macos-14
+            runner: macos-latest
             includeHeaders: false
           - platform: Linux
-            runner: ubuntu-24.04
+            runner: ubuntu-latest
             includeHeaders: false
     steps:
       - name: Checkout
@@ -39,6 +49,7 @@ jobs:
         uses: ./.github/actions/sign-mac
         with:
           binary: ${{ runner.temp }}/sdl3-Mac/Source/ThirdParty/SDL3/Mac/libJoystickSDL3.0.dylib
+          required: ${{ inputs.signingRequired || false }}
           certificate: ${{ secrets.MAC_CERTIFICATE_P12_BASE64 }}
           certificatePassword: ${{ secrets.MAC_CERTIFICATE_PASSWORD }}
           notaryKey: ${{ secrets.MAC_NOTARY_KEY_P8_BASE64 }}
@@ -50,3 +61,4 @@ jobs:
           name: sdl3-${{ matrix.platform }}
           path: ${{ runner.temp }}/sdl3-${{ matrix.platform }}/Source/ThirdParty/SDL3
           if-no-files-found: error
+          retention-days: ${{ inputs.retentionDays || 0 }}
