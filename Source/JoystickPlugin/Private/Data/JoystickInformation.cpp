@@ -22,16 +22,13 @@ bool FJoystickInformation::IsEngineHandledGamepad() const
 		return false;
 	}
 
-	// Unknown is kept rather than excluded: a pad whose HID descriptor SDL cannot read still reports
-	// its family below, and a device that is positively something else is what this rules out.
 	if (Type != EJoystickType::Unknown && Type != EJoystickType::Gamepad)
 	{
 		return false;
 	}
 
-	// The last question, and the only one a mapping cannot answer for the device: Standard is what
-	// SDL falls back to for every mapped device whose ids it does not recognise, so a pad family here
-	// is positive identification rather than the absence of one.
+	// SDL classifies unidentified gamepad models as Standard.
+	// Only explicitly identified gamepad families are considered engine-handled.
 	return GamepadType != EJoystickGamepadType::Unknown && GamepadType != EJoystickGamepadType::Standard;
 }
 

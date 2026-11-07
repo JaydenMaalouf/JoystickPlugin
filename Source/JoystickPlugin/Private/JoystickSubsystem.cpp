@@ -275,8 +275,6 @@ void UJoystickSubsystem::SetIgnoreGamepads(const bool IgnoreGamepads)
 	{
 		for (TPair<FJoystickInstanceId, FDeviceInfoSDL>& Device : Devices)
 		{
-			// The same test the add path uses, or a runtime toggle drops devices startup would have
-			// kept and the two disagree about what a gamepad is.
 			if (Device.Value.IsEngineHandledGamepad() == false)
 			{
 				continue;
@@ -960,7 +958,6 @@ bool UJoystickSubsystem::AddDevice(FDeviceInfoSDL& Device)
 
 	return true;
 }
-
 
 void UJoystickSubsystem::AddHapticDevice(FDeviceInfoSDL& Device) const
 {

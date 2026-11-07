@@ -25,23 +25,8 @@ struct JOYSTICKPLUGIN_API FJoystickInformation
 
 	bool IsCollectionSiblingOf(const FJoystickInformation& Other) const;
 
-	/**
-	 * Whether this device is a gamepad the engine will handle itself, which is what IgnoreGamepads
-	 * asks about.
-	 *
-	 * NOT IsGamepad, which only says SDL has a mapping for the device. SDL ships mappings for a great
-	 * deal of hardware that is not a pad, and a mapping with no `type:` hint also makes
-	 * SDL_GetJoystickTypeForID answer Gamepad - so both of those fields report a mapped flight stick
-	 * or throttle as a pad, and ignoring it hands a device the engine has no joystick support for to
-	 * the engine. It then works nowhere.
-	 *
-	 * Three questions, and a pad answers all three:
-	 *  - it has a mapping at all;
-	 *  - its joystick type is not something that is explicitly NOT a pad (a flight stick, a throttle,
-	 *    a wheel, an arcade stick, a dance pad, a guitar, a drum kit);
-	 *  - SDL recognises its vendor and product ids as a console pad family, rather than falling back
-	 *    to Standard the way it does for every mapped device it does not know.
-	 */
+	// Whether the engine will handle this device itself, which is what IgnoreGamepads asks about.
+	// Narrower than IsGamepad, which is true for anything SDL has a mapping for, flight sticks included
 	bool IsEngineHandledGamepad() const;
 
 	void UpdateCollectionFromPath();
@@ -86,15 +71,7 @@ struct JOYSTICKPLUGIN_API FJoystickInformation
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
 	bool IsGamepad;
 
-	/**
-	 * The gamepad family SDL recognises this device as from its vendor and product ids, ignoring any
-	 * mapping it carries (SDL_GetRealGamepadTypeForID).
-	 *
-	 * Distinct from Type and IsGamepad, which both read off the mapping: a device with a mapping and
-	 * no type hint in it reports IsGamepad true AND Type Gamepad however little it resembles a pad.
-	 * This is the field that still tells them apart - Standard for anything SDL does not recognise as
-	 * a console pad.
-	 */
+	// Read from the device's ids rather than its mapping, unlike Type and IsGamepad
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
 	EJoystickGamepadType GamepadType;
 
