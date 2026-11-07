@@ -175,26 +175,6 @@ private:
 
 	bool BuildDeviceInfoForInstanceId(FJoystickInstanceId InstanceId, FDeviceInfoSDL& Device) const;
 
-	/**
-	 * Reports, once per session, that the platform will stop pairing newly connected devices to the
-	 * primary user - after which a device that connects produces nothing and says nothing.
-	 *
-	 * WHY A JOYSTICK PLUGIN IS THE ONE TO SAY THIS. Every device here is mapped to the primary user,
-	 * which is what a cockpit wants: one player, a stick, a throttle, pedals. The desktop default
-	 * device mapping policy, PrimaryUserSharesKeyboardAndFirstGamepad, pairs a NEWLY connected device
-	 * to the primary user only while that user owns one device or fewer
-	 * (IPlatformInputDeviceMapper::GetPlatformUserForNewlyConnectedDevice). A second joystick
-	 * therefore takes the last pairing slot, and the next device to arrive - a gamepad the engine
-	 * handles, another stick, a wheel - is given a platform user of its own. A platform user with no
-	 * local player has nothing to route input to, and Slate drops its events without a word:
-	 * FSlateApplication::OnControllerButtonPressed takes the Slate user index from the event's device
-	 * and returns silently when there is none.
-	 *
-	 * The failure looks exactly like a broken device: enumerated, listed, connected, and completely
-	 * inert. Nothing else in the engine mentions it.
-	 */
-	void WarnIfNewDevicesWillBeOrphaned();
-
 	TMap<FJoystickInstanceId, FDeviceInfoSDL> Devices;
 
 	TArray<FDeviceInfoSDL> PendingDevices;
@@ -205,10 +185,6 @@ private:
 
 	bool OwnsSDL;
 	bool bIsInitialised;
-
-	/** Whether WarnIfNewDevicesWillBeOrphaned has already spoken. Once is enough: the condition is a
-	 *  project setting, and it does not change while the application runs. */
-	bool bWarnedAboutDevicePairing;
 
 	static FString GamepadMappingFile;
 	static FString AxisPropertiesSection;

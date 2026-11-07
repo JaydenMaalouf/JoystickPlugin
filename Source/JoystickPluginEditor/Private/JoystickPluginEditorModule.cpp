@@ -47,6 +47,10 @@ void FJoystickPluginEditorModule::StartupModule()
 	RegisterSettings();
 	RegisterPropertyLayout();
 
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
+	DevicePairingNotifier.Register();
+#endif
+
 	FGlobalTabmanager::Get()
 		->RegisterNomadTabSpawner(
 			JoystickViewerTabId,
@@ -96,6 +100,10 @@ void FJoystickPluginEditorModule::StartupModule()
 
 void FJoystickPluginEditorModule::ShutdownModule()
 {
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1
+	DevicePairingNotifier.Unregister();
+#endif
+
 	FGlobalTabmanager::Get()->UnregisterTabSpawner(JoystickViewerTabId);
 	FGlobalTabmanager::Get()->UnregisterTabSpawner(HapticEffectEditorTabId);
 

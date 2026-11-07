@@ -7,8 +7,6 @@
 #include "Data/DeviceInfoSDL.h"
 #include "Data/JoystickSensorType.h"
 #include "Data/PlatformTypes.h"
-#include "GenericPlatform/InputDeviceMappingPolicy.h"
-#include "HAL/PlatformProperties.h"
 #include "HAL/FileManager.h"
 #include "JoystickFunctionLibrary.h"
 #include "JoystickInputDevice.h"
@@ -31,7 +29,6 @@ THIRD_PARTY_INCLUDES_END
 UJoystickSubsystem::UJoystickSubsystem()
 	: OwnsSDL(false)
 	  , bIsInitialised(false)
-	  , bWarnedAboutDevicePairing(false)
 {
 }
 
@@ -959,65 +956,7 @@ bool UJoystickSubsystem::AddDevice(FDeviceInfoSDL& Device)
 	Devices.Emplace(Device.InstanceId, Device);
 	JoystickPluggedIn(Device);
 
-	// After the device is mapped, not before: JoystickPluggedIn is what hands it to the platform's
-	// device mapper, and the check counts what the primary user actually owns.
-	WarnIfNewDevicesWillBeOrphaned();
-
 	return true;
-}
-
-void UJoystickSubsystem::WarnIfNewDevicesWillBeOrphaned()
-{
-	if (bWarnedAboutDevicePairing)
-	{
-		return;
-	}
-
-	// Read the way the engine reads it. The policy lives under a platform-named section of the Input
-	// ini hierarchy, and the engine's own accessor for it is static to its translation unit, so there
-	// is nothing to call - only the same key to look up. The fallback matches the engine's desktop
-	// fallback for a project that sets none.
-	const FString SettingsSection = FString::Printf(TEXT("InputPlatformSettings_%s InputPlatformSettings"),
-		ANSI_TO_TCHAR(FPlatformProperties::IniPlatformName()));
-
-	int32 PolicyValue = static_cast<int32>(EInputDeviceMappingPolicy::PrimaryUserSharesKeyboardAndFirstGamepad);
-	GConfig->GetInt(*SettingsSection, TEXT("input.DeviceMappingPolicy"), PolicyValue, GInputIni);
-
-	// Only this policy has the pairing cliff. MapAllDevicesToPrimaryUser never stops pairing, and
-	// CreateUniquePlatformUserForEachDevice never starts - a project choosing either meant it.
-	if (static_cast<EInputDeviceMappingPolicy>(PolicyValue) != EInputDeviceMappingPolicy::PrimaryUserSharesKeyboardAndFirstGamepad)
-	{
-		return;
-	}
-
-	IPlatformInputDeviceMapper& DeviceMapper = IPlatformInputDeviceMapper::Get();
-	const FPlatformUserId PrimaryUser = DeviceMapper.GetPrimaryPlatformUser();
-
-	TArray<FInputDeviceId> PrimaryUserDevices;
-	DeviceMapper.GetAllInputDevicesForUser(PrimaryUser, PrimaryUserDevices);
-
-	// One or fewer is the engine's own threshold for pairing the next device to this user; at two the
-	// next one is already going elsewhere.
-	if (PrimaryUserDevices.Num() <= 1)
-	{
-		return;
-	}
-
-	bWarnedAboutDevicePairing = true;
-
-	// UE_LOG directly rather than through FJoystickLogManager, which answers nothing unless the
-	// plugin's EnableLogs setting is on. A configuration that makes the next controller plugged in
-	// silently inert has to be reported whether or not someone turned debug logging on first.
-	UE_LOG(LogJoystickPlugin, Warning,
-		TEXT("Platform user %d now owns %d input devices, and the device mapping policy is ")
-		TEXT("PrimaryUserSharesKeyboardAndFirstGamepad, which pairs a newly connected device to the ")
-		TEXT("primary user only while that user owns one or fewer. Every device connecting from here ")
-		TEXT("on gets a platform user of its own, and a platform user with no local player has ")
-		TEXT("nothing to route input to - its input is dropped with nothing logged, so the device ")
-		TEXT("looks broken rather than unpaired. Set 'input.DeviceMappingPolicy=3' ")
-		TEXT("(MapAllDevicesToPrimaryUser) under [%s] in an Input ini to keep every device on the ")
-		TEXT("primary user."),
-		PrimaryUser.GetInternalId(), PrimaryUserDevices.Num(), *SettingsSection);
 }
 
 void UJoystickSubsystem::AddHapticDevice(FDeviceInfoSDL& Device) const

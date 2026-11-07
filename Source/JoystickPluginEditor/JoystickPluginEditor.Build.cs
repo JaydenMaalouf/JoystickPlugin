@@ -21,6 +21,7 @@ public class JoystickPluginEditor : ModuleRules
 
 		PrivateDependencyModuleNames.AddRange(new[]
 		{
+			"ApplicationCore",
 			"UnrealEd",
 			"ToolMenus",
 			"LevelEditor",
