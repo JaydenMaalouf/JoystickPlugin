@@ -275,7 +275,7 @@ void UJoystickSubsystem::SetIgnoreGamepads(const bool IgnoreGamepads)
 	{
 		for (TPair<FJoystickInstanceId, FDeviceInfoSDL>& Device : Devices)
 		{
-			if (SDL_IsGamepad(Device.Key) == false)
+			if (Device.Value.IsEngineHandledGamepad() == false)
 			{
 				continue;
 			}
@@ -288,7 +288,7 @@ void UJoystickSubsystem::SetIgnoreGamepads(const bool IgnoreGamepads)
 		TArray<FDeviceInfoSDL> GamepadDevices;
 		for (const TPair<FJoystickInstanceId, FDeviceInfoSDL>& Device : Devices)
 		{
-			if (SDL_IsGamepad(Device.Key))
+			if (Device.Value.IsEngineHandledGamepad())
 			{
 				GamepadDevices.Add(Device.Value);
 			}
@@ -820,7 +820,7 @@ bool UJoystickSubsystem::AddDevice(FDeviceInfoSDL& Device)
 		return false;
 	}
 
-	if (Device.IsGamepad && JoystickInputSettings->GetIgnoreGamepads())
+	if (Device.IsEngineHandledGamepad() && JoystickInputSettings->GetIgnoreGamepads())
 	{
 		// Let UE handle it
 		return false;
@@ -1217,6 +1217,7 @@ bool UJoystickSubsystem::BuildDeviceInfoForInstanceId(const FJoystickInstanceId 
 	Device.ProductId = SDL_GetJoystickProductForID(InstanceId);
 	Device.ProductVersion = SDL_GetJoystickProductVersionForID(InstanceId);
 	Device.Type = static_cast<EJoystickType>(SDL_GetJoystickTypeForID(InstanceId));
+	Device.GamepadType = static_cast<EJoystickGamepadType>(SDL_GetRealGamepadTypeForID(InstanceId));
 	Device.DeviceName = UJoystickFunctionLibrary::SafelyStringify(SDL_GetJoystickNameForID(InstanceId));
 	Device.SafeDeviceName = UJoystickFunctionLibrary::SanitiseDeviceName(Device.DeviceName);
 

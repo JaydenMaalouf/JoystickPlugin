@@ -8,6 +8,7 @@
 #include "JoystickPowerInformation.h"
 #include "JoystickRumbleInformation.h"
 #include "Data/JoystickInstanceId.h"
+#include "Data/JoystickGamepadType.h"
 #include "Data/JoystickType.h"
 #include "Data/JoystickHapticInformation.h"
 #include "Data/JoystickHapticRumbleInformation.h"
@@ -23,6 +24,10 @@ struct JOYSTICKPLUGIN_API FJoystickInformation
 	FJoystickInformation();
 
 	bool IsCollectionSiblingOf(const FJoystickInformation& Other) const;
+
+	// Whether the engine will handle this device itself, which is what IgnoreGamepads asks about.
+	// Narrower than IsGamepad, which is true for anything SDL has a mapping for, flight sticks included
+	bool IsEngineHandledGamepad() const;
 
 	void UpdateCollectionFromPath();
 	void UpdateDeviceHash();
@@ -65,6 +70,10 @@ struct JOYSTICKPLUGIN_API FJoystickInformation
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
 	bool IsGamepad;
+
+	// Read from the device's ids rather than its mapping, unlike Type and IsGamepad
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
+	EJoystickGamepadType GamepadType;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Device Config")
 	EJoystickConnectionType Connection;

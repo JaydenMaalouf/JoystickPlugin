@@ -189,6 +189,7 @@ void FJoystickDebugCommands::ListDevice(const FJoystickInformation& Info, const 
 {
 	Ar.Logf(TEXT("[%d] %s (%s)"), Info.InstanceId.Value, *Info.GetDeviceDisplayName(), IsConnected ? TEXT("Connected") : TEXT("Disconnected"));
 	Ar.Logf(TEXT("    Type %s   Connection %s   Gamepad %s"), *FormatEnum(Info.Type), *FormatEnum(Info.Connection), *FormatYesNo(Info.IsGamepad));
+	Ar.Logf(TEXT("    Family %s   Engine handled %s"), *FormatEnum(Info.GamepadType), *FormatYesNo(Info.IsEngineHandledGamepad()));
 	Ar.Logf(TEXT("    Vendor 0x%04X   Product 0x%04X   Version 0x%04X   Firmware 0x%04X"), Info.VendorId, Info.ProductId, Info.ProductVersion, Info.FirmwareVersion);
 	Ar.Logf(TEXT("    GUID %s   Hash %s"), *Info.ProductGuid.ToString(), *Info.DeviceHash);
 	Ar.Logf(TEXT("    Profile %s"), *FormatProfile(Info));

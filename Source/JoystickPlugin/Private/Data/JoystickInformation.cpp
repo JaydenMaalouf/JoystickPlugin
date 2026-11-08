@@ -9,9 +9,27 @@ FJoystickInformation::FJoystickInformation() : Type(EJoystickType::Unknown)
                                                , ProductVersion(0)
                                                , VendorId(0)
                                                , IsGamepad(false)
+                                               , GamepadType(EJoystickGamepadType::Unknown)
                                                , Connection(EJoystickConnectionType::Unknown)
                                                , CollectionIndex(INDEX_NONE)
 {
+}
+
+bool FJoystickInformation::IsEngineHandledGamepad() const
+{
+	if (IsGamepad == false)
+	{
+		return false;
+	}
+
+	if (Type != EJoystickType::Unknown && Type != EJoystickType::Gamepad)
+	{
+		return false;
+	}
+
+	// SDL classifies unidentified gamepad models as Standard.
+	// Only explicitly identified gamepad families are considered engine-handled.
+	return GamepadType != EJoystickGamepadType::Unknown && GamepadType != EJoystickGamepadType::Standard;
 }
 
 bool FJoystickInformation::IsCollectionSiblingOf(const FJoystickInformation& Other) const
