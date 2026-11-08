@@ -5,21 +5,19 @@
 
 #include "JoystickGamepadType.generated.h"
 
-// Mirrors SDL_GamepadType, resolved from the device's vendor and product ids rather than from its
-// mapping (SDL_GetRealGamepadTypeForID)
-UENUM(BlueprintType)
+UENUM(BlueprintType, meta=(Bitflags))
 enum class EJoystickGamepadType : uint8
 {
 	Unknown = 0,
-	Standard,
+	Standard UMETA(ToolTip="All other gamepad types"),
 	Xbox360,
 	XboxOne,
-	PlayStation3,
-	PlayStation4,
-	PlayStation5,
+	PlayStation3 UMETA(DisplayName="PlayStation 3"),
+	PlayStation4 UMETA(DisplayName="PlayStation 4"),
+	PlayStation5 UMETA(DisplayName="PlayStation 5"),
 	NintendoSwitchPro,
-	NintendoSwitchJoyConLeft,
-	NintendoSwitchJoyConRight,
-	NintendoSwitchJoyConPair,
-	GameCube
+	NintendoSwitchJoyConLeft UMETA(DisplayName="Nintendo Switch Joy-Con Left"),
+	NintendoSwitchJoyConRight UMETA(DisplayName="Nintendo Switch Joy-Con Right"),
+	NintendoSwitchJoyConPair UMETA(DisplayName="Nintendo Switch Joy-Con Pair"),
+	GameCube UMETA(DisplayName="GameCube")
 };

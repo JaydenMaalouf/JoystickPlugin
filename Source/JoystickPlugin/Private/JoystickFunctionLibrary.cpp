@@ -74,6 +74,11 @@ EHatDirection UJoystickFunctionLibrary::HatValueToDirection(const int8 Value)
 	}
 }
 
+int32 UJoystickFunctionLibrary::GetGamepadTypeFlag(const EJoystickGamepadType GamepadType)
+{
+	return 1 << static_cast<int32>(GamepadType);
+}
+
 FString UJoystickFunctionLibrary::HatDirectionAsString(EHatDirection Value)
 {
 	static const UEnum* EnumPtr = StaticEnum<EHatDirection>();

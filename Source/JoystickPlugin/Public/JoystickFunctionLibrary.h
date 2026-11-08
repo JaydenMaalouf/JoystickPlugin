@@ -6,6 +6,7 @@
 #include "InputCoreTypes.h"
 #include "Data/JoystickInstanceId.h"
 #include "Data/Input/HatDirection.h"
+#include "Data/JoystickGamepadType.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 
 #include "JoystickFunctionLibrary.generated.h"
@@ -24,6 +25,8 @@ public:
 	static float NormalizeAxisRaw(const int16 Value);
 
 	static EHatDirection HatValueToDirection(const int8 Value);
+
+	static int32 GetGamepadTypeFlag(const EJoystickGamepadType GamepadType);
 
 	UFUNCTION(BlueprintPure, Category="Joystick|Hat")
 	static FString HatDirectionAsString(EHatDirection Value);

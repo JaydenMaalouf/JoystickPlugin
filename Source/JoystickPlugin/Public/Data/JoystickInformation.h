@@ -25,10 +25,6 @@ struct JOYSTICKPLUGIN_API FJoystickInformation
 
 	bool IsCollectionSiblingOf(const FJoystickInformation& Other) const;
 
-	// Whether the engine will handle this device itself, which is what IgnoreGamepads asks about.
-	// Narrower than IsGamepad, which is true for anything SDL has a mapping for, flight sticks included
-	bool IsEngineHandledGamepad() const;
-
 	void UpdateCollectionFromPath();
 	void UpdateDeviceHash();
 

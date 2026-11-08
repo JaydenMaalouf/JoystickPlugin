@@ -275,7 +275,7 @@ void UJoystickSubsystem::SetIgnoreGamepads(const bool IgnoreGamepads)
 	{
 		for (TPair<FJoystickInstanceId, FDeviceInfoSDL>& Device : Devices)
 		{
-			if (Device.Value.IsEngineHandledGamepad() == false)
+			if (JoystickInputSettings->IsIgnoredGamepadType(Device.Value) == false)
 			{
 				continue;
 			}
@@ -288,7 +288,7 @@ void UJoystickSubsystem::SetIgnoreGamepads(const bool IgnoreGamepads)
 		TArray<FDeviceInfoSDL> GamepadDevices;
 		for (const TPair<FJoystickInstanceId, FDeviceInfoSDL>& Device : Devices)
 		{
-			if (Device.Value.IsEngineHandledGamepad())
+			if (JoystickInputSettings->IsIgnoredGamepadType(Device.Value))
 			{
 				GamepadDevices.Add(Device.Value);
 			}
@@ -820,7 +820,7 @@ bool UJoystickSubsystem::AddDevice(FDeviceInfoSDL& Device)
 		return false;
 	}
 
-	if (Device.IsEngineHandledGamepad() && JoystickInputSettings->GetIgnoreGamepads())
+	if (JoystickInputSettings->ShouldIgnoreGamepad(Device))
 	{
 		// Let UE handle it
 		return false;

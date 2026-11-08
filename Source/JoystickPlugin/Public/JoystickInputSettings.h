@@ -31,6 +31,10 @@ public:
 	UPROPERTY(Config, EditAnywhere, Category="Joystick Settings", meta=(ToolTip="Useful if you want input for controllers (ie. XInput) to be handled by UE directly, instead of via this plugin.", ConfigRestartRequired=true))
 	bool IgnoreGamepads;
 
+	UPROPERTY(Config, EditAnywhere, Category="Joystick Settings",
+		meta=(Bitmask, BitmaskEnum="/Script/JoystickPlugin.EJoystickGamepadType", ToolTip="The gamepad types to leave to UE when Ignore Gamepads is enabled.", EditCondition="IgnoreGamepads", ConfigRestartRequired=true))
+	int32 IgnoredGamepadTypes;
+
 	UPROPERTY(Config, EditAnywhere, Category="Joystick Settings|Advanced", meta=(ToolTip="If false, will not add a Joystick if a mapped device with the same hash exists.", ConfigRestartRequired=true))
 	bool AllowDuplicateHashedDevices;
 
@@ -102,6 +106,8 @@ public:
 
 	bool GetIgnoreGamepads() const;
 	bool SetIgnoreGamepads(const bool bIgnoreGamepads);
+	bool IsIgnoredGamepadType(const FJoystickInformation& Device) const;
+	bool ShouldIgnoreGamepad(const FJoystickInformation& Device) const;
 
 	FJoystickInputDeviceConfiguration* GetDeviceConfiguration(const FString& DeviceHash);
 	FJoystickInputDeviceConfiguration* GetProfileConfiguration(const FString& DeviceHash);

@@ -9,6 +9,7 @@
 #include "ForceFeedback/JoystickForceFeedbackComponent.h"
 #include "ForceFeedback/Data/ForceFeedbackEffectGroup.h"
 #include "GameFramework/PlayerController.h"
+#include "JoystickInputSettings.h"
 #include "JoystickSubsystem.h"
 #include "Managers/JoystickHapticDeviceManager.h"
 #include "Managers/JoystickProfileManager.h"
@@ -189,7 +190,7 @@ void FJoystickDebugCommands::ListDevice(const FJoystickInformation& Info, const 
 {
 	Ar.Logf(TEXT("[%d] %s (%s)"), Info.InstanceId.Value, *Info.GetDeviceDisplayName(), IsConnected ? TEXT("Connected") : TEXT("Disconnected"));
 	Ar.Logf(TEXT("    Type %s   Connection %s   Gamepad %s"), *FormatEnum(Info.Type), *FormatEnum(Info.Connection), *FormatYesNo(Info.IsGamepad));
-	Ar.Logf(TEXT("    Family %s   Engine handled %s"), *FormatEnum(Info.GamepadType), *FormatYesNo(Info.IsEngineHandledGamepad()));
+	Ar.Logf(TEXT("    Family %s   Type ignored %s"), *FormatEnum(Info.GamepadType), *FormatYesNo(GetDefault<UJoystickInputSettings>()->IsIgnoredGamepadType(Info)));
 	Ar.Logf(TEXT("    Vendor 0x%04X   Product 0x%04X   Version 0x%04X   Firmware 0x%04X"), Info.VendorId, Info.ProductId, Info.ProductVersion, Info.FirmwareVersion);
 	Ar.Logf(TEXT("    GUID %s   Hash %s"), *Info.ProductGuid.ToString(), *Info.DeviceHash);
 	Ar.Logf(TEXT("    Profile %s"), *FormatProfile(Info));
