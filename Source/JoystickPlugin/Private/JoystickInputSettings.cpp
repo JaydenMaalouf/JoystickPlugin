@@ -7,6 +7,7 @@
 #include "Data/JoystickInstanceId.h"
 #include "Data/Settings/JoystickInputDeviceConfiguration.h"
 #include "Engine/Engine.h"
+#include "JoystickFunctionLibrary.h"
 #include "Managers/JoystickLogManager.h"
 #include "Managers/JoystickProfileManager.h"
 #include "JoystickSubsystem.h"
@@ -28,6 +29,7 @@ UJoystickInputSettings::UJoystickInputSettings() : UseDeviceName(true),
                                                    EnablePairedKeys(false)
 {
 	MapHatAxisToKeys = static_cast<int32>(EHatDirection::Up | EHatDirection::Down | EHatDirection::Left | EHatDirection::Right);
+	IgnoredGamepadTypes = (UJoystickFunctionLibrary::GetGamepadTypeFlag(EJoystickGamepadType::GameCube) << 1) - UJoystickFunctionLibrary::GetGamepadTypeFlag(EJoystickGamepadType::Xbox360);
 
 #if WITH_EDITOR
 	DebugAxis = false;
@@ -75,6 +77,26 @@ bool UJoystickInputSettings::SetIgnoreGamepads(const bool bIgnoreGamepads)
 	const bool Changed = IgnoreGamepads != bIgnoreGamepads;
 	IgnoreGamepads = bIgnoreGamepads;
 	return Changed;
+}
+
+bool UJoystickInputSettings::IsIgnoredGamepadType(const FJoystickInformation& Device) const
+{
+	if (Device.IsGamepad == false)
+	{
+		return false;
+	}
+
+	if (Device.Type != EJoystickType::Unknown && Device.Type != EJoystickType::Gamepad)
+	{
+		return false;
+	}
+
+	return (IgnoredGamepadTypes & UJoystickFunctionLibrary::GetGamepadTypeFlag(Device.GamepadType)) != 0;
+}
+
+bool UJoystickInputSettings::ShouldIgnoreGamepad(const FJoystickInformation& Device) const
+{
+	return IgnoreGamepads && IsIgnoredGamepadType(Device);
 }
 
 FJoystickInputDeviceConfiguration* UJoystickInputSettings::GetDeviceConfiguration(const FString& DeviceHash)
