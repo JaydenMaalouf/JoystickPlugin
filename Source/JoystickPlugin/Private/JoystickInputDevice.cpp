@@ -33,9 +33,10 @@
 #endif
 
 const static FName JoystickCategory = "Joystick";
-static FName JoystickInputInterfaceName = FName("JoystickPluginInput");
 
 const FKeyPair FJoystickInputDevice::InvalidKeyPair;
+const FName FJoystickInputDevice::InputInterfaceName = FName("JoystickPluginInput");
+const FName FJoystickInputDevice::DefaultHardwareDeviceIdentifier = FName("Joystick");
 
 FJoystickInputDevice::FJoystickInputDevice(const TSharedRef<FGenericApplicationMessageHandler>& InMessageHandler) : MessageHandler(InMessageHandler)
 {
@@ -457,8 +458,8 @@ void FJoystickInputDevice::SendControllerEvents()
 		}
 
 #if !(ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 8)
-		const FString HardwareDeviceIdentifier = JoystickInputSettings->UseDeviceNameAsHardwareDeviceIdentifier ? DeviceInfo.DeviceName : "Joystick";
-		FInputDeviceScope InputScope(this, JoystickInputInterfaceName, InstanceId, HardwareDeviceIdentifier);
+		const FString HardwareDeviceIdentifier = JoystickInputSettings->UseDeviceNameAsHardwareDeviceIdentifier ? DeviceInfo.DeviceName : DefaultHardwareDeviceIdentifier.ToString();
+		FInputDeviceScope InputScope(this, InputInterfaceName, InstanceId, HardwareDeviceIdentifier);
 #endif
 
 		// Axis
@@ -724,8 +725,8 @@ void FJoystickInputDevice::JoystickPluggedIn(const FDeviceInfoSDL& Device)
 	// FInputDeviceScope is deprecated in 5.8, hardware info is registered once on connection instead
 	FInputDeviceDescriptor DeviceDescriptor;
 	DeviceDescriptor.HardwareDeviceHandle = Device.GetInputDeviceId();
-	DeviceDescriptor.InputDeviceName = JoystickInputInterfaceName;
-	DeviceDescriptor.HardwareDeviceIdentifier = JoystickInputSettings->UseDeviceNameAsHardwareDeviceIdentifier ? FName(*Device.DeviceName) : FName("Joystick");
+	DeviceDescriptor.InputDeviceName = InputInterfaceName;
+	DeviceDescriptor.HardwareDeviceIdentifier = JoystickInputSettings->UseDeviceNameAsHardwareDeviceIdentifier ? FName(*Device.DeviceName) : DefaultHardwareDeviceIdentifier;
 	FInputDeviceRegistry::RegisterDevice(DeviceDescriptor);
 #endif
 

@@ -55,6 +55,9 @@ public:
 	void UpdateAxisProperties(FJoystickInputDeviceConfiguration* DeviceConfig, FJoystickDeviceState& CurrentState) const;
 	void UpdateButtonProperties(FJoystickInputDeviceConfiguration* DeviceConfig, FJoystickDeviceState& CurrentState) const;
 
+	static const FName InputInterfaceName;
+	static const FName DefaultHardwareDeviceIdentifier;
+
 private:
 	void InitialiseAxis(const FJoystickInstanceId& InstanceId, FJoystickInputDeviceConfiguration* DeviceConfiguration, const FString& BaseKeyName, const FString& BaseDisplayName);
 	void InitialiseButtons(const FJoystickInstanceId& InstanceId, FJoystickInputDeviceConfiguration* DeviceConfiguration, const FString& BaseKeyName, const FString& BaseDisplayName);
